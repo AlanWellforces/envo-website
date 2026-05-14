@@ -1,6 +1,3 @@
-// DRAFT — final location: src/payload/collections/Media.ts
-// Move here when Mackenzie's scaffold lands in Stage 2.
-//
 // Handles all image uploads for the Products collection and other content.
 // Images are auto-resized to thumbnail, card, and detail sizes on upload.
 

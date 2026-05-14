@@ -1,7 +1,3 @@
-// DRAFT — final location: src/payload/collections/Products.ts
-// Move here when Mackenzie's scaffold lands in Stage 2.
-//
-// This replaces both schema.ts and ProductOverrides.collection.ts.
 // Payload IS the product database. Akeneo sync writes into this collection.
 // Editors can change anything from the Payload admin.
 //
