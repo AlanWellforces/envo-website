@@ -149,6 +149,29 @@ Priority 3 (Stage 3 ongoing):
 
 ---
 
+## Git workflow
+
+You do use git — for PRs and doc contributions. Follow this flow:
+
+```bash
+# Start work
+git fetch origin
+git checkout dev
+git pull origin dev
+git checkout -b feature/your-branch-name
+
+# After making changes
+git add .
+git commit -m "your message"
+git push origin feature/your-branch-name
+
+# Then open a PR against dev (not main) on GitHub
+```
+
+**Always PR into `dev`, not `main`.** Main is production — nothing goes there directly.
+
+---
+
 ## Key contacts
 
 - **Alan** — Payload CMS setup, missing fields, technical questions
