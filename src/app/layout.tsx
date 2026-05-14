@@ -1,37 +1,39 @@
-import type { Metadata } from "next";
-import { Geist, Geist_Mono } from "next/font/google";
-import "./globals.css";
-import { Header } from "@/components/layout/header";
-import { Footer } from "@/components/layout/footer";
+import type { Metadata } from 'next'
+import { Inter_Tight } from 'next/font/google'
+import './globals.css'
+import { Sidebar } from '@/components/layout/sidebar'
+import { Footer } from '@/components/layout/footer'
+import { LightBinBar } from '@/components/layout/light-bin-bar'
+import { CursorGlow } from '@/components/layout/cursor-glow'
+import { RevealOnScroll } from '@/components/layout/reveal-on-scroll'
 
-const geistSans = Geist({
-  variable: "--font-geist-sans",
-  subsets: ["latin"],
-});
-
-const geistMono = Geist_Mono({
-  variable: "--font-geist-mono",
-  subsets: ["latin"],
-});
+const interTight = Inter_Tight({
+  variable: '--font-inter-tight',
+  subsets: ['latin'],
+  weight: ['300', '400', '500', '600', '700', '800'],
+})
 
 export const metadata: Metadata = {
-  title: "ENVO — Brand site (scaffold)",
+  title: 'ENVO — Engineered Illumination',
   description:
-    "ENVO brand website scaffold. Phase 2a placeholder — design port comes in Phase 2b.",
-};
+    'ENVO designs and manufactures professional-grade LED lighting systems that power signage and architectural illumination worldwide.',
+}
 
 export default function RootLayout({
   children,
 }: Readonly<{
-  children: React.ReactNode;
+  children: React.ReactNode
 }>) {
   return (
-    <html lang="en" className={`${geistSans.variable} ${geistMono.variable}`}>
+    <html lang="en" className={interTight.variable}>
       <body>
-        <Header />
-        <main className="flex-1">{children}</main>
+        <LightBinBar />
+        <Sidebar />
+        <CursorGlow />
+        {children}
         <Footer />
+        <RevealOnScroll />
       </body>
     </html>
-  );
+  )
 }
