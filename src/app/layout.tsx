@@ -3,7 +3,6 @@ import { Inter_Tight } from 'next/font/google'
 import './globals.css'
 import { Sidebar } from '@/components/layout/sidebar'
 import { Footer } from '@/components/layout/footer'
-import { LightBinBar } from '@/components/layout/light-bin-bar'
 import { CursorGlow } from '@/components/layout/cursor-glow'
 import { RevealOnScroll } from '@/components/layout/reveal-on-scroll'
 
@@ -27,7 +26,6 @@ export default function RootLayout({
   return (
     <html lang="en" className={interTight.variable}>
       <body>
-        <LightBinBar />
         <Sidebar />
         <CursorGlow />
         {children}
