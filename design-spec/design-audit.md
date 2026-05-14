@@ -1,18 +1,18 @@
-# C-Version Design Audit
+# ENVO Website — Design Audit
 
-**Source:** `~/Desktop/ENVO/website/_mockups/mockup-version-c*.html` (10 files, 16,902 lines total)
+**Source mockups:** `~/Desktop/ENVO/website/_mockups/mockup-version-c*.html` (10 files, 16,902 lines total — the third design iteration in the marketing-cyber repo, selected as the design source for the v2 Next.js site).
 **Date:** 2026-05-15
-**Purpose:** Identify a single set of design tokens + shared components for the v2 Next.js port, so every page draws from one design system instead of each page reinventing its own.
+**Purpose:** Identify a single set of design tokens + shared components, so every page draws from one design system instead of each page reinventing its own.
 
 ---
 
 ## TL;DR — what the audit found
 
-**Good news:** c-version isn't 10 chaotic designs. It's **two themes** with deliberate roles, sharing a common brand layer:
+**Good news:** the source mockup files aren't 10 chaotic designs. They form **two themes** with deliberate roles, sharing a common brand layer:
 
 | Theme | Files | Role |
 |---|---|---|
-| **Dark immersive** | `c.html` (home), `c-eco-series.html` | Showcase / hero pages |
+| **Dark immersive** | homepage mockup, eco-series mockup | Showcase / hero pages |
 | **Light catalog** | 8 other files (products / signage / drivers / control / accessories / solutions / projects / support) | Browsable content / nav pages |
 
 **Brand layer is identical everywhere:**
@@ -73,18 +73,18 @@ These are the choices you need to make before we refactor. My technical recommen
 
 | Option | Implication |
 |---|---|
-| **A. Keep both themes** (Recommended) | Match c-version intent. Home + showcase pages stay dark/immersive; catalog/nav pages stay light/readable. Implement as `body[data-theme="dark"]` vs `body[data-theme="light"]` switching CSS variable values. |
-| B. Collapse to dark everywhere | Visual unity but light bg on c-version was deliberate for product reading. Risk: catalog pages look too heavy. |
+| **A. Keep both themes** (Recommended) | Match the source design intent. Home + showcase pages stay dark/immersive; catalog/nav pages stay light/readable. Implement as `body[data-theme="dark"]` vs `body[data-theme="light"]` switching CSS variable values. |
+| B. Collapse to dark everywhere | Visual unity but light bg in the source was deliberate for product reading. Risk: catalog pages look too heavy. |
 | C. Collapse to light everywhere | Loses brand drama; home video bg doesn't pop. Not recommended. |
 
 ### D2 — Token naming
 
-c-version's token names diverge across themes (`--bg` vs `--bg-page`, `--fg-soft` value differs, etc). Pick one canonical naming scheme:
+The source's token names diverge across themes (`--bg` vs `--bg-page`, `--fg-soft` value differs, etc). Pick one canonical naming scheme:
 
 | Option | Example |
 |---|---|
 | **A. Semantic per role** (Recommended) | `--surface-base` / `--surface-elevated` / `--surface-overlay` / `--text-primary` / `--text-muted` — same names in both themes, different values |
-| B. Keep c-version names | `--bg` and `--bg-page` co-exist — confusing, but no rename work |
+| B. Keep source names | `--bg` and `--bg-page` co-exist — confusing, but no rename work |
 | C. Tailwind v4 namespace | `--color-bg-base` / `--color-bg-elevated` — verbose but Tailwind-utility-friendly |
 
 ### D3 — Card components
@@ -96,20 +96,20 @@ c-version's token names diverge across themes (`--bg` vs `--bg-page`, `--fg-soft
 
 ### D4 — Container width
 
-c-version container hops between `1320px` (catalog pages, no sidebar offset) and `1440px` (homepage, with sidebar offset). Choices:
+The source containers hop between `1320px` (catalog pages, no sidebar offset) and `1440px` (homepage, with sidebar offset). Choices:
 
 | Option | Implication |
 |---|---|
 | **A. Single max-width: 1440px** (Recommended) | One value everywhere, sidebar always offsets via `body { padding-left: var(--sidebar-w) }` |
-| B. Two: `--container-narrow: 1320` for catalog, `--container-wide: 1440` for home | Matches c-version pixel-perfect |
+| B. Two: `--container-narrow: 1320` for catalog, `--container-wide: 1440` for home | Matches source pixel-perfect |
 
 ### D5 — Sub-page CSS strategy
 
-c-version has each page's CSS inline (~3000 lines per file). Where do those live in Next.js?
+Each source page has its own CSS inline (~3000 lines per file). Where do those live in Next.js?
 
 | Option | Implication |
 |---|---|
-| **A. One `envo.css` shared layer + per-page tweaks via CSS modules** (Recommended) | Common ~80% of c-version CSS goes to envo.css; truly page-specific bits (eco-series's unique product viewer) get `*.module.css` |
+| **A. One `envo.css` shared layer + per-page tweaks via CSS modules** (Recommended) | Common ~80% of source CSS goes to envo.css; truly page-specific bits (eco-series's unique product viewer) get `*.module.css` |
 | B. All pages share one envo.css, no scoping | Risk: class name collisions, harder to know what's where |
 | C. Per-page CSS files imported in each page.tsx | Cleanest scoping, but lots of files |
 
@@ -132,7 +132,7 @@ Sorted by reuse count across the 10 mockups.
 
 | Component | Reuse | Notes |
 |---|---|---|
-| `<Button>` (variants: primary, ghost, arrow) | 10/10 | Same `.btn` base across all pages. Already partially exists as shadcn `<Button>` — extend with c-version variants. |
+| `<Button>` (variants: primary, ghost, arrow) | 10/10 | Same `.btn` base across all pages. Already partially exists as shadcn `<Button>` — extend with the additional variants from source. |
 | `<Container>` | 10/10 | Already done. |
 | `<Sidebar>` | 10/10 | Already done. |
 | `<Footer>` | 10/10 | Already done (5-col layout). |
@@ -169,7 +169,7 @@ Assuming you accept the recommendations above (or with your own decisions):
 1. Rewrite `globals.css @theme` with the canonical semantic tokens (D2-A)
 2. Add `body[data-theme="dark"]` / `body[data-theme="light"]` switch in CSS
 3. Default body to dark theme (matches home)
-4. Move c-version's `.btn` / `.btn-primary` / `.btn-ghost` into `envo.css` (already there, just confirm clean)
+4. Move the source's `.btn` / `.btn-primary` / `.btn-ghost` into `envo.css` (already there, just confirm clean)
 5. Build `<Button>` React component wrapping those classes
 6. Build `<SectionHead>` React component
 7. Refactor homepage sections to use `<Button>` + `<SectionHead>` (visual unchanged, code cleaner)
@@ -192,15 +192,15 @@ Assuming you accept the recommendations above (or with your own decisions):
 
 ### Round E — Leaf pages (1 session)
 
-1. `/free-layout-design`, `/contact`, `/about`, `/find-your-match` — these don't have c-version mockups (or are very simple). Build from scratch using the established design system.
+1. `/free-layout-design`, `/contact`, `/about`, `/find-your-match` — these don't have source mockups (or are very simple). Build from scratch using the established design system.
 
 ---
 
 ## 5. What this audit does NOT cover
 
-- **Animations / transitions / scroll behaviour**: c-version has cursor-glow, panel-dots, reveal-on-scroll, smooth-scroll. All already in our Phase 2b foundation. Per-page animations (counter animation on hero stats, hero video play handling) handled in the homepage port.
-- **Mobile responsive behaviour**: c-version's responsive rules are in each file's inline `<style>`. These need their own audit when we get to a mobile review pass.
-- **Accessibility**: c-version has some `aria-*` attributes but no systematic a11y review. Worth doing after Round D.
+- **Animations / transitions / scroll behaviour**: The source has cursor-glow, panel-dots, reveal-on-scroll, smooth-scroll. All already in our Phase 2b foundation. Per-page animations (counter animation on hero stats, hero video play handling) handled in the homepage port.
+- **Mobile responsive behaviour**: The source's responsive rules are in each file's inline `<style>`. These need their own audit when we get to a mobile review pass.
+- **Accessibility**: The source has some `aria-*` attributes but no systematic a11y review. Worth doing after Round D.
 - **Copy / content**: this is Wei's domain. Audit just normalises visual presentation.
 - **Find Your Match wizard**: it's a separate SPA-style flow. Not covered here; needs its own design pass.
 
