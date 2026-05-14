@@ -34,7 +34,7 @@ dev → main only via PR when dev is stable and ready to ship.
 ## Stack
 
 ```txt
-Frontend:    Next.js 15 App Router + TypeScript
+Frontend:    Next.js 16 App Router + TypeScript
 Styling:     Tailwind CSS v4 (CSS-first @theme in globals.css — NO v3 syntax)
 UI:          shadcn/ui (New York, Slate)
 CMS:         Payload CMS 3
@@ -93,6 +93,8 @@ src/            →  all production code lives here
 ```
 
 Never import from /design-spec/. Rebuild as clean React components under src/components/.
+
+The current c-version design (dark theme, sidebar layout) is a newer iteration but **not the final design**. Use it as visual reference only during Phase 2b — a final design spec is still coming. Do not treat any c-version detail as locked. Visual decisions remain open until the final spec lands.
 
 ## Legacy files rule
 
