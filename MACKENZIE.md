@@ -118,7 +118,8 @@ main   — protected, production-ready only
 dev    — integration branch, all PRs merge here first
 
 Your flow:
-  git checkout dev
+  git fetch origin
+  git checkout dev          # tracks origin/dev automatically
   git checkout -b feature/nextjs-scaffold
   ... do work ...
   open PR against dev (not main)
