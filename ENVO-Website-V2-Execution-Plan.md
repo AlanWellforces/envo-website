@@ -242,7 +242,7 @@ Use Tailwind CSS v4 only. CSS-first theme config via globals.css @theme.
 ```txt
 1. Update publish.sh to point at renamed archive repo
 2. Rename old repo to marketing-cyber/envo-website-preview-archive
-3. Create new repo marketing-cyber/envo-website
+3. ~~Create new repo marketing-cyber/envo-website~~ — repo exists at AlanWellforces/envo-website
 4. Set branch protection on main (PR + 1 approval)
 5. Create dev branch
 6. Decide legacy reference method (preferred: archive repo only)
