@@ -11,6 +11,26 @@ B2B lead generation site — no ecommerce checkout.
 - **Mackenzie** — frontend, Next.js scaffold, component porting
 - **Wei** — content, Payload CMS authoring, AI prompt direction
 
+## Branch workflow
+
+```
+main   — production-ready only. Never commit directly.
+dev    — integration branch. All PRs merge here first.
+feature/* — where all work happens.
+```
+
+Always work like this — no exceptions:
+```bash
+git fetch origin
+git checkout dev
+git pull origin dev
+git checkout -b feature/your-feature-name
+# ... do work ...
+# open PR against dev, not main
+```
+
+dev → main only via PR when dev is stable and ready to ship.
+
 ## Stack
 
 ```txt
