@@ -1,6 +1,7 @@
 import Link from 'next/link'
 import type { Metadata } from 'next'
 import { EnvoButton } from '@/components/ui/envo-button'
+import { PRODUCT_FAMILIES } from '@/data/product-families'
 
 export const metadata: Metadata = {
   title: 'Products — ENVO',
@@ -13,50 +14,6 @@ const STATS = [
   { label: 'Driver families', value: '3' },
   { label: 'Control protocols', value: '4' },
   { label: 'Warranty', value: '5 years' },
-]
-
-const FAMILIES = [
-  {
-    href: '/products/led-signage-modules',
-    name: 'Signage Modules',
-    tag: 'Modules · Light source',
-    sku: '6 series · 0.36–1.92 W',
-    desc: 'Six module families calibrated for every cabinet depth, brightness target and signage type — from compact channel letters to deep floodlit Quads.',
-    pills: ['6 series', 'IP65 / IP68', '5-yr warranty'],
-    cta: 'Explore modules',
-    img: '/assets/images/cat-modules.png',
-    popular: true,
-  },
-  {
-    href: '/products/led-drivers',
-    name: 'LED Drivers',
-    tag: 'Drivers · Power',
-    sku: '3 series · 30–320 W',
-    desc: 'Constant-voltage power supplies tuned for signage and architectural duty — wide input, low ripple, full protections, weatherproof or panel-mount.',
-    pills: ['3 series', '12 / 24 V', 'IP20 / IP67'],
-    cta: 'Explore drivers',
-    img: '/assets/images/cat-drivers.png',
-  },
-  {
-    href: '/products/control-gear',
-    name: 'Control Gear',
-    tag: 'Control · Logic',
-    sku: '4 series · IR / RF / DMX / Zigbee',
-    desc: 'From single-zone remote dimmers to multi-protocol Zigbee gateways — bridge ENVO drivers to the rest of the lighting ecosystem.',
-    pills: ['4 series', '1–32 zones', 'Smart-home ready'],
-    cta: 'Explore controls',
-    img: '/assets/images/cat-controllers.png',
-  },
-  {
-    href: '/products/accessories',
-    name: 'Accessories',
-    tag: 'Accessories · Hardware',
-    sku: 'Connectors · Cables · Boxes · Hardware',
-    desc: 'Waterproof connectors, pre-tinned cables, junction boxes and mounting brackets — the small parts that make every install cleaner and weather-tight.',
-    pills: ['4 categories', 'IP65 / IP68', 'UL listed'],
-    cta: 'Explore accessories',
-    img: '/assets/images/cat-sensors.png',
-  },
 ]
 
 export default function ProductsPage() {
@@ -96,20 +53,20 @@ export default function ProductsPage() {
 
       <section className="sig-grid-section">
         <div className="sig-grid">
-          {FAMILIES.map((f) => (
+          {PRODUCT_FAMILIES.map((f) => (
             <Link
-              key={f.href}
+              key={f.slug}
               href={f.href}
               className={`sig-card${f.popular ? ' is-popular' : ''}`}
             >
               <div className="sig-img">
-                <img src={f.img} alt={f.name} />
+                <img src={f.image} alt={f.name} />
               </div>
               <div className="sig-body">
                 <span className="sig-tag">{f.tag}</span>
                 <div className="sig-name">{f.name}</div>
                 <div className="sig-sku">{f.sku}</div>
-                <p className="sig-desc">{f.desc}</p>
+                <p className="sig-desc">{f.longDesc}</p>
                 <div className="sig-meta">
                   {f.pills.map((p) => (
                     <span key={p} className="sig-meta-pill">
