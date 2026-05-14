@@ -1,4 +1,4 @@
-import Link from 'next/link'
+import { EnvoButton } from '@/components/ui/envo-button'
 
 const USED_PRODUCTS = [
   { name: 'EcoGlo Quad', meta: 'EV-BLEG04LBY', img: '/assets/images/mod-eco.png' },
@@ -41,9 +41,9 @@ export function FeaturedDetail() {
                 </div>
               ))}
             </div>
-            <Link href="/projects" className="btn btn-ghost">
-              Read full case study <span className="btn-arrow">→</span>
-            </Link>
+            <EnvoButton href="/projects" variant="ghost" arrow>
+              Read full case study
+            </EnvoButton>
           </div>
         </div>
       </div>

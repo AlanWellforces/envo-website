@@ -1,4 +1,4 @@
-import Link from 'next/link'
+import { EnvoButton } from '@/components/ui/envo-button'
 
 export function FinalCta() {
   return (
@@ -10,12 +10,12 @@ export function FinalCta() {
         </h2>
         <p>Find your match in 60 seconds, or talk to an engineer.</p>
         <div className="final-cta-actions">
-          <Link href="/find-your-match" className="btn btn-primary">
-            Find your match <span className="btn-arrow">→</span>
-          </Link>
-          <Link href="/contact" className="btn btn-ghost">
+          <EnvoButton href="/find-your-match" variant="primary" arrow>
+            Find your match
+          </EnvoButton>
+          <EnvoButton href="/contact" variant="ghost">
             Contact engineering
-          </Link>
+          </EnvoButton>
         </div>
       </div>
     </section>

@@ -38,8 +38,10 @@
       outline-offset: 3px;
       border-radius: 4px;
     }
-    html, body { background: var(--bg); color: var(--fg); }
+    /* body bg/color managed in globals.css (white default). Sections set
+       their own bg explicitly when they need dark or light surfaces. */
     body {
+      color: var(--color-on-light);
       font-family: var(--font-inter-tight, 'Inter Tight'), -apple-system, BlinkMacSystemFont, sans-serif;
       font-weight: 400; line-height: 1.6;
       -webkit-font-smoothing: antialiased; -moz-osx-font-smoothing: grayscale;
