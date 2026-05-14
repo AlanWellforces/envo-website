@@ -2,15 +2,39 @@
 
 ## How to identify ENVO products
 
-Filter by category: `envo_nz_driver`
+Filter by brand with locale:
 
 ```
 GET /api/rest/v1/products
-  ?search={"categories":[{"operator":"IN","value":["envo_nz_driver"]}]}
+  ?search={"brand":[{"operator":"IN","value":["envo"],"locale":"en_US"}]}
+  &limit=100
+  &page=1
 ```
 
-Returns ~70 SKUs. This is the correct filter for the sync script.
-Do NOT filter by `brand=envo` — that returns 0 results (locale quirk).
+Returns **314 products** across 4 pages (100 per page). Paginate through all pages.
+The sync script must loop until a page returns fewer than 100 items.
+
+Product families included:
+```
+SC-*        SC Envo Series LED Drivers
+EV-SN*      Snappy Series LED Drivers
+EV-SE-*     US market LED Drivers
+EV-SL-*     SL Series Drivers
+EV-BL*      LED Modules / Bollards
+EV-ZB*      Zigbee Sensors & Controllers
+SR-*        Sunricher LED Controllers
+ENC-*       Constant Current Drivers
+SRP-*       Sunricher DALI/NFC Drivers
+CS-ZB*      Zigbee Controllers
+```
+
+More product families may be added in future — the brand filter handles this automatically.
+
+**Do NOT use `category=envo_nz_driver`** — that only returns 70 LED drivers, missing 244 products.
+
+**Why locale is required:**
+The brand attribute has `locale: "en_US"` set on products.
+Searching without locale returns 0 results. Always include `"locale":"en_US"` in the brand filter.
 
 ---
 
@@ -155,14 +179,35 @@ If the catalogue grows, paginate using `?page=2`, `?page=3` etc.
 ## Sync strategy for Stage 3
 
 ```typescript
+// Fetch all pages — loop until page returns < 100 items
+async function fetchAllEnvoProducts(token: string) {
+  const all = []
+  let page = 1
+  while (true) {
+    const res = await fetch(
+      `https://pim.wellforces.com/api/rest/v1/products?limit=100&page=${page}`,
+      {
+        headers: { Authorization: `Bearer ${token}` },
+        // search param passed as query string — must URL-encode:
+        // search={"brand":[{"operator":"IN","value":["envo"],"locale":"en_US"}]}
+      }
+    )
+    const items = res._embedded.items
+    all.push(...items)
+    if (items.length < 100) break
+    page++
+  }
+  return all  // ~314 products currently
+}
+
 // Idempotent upsert — safe to run multiple times
 async function syncEnvoProducts(token: string) {
-  const products = await fetchAllEnvoProducts(token)  // category: envo_nz_driver
+  const products = await fetchAllEnvoProducts(token)
   for (const p of products) {
-    await db.insert(products)
+    await db.insert(productsTable)
       .values(normalise(p))
       .onConflictDoUpdate({
-        target: products.sku,
+        target: productsTable.sku,
         set: normalise(p)
       })
   }
@@ -175,8 +220,8 @@ async function syncEnvoProducts(token: string) {
 
 | Issue | Notes |
 |-------|-------|
-| `brand=envo` search returns 0 | Use category filter instead |
-| `envo_nz_driver` not in /categories API | Exists on products, works as search filter |
+| `brand=envo` without locale returns 0 | Always include `"locale":"en_US"` in brand filter |
+| `envo_nz_driver` category only returns 70 | Use brand filter — returns all 314 products |
 | Some products have `scope: "ENVO"` (uppercase) not `envo_nz` | Fall back: try ENVO → envo_nz → master_catalogue |
 | bc_width/bc_height/bc_length are often "0mm" | Use width/height/length instead (measurement type) |
 | vendor_name is OEM supplier, not the brand | Ignore vendor_name for display |
