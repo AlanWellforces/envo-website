@@ -1,25 +1,49 @@
 # Drafts
 
-Stage 3 pre-work. These files are ready to use — move them to their final locations
-when Mackenzie's Stage 2 scaffold lands.
+Stage 3 pre-work. Move files to their final locations when Mackenzie's scaffold lands.
 
-| File | Final location |
+| File | Final location | Purpose |
+|---|---|---|
+| `Products.collection.ts` | `src/payload/collections/Products.ts` | Full product admin (replaces schema.ts) |
+| `Media.collection.ts` | `src/payload/collections/Media.ts` | Image uploads |
+
+## Architecture (Option B — Payload as product database)
+
+```
+Akeneo sync → writes into Payload Products collection
+Payload Admin → editors edit name, description, images, spec sheet link, pricing, marketing
+Next.js frontend → reads from Payload API only (one source)
+```
+
+No separate Drizzle products table. Payload manages its own Postgres tables internally.
+
+## Products.collection.ts
+
+Full product admin with 7 tabs:
+
+| Tab | What's in it |
 |---|---|
-| `schema.ts` | `src/lib/db/schema.ts` |
-| `ProductOverrides.collection.ts` | `src/payload/collections/ProductOverrides.ts` |
+| Overview | Name, subtitle, description, enabled/hidden |
+| Media | Upload product image, clean image, spec sheet URL |
+| Specs | Electrical (power, voltage, current, dimming), physical (dimensions, IP, temp), compliance |
+| Pricing | Price NZD, availability, pack qty, lead times |
+| Marketing | Featured, badge, display order, marketing note, application pages, related products |
+| SEO & FAQ | SEO title, meta description, FAQ editor |
+| Sync | SKU, family, series, sync_locked flag, last synced timestamp |
 
-## schema.ts
+**sync_locked:** when checked, Akeneo sync skips this product. Use when you've
+heavily customised a product and don't want it overwritten.
 
-Drizzle product schema — all 30+ Akeneo attributes mapped to Postgres columns.
-Covers every ENVO product attribute including specs, media, SEO, pricing, and sync metadata.
-Also stores raw Akeneo JSON for debugging and future attributes.
+## Media.collection.ts
 
-## ProductOverrides.collection.ts
+Upload images directly from Payload admin. Auto-resizes to:
+- `thumbnail` 200×200 (admin preview)
+- `card` 480×480 (category page cards)
+- `detail` 900×900 (product detail page)
 
-Payload CMS collection for editorial product controls.
-Akeneo owns specs. This collection owns:
-- featured / badge / hidden flags
-- display order within category/application pages
-- marketing note shown on product page
-- which application pages a product appears on (with pinning)
-- manually curated related products
+Accepts JPEG, PNG, WebP, GIF.
+
+## Superseded files
+
+`schema.ts` and `ProductOverrides.collection.ts` are superseded by this approach.
+They can be deleted once the scaffold lands and Products.collection.ts is in place.
