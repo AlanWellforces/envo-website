@@ -2543,3 +2543,276 @@
     .res-name { color: #1a2332; }
     .res-desc { color: #4a5568; }
     .res-cta { color: #5b6a08; }
+
+/* ============================================================
+   Catalog pages — light theme scope.
+   Wrap a page's main content in <div className="theme-light"> to
+   make --fg / --bg-card / --line / etc resolve to the light values
+   inside that subtree. Sidebar sits outside this wrapper and stays
+   dark on every page.
+   ============================================================ */
+.theme-light {
+  --bg:           var(--color-light-bg);
+  --bg-page:      var(--color-light-bg);
+  --bg-page-alt:  var(--color-light-alt);
+  --bg-card:      var(--color-light-card);
+  --fg:           var(--color-on-light);
+  --fg-mute:      var(--color-on-light-mute);
+  --fg-soft:      var(--color-on-light-soft);
+  --line:         var(--color-light-line);
+  --line-strong:  var(--color-light-line-strong);
+  --envo-lime-deep: var(--color-envo-lime-deep);
+  background: var(--color-light-bg);
+  color: var(--color-on-light);
+}
+
+/* Breadcrumb (top of catalog pages) */
+.breadcrumb {
+  padding: 24px 0 0;
+  font-size: 12.5px;
+  color: var(--fg-soft);
+}
+.breadcrumb a { color: var(--fg-mute); transition: color .15s ease; }
+.breadcrumb a:hover { color: var(--envo-blue); }
+.breadcrumb span.sep { margin: 0 8px; color: var(--line-strong); }
+
+/* Catalog hero */
+.sig-hero { padding: 36px 0 56px; }
+.sig-hero-inner { max-width: 860px; }
+.sig-eyebrow {
+  display: inline-flex; align-items: center; gap: 10px;
+  font-size: 11px; letter-spacing: .22em; text-transform: uppercase;
+  color: var(--envo-lime-deep);
+  font-weight: 600;
+  margin-bottom: 22px;
+}
+.sig-eyebrow::before {
+  content: '';
+  width: 28px; height: 1px;
+  background: var(--envo-lime);
+  box-shadow: 0 0 8px rgba(174,201,11,.5);
+}
+.sig-hero h1 {
+  font-size: clamp(40px, 5vw, 72px);
+  font-weight: 700;
+  line-height: 1.02;
+  letter-spacing: -.025em;
+  color: var(--fg);
+  margin-bottom: 18px;
+}
+.sig-hero h1 em {
+  font-style: normal;
+  background: linear-gradient(135deg, var(--envo-blue) 0%, var(--envo-lime-deep) 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+.sig-hero-desc {
+  font-size: 16px;
+  color: var(--fg-mute);
+  max-width: 620px;
+  line-height: 1.55;
+}
+
+/* Stats strip */
+.sig-stats {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 0;
+  max-width: 1400px;
+  margin: 0 auto 56px;
+  padding: 0 max(40px, 4vw);
+}
+.sig-stat {
+  padding: 22px 28px;
+  border-left: 1px solid var(--line);
+  background: #fff;
+  border-top: 1px solid var(--line);
+  border-bottom: 1px solid var(--line);
+}
+.sig-stat:last-child { border-right: 1px solid var(--line); }
+.sig-stat-label {
+  font-size: 10.5px; font-weight: 600;
+  letter-spacing: .14em; text-transform: uppercase;
+  color: var(--fg-soft);
+  margin-bottom: 6px;
+}
+.sig-stat-value {
+  font-size: 22px; font-weight: 700;
+  color: var(--fg);
+  letter-spacing: -.01em;
+}
+
+/* Product family card grid */
+.sig-grid-section { padding: 0 0 88px; }
+.sig-grid {
+  max-width: 1400px;
+  margin: 0 auto;
+  padding: 0 max(40px, 4vw);
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 24px;
+}
+.sig-card {
+  display: flex; flex-direction: column;
+  background: var(--bg-card);
+  border: 1px solid var(--line);
+  border-radius: 14px;
+  overflow: hidden;
+  transition: transform .25s ease, border-color .25s ease, box-shadow .3s ease;
+  text-decoration: none;
+  color: var(--fg);
+  position: relative;
+}
+.sig-card:hover {
+  transform: translateY(-3px);
+  border-color: rgba(0,113,188,.4);
+  box-shadow: 0 16px 40px -12px rgba(0,113,188,.18), 0 0 32px -8px rgba(174,201,11,.1);
+}
+.sig-card.is-popular::before {
+  content: 'Most Popular';
+  position: absolute;
+  top: 14px; right: 14px;
+  padding: 4px 10px;
+  background: var(--envo-lime);
+  color: #1a2332;
+  font-size: 10px; font-weight: 700;
+  letter-spacing: .08em; text-transform: uppercase;
+  border-radius: 999px;
+  z-index: 2;
+}
+.sig-img {
+  aspect-ratio: 4 / 3;
+  background: #fafbfc;
+  display: flex; align-items: center; justify-content: center;
+  overflow: hidden;
+  border-bottom: 1px solid var(--line);
+}
+.sig-img img {
+  max-width: 70%; max-height: 70%;
+  object-fit: contain;
+  transition: transform .35s ease;
+  filter: drop-shadow(0 8px 20px rgba(0,0,0,.12));
+}
+.sig-card:hover .sig-img img { transform: scale(1.06); }
+.sig-body { padding: 22px 24px 24px; flex: 1; display: flex; flex-direction: column; }
+.sig-tag {
+  display: inline-flex; align-items: center;
+  font-size: 10px; font-weight: 700;
+  letter-spacing: .14em; text-transform: uppercase;
+  color: var(--envo-lime-deep);
+  background: rgba(174,201,11,.16);
+  padding: 4px 10px;
+  border-radius: 999px;
+  margin-bottom: 14px;
+  align-self: flex-start;
+}
+.sig-name {
+  font-size: 22px; font-weight: 700;
+  letter-spacing: -.01em;
+  color: var(--fg);
+  margin-bottom: 4px;
+}
+.sig-sku {
+  font-size: 12px;
+  color: var(--envo-blue);
+  margin-bottom: 12px;
+  font-weight: 600;
+  letter-spacing: .02em;
+}
+.sig-desc {
+  font-size: 13.5px;
+  color: var(--fg-mute);
+  line-height: 1.55;
+  margin-bottom: 18px;
+}
+.sig-meta {
+  display: flex; flex-wrap: wrap; gap: 8px;
+  margin-bottom: 20px;
+}
+.sig-meta-pill {
+  display: inline-flex; align-items: center; gap: 4px;
+  font-size: 11px;
+  padding: 4px 10px;
+  background: var(--bg-page);
+  border: 1px solid var(--line);
+  border-radius: 6px;
+  color: var(--fg-mute);
+}
+.sig-meta-pill strong { color: var(--fg); font-weight: 600; }
+.sig-cta {
+  margin-top: auto;
+  font-size: 13px; font-weight: 600;
+  color: var(--envo-blue);
+  display: inline-flex; align-items: center; gap: 6px;
+  letter-spacing: .02em;
+}
+.sig-cta span { transition: transform .25s ease; }
+.sig-card:hover .sig-cta span { transform: translateX(4px); }
+
+/* Catalog CTA banner (dark gradient — sits inside .theme-light page) */
+.sig-cta-banner {
+  padding: 88px 0;
+  background: linear-gradient(135deg, #0a1a2e 0%, #142d4f 100%);
+  color: #fff;
+  position: relative;
+  overflow: hidden;
+}
+.sig-cta-banner::before {
+  content: ''; position: absolute; inset: 0;
+  background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='80' height='80' viewBox='0 0 80 80'><path d='M40 0L80 40L40 80L0 40Z' fill='none' stroke='rgba(174,201,11,0.08)' stroke-width='1'/></svg>");
+  background-size: 80px 80px;
+  mask-image: radial-gradient(ellipse 70% 60% at 50% 50%, #000 0%, transparent 80%);
+  -webkit-mask-image: radial-gradient(ellipse 70% 60% at 50% 50%, #000 0%, transparent 80%);
+}
+.sig-cta-inner {
+  position: relative; z-index: 1;
+  max-width: 920px;
+  margin: 0 auto;
+  padding: 0 max(40px, 4vw);
+  text-align: center;
+}
+.sig-cta-eyebrow {
+  display: inline-flex; align-items: center; gap: 10px;
+  font-size: 11px; letter-spacing: .22em; text-transform: uppercase;
+  color: var(--envo-lime);
+  font-weight: 600;
+  margin-bottom: 18px;
+}
+.sig-cta-eyebrow::before { content: '✦'; font-size: 14px; }
+.sig-cta-banner h2 {
+  font-size: clamp(30px, 4vw, 48px);
+  font-weight: 700;
+  letter-spacing: -.02em;
+  line-height: 1.1;
+  margin-bottom: 14px;
+}
+.sig-cta-banner h2 em {
+  font-style: normal;
+  background: linear-gradient(135deg, var(--envo-blue-glow) 0%, var(--envo-lime) 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+.sig-cta-banner p {
+  font-size: 16px;
+  color: rgba(255,255,255,.75);
+  max-width: 620px;
+  margin: 0 auto 32px;
+  line-height: 1.55;
+}
+.sig-cta-actions {
+  display: inline-flex; gap: 14px; flex-wrap: wrap;
+  justify-content: center;
+}
+
+/* Responsive */
+@media (max-width: 1100px) {
+  .sig-grid { grid-template-columns: repeat(2, 1fr); }
+  .sig-stats { grid-template-columns: repeat(2, 1fr); }
+}
+@media (max-width: 640px) {
+  .sig-grid { grid-template-columns: 1fr; }
+  .sig-stats { grid-template-columns: 1fr; }
+  .sig-hero h1 { font-size: 36px; }
+}
