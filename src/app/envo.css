@@ -523,6 +523,20 @@
       color: var(--envo-lime);
       border-color: rgba(174,201,11,.3);
     }
+    /* Disabled state — series pill with href="#" (coming soon).
+       Visually muted, not interactive, cursor signal. */
+    .pf-links span[aria-disabled="true"] {
+      display: inline-block;
+      font-size: 11px;
+      padding: 4px 10px;
+      background: rgba(255,255,255,.02);
+      border: 1px solid rgba(255,255,255,.04);
+      border-radius: 999px;
+      color: var(--fg-soft);
+      opacity: 0.55;
+      cursor: not-allowed;
+      white-space: nowrap;
+    }
     @media (max-width: 1100px) {
       .pf-grid { grid-template-columns: repeat(2, 1fr); }
     }
@@ -1748,6 +1762,12 @@
     .footer-col li { margin-bottom: 12px; }
     .footer-col a { font-size: 14px; color: var(--fg-mute); transition: color .2s; }
     .footer-col a:hover { color: var(--envo-lime); }
+    .footer-col span[aria-disabled="true"] {
+      font-size: 14px;
+      color: var(--fg-soft);
+      cursor: not-allowed;
+      opacity: 0.55;
+    }
     .footer-newsletter input {
       width: 100%; background: var(--bg-elevated); border: 1px solid var(--line);
       padding: 12px 16px; font-size: 14px; border-radius: 999px;
@@ -1776,6 +1796,12 @@
     .footer-legal { display: flex; gap: 24px; }
     .footer-legal a { font-size: 12px; color: var(--fg-soft); }
     .footer-legal a:hover { color: var(--envo-lime); }
+    .footer-legal span[aria-disabled="true"] {
+      font-size: 12px;
+      color: var(--fg-soft);
+      cursor: not-allowed;
+      opacity: 0.55;
+    }
     .footer-region {
       display: inline-flex; align-items: center; gap: 8px;
       font-size: 12px; color: var(--fg-soft);
@@ -2501,6 +2527,12 @@
       background: rgba(174,201,11,.18);
       color: #5b6a08;
       border-color: rgba(174,201,11,.45);
+    }
+    .pf-links span[aria-disabled="true"] {
+      background: #eef0f3;
+      border-color: rgba(0,0,0,.04);
+      color: #8b9cb0;
+      opacity: 0.7;
     }
 
     /* ===== SOL cards (Solutions) — 保留图卡 + 下半渐变，调一下渐变深度 ===== */
