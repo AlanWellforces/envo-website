@@ -26,11 +26,17 @@ export function ProductFamilies() {
               </Link>
               <div className="pf-desc">{family.shortDesc}</div>
               <div className="pf-links">
-                {family.series.map((s) => (
-                  <Link key={s.label} href={s.href}>
-                    {s.label}
-                  </Link>
-                ))}
+                {family.series.map((s) =>
+                  s.href === '#' ? (
+                    <span key={s.label} aria-disabled="true">
+                      {s.label}
+                    </span>
+                  ) : (
+                    <Link key={s.label} href={s.href}>
+                      {s.label}
+                    </Link>
+                  ),
+                )}
               </div>
             </div>
           </article>

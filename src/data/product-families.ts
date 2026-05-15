@@ -38,7 +38,10 @@ export const PRODUCT_FAMILIES: ProductFamily[] = [
     popular: true,
     series: [
       { label: 'Mini Series', href: '#' },
-      { label: 'Eco Series', href: '/products/signage-eco-series' },
+      // Eco Series gets its own detail page in Round D (per design-audit D6),
+      // a template-driven /products/[slug]/[series]. Until then, '#' so the
+      // home pf-card renders the same "coming soon" disabled state as siblings.
+      { label: 'Eco Series', href: '#' },
       { label: 'Pro Series', href: '#' },
       { label: 'RGB Series', href: '#' },
       { label: '24V Series', href: '#' },
