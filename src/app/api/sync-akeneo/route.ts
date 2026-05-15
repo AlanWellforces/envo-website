@@ -144,14 +144,33 @@ function normalise(p: any) {
     temp_min_c:              getAmount(v, 'temp_min'),
     temp_max_c:              getAmount(v, 'temp_max'),
     standards_met,
-    warranty_years:          getVal(v, 'warranty_years') as number | null,
+    warranty_years:          getVal(v, 'warranty_period') != null ? parseFloat((getVal(v, 'warranty_period') as any)?.amount ?? getVal(v, 'warranty_period')) : null,
     price_nzd:               priceNzd != null ? parseFloat(priceNzd) : null,
     inventory_type:          getString(v, 'inventory_type'),
     pack_qty:                getVal(v, 'pack_qty') as number | null,
     shipping_lead_days:      getAmount(v, 'shipping_lead_time') ?? (getVal(v, 'shipping_lead_time') != null ? parseInt(String(getVal(v, 'shipping_lead_time'))) || null : null),
     manufacturing_lead_days: getAmount(v, 'manufacturing_lead_time') ?? (getVal(v, 'manufacturing_lead_time') != null ? parseInt(String(getVal(v, 'manufacturing_lead_time'))) || null : null),
-    seo_title:               getString(v, 'seo_title'),
-    seo_description:         getString(v, 'seo_meta_description'),
+    // LED / Light Output
+    brightness_lm:           getAmount(v, 'led_light_brightness'),
+    efficacy_lm_w:           getVal(v, 'efficacy') != null ? parseFloat(String(getVal(v, 'efficacy'))) : null,
+    cct_k:                   getVal(v, 'cct_value') != null ? parseFloat(String(getVal(v, 'cct_value'))) : null,
+    cri:                     getVal(v, 'cri') != null ? parseFloat(String(getVal(v, 'cri'))) : null,
+    beam_angle_deg:          getVal(v, 'beam_angle') != null ? parseFloat(String(getVal(v, 'beam_angle'))) : null,
+    lifetime_hrs:            getAmount(v, 'life_time'),
+    max_in_series:           getVal(v, 'max_no_series') != null ? parseFloat(String(getVal(v, 'max_no_series'))) : null,
+    led_chip_colour:         (() => {
+      const raw = getString(v, 'led_chip_colour') ?? ''
+      if (raw.includes('warm') || raw.includes('3000') || raw.includes('2700')) return 'warm_white'
+      if (raw.includes('neutral') || raw.includes('natural') || raw.includes('4000')) return 'natural_white'
+      if (raw.includes('cool') || raw.includes('6000') || raw.includes('7000')) return 'cool_white'
+      if (raw.includes('rgbw')) return 'rgbw'
+      if (raw.includes('rgb')) return 'rgb'
+      if (raw.includes('tunable') || raw.includes('cct')) return 'tunable_white'
+      return null
+    })(),
+
+    seo_title:               getString(v, 'new_seo_title') ?? getString(v, 'seo_title'),
+    seo_description:         getString(v, 'new_seo_meta_description') ?? getString(v, 'seo_meta_description'),
   }
 }
 

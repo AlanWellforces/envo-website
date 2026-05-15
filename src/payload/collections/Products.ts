@@ -189,6 +189,44 @@ export const Products: CollectionConfig = {
             },
             {
               type: 'collapsible',
+              label: 'LED / Light Output',
+              admin: { description: 'Applies to LED modules, strips, and light sources. Leave blank for drivers and controllers.' },
+              fields: [
+                {
+                  type: 'row',
+                  fields: [
+                    { name: 'brightness_lm',    type: 'number', label: 'Brightness (lm)',   admin: { width: '25%' } },
+                    { name: 'efficacy_lm_w',    type: 'number', label: 'Efficacy (lm/W)',   admin: { width: '25%' } },
+                    { name: 'cct_k',            type: 'number', label: 'Colour Temp (K)',   admin: { width: '25%' } },
+                    { name: 'cri',              type: 'number', label: 'CRI',               admin: { width: '25%' } },
+                  ],
+                },
+                {
+                  type: 'row',
+                  fields: [
+                    { name: 'beam_angle_deg',   type: 'number', label: 'Beam Angle (°)',    admin: { width: '25%' } },
+                    { name: 'lifetime_hrs',     type: 'number', label: 'Lifetime (hrs)',    admin: { width: '25%' } },
+                    { name: 'max_in_series',    type: 'number', label: 'Max in Series',     admin: { width: '25%' } },
+                    {
+                      name: 'led_chip_colour',
+                      type: 'select',
+                      label: 'Chip Colour',
+                      options: [
+                        { label: 'Warm White (2700–3000K)',  value: 'warm_white'    },
+                        { label: 'Natural White (4000K)',    value: 'natural_white' },
+                        { label: 'Cool White (6000–7000K)',  value: 'cool_white'    },
+                        { label: 'RGB',                      value: 'rgb'           },
+                        { label: 'RGBW',                     value: 'rgbw'          },
+                        { label: 'Tunable White',            value: 'tunable_white' },
+                      ],
+                      admin: { width: '25%' },
+                    },
+                  ],
+                },
+              ],
+            },
+            {
+              type: 'collapsible',
               label: 'Physical',
               fields: [
                 {
@@ -241,6 +279,9 @@ export const Products: CollectionConfig = {
                     { label: 'FCC',      value: 'c_fcc'  },
                     { label: 'RoHS',     value: 'c_rohs' },
                     { label: 'ENEC',     value: 'c_enec' },
+                    { label: 'BIS',      value: 'c_bis'  },
+                    { label: 'CB',       value: 'c_cb'   },
+                    { label: 'LM-80',    value: 'c_lm80' },
                   ],
                 },
                 {
