@@ -1,3 +1,4 @@
+import Image from 'next/image'
 import Link from 'next/link'
 
 const SOLUTIONS = [
@@ -25,7 +26,12 @@ export function Solutions() {
         {SOLUTIONS.map((s) => (
           <Link key={s.href} href={s.href} className="sol-card">
             <div className="sol-card-img">
-              <img src={s.img} alt={s.name} />
+              <Image
+                src={s.img}
+                alt={s.name}
+                fill
+                sizes="(min-width: 700px) 50vw, 100vw"
+              />
             </div>
             <div className="sol-card-body">
               <div className="sol-name">{s.name}</div>

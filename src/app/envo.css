@@ -807,6 +807,7 @@
       box-shadow: 0 14px 36px -8px rgba(0,0,0,.5);
     }
     .proj-img {
+      position: relative;          /* containing block for next/image fill */
       aspect-ratio: 4 / 3;
       overflow: hidden;
       background: #1a2332;
@@ -1070,6 +1071,7 @@
     .impact-link:hover span { transform: translateX(4px); }
 
     .impact-image {
+      position: relative;          /* containing block for next/image fill */
       border-radius: 10px;
       overflow: hidden;
       background: #1a2332;

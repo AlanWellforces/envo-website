@@ -1,3 +1,4 @@
+import Image from 'next/image'
 import Link from 'next/link'
 
 const PROJECTS = [
@@ -33,7 +34,12 @@ export function Projects() {
         {PROJECTS.map((p) => (
           <Link key={p.name} href="/projects" className="proj-card">
             <div className="proj-img">
-              <img src={p.img} alt={p.name} />
+              <Image
+                src={p.img}
+                alt={p.name}
+                fill
+                sizes="(min-width: 1100px) 25vw, (min-width: 540px) 50vw, 100vw"
+              />
             </div>
             <div className="proj-body">
               <div className="proj-name">{p.name}</div>

@@ -1,3 +1,4 @@
+import Image from 'next/image'
 import Link from 'next/link'
 
 const STATS = [
@@ -67,9 +68,11 @@ export function Impact() {
         </div>
 
         <div className="impact-image">
-          <img
+          <Image
             src="/assets/images/hero-image.jpg"
             alt="ENVO LED facade installation — modular blue light grid"
+            fill
+            sizes="(min-width: 1280px) 30vw, (min-width: 880px) 50vw, 100vw"
           />
         </div>
 

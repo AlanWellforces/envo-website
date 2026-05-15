@@ -1,3 +1,4 @@
+import Image from 'next/image'
 import { EnvoButton } from '@/components/ui/envo-button'
 
 const USED_PRODUCTS = [
@@ -33,7 +34,7 @@ export function FeaturedDetail() {
             <div className="used-products">
               {USED_PRODUCTS.map((p) => (
                 <div key={p.name} className="used-product">
-                  <img src={p.img} alt={p.name} />
+                  <Image src={p.img} alt={p.name} width={40} height={40} />
                   <div className="used-product-text">
                     <div className="used-product-name">{p.name}</div>
                     <div className="used-product-meta">{p.meta}</div>

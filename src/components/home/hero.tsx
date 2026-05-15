@@ -1,5 +1,6 @@
 'use client'
 
+import Image from 'next/image'
 import Link from 'next/link'
 import { useEffect, useRef } from 'react'
 
@@ -136,7 +137,13 @@ export function Hero() {
                 </div>
               </div>
               <div className="hpc-img">
-                <img src={p.img} alt={p.name} />
+                <Image
+                  src={p.img}
+                  alt={p.name}
+                  width={400}
+                  height={300}
+                  sizes="(min-width: 980px) 200px, 30vw"
+                />
               </div>
             </Link>
           ))}
