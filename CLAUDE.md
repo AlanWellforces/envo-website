@@ -34,7 +34,7 @@ dev → main only via PR when dev is stable and ready to ship.
 ## Stack
 
 ```txt
-Frontend:    Next.js 15 App Router + TypeScript
+Frontend:    Next.js 16 App Router + TypeScript
 Styling:     Tailwind CSS v4 (CSS-first @theme in globals.css — NO v3 syntax)
 UI:          shadcn/ui (New York, Slate)
 CMS:         Payload CMS 3
@@ -43,7 +43,7 @@ ORM:         Drizzle ORM (product_* tables only)
 Product src: Akeneo PIM
 Hosting:     Vercel (later)
 Prod DB:     Supabase (later)
-Dev DB:      Docker local or NAS at 192.168.68.80
+Dev DB:      Supabase free (us-west-2) — see notes/2026-05-15-dev-db-supabase.md
 AI:          Anthropic API (server-side only)
 Email:       Resend
 ```
@@ -64,10 +64,14 @@ Never put core AI prompt logic only in Payload.
 Always use `process.env.DATABASE_URL`. Never hardcode a hostname.
 
 ```txt
-Local dev:       docker-compose up -d  (Docker Postgres)
-Shared dev/stg:  NAS Postgres at 192.168.68.80
-Production:      Supabase
+Team dev:        Supabase free (us-west-2)     →  Session Pooler, details in Zoho Vault
+Local dev (opt): docker-compose up -d           (individual offline Postgres on your laptop)
+Off-site backup: MBA saless-macbook-air.local   (nightly pg_dump from Supabase, 14-day retention)
+Production:      Supabase Pro (separate project, region TBD at launch)
 ```
+
+Onboarding + full architecture details in [`notes/2026-05-15-dev-db-supabase.md`](notes/2026-05-15-dev-db-supabase.md).
+Connection string lives in Zoho Vault under **"ENVO Dev Database — Supabase"**.
 
 ## AI prompts
 
@@ -89,6 +93,8 @@ src/            →  all production code lives here
 ```
 
 Never import from /design-spec/. Rebuild as clean React components under src/components/.
+
+The current c-version design (dark theme, sidebar layout) is a newer iteration but **not the final design**. Use it as visual reference only during Phase 2b — a final design spec is still coming. Do not treat any c-version detail as locked. Visual decisions remain open until the final spec lands.
 
 ## Legacy files rule
 
