@@ -1,38 +1,25 @@
 'use client'
 
+import Image from 'next/image'
 import Link from 'next/link'
 import { useEffect, useRef } from 'react'
+import { PRODUCT_FAMILIES } from '@/data/product-families'
 
-const PRODUCTS = [
-  {
-    href: '/products/led-signage-modules',
-    name: 'Signage Module',
-    desc: 'Consistent brightness. Built to last.',
-    cta: 'Explore Modules',
-    img: '/assets/images/cat-modules.png',
-  },
-  {
-    href: '/products/led-drivers',
-    name: 'LED Driver',
-    desc: 'Stable power. Maximum efficiency.',
-    cta: 'Explore Drivers',
-    img: '/assets/images/cat-drivers.png',
-  },
-  {
-    href: '/products/control-gear',
-    name: 'Control Gear',
-    desc: 'Intelligent control. Seamless integration.',
-    cta: 'Explore Control Gear',
-    img: '/assets/images/cat-controllers.png',
-  },
-  {
-    href: '/products/accessories',
-    name: 'Accessories',
-    desc: 'Complete the system. Every detail matters.',
-    cta: 'Explore Accessories',
-    img: '/assets/images/cat-sensors.png',
-  },
-]
+// Hero uses shorter, punchier copy than the canonical PRODUCT_FAMILIES
+// (e.g. "Signage Module" singular vs "Signage Modules" plural). href + image
+// are derived from PRODUCT_FAMILIES so a slug/path/image rename can't drift.
+const HERO_COPY: Record<string, { name: string; desc: string; cta: string }> = {
+  'led-signage-modules': { name: 'Signage Module', desc: 'Consistent brightness. Built to last.',           cta: 'Explore Modules' },
+  'led-drivers':         { name: 'LED Driver',     desc: 'Stable power. Maximum efficiency.',                cta: 'Explore Drivers' },
+  'control-gear':        { name: 'Control Gear',   desc: 'Intelligent control. Seamless integration.',      cta: 'Explore Control Gear' },
+  'accessories':         { name: 'Accessories',    desc: 'Complete the system. Every detail matters.',      cta: 'Explore Accessories' },
+}
+
+const PRODUCTS = PRODUCT_FAMILIES.filter((f) => HERO_COPY[f.slug]).map((f) => ({
+  href: f.href,
+  img: f.image,
+  ...HERO_COPY[f.slug],
+}))
 
 export function Hero() {
   const videoRef = useRef<HTMLVideoElement>(null)
@@ -136,7 +123,13 @@ export function Hero() {
                 </div>
               </div>
               <div className="hpc-img">
-                <img src={p.img} alt={p.name} />
+                <Image
+                  src={p.img}
+                  alt={p.name}
+                  width={400}
+                  height={300}
+                  sizes="(min-width: 980px) 200px, 30vw"
+                />
               </div>
             </Link>
           ))}

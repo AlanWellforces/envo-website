@@ -1,3 +1,4 @@
+import Image from 'next/image'
 import Link from 'next/link'
 import type { Metadata } from 'next'
 import { EnvoButton } from '@/components/ui/envo-button'
@@ -60,7 +61,13 @@ export default function ProductsPage() {
               className={`sig-card${f.popular ? ' is-popular' : ''}`}
             >
               <div className="sig-img">
-                <img src={f.image} alt={f.name} />
+                <Image
+                  src={f.image}
+                  alt={f.name}
+                  width={800}
+                  height={600}
+                  sizes="(min-width: 1100px) 33vw, (min-width: 640px) 50vw, 100vw"
+                />
               </div>
               <div className="sig-body">
                 <span className="sig-tag">{f.tag}</span>

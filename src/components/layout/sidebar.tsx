@@ -1,5 +1,6 @@
 'use client'
 
+import Image from 'next/image'
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
 import { useCallback, useEffect, useRef, useState, useSyncExternalStore } from 'react'
@@ -163,7 +164,13 @@ export function Sidebar() {
       >
         <div className="sidebar-inner">
           <Link href="/" className="sidebar-logo" aria-label="ENVO home" onClick={() => setOpen(false)}>
-            <img src="/assets/images/logo-envo-darkbg.svg" alt="ENVO" />
+            <Image
+              src="/assets/images/logo-envo-darkbg.svg"
+              alt="ENVO"
+              width={108}
+              height={20}
+              priority
+            />
           </Link>
 
           <nav className="sidebar-nav">

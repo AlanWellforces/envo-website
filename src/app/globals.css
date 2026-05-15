@@ -3,165 +3,152 @@
 @import "shadcn/tailwind.css";
 @import "./envo.css";
 
-@custom-variant dark (&:is(.dark *));
-
 @theme {
   --font-sans: var(--font-inter-tight, 'Inter Tight'), -apple-system, BlinkMacSystemFont, sans-serif;
   --font-mono: ui-monospace, SFMono-Regular, monospace;
 
   /* ============================================================
-     ENVO design tokens — single source of truth (D1: no theme switch).
-     Each section / component picks the tokens it needs.
+     ENVO design tokens — semantic per role (D2-A, 2026-05-15).
+
+     Dark values are the page default. A subtree wrapped in
+     <div className="theme-light"> flips surface/text/line tokens
+     to the *-light variants below. The sidebar sits outside
+     .theme-light wrappers and stays dark (D1, 2026-05-15:
+     no user-toggleable theme switch).
+
+     Tokens live under the --color-* namespace so Tailwind v4
+     auto-generates utilities (bg-surface-base, text-text-muted,
+     border-line, etc.).
      ============================================================ */
 
-  /* Dark surfaces (homepage, immersive showcase pages) */
-  --color-dark-bg:            #050b1a;
-  --color-dark-elevated:      #0a1a2e;
-  --color-dark-surface:       #102542;
-  --color-dark-card:          #142d4f;
+  /* Surfaces — dark (default) */
+  --color-surface-base:     #050b1a;
+  --color-surface-elevated: #0a1a2e;
+  --color-surface-overlay:  #102542;
+  --color-surface-card:     #142d4f;
 
-  /* Text on dark surfaces */
-  --color-on-dark:            #f5f7fa;
-  --color-on-dark-mute:       #8b9cb0;
-  --color-on-dark-soft:       #5a6c80;
+  /* Surfaces — light variants */
+  --color-surface-base-light:     #f4f5f7;
+  --color-surface-elevated-light: #eaecf0;
+  --color-surface-card-light:     #ffffff;
 
-  /* Faint blue glow lines (dark theme borders/dividers) */
-  --color-dark-line:          rgba(77, 195, 255, 0.1);
-  --color-dark-line-strong:   rgba(77, 195, 255, 0.18);
+  /* Text — dark (default) */
+  --color-text-primary: #f5f7fa;
+  --color-text-muted:   #8b9cb0;
+  --color-text-subtle:  #5a6c80;
 
-  /* Light surfaces (catalog, content-heavy pages) */
-  --color-light-bg:           #f4f5f7;
-  --color-light-alt:          #eaecf0;
-  --color-light-card:         #ffffff;
+  /* Text — light variants */
+  --color-text-primary-light: #1a2332;
+  --color-text-muted-light:   #4a5568;
+  --color-text-subtle-light:  #6a7a8a;
 
-  /* Text on light surfaces */
-  --color-on-light:           #1a2332;
-  --color-on-light-mute:      #4a5568;
-  --color-on-light-soft:      #6a7a8a;
-  --color-on-light-dark-mute: #8b9cb0;
+  /* Lines — dark default (faint blue glow) */
+  --color-line:        rgb(77 195 255 / 0.10);
+  --color-line-strong: rgb(77 195 255 / 0.18);
 
-  /* Hairline borders on light surfaces */
-  --color-light-line:         #e2e5ea;
-  --color-light-line-strong:  #d5d9e0;
+  /* Lines — light variants (gray hairline) */
+  --color-line-light:        #e2e5ea;
+  --color-line-strong-light: #d5d9e0;
 
-  /* Brand — same across all sections */
-  --color-envo-blue:          #0071bc;
-  --color-envo-blue-glow:     #4dc3ff;
-  --color-envo-lime:          #aec90b;
-  --color-envo-lime-glow:     #c8e62a;
-  --color-envo-lime-deep:     #5b6a08;
+  /* Brand — same across themes */
+  --color-brand-blue:      #0071bc;
+  --color-brand-blue-glow: #4dc3ff;
+  --color-brand-lime:      #aec90b;
+  --color-brand-lime-glow: #c8e62a;
+  --color-brand-lime-deep: #5b6a08;
 }
 
-html,
-body {
-  height: 100%;
-}
-
+html, body { height: 100%; }
 body {
   min-height: 100%;
-  background: #ffffff;
+  background: var(--color-surface-base);
+  color: var(--color-text-primary);
 }
 
 /* ============================================================
-   Legacy aliases — let envo.css (extracted verbatim from the
-   source mockup) keep working without a mass rename. New code
-   should reference the canonical --color-* tokens above instead.
+   .theme-light — scoped wrapper that flips surface/text/line
+   tokens to their light values within a subtree. Catalog pages
+   wrap their content in <div className="theme-light">; the
+   sidebar sits outside it and stays dark. Tailwind utilities
+   (bg-surface-base, text-text-primary, ...) pick up whichever
+   value the cascade resolves to, so the same utility class
+   renders dark in the homepage and light inside a catalog page.
+   ============================================================ */
+.theme-light {
+  --color-surface-base:     var(--color-surface-base-light);
+  --color-surface-elevated: var(--color-surface-elevated-light);
+  --color-surface-card:     var(--color-surface-card-light);
+  --color-text-primary:     var(--color-text-primary-light);
+  --color-text-muted:       var(--color-text-muted-light);
+  --color-text-subtle:      var(--color-text-subtle-light);
+  --color-line:             var(--color-line-light);
+  --color-line-strong:      var(--color-line-strong-light);
+
+  background: var(--color-surface-base);
+  color: var(--color-text-primary);
+
+  /* Legacy aliases also flip inside this wrapper (see :root block) */
+  --bg:          var(--color-surface-base);
+  --bg-elevated: var(--color-surface-elevated);
+  --bg-card:     var(--color-surface-card);
+  --fg:          var(--color-text-primary);
+  --fg-mute:     var(--color-text-muted);
+  --fg-soft:     var(--color-text-subtle);
+  --line:        var(--color-line);
+  --line-strong: var(--color-line-strong);
+}
+
+/* ============================================================
+   Legacy aliases — compatibility shim for envo.css and any
+   component that still uses the old short token names from the
+   source mockup (--bg / --fg / --line / --envo-blue / ...). They
+   bridge those references to the canonical --color-* tokens
+   above. New code MUST use the semantic --color-* tokens (or
+   Tailwind utilities derived from them). Scheduled for removal
+   after envo.css migration completes (target: post-Round C).
    ============================================================ */
 :root {
-  --bg:           var(--color-dark-bg);
-  --bg-elevated:  var(--color-dark-elevated);
-  --bg-surface:   var(--color-dark-surface);
-  --bg-card:      var(--color-dark-card);
-  --fg:           var(--color-on-dark);
-  --fg-mute:      var(--color-on-dark-mute);
-  --fg-soft:      var(--color-on-dark-soft);
-  --line:         var(--color-dark-line);
-  --line-strong: var(--color-dark-line-strong);
-  --envo-blue:      var(--color-envo-blue);
-  --envo-blue-glow: var(--color-envo-blue-glow);
-  --envo-lime:      var(--color-envo-lime);
-  --envo-lime-glow: var(--color-envo-lime-glow);
-}
+  /* short-name aliases (envo.css source mockup convention) */
+  --bg:             var(--color-surface-base);
+  --bg-elevated:    var(--color-surface-elevated);
+  --bg-surface:     var(--color-surface-overlay);
+  --bg-card:        var(--color-surface-card);
+  --fg:             var(--color-text-primary);
+  --fg-mute:        var(--color-text-muted);
+  --fg-soft:        var(--color-text-subtle);
+  --line:           var(--color-line);
+  --line-strong:    var(--color-line-strong);
+  --envo-blue:      var(--color-brand-blue);
+  --envo-blue-glow: var(--color-brand-blue-glow);
+  --envo-lime:      var(--color-brand-lime);
+  --envo-lime-glow: var(--color-brand-lime-glow);
+  --envo-lime-deep: var(--color-brand-lime-deep);
 
-@theme inline {
-  --font-heading: var(--font-sans);
-  --color-sidebar-ring: var(--sidebar-ring);
-  --color-sidebar-border: var(--sidebar-border);
-  --color-sidebar-accent-foreground: var(--sidebar-accent-foreground);
-  --color-sidebar-accent: var(--sidebar-accent);
-  --color-sidebar-primary-foreground: var(--sidebar-primary-foreground);
-  --color-sidebar-primary: var(--sidebar-primary);
-  --color-sidebar-foreground: var(--sidebar-foreground);
-  --color-sidebar: var(--sidebar);
-  --color-chart-5: var(--chart-5);
-  --color-chart-4: var(--chart-4);
-  --color-chart-3: var(--chart-3);
-  --color-chart-2: var(--chart-2);
-  --color-chart-1: var(--chart-1);
-  --color-ring: var(--ring);
-  --color-input: var(--input);
-  --color-border: var(--border);
-  --color-destructive: var(--destructive);
-  --color-accent-foreground: var(--accent-foreground);
-  --color-accent: var(--accent);
-  --color-muted-foreground: var(--muted-foreground);
-  --color-muted: var(--muted);
-  --color-secondary-foreground: var(--secondary-foreground);
-  --color-secondary: var(--secondary);
-  --color-primary-foreground: var(--primary-foreground);
-  --color-primary: var(--primary);
-  --color-popover-foreground: var(--popover-foreground);
-  --color-popover: var(--popover);
-  --color-card-foreground: var(--card-foreground);
-  --color-card: var(--card);
-  --color-foreground: var(--foreground);
-  --color-background: var(--background);
-  --radius-sm: calc(var(--radius) * 0.6);
-  --radius-md: calc(var(--radius) * 0.8);
-  --radius-lg: var(--radius);
-  --radius-xl: calc(var(--radius) * 1.4);
-  --radius-2xl: calc(var(--radius) * 1.8);
-  --radius-3xl: calc(var(--radius) * 2.2);
-  --radius-4xl: calc(var(--radius) * 2.6);
-}
+  /* legacy theme-named --color-* aliases (also referenced by
+     envo.css's body rule + a couple of inline styles in
+     page-stub.tsx — kept until those callers migrate) */
+  --color-dark-bg:            var(--color-surface-base);
+  --color-dark-elevated:      var(--color-surface-elevated);
+  --color-dark-surface:       var(--color-surface-overlay);
+  --color-dark-card:          var(--color-surface-card);
+  --color-on-dark:            var(--color-text-primary);
+  --color-on-dark-mute:       var(--color-text-muted);
+  --color-on-dark-soft:       var(--color-text-subtle);
+  --color-dark-line:          var(--color-line);
+  --color-dark-line-strong:   var(--color-line-strong);
 
-:root {
-  --background: oklch(1 0 0);
-  --foreground: oklch(0.145 0 0);
-  --card: oklch(1 0 0);
-  --card-foreground: oklch(0.145 0 0);
-  --popover: oklch(1 0 0);
-  --popover-foreground: oklch(0.145 0 0);
-  --primary: oklch(0.205 0 0);
-  --primary-foreground: oklch(0.985 0 0);
-  --secondary: oklch(0.97 0 0);
-  --secondary-foreground: oklch(0.205 0 0);
-  --muted: oklch(0.97 0 0);
-  --muted-foreground: oklch(0.556 0 0);
-  --accent: oklch(0.97 0 0);
-  --accent-foreground: oklch(0.205 0 0);
-  --destructive: oklch(0.577 0.245 27.325);
-  --border: oklch(0.922 0 0);
-  --input: oklch(0.922 0 0);
-  --ring: oklch(0.708 0 0);
-  --chart-1: oklch(0.87 0 0);
-  --chart-2: oklch(0.556 0 0);
-  --chart-3: oklch(0.439 0 0);
-  --chart-4: oklch(0.371 0 0);
-  --chart-5: oklch(0.269 0 0);
-  --radius: 0.625rem;
-  --sidebar: oklch(0.985 0 0);
-  --sidebar-foreground: oklch(0.145 0 0);
-  --sidebar-primary: oklch(0.205 0 0);
-  --sidebar-primary-foreground: oklch(0.985 0 0);
-  --sidebar-accent: oklch(0.97 0 0);
-  --sidebar-accent-foreground: oklch(0.205 0 0);
-  --sidebar-border: oklch(0.922 0 0);
-  --sidebar-ring: oklch(0.708 0 0);
-}
+  --color-light-bg:           var(--color-surface-base-light);
+  --color-light-alt:          var(--color-surface-elevated-light);
+  --color-light-card:         var(--color-surface-card-light);
+  --color-on-light:           var(--color-text-primary-light);
+  --color-on-light-mute:      var(--color-text-muted-light);
+  --color-on-light-soft:      var(--color-text-subtle-light);
+  --color-light-line:         var(--color-line-light);
+  --color-light-line-strong:  var(--color-line-strong-light);
 
-@layer base {
-  * {
-    @apply border-border outline-ring/50;
-  }
+  --color-envo-blue:          var(--color-brand-blue);
+  --color-envo-blue-glow:     var(--color-brand-blue-glow);
+  --color-envo-lime:          var(--color-brand-lime);
+  --color-envo-lime-glow:     var(--color-brand-lime-glow);
+  --color-envo-lime-deep:     var(--color-brand-lime-deep);
 }

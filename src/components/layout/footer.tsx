@@ -1,3 +1,4 @@
+import Image from 'next/image'
 import Link from 'next/link'
 
 export function Footer() {
@@ -6,7 +7,12 @@ export function Footer() {
       <div className="container">
         <div className="footer-grid">
           <div className="footer-brand">
-            <img src="/assets/images/logo-envo-darkbg.svg" alt="ENVO" />
+            <Image
+              src="/assets/images/logo-envo-darkbg.svg"
+              alt="ENVO"
+              width={120}
+              height={22}
+            />
             <p>Engineered illumination to elevate performance.</p>
             <a href="mailto:contact@envo.com" className="footer-brand-email">
               contact@envo.com

@@ -1,3 +1,4 @@
+import Image from 'next/image'
 import Link from 'next/link'
 import { PRODUCT_FAMILIES } from '@/data/product-families'
 
@@ -11,7 +12,13 @@ export function ProductFamilies() {
         {PRODUCT_FAMILIES.map((family) => (
           <article key={family.slug} className="pf-card">
             <div className="pf-img">
-              <img src={family.image} alt={family.name} />
+              <Image
+                src={family.image}
+                alt={family.name}
+                width={600}
+                height={450}
+                sizes="(min-width: 1100px) 25vw, (min-width: 540px) 50vw, 100vw"
+              />
             </div>
             <div className="pf-body">
               <Link href={family.href} className="pf-name">
