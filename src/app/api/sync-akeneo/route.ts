@@ -171,6 +171,47 @@ function normalise(p: any) {
 
     seo_title:               getString(v, 'new_seo_title') ?? getString(v, 'seo_title'),
     seo_description:         getString(v, 'new_seo_meta_description') ?? getString(v, 'seo_meta_description'),
+
+    // CC driver range
+    cc_region_min:           getAmount(v, 'cc_region_min'),
+    cc_region_max:           getAmount(v, 'cc_region_max'),
+
+    // Driver / Controller
+    controller_type:         (() => {
+      const raw = getVal(v, 'controller_type')
+      const arr: string[] = Array.isArray(raw) ? raw : raw ? [String(raw)] : []
+      return arr.length ? arr : null
+    })(),
+    output_channel:          getString(v, 'output_channel'),
+    output_type:             getString(v, 'output_type'),
+    module_size:             getVal(v, 'module_size') != null ? parseFloat(String(getVal(v, 'module_size'))) : null,
+    switch_no_module:        getVal(v, 'switch_no_module') != null ? parseFloat(String(getVal(v, 'switch_no_module'))) : null,
+    switch_operation_method: getString(v, 'switch_operation_method'),
+    switch_back_light:       getVal(v, 'switch_back_light') as boolean | null,
+    mounting_info:           getString(v, 'mounting_info'),
+    finish_colour:           getString(v, 'finish_colour'),
+    material:                getString(v, 'material'),
+
+    // Sensor
+    sensor_type:             (() => {
+      const raw = (getString(v, 'sensor_type') ?? '').toLowerCase()
+      const map: Record<string, string> = {
+        pir: 'pir', microwave: 'microwave', daylight: 'daylight', dual: 'dual',
+        'pir+microwave': 'dual', pir_microwave: 'dual',
+      }
+      return map[raw] ?? null
+    })(),
+    technology:              getString(v, 'technology'),
+    maximum_detection_range: getString(v, 'maximum_detection_range'),
+    multiway:                getVal(v, 'multiway') as boolean | null,
+
+    // LED module
+    led_pitch:               getAmount(v, 'led_pitch'),
+    led_light_power_input:   (() => {
+      const raw = getVal(v, 'led_light_power_input')
+      const arr: string[] = Array.isArray(raw) ? raw : raw ? [String(raw)] : []
+      return arr.length ? arr : null
+    })(),
   }
 }
 
@@ -187,6 +228,10 @@ export async function GET(req: NextRequest) {
     const products = await fetchEnvoProducts(token, limit, sku)
 
     for (const p of products) {
+      if (!p.family) {
+        results.push({ sku: p.identifier, status: 'skipped' })
+        continue
+      }
       const data = normalise(p)
       try {
         const existing = await payload.find({
@@ -207,9 +252,10 @@ export async function GET(req: NextRequest) {
       }
     }
 
-    const ok = results.filter(r => r.status !== 'error').length
-    const failed = results.filter(r => r.status === 'error').length
-    return NextResponse.json({ ok, failed, results })
+    const ok      = results.filter(r => r.status === 'created' || r.status === 'updated').length
+    const failed   = results.filter(r => r.status === 'error').length
+    const skipped  = results.filter(r => r.status === 'skipped').length
+    return NextResponse.json({ ok, failed, skipped, results })
 
   } catch (e: any) {
     return NextResponse.json({ error: e.message }, { status: 500 })

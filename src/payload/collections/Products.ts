@@ -185,6 +185,91 @@ export const Products: CollectionConfig = {
                     { label: 'Zigbee',      value: 'zigbee'  },
                   ],
                 },
+                {
+                  type: 'row',
+                  fields: [
+                    { name: 'cc_region_min', type: 'number', label: 'CC Region Min (V)', admin: { width: '50%' } },
+                    { name: 'cc_region_max', type: 'number', label: 'CC Region Max (V)', admin: { width: '50%' } },
+                  ],
+                },
+              ],
+            },
+            {
+              type: 'collapsible',
+              label: 'Driver / Controller',
+              admin: { description: 'Applies to PSU controllers and switch modules. Leave blank for other families.' },
+              fields: [
+                {
+                  type: 'row',
+                  fields: [
+                    {
+                      name: 'controller_type',
+                      type: 'json',
+                      label: 'Controller Type',
+                      admin: { description: 'Raw array from Akeneo. e.g. ["push_dim","rf"]', width: '50%' },
+                    },
+                    {
+                      name: 'output_channel',
+                      type: 'text',
+                      label: 'Output Channel',
+                      admin: { width: '50%', description: 'e.g. 1ch, rgb, rgbw, cct' },
+                    },
+                  ],
+                },
+                {
+                  type: 'row',
+                  fields: [
+                    {
+                      name: 'output_type',
+                      type: 'text',
+                      label: 'Output Type',
+                      admin: { width: '33%', description: 'e.g. cv, cc, pwm' },
+                    },
+                    { name: 'module_size',      type: 'number', label: 'Module Size',            admin: { width: '33%' } },
+                    { name: 'switch_no_module', type: 'number', label: 'No. of Switch Modules',  admin: { width: '33%' } },
+                  ],
+                },
+                {
+                  type: 'row',
+                  fields: [
+                    {
+                      name: 'switch_operation_method',
+                      type: 'text',
+                      label: 'Switch Operation',
+                      admin: { width: '33%', description: 'e.g. push, touch, rotary' },
+                    },
+                    {
+                      name: 'mounting_info',
+                      type: 'text',
+                      label: 'Mounting',
+                      admin: { width: '33%', description: 'e.g. surface, recessed, din_rail, in_wall' },
+                    },
+                    {
+                      name: 'switch_back_light',
+                      type: 'checkbox',
+                      label: 'Switch Backlight',
+                      defaultValue: false,
+                      admin: { width: '33%' },
+                    },
+                  ],
+                },
+                {
+                  type: 'row',
+                  fields: [
+                    {
+                      name: 'finish_colour',
+                      type: 'text',
+                      label: 'Finish Colour',
+                      admin: { width: '50%', description: 'e.g. white, black, silver' },
+                    },
+                    {
+                      name: 'material',
+                      type: 'text',
+                      label: 'Material',
+                      admin: { width: '50%', description: 'e.g. aluminum, plastic, steel' },
+                    },
+                  ],
+                },
               ],
             },
             {
@@ -223,6 +308,18 @@ export const Products: CollectionConfig = {
                     },
                   ],
                 },
+                {
+                  type: 'row',
+                  fields: [
+                    { name: 'led_pitch', type: 'number', label: 'LED Pitch (mm)', admin: { width: '50%' } },
+                    {
+                      name: 'led_light_power_input',
+                      type: 'json',
+                      label: 'LED Light Power Input',
+                      admin: { description: 'Raw array from Akeneo.', width: '50%' },
+                    },
+                  ],
+                },
               ],
             },
             {
@@ -258,6 +355,48 @@ export const Products: CollectionConfig = {
                     { name: 'temp_min_c', type: 'number', label: 'Temp Min (°C)', admin: { width: '33%' } },
                     { name: 'temp_max_c', type: 'number', label: 'Temp Max (°C)', admin: { width: '33%' } },
                   ],
+                },
+              ],
+            },
+            {
+              type: 'collapsible',
+              label: 'Sensor',
+              admin: { description: 'Applies to sensor products only. Leave blank for other families.' },
+              fields: [
+                {
+                  type: 'row',
+                  fields: [
+                    {
+                      name: 'sensor_type',
+                      type: 'select',
+                      label: 'Sensor Type',
+                      options: [
+                        { label: 'PIR',                  value: 'pir'       },
+                        { label: 'Microwave',            value: 'microwave' },
+                        { label: 'Daylight',             value: 'daylight'  },
+                        { label: 'Dual (PIR+Microwave)', value: 'dual'      },
+                      ],
+                      admin: { width: '33%' },
+                    },
+                    {
+                      name: 'technology',
+                      type: 'text',
+                      label: 'Technology',
+                      admin: { width: '33%', description: 'e.g. pir, microwave, infrared' },
+                    },
+                    {
+                      name: 'maximum_detection_range',
+                      type: 'text',
+                      label: 'Max Detection Range',
+                      admin: { width: '33%', description: 'e.g. 12m, 6m radius' },
+                    },
+                  ],
+                },
+                {
+                  name: 'multiway',
+                  type: 'checkbox',
+                  label: 'Multiway Compatible',
+                  defaultValue: false,
                 },
               ],
             },
