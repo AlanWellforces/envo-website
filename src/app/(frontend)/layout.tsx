@@ -1,6 +1,6 @@
 import type { Metadata } from 'next'
 import { Inter_Tight } from 'next/font/google'
-import './globals.css'
+import '../globals.css'
 import { Sidebar } from '@/components/layout/sidebar'
 import { Footer } from '@/components/layout/footer'
 import { CursorGlow } from '@/components/layout/cursor-glow'
