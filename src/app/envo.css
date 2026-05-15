@@ -2544,27 +2544,10 @@
     .res-desc { color: #4a5568; }
     .res-cta { color: #5b6a08; }
 
-/* ============================================================
-   Catalog pages — light theme scope.
-   Wrap a page's main content in <div className="theme-light"> to
-   make --fg / --bg-card / --line / etc resolve to the light values
-   inside that subtree. Sidebar sits outside this wrapper and stays
-   dark on every page.
-   ============================================================ */
-.theme-light {
-  --bg:           var(--color-light-bg);
-  --bg-page:      var(--color-light-bg);
-  --bg-page-alt:  var(--color-light-alt);
-  --bg-card:      var(--color-light-card);
-  --fg:           var(--color-on-light);
-  --fg-mute:      var(--color-on-light-mute);
-  --fg-soft:      var(--color-on-light-soft);
-  --line:         var(--color-light-line);
-  --line-strong:  var(--color-light-line-strong);
-  --envo-lime-deep: var(--color-envo-lime-deep);
-  background: var(--color-light-bg);
-  color: var(--color-on-light);
-}
+/* .theme-light wrapper now lives in globals.css (moved during the
+   token rewrite, 2026-05-15). The flip from dark → light surfaces
+   for catalog pages still happens by wrapping content in
+   <div className="theme-light">; behaviour is unchanged. */
 
 /* Breadcrumb (top of catalog pages) */
 .breadcrumb {
