@@ -188,8 +188,8 @@ export const Products: CollectionConfig = {
                 {
                   type: 'row',
                   fields: [
-                    { name: 'cc_region_min', type: 'number', label: 'CC Region Min (V)', admin: { width: '50%' } },
-                    { name: 'cc_region_max', type: 'number', label: 'CC Region Max (V)', admin: { width: '50%' } },
+                    { name: 'cc_region_min', type: 'number', label: 'Min Output Voltage (V)', admin: { width: '50%' } },
+                    { name: 'cc_region_max', type: 'number', label: 'Max Output Voltage (V)', admin: { width: '50%' } },
                   ],
                 },
               ],
