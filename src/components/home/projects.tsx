@@ -1,28 +1,6 @@
 import Image from 'next/image'
 import Link from 'next/link'
-
-const PROJECTS = [
-  {
-    name: 'Retail Signage',
-    desc: 'Global sign solutions with ENVO.',
-    img: '/assets/images/ind-retail.jpg',
-  },
-  {
-    name: 'Hotel Facade',
-    desc: 'Elegant architectural lighting that stands out.',
-    img: '/assets/images/ind-hospitality.jpg',
-  },
-  {
-    name: 'Storefront',
-    desc: 'Impactful lighting for premium storefronts.',
-    img: '/assets/images/ind-commercial.jpg',
-  },
-  {
-    name: 'Canopy Signage',
-    desc: 'High-performance solutions for outdoor excellence.',
-    img: '/assets/images/ind-architectural.jpg',
-  },
-]
+import { PROJECTS } from '@/data/projects'
 
 export function Projects() {
   return (
@@ -32,7 +10,7 @@ export function Projects() {
       </div>
       <div className="proj-grid">
         {PROJECTS.map((p) => (
-          <Link key={p.name} href="/projects" className="proj-card">
+          <Link key={p.slug} href="/projects" className="proj-card">
             <div className="proj-img">
               <Image
                 src={p.img}

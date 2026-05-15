@@ -1,20 +1,6 @@
 import Image from 'next/image'
 import Link from 'next/link'
-
-const SOLUTIONS = [
-  {
-    href: '/solutions/signage-lighting',
-    name: 'Signage Lighting',
-    desc: 'High-performance solutions for channel letters, light boxes, and edge-lit signage.',
-    img: '/assets/images/ind-retail.jpg',
-  },
-  {
-    href: '/solutions/architectural-lighting',
-    name: 'Architectural Lighting',
-    desc: 'Accent, linear, facade, step, and landscape architectural lighting for LED systems.',
-    img: '/assets/images/ind-architectural.jpg',
-  },
-]
+import { SOLUTIONS } from '@/data/solutions'
 
 export function Solutions() {
   return (
@@ -24,7 +10,7 @@ export function Solutions() {
       </div>
       <div className="sol-grid">
         {SOLUTIONS.map((s) => (
-          <Link key={s.href} href={s.href} className="sol-card">
+          <Link key={s.slug} href={s.href} className="sol-card">
             <div className="sol-card-img">
               <Image
                 src={s.img}
@@ -35,7 +21,7 @@ export function Solutions() {
             </div>
             <div className="sol-card-body">
               <div className="sol-name">{s.name}</div>
-              <div className="sol-desc">{s.desc}</div>
+              <div className="sol-desc">{s.shortDesc}</div>
               <div className="sol-cta">
                 Explore solutions <span>→</span>
               </div>
