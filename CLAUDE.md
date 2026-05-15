@@ -26,10 +26,16 @@ git checkout dev
 git pull origin dev
 git checkout -b feature/your-feature-name
 # ... do work ...
+# rebase on latest dev before pushing:
+git fetch origin && git rebase origin/dev
+# push (first time: -u; after rebase: --force-with-lease)
+git push -u origin feature/your-feature-name
 # open PR against dev, not main
 ```
 
 dev → main only via PR when dev is stable and ready to ship.
+
+See [`git-workflow.md`](git-workflow.md) for the full reference — rebase flow, conflict handling, `--force-with-lease` safety, the "when unsure, ask" rule, and the team cheat sheet.
 
 ## Stack
 
