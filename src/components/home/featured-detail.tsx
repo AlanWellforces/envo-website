@@ -14,6 +14,13 @@ export function FeaturedDetail() {
       <div className="container">
         <div className="featured-grid">
           <div className="featured-image reveal">
+            <Image
+              src="/assets/images/ind-architectural.jpg"
+              alt="Auckland CBD commercial facade lit at night with ENVO modules"
+              fill
+              sizes="(min-width: 1280px) 56vw, (min-width: 980px) 60vw, 100vw"
+              style={{ objectFit: 'cover' }}
+            />
             <span className="featured-image-tag">★ Featured project</span>
           </div>
           <div className="featured-content reveal" data-delay="1">

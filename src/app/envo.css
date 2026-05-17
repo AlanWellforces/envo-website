@@ -1433,11 +1433,11 @@
     }
     .featured-image {
       height: 600px;
-      background: url('/assets/images/ind-architectural.jpg') center/cover no-repeat;
       border-radius: 20px;
       position: relative; overflow: hidden;
       box-shadow: 0 30px 80px -24px rgba(0,0,0,.5);
     }
+    .featured-image > img { border-radius: 20px; }
     .featured-image::after {
       content: ''; position: absolute; inset: 0;
       background: linear-gradient(180deg, transparent 50%, rgba(5,11,26,.4) 100%);
@@ -1520,6 +1520,10 @@
       letter-spacing: .005em;
     }
     .quote-attribution strong { color: #1d1d1f; font-weight: 600; }
+    @media (max-width: 540px) {
+      .quote-section { padding: 72px 0; }
+      .quote-section blockquote { margin-bottom: 24px; }
+    }
 
     /* ========== FLD BANNER (rhythm break #3 — LIGHT)
        "trade-in" 风格：浅底 + 居中文字 + 单一 CTA + 无装饰
