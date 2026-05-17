@@ -20,11 +20,11 @@ export function FeaturedDetail() {
             <div className="section-eyebrow" style={{ marginBottom: 16 }}>
               Auckland CBD · Commercial facade
             </div>
-            <h3>
+            <h2>
               One specification.
               <br />
               <em>Years of consistent light.</em>
-            </h3>
+            </h2>
             <p>
               EcoGlo Quad modules, Linear driver banks, and a single zigbee gateway delivered
               facade-grade uniformity across multiple installation phases — same colour binning,

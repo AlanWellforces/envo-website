@@ -25,7 +25,7 @@ const NAV = [
     href: '/',
     label: 'Home',
     icon: (
-      <svg className="sidebar-icon" viewBox="0 0 24 24">
+      <svg className="sidebar-icon" viewBox="0 0 24 24" aria-hidden="true">
         <path d="M3 12l9-9 9 9" />
         <path d="M5 10v10h14V10" />
         <path d="M10 20v-6h4v6" />
@@ -37,7 +37,7 @@ const NAV = [
     href: '/products',
     label: 'Product',
     icon: (
-      <svg className="sidebar-icon" viewBox="0 0 24 24">
+      <svg className="sidebar-icon" viewBox="0 0 24 24" aria-hidden="true">
         <rect x="3" y="3" width="18" height="18" rx="2" />
         <path d="M3 9h18M3 15h18M9 3v18M15 3v18" />
       </svg>
@@ -48,7 +48,7 @@ const NAV = [
     href: '/solutions',
     label: 'Solutions',
     icon: (
-      <svg className="sidebar-icon" viewBox="0 0 24 24">
+      <svg className="sidebar-icon" viewBox="0 0 24 24" aria-hidden="true">
         <path d="M9 18h6" />
         <path d="M10 22h4" />
         <path d="M12 2a7 7 0 0 0-4 12.6A4.5 4.5 0 0 1 9 18h6a4.5 4.5 0 0 1 1-3.4A7 7 0 0 0 12 2z" />
@@ -60,7 +60,7 @@ const NAV = [
     href: '/projects',
     label: 'Project',
     icon: (
-      <svg className="sidebar-icon" viewBox="0 0 24 24">
+      <svg className="sidebar-icon" viewBox="0 0 24 24" aria-hidden="true">
         <rect x="3" y="3" width="18" height="18" rx="2" />
         <circle cx="9" cy="9" r="2" />
         <path d="M21 15l-5-5L5 21" />
@@ -72,7 +72,7 @@ const NAV = [
     href: '/support',
     label: 'Support',
     icon: (
-      <svg className="sidebar-icon" viewBox="0 0 24 24">
+      <svg className="sidebar-icon" viewBox="0 0 24 24" aria-hidden="true">
         <path d="M3 18v-6a9 9 0 0 1 18 0v6" />
         <path d="M21 19a2 2 0 0 1-2 2h-1v-6h3v4z" />
         <path d="M3 19a2 2 0 0 0 2 2h1v-6H3v4z" />
@@ -149,6 +149,7 @@ export function Sidebar() {
           strokeWidth="2"
           strokeLinecap="round"
           strokeLinejoin="round"
+          aria-hidden="true"
         >
           <line x1="3" y1="6" x2="21" y2="6" />
           <line x1="3" y1="12" x2="21" y2="12" />
