@@ -9,7 +9,7 @@ import { RevealOnScroll } from '@/components/layout/reveal-on-scroll'
 const interTight = Inter_Tight({
   variable: '--font-inter-tight',
   subsets: ['latin'],
-  weight: ['300', '400', '500', '600', '700', '800'],
+  weight: ['400', '500', '600', '700'],
 })
 
 export const metadata: Metadata = {
