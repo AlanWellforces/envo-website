@@ -1433,11 +1433,11 @@
     }
     .featured-image {
       height: 600px;
-      background: url('/assets/images/ind-architectural.jpg') center/cover no-repeat;
       border-radius: 20px;
       position: relative; overflow: hidden;
       box-shadow: 0 30px 80px -24px rgba(0,0,0,.5);
     }
+    .featured-image > img { border-radius: 20px; }
     .featured-image::after {
       content: ''; position: absolute; inset: 0;
       background: linear-gradient(180deg, transparent 50%, rgba(5,11,26,.4) 100%);
@@ -1452,13 +1452,13 @@
       border-radius: 999px;
       backdrop-filter: blur(12px);
     }
-    .featured-content h3 {
+    .featured-content h2 {
       font-size: clamp(32px, 4vw, 56px);
       font-weight: 600; line-height: 1.05; letter-spacing: -.02em;
       margin-bottom: 16px;
       color: #fff;
     }
-    .featured-content h3 em {
+    .featured-content h2 em {
       font-style: normal;
       color: var(--envo-lime);
     }
@@ -1481,10 +1481,7 @@
       background: var(--bg-elevated);
       border: 1px solid var(--line);
       border-radius: 12px;
-      transition: border-color .2s;
-      cursor: pointer;
     }
-    .used-product:hover { border-color: rgba(174,201,11,.4); }
     .used-product img {
       width: 40px; height: 40px; object-fit: contain;
       filter: drop-shadow(0 2px 6px rgba(0,0,0,.3));
@@ -1520,6 +1517,10 @@
       letter-spacing: .005em;
     }
     .quote-attribution strong { color: #1d1d1f; font-weight: 600; }
+    @media (max-width: 540px) {
+      .quote-section { padding: 72px 0; }
+      .quote-section blockquote { margin-bottom: 24px; }
+    }
 
     /* ========== FLD BANNER (rhythm break #3 — LIGHT)
        "trade-in" 风格：浅底 + 居中文字 + 单一 CTA + 无装饰
@@ -1717,6 +1718,13 @@
       background: var(--envo-lime-glow);
       box-shadow: 0 0 20px rgba(174,201,11,.4);
     }
+    .news-status {
+      min-height: 1.4em;
+      margin-top: 12px;
+      font-size: 13px;
+      color: var(--envo-lime);
+    }
+    .news-status:empty { visibility: hidden; }
     @media (max-width: 540px) {
       .news-form { flex-direction: column; }
     }
@@ -1736,7 +1744,7 @@
     @media (max-width: 640px) {
       .footer-grid { grid-template-columns: 1fr 1fr; }
     }
-    .footer-brand img { height: 22px; margin-bottom: 20px; }
+    .footer-brand img { height: 22px; width: auto; margin-bottom: 20px; }
     .footer-brand p {
       font-size: 14px; color: var(--fg-mute); line-height: 1.6; max-width: 280px;
       margin-bottom: 20px;
@@ -1889,18 +1897,18 @@
       transition: height .32s cubic-bezier(.4, 0, .2, 1);
     }
     body.sidebar-collapsed .sidebar-logo { padding: 14px 8px 18px; }
-    body.sidebar-collapsed .sidebar-logo img { height: 14px; }
+    body.sidebar-collapsed .sidebar-logo img { height: 14px; width: auto; }
     .sidebar-logo:hover img {
-      filter: drop-shadow(0 0 8px rgba(174,201,11,.5));
+      filter: drop-shadow(0 0 8px rgba(77,195,255,.55));
     }
     @keyframes logoPulse {
-      0%, 100% { filter: drop-shadow(0 0 0 rgba(174,201,11,0)); }
-      50%      { filter: drop-shadow(0 0 6px rgba(174,201,11,.35)); }
+      0%, 100% { filter: drop-shadow(0 0 0 rgba(77,195,255,0)); }
+      50%      { filter: drop-shadow(0 0 6px rgba(77,195,255,.4)); }
     }
     .sidebar-logo::after {
       content: ''; position: absolute; bottom: 0; left: 18px; right: 18px;
       height: 1px;
-      background: linear-gradient(90deg, transparent 0%, rgba(174,201,11,.3) 50%, transparent 100%);
+      background: linear-gradient(90deg, transparent 0%, rgba(77,195,255,.32) 50%, transparent 100%);
     }
 
     /* ===== Nav grouped sections（每组小眼眉 + table-cell 风的 link 卡片） ===== */
@@ -1936,19 +1944,44 @@
       color: #fff;
     }
     .sidebar-link.active {
-      background: rgba(174,201,11,.16);
-      color: var(--envo-lime);
+      background: rgba(77,195,255,.14);
+      color: var(--envo-blue-glow);
     }
     .sidebar-link.active .sidebar-icon {
-      filter: drop-shadow(0 0 5px rgba(174,201,11,.5));
+      filter: drop-shadow(0 0 6px rgba(77,195,255,.6))
+              drop-shadow(0 0 16px rgba(77,195,255,.22));
     }
     .sidebar-icon {
       flex-shrink: 0;
       width: 18px; height: 18px;
       stroke: currentColor; stroke-width: 1.7; fill: none;
       stroke-linecap: round; stroke-linejoin: round;
-      transition: transform .25s cubic-bezier(.34,1.56,.64,1);
+      transition: transform .25s cubic-bezier(.34,1.56,.64,1),
+                  filter .25s ease;
     }
+    /* Duotone fill layer — sits behind the stroke detail */
+    .sidebar-icon .duotone-fill {
+      fill: var(--envo-blue-glow);
+      opacity: .22;
+      stroke: none;
+      transition: fill .25s ease, opacity .25s ease;
+    }
+    .sidebar-link:hover:not(.active) .sidebar-icon .duotone-fill {
+      opacity: .34;
+    }
+    .sidebar-link.active .sidebar-icon .duotone-fill {
+      fill: var(--envo-blue-glow);
+      opacity: .42;
+    }
+    /* "lit" accent — picks up currentColor (gray default, lime active) */
+    .sidebar-icon .duotone-fill-strong {
+      fill: currentColor;
+      opacity: .55;
+      stroke: none;
+      transition: opacity .25s ease;
+    }
+    .sidebar-link:hover:not(.active) .sidebar-icon .duotone-fill-strong { opacity: .75; }
+    .sidebar-link.active .sidebar-icon .duotone-fill-strong { opacity: .9; }
     .sidebar-link:hover .sidebar-icon { transform: scale(1.1); }
     .sidebar-label {
       font-size: 13px;
@@ -2111,10 +2144,14 @@
       font-family: inherit;
       transition: color .2s ease, border-color .2s ease, background .2s ease;
     }
-    .sidebar-region:hover {
+    .sidebar-region:not(:disabled):hover {
       color: #fff;
       border-color: rgba(255,255,255,.12);
       background: rgba(255,255,255,.04);
+    }
+    .sidebar-region:disabled {
+      cursor: default;
+      opacity: .6;
     }
     .sidebar-region svg {
       width: 12px; height: 12px;
@@ -2331,9 +2368,9 @@
       border-radius: 2px;
       box-shadow: 0 0 8px rgba(174,201,11,.5);
     }
-    /* Push content down so the sub-nav doesn't cover hero top */
-    body { padding-top: 43px; }       /* 3px light-bin + 40px sub-nav */
-    body.sidebar-collapsed { padding-top: 43px; }
+    /* Push content down only when the sub-nav is visible
+       (TopSubnav toggles body.has-topsubnav based on pathname) */
+    body.has-topsubnav { padding-top: 43px; }       /* 3px light-bin + 40px sub-nav */
 
     /* ===== Diamondback pattern 作 dark section 底纹（hero + cases + featured-detail + final-cta）
        呼应 EcoGlo Quad 4LED diamond optic — ENVO 真实产品几何 */

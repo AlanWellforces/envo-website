@@ -4,7 +4,7 @@ import { SOLUTIONS } from '@/data/solutions'
 
 export function Solutions() {
   return (
-    <section className="sol-section" id="solutions">
+    <section className="sol-section">
       <div className="sol-head">
         <h2 className="sol-heading">Solutions for every application</h2>
       </div>

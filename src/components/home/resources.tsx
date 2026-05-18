@@ -3,7 +3,7 @@ import { RESOURCES } from '@/data/resources'
 
 export function Resources() {
   return (
-    <section className="res-section" id="support">
+    <section className="res-section">
       <div className="res-head">
         <h2 className="res-heading">Tools &amp; Resources</h2>
       </div>
