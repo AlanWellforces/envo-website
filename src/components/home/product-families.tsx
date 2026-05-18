@@ -4,7 +4,7 @@ import { PRODUCT_FAMILIES } from '@/data/product-families'
 
 export function ProductFamilies() {
   return (
-    <section className="pf-section" id="products">
+    <section className="pf-section">
       <div className="pf-head">
         <h2 className="pf-heading">Explore our product families</h2>
       </div>

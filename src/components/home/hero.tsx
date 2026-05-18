@@ -58,7 +58,7 @@ export function Hero() {
         muted
         loop
         playsInline
-        preload="auto"
+        preload="metadata"
       >
         <source src="/assets/videos/hero-led-night.mp4" type="video/mp4" />
       </video>

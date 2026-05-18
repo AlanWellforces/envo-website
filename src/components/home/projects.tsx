@@ -4,7 +4,7 @@ import { PROJECTS } from '@/data/projects'
 
 export function Projects() {
   return (
-    <section className="proj-section" id="projects">
+    <section className="proj-section">
       <div className="proj-head">
         <h2 className="proj-heading">Proven in real-world projects</h2>
       </div>

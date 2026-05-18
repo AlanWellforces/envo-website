@@ -133,8 +133,9 @@ export function Sidebar() {
         ref={toggleRef}
         type="button"
         className="mobile-menu-toggle"
-        aria-label="Open menu"
+        aria-label={open ? 'Close menu' : 'Open menu'}
         aria-controls="sidebar"
+        aria-expanded={open}
         onClick={(e) => {
           e.stopPropagation()
           setOpen((o) => !o)
@@ -207,7 +208,12 @@ export function Sidebar() {
               <span className="sidebar-cta-sub">60-sec wizard</span>
             </Link>
 
-            <button type="button" className="sidebar-region" aria-label="Change region">
+            <button
+              type="button"
+              className="sidebar-region"
+              aria-label="Region: US Global (region selector coming soon)"
+              disabled
+            >
               <svg viewBox="0 0 24 24" aria-hidden="true">
                 <circle cx="12" cy="12" r="9" />
                 <path d="M3 12h18M12 3a14 14 0 0 1 0 18M12 3a14 14 0 0 0 0 18" />
