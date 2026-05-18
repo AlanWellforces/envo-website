@@ -5,7 +5,24 @@
 //   - /products catalog page       (full cards with tag / sku / pills)
 //   - footer Products column
 
-export type SeriesLink = { label: string; href: string }
+// SeriesLink is a discriminated union. Series whose href is '#' are not yet
+// live — UI renders a disabled "Coming soon" pill. Live series carry slug +
+// seriesCode (Akeneo `series` attribute value) so the detail page can query
+// products via lib/products.ts → listProducts({ family, series }).
+export type SeriesLink =
+  | { label: string; href: '#' }
+  | {
+      label: string
+      href: string
+      /** URL segment under /products/[slug]/. */
+      slug: string
+      /** Akeneo `series` attribute value (matches `products.series` in the DB). */
+      seriesCode: string
+      /** Short label shown under the breadcrumb on the detail page. */
+      subtitle: string
+      /** Hero paragraph on the detail page. */
+      description: string
+    }
 
 export type ProductFamily = {
   slug: string
@@ -18,6 +35,8 @@ export type ProductFamily = {
   pills: string[]
   cta: string
   image: string
+  /** Akeneo family code (matches `products.family` in the DB). */
+  familyCode: string
   series: SeriesLink[]
   popular?: boolean
 }
@@ -35,13 +54,19 @@ export const PRODUCT_FAMILIES: ProductFamily[] = [
     pills: ['6 series', 'IP65 / IP68', '5-yr warranty'],
     cta: 'Explore modules',
     image: '/assets/images/cat-modules.png',
+    familyCode: 'led_module',
     popular: true,
     series: [
       { label: 'Mini Series', href: '#' },
-      // Eco Series gets its own detail page in Round D (per design-audit D6),
-      // a template-driven /products/[slug]/[series]. Until then, '#' so the
-      // home pf-card renders the same "coming soon" disabled state as siblings.
-      { label: 'Eco Series', href: '#' },
+      {
+        label: 'Eco Series',
+        href: '/products/led-signage-modules/eco-series',
+        slug: 'eco-series',
+        seriesCode: 'envo_ecoglo',
+        subtitle: 'Backlit LED module · Signage Modules',
+        description:
+          'A cost-tuned backlit LED module family for channel letters and shallow cabinets. Calibrated brightness and even diffusion across the spec, in single- through quad-LED variants — built for installers spec-ing volume jobs without compromising signage quality.',
+      },
       { label: 'Pro Series', href: '#' },
       { label: 'RGB Series', href: '#' },
       { label: '24V Series', href: '#' },
@@ -60,6 +85,7 @@ export const PRODUCT_FAMILIES: ProductFamily[] = [
     pills: ['3 series', '12 / 24 V', 'IP20 / IP67'],
     cta: 'Explore drivers',
     image: '/assets/images/cat-drivers.png',
+    familyCode: 'psu_led_cv',
     series: [
       { label: 'Linear Series', href: '#' },
       { label: 'Screw Terminal', href: '#' },
@@ -78,6 +104,7 @@ export const PRODUCT_FAMILIES: ProductFamily[] = [
     pills: ['4 series', '1–32 zones', 'Smart-home ready'],
     cta: 'Explore controls',
     image: '/assets/images/cat-controllers.png',
+    familyCode: 'psu_led_controller',
     series: [
       { label: 'Remote & Receiver', href: '#' },
       { label: 'Signal Converter', href: '#' },
@@ -97,6 +124,7 @@ export const PRODUCT_FAMILIES: ProductFamily[] = [
     pills: ['4 categories', 'IP65 / IP68', 'UL listed'],
     cta: 'Explore accessories',
     image: '/assets/images/cat-sensors.png',
+    familyCode: 'accessory_general',
     series: [
       { label: 'Connector', href: '#' },
       { label: 'Cable', href: '#' },
