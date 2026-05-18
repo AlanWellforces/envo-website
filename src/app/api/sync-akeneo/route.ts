@@ -127,7 +127,7 @@ function normalise(p: any) {
     hidden:                  false,
     image_url_fallback:      imgArr[0]?.aws ?? imgArr[0]?._links?.download?.href ?? null,
     clean_image_url_fallback: cleanArr[0]?.aws ?? cleanArr[0]?._links?.download?.href ?? null,
-    spec_sheet_url:          getString(v, 'spec_sheet') ?? getString(v, 'datasheet_url'),
+    spec_sheet_url:          (v.spec_sheet?.[0]?.aws ?? v.spec_sheet?.[0]?._links?.download?.href) ?? getString(v, 'datasheet_url'),
     power_w:                 getAmount(v, 'power_rating'),
     output_voltage_v:        getAmount(v, 'output_voltage'),
     input_voltage_min_v:     getAmount(v, 'input_voltage_min'),
