@@ -26,6 +26,7 @@ const NAV = [
     label: 'Home',
     icon: (
       <svg className="sidebar-icon" viewBox="0 0 24 24" aria-hidden="true">
+        <path className="duotone-fill" d="M5 10.5l7-7 7 7V20H5z" />
         <path d="M3 12l9-9 9 9" />
         <path d="M5 10v10h14V10" />
         <path d="M10 20v-6h4v6" />
@@ -38,6 +39,10 @@ const NAV = [
     label: 'Product',
     icon: (
       <svg className="sidebar-icon" viewBox="0 0 24 24" aria-hidden="true">
+        <path
+          className="duotone-fill"
+          d="M4 4h5v5H4zM15 4h5v5h-5zM4 15h5v5H4zM15 15h5v5h-5z"
+        />
         <rect x="3" y="3" width="18" height="18" rx="2" />
         <path d="M3 9h18M3 15h18M9 3v18M15 3v18" />
       </svg>
@@ -49,6 +54,10 @@ const NAV = [
     label: 'Solutions',
     icon: (
       <svg className="sidebar-icon" viewBox="0 0 24 24" aria-hidden="true">
+        <path
+          className="duotone-fill"
+          d="M12 3a6 6 0 0 0-3.4 11A4.2 4.2 0 0 1 9.5 16.5h5a4.2 4.2 0 0 1 .9-2.5A6 6 0 0 0 12 3z"
+        />
         <path d="M9 18h6" />
         <path d="M10 22h4" />
         <path d="M12 2a7 7 0 0 0-4 12.6A4.5 4.5 0 0 1 9 18h6a4.5 4.5 0 0 1 1-3.4A7 7 0 0 0 12 2z" />
@@ -61,9 +70,17 @@ const NAV = [
     label: 'Project',
     icon: (
       <svg className="sidebar-icon" viewBox="0 0 24 24" aria-hidden="true">
-        <rect x="3" y="3" width="18" height="18" rx="2" />
-        <circle cx="9" cy="9" r="2" />
-        <path d="M21 15l-5-5L5 21" />
+        <rect className="duotone-fill" x="5" y="3" width="14" height="18" rx="1" />
+        <rect x="5" y="3" width="14" height="18" rx="1" />
+        <path d="M5 9h14M5 15h14" />
+        <rect
+          className="duotone-fill-strong"
+          x="9.5"
+          y="10.5"
+          width="5"
+          height="3"
+          rx="0.3"
+        />
       </svg>
     ),
   },
@@ -73,6 +90,10 @@ const NAV = [
     label: 'Support',
     icon: (
       <svg className="sidebar-icon" viewBox="0 0 24 24" aria-hidden="true">
+        <path
+          className="duotone-fill"
+          d="M3 15h3v6H3zM18 15h3v6h-3z"
+        />
         <path d="M3 18v-6a9 9 0 0 1 18 0v6" />
         <path d="M21 19a2 2 0 0 1-2 2h-1v-6h3v4z" />
         <path d="M3 19a2 2 0 0 0 2 2h1v-6H3v4z" />

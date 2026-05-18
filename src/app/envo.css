@@ -1948,15 +1948,40 @@
       color: var(--envo-lime);
     }
     .sidebar-link.active .sidebar-icon {
-      filter: drop-shadow(0 0 5px rgba(174,201,11,.5));
+      filter: drop-shadow(0 0 6px rgba(174,201,11,.55))
+              drop-shadow(0 0 16px rgba(174,201,11,.22));
     }
     .sidebar-icon {
       flex-shrink: 0;
       width: 18px; height: 18px;
       stroke: currentColor; stroke-width: 1.7; fill: none;
       stroke-linecap: round; stroke-linejoin: round;
-      transition: transform .25s cubic-bezier(.34,1.56,.64,1);
+      transition: transform .25s cubic-bezier(.34,1.56,.64,1),
+                  filter .25s ease;
     }
+    /* Duotone fill layer — sits behind the stroke detail */
+    .sidebar-icon .duotone-fill {
+      fill: var(--envo-blue-glow);
+      opacity: .22;
+      stroke: none;
+      transition: fill .25s ease, opacity .25s ease;
+    }
+    .sidebar-link:hover:not(.active) .sidebar-icon .duotone-fill {
+      opacity: .34;
+    }
+    .sidebar-link.active .sidebar-icon .duotone-fill {
+      fill: var(--envo-lime);
+      opacity: .38;
+    }
+    /* "lit" accent — picks up currentColor (gray default, lime active) */
+    .sidebar-icon .duotone-fill-strong {
+      fill: currentColor;
+      opacity: .55;
+      stroke: none;
+      transition: opacity .25s ease;
+    }
+    .sidebar-link:hover:not(.active) .sidebar-icon .duotone-fill-strong { opacity: .75; }
+    .sidebar-link.active .sidebar-icon .duotone-fill-strong { opacity: .9; }
     .sidebar-link:hover .sidebar-icon { transform: scale(1.1); }
     .sidebar-label {
       font-size: 13px;
