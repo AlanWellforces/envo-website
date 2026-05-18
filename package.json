@@ -9,7 +9,7 @@
     "lint": "eslint",
     "typecheck": "tsc --noEmit",
     "payload": "payload",
-    "generate:types": "payload generate:types",
+    "generate:types": "tsx --tsconfig tsconfig.json scripts/generate-types.mts",
     "generate:importmap": "payload generate:importmap"
   },
   "dependencies": {
