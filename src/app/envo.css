@@ -2421,6 +2421,47 @@
       .cursor-glow { display: none; }
     }
 
+    /* ===== Back-to-top floating button (global) =====
+       Fixed bottom-right. Hidden until visible state set by the
+       <BackToTop> client component once scrollY crosses the threshold. */
+    .back-to-top {
+      position: fixed;
+      right: 24px;
+      bottom: 24px;
+      width: 46px;
+      height: 46px;
+      border-radius: 50%;
+      background: var(--envo-blue);
+      color: #fff;
+      border: 1px solid rgba(255,255,255,.18);
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      box-shadow: 0 8px 22px -6px rgba(0, 113, 188, .35), 0 0 0 1px rgba(0,0,0,.04);
+      opacity: 0;
+      transform: translateY(8px);
+      pointer-events: none;
+      transition: opacity .25s ease, transform .25s ease, background .2s ease, box-shadow .2s ease;
+      z-index: 40;
+    }
+    .back-to-top.is-visible {
+      opacity: 1;
+      transform: translateY(0);
+      pointer-events: auto;
+    }
+    .back-to-top:hover {
+      background: #005c9c;
+      box-shadow: 0 10px 26px -6px rgba(0, 113, 188, .5);
+    }
+    .back-to-top:focus-visible {
+      outline: 2px solid var(--envo-lime);
+      outline-offset: 3px;
+    }
+    @media (max-width: 640px) {
+      .back-to-top { right: 16px; bottom: 16px; width: 42px; height: 42px; }
+    }
+
     /* ===== Mobile sidebar: full-width drawer ===== */
     @media (max-width: 980px) {
       body { padding-left: 0; }

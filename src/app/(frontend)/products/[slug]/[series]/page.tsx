@@ -4,13 +4,12 @@ import Link from 'next/link'
 import { notFound } from 'next/navigation'
 import { EnvoButton } from '@/components/ui/envo-button'
 import { PRODUCT_FAMILIES, type SeriesLink } from '@/data/product-families'
-import { listProducts, type Product } from '@/lib/products'
+import { PURCHASE_CHANNELS } from '@/data/purchase-channels'
 import familyStyles from '../page.module.css'
 import styles from './page.module.css'
 
 type Params = Promise<{ slug: string; series: string }>
 
-/** Narrow a SeriesLink to its live (non-`#`) variant. */
 type LiveSeries = Extract<SeriesLink, { slug: string }>
 
 function isLive(s: SeriesLink): s is LiveSeries {
@@ -35,33 +34,10 @@ export async function generateMetadata({ params }: { params: Params }): Promise<
   const seriesObj = family?.series.find((s): s is LiveSeries => isLive(s) && s.slug === series)
   if (!family || !seriesObj) return {}
   return {
-    title: `${seriesObj.label} — ${family.name} — ENVO`,
+    title: `${seriesObj.label} · ${seriesObj.productName} — ENVO`,
     description: seriesObj.description,
   }
 }
-
-// ---- formatters ------------------------------------------------------------
-
-function fmtRange(values: (number | null)[], unit: string): string | null {
-  const nums = values.filter((v): v is number => v != null)
-  if (nums.length === 0) return null
-  const min = Math.min(...nums)
-  const max = Math.max(...nums)
-  return min === max ? `${min} ${unit}` : `${min}–${max} ${unit}`
-}
-
-function fmtList(values: (string | null)[]): string | null {
-  const set = new Set(values.filter((v): v is string => v != null && v !== ''))
-  if (set.size === 0) return null
-  return [...set].sort().join(' / ')
-}
-
-function fmtIp(value: string | null): string {
-  if (!value) return '—'
-  return value.toUpperCase().replace(/_/g, ' ')
-}
-
-// ---- page ------------------------------------------------------------------
 
 export default async function SeriesDetailPage({ params }: { params: Params }) {
   const { slug, series } = await params
@@ -70,27 +46,8 @@ export default async function SeriesDetailPage({ params }: { params: Params }) {
   const seriesObj = family.series.find((s): s is LiveSeries => isLive(s) && s.slug === series)
   if (!seriesObj) notFound()
 
-  const { docs: products } = await listProducts({
-    family: family.familyCode,
-    series: seriesObj.seriesCode,
-    limit: 100,
-  })
-
-  const variantCount = products.length
-  const powerRange = fmtRange(
-    products.map((p) => p.power_w),
-    'W',
-  )
-  const cctList = fmtList(products.map((p) => (p.cct_k != null ? `${p.cct_k}K` : null)))
-  const ipList = fmtList(products.map((p) => (p.waterproof ? fmtIp(p.waterproof) : null)))
-
-  // Sibling series (same family, excluding current). Used for the bottom strip.
+  const applications = seriesObj.applications ?? family.applications ?? []
   const siblings = family.series.filter((s) => !(isLive(s) && s.slug === series))
-
-  // Unique datasheets across variants — small download list.
-  const datasheets = Array.from(
-    new Set(products.map((p) => p.spec_sheet_url).filter((u): u is string => !!u)),
-  )
 
   return (
     <div className="theme-light">
@@ -106,157 +63,300 @@ export default async function SeriesDetailPage({ params }: { params: Params }) {
         </div>
       </div>
 
+      {/* ============== HERO — text-left + product-image-right ============== */}
       <section className="sig-hero">
-        <div className="container">
-          <div className="sig-hero-inner">
-            <span className="sig-eyebrow">{seriesObj.subtitle}</span>
-            <h1>{seriesObj.label}</h1>
-            <p className="sig-hero-desc">{seriesObj.description}</p>
-          </div>
-        </div>
-      </section>
-
-      <div className={familyStyles.heroImage}>
-        <div className={familyStyles.heroImageInner}>
-          <Image
-            src={family.image}
-            alt={`${seriesObj.label} module`}
-            fill
-            sizes="(min-width: 1400px) 1320px, 100vw"
-            style={{ objectFit: 'contain', padding: '5%' }}
-            priority
-          />
-        </div>
-      </div>
-
-      <div className="sig-stats">
-        <div className="sig-stat">
-          <div className="sig-stat-label">Variants</div>
-          <div className="sig-stat-value">{variantCount || '—'}</div>
-        </div>
-        <div className="sig-stat">
-          <div className="sig-stat-label">Power range</div>
-          <div className="sig-stat-value">{powerRange ?? '—'}</div>
-        </div>
-        <div className="sig-stat">
-          <div className="sig-stat-label">Color temp</div>
-          <div className="sig-stat-value">{cctList ?? '—'}</div>
-        </div>
-        <div className="sig-stat">
-          <div className="sig-stat-label">Rating</div>
-          <div className="sig-stat-value">{ipList ?? '—'}</div>
-        </div>
-      </div>
-
-      <section className={styles.variantsSection}>
-        <div className="container">
-          <div className={styles.sectionHead}>
-            <h2 className={styles.sectionHeading}>Variants in this series</h2>
-            <span className={styles.sectionMeta}>
-              {variantCount} {variantCount === 1 ? 'SKU' : 'SKUs'}
-            </span>
-          </div>
-
-          {products.length === 0 ? (
-            <div className={styles.empty}>
-              Variant data for this series is not yet synced. Talk to engineering for current
-              availability.
-            </div>
-          ) : (
-            <div className={styles.tableWrap}>
-              <table className={styles.table}>
-                <thead>
-                  <tr>
-                    <th scope="col">SKU</th>
-                    <th scope="col">Name</th>
-                    <th scope="col">Power</th>
-                    <th scope="col">Voltage</th>
-                    <th scope="col">CCT</th>
-                    <th scope="col">Rating</th>
-                    <th scope="col">Datasheet</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {products.map((p: Product) => (
-                    <tr key={p.id}>
-                      <td className={styles.sku}>{p.sku}</td>
-                      <td>{p.name}</td>
-                      <td className={styles.spec}>
-                        {p.power_w != null ? `${p.power_w} W` : <span className={styles.dash}>—</span>}
-                      </td>
-                      <td className={styles.spec}>
-                        {p.output_voltage_v != null ? (
-                          `${p.output_voltage_v} V`
-                        ) : (
-                          <span className={styles.dash}>—</span>
-                        )}
-                      </td>
-                      <td className={styles.spec}>
-                        {p.cct_k != null ? `${p.cct_k}K` : <span className={styles.dash}>—</span>}
-                      </td>
-                      <td className={styles.spec}>
-                        {p.waterproof ? fmtIp(p.waterproof) : <span className={styles.dash}>—</span>}
-                      </td>
-                      <td>
-                        {p.spec_sheet_url ? (
-                          <a
-                            className={styles.dlLink}
-                            href={p.spec_sheet_url}
-                            target="_blank"
-                            rel="noopener noreferrer"
-                          >
-                            PDF →
-                          </a>
-                        ) : (
-                          <span className={styles.dash}>—</span>
-                        )}
-                      </td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
-            </div>
-          )}
-
-          {datasheets.length > 1 && (
-            <p className={styles.sectionMeta} style={{ marginTop: 12 }}>
-              {datasheets.length} unique datasheets across this series.
-            </p>
-          )}
-        </div>
-      </section>
-
-      <section className={styles.siblingSection}>
-        <div className="container">
-          <div className={styles.sectionHead}>
-            <h2 className={styles.sectionHeading}>Other series in {family.name}</h2>
-          </div>
-          <p className={styles.siblingIntro}>
-            Sibling series tuned for different applications within the family. Live series link to
-            their detail page — others are rolling out.
-          </p>
-          <div className={styles.siblingList}>
-            {siblings.map((s) =>
-              isLive(s) ? (
-                <Link key={s.label} href={s.href} className={styles.siblingItem}>
-                  {s.label} →
-                </Link>
-              ) : (
-                <span key={s.label} className={styles.siblingItemDisabled}>
-                  {s.label}
-                  <em>· Coming soon</em>
-                </span>
-              ),
+        <div className={styles.heroSplit}>
+          <div className={styles.heroText}>
+            {seriesObj.heroEyebrow && (
+              <span className="sig-eyebrow">{seriesObj.heroEyebrow}</span>
             )}
+            <h1>
+              <span className={styles.heroSeriesLabel}>{seriesObj.label}</span>
+              {' · '}
+              {seriesObj.productName}
+            </h1>
+            <p className="sig-hero-desc">{seriesObj.description}</p>
+
+            {seriesObj.heroBadges && seriesObj.heroBadges.length > 0 && (
+              <div className={styles.heroBadges}>
+                {seriesObj.heroBadges.map((b) => (
+                  <span key={b.value} className={styles.heroBadge}>
+                    <strong>{b.value}</strong>
+                    {b.label && <em>{b.label}</em>}
+                  </span>
+                ))}
+              </div>
+            )}
+
+            <div className={styles.heroCtas}>
+              <EnvoButton href="#where-to-buy" variant="primary" arrow>
+                Where to buy
+              </EnvoButton>
+              {seriesObj.datasheetUrl ? (
+                <EnvoButton href={seriesObj.datasheetUrl} variant="ghost">
+                  Datasheet (PDF)
+                </EnvoButton>
+              ) : (
+                <EnvoButton href="/contact" variant="ghost">
+                  Request datasheet
+                </EnvoButton>
+              )}
+            </div>
+          </div>
+          <div className={styles.heroImageCol}>
+            <Image
+              src={seriesObj.image}
+              alt={`${seriesObj.productName} module`}
+              width={640}
+              height={640}
+              sizes="(min-width: 1100px) 480px, 100vw"
+              priority
+            />
           </div>
         </div>
       </section>
 
+      {/* ============== KEY FEATURES ============== */}
+      {seriesObj.features && seriesObj.features.length > 0 && (
+        <section className={familyStyles.sectionWrap}>
+          <div className={familyStyles.sectionHead}>
+            <span className={familyStyles.sectionEyebrow}>Key features</span>
+            <h2 className={familyStyles.sectionHeading}>
+              What makes {seriesObj.productName} the {seriesObj.label.toLowerCase()} pick
+            </h2>
+          </div>
+          <div className={styles.featuresGrid}>
+            {seriesObj.features.map((f) => (
+              <div key={f.title} className={styles.featureCard}>
+                <h3 className={styles.featureTitle}>{f.title}</h3>
+                <p className={styles.featureDesc}>{f.description}</p>
+              </div>
+            ))}
+          </div>
+        </section>
+      )}
+
+      {/* ============== SPECIFICATIONS ============== */}
+      {seriesObj.specifications && seriesObj.specifications.length > 0 && (
+        <section className={familyStyles.sectionTinted}>
+          <div className={familyStyles.sectionWrap}>
+            <div className={familyStyles.sectionHead}>
+              <span className={familyStyles.sectionEyebrow}>Specifications</span>
+              <h2 className={familyStyles.sectionHeading}>Reference variant — full spec sheet</h2>
+              <p className={familyStyles.sectionIntro}>
+                Specs below are for the reference variant. Other LED counts scale proportionally —
+                see Available Variants for sizing.
+              </p>
+            </div>
+            <div className={styles.specsCard}>
+              <dl className={styles.specsList}>
+                {seriesObj.specifications.map((s) => (
+                  <div key={s.label} className={styles.specsRow}>
+                    <dt className={styles.specsLabel}>{s.label}</dt>
+                    <dd className={styles.specsValue}>{s.value}</dd>
+                  </div>
+                ))}
+              </dl>
+            </div>
+          </div>
+        </section>
+      )}
+
+      {/* ============== AVAILABLE VARIANTS ============== */}
+      {seriesObj.variants && seriesObj.variants.length > 0 && (
+        <section className={familyStyles.sectionWrap}>
+          <div className={familyStyles.sectionHead}>
+            <span className={familyStyles.sectionEyebrow}>Variants</span>
+            <h2 className={familyStyles.sectionHeading}>Available variants</h2>
+            <p className={familyStyles.sectionIntro}>
+              {seriesObj.variants.length} LED-count variants in the {seriesObj.productName} line.
+              Each available in 3000K / 4000K / 7000K.
+            </p>
+          </div>
+          <div className={styles.variantsGrid}>
+            {seriesObj.variants.map((v) => (
+              <div
+                key={v.name}
+                className={v.badge ? styles.variantCardPopular : styles.variantCard}
+              >
+                {v.badge && <span className={styles.variantBadge}>{v.badge}</span>}
+                <div className={styles.variantImage}>
+                  <Image
+                    src={v.image ?? seriesObj.image}
+                    alt={`${v.name} ${seriesObj.productName}`}
+                    width={400}
+                    height={400}
+                    sizes="(min-width: 1100px) 25vw, (min-width: 641px) 50vw, 100vw"
+                  />
+                </div>
+                <h3 className={styles.variantName}>{v.name}</h3>
+                <ul className={styles.variantSpecs}>
+                  {v.specs.map((spec) => (
+                    <li key={spec}>{spec}</li>
+                  ))}
+                </ul>
+              </div>
+            ))}
+          </div>
+          {seriesObj.variantsFootnote && (
+            <p className={styles.variantsFootnote}>{seriesObj.variantsFootnote}</p>
+          )}
+        </section>
+      )}
+
+      {/* ============== REGIONAL AVAILABILITY ============== */}
+      <section id="where-to-buy" className={familyStyles.sectionTinted}>
+        <div className={familyStyles.sectionWrap}>
+          <div className={familyStyles.sectionHead}>
+            <span className={familyStyles.sectionEyebrow}>Regional availability</span>
+            <h2 className={familyStyles.sectionHeading}>Where to buy {seriesObj.productName}</h2>
+            <p className={familyStyles.sectionIntro}>
+              ENVO works with regional service partners who stock the {seriesObj.label.toLowerCase()},
+              handle local warranty and provide region-specific support.
+            </p>
+          </div>
+          <div className={styles.regionGrid}>
+            {PURCHASE_CHANNELS.map((c) => (
+              <div key={c.id} className={styles.regionCard}>
+                <div className={styles.regionHeader}>
+                  <span className={styles.regionFlag} aria-hidden="true">
+                    {c.flag}
+                  </span>
+                  <span className={styles.regionLabel}>{c.regionLabel}</span>
+                </div>
+                <h3 className={styles.regionHeading}>{c.heading}</h3>
+                <p className={styles.regionBody}>{c.body}</p>
+                <div className={styles.regionCtas}>
+                  <EnvoButton href={c.url} variant="primary" arrow>
+                    View on {c.urlLabel}
+                  </EnvoButton>
+                  <EnvoButton href="/contact" variant="ghost">
+                    Project &amp; trade enquiry
+                  </EnvoButton>
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* ============== WHERE IT WORKS ============== */}
+      {applications.length > 0 && (
+        <section className={familyStyles.sectionWrap}>
+          <div className={familyStyles.sectionHead}>
+            <span className={familyStyles.sectionEyebrow}>Where it works</span>
+            <h2 className={familyStyles.sectionHeading}>
+              Built for {seriesObj.productName.toLowerCase()}-sized jobs
+            </h2>
+          </div>
+          <div className={familyStyles.appsGrid}>
+            {applications.map((app) => (
+              <article key={app.title} className={familyStyles.appCard}>
+                {/* eslint-disable-next-line @next/next/no-img-element */}
+                <img src={app.image} alt={app.title} loading="lazy" />
+                <div className={familyStyles.appCardOverlay}>
+                  <h3 className={familyStyles.appCardTitle}>{app.title}</h3>
+                  <p className={familyStyles.appCardDesc}>{app.description}</p>
+                </div>
+              </article>
+            ))}
+          </div>
+        </section>
+      )}
+
+      {/* ============== PAIR WITH ============== */}
+      {seriesObj.pairWith && seriesObj.pairWith.length > 0 && (
+        <section className={familyStyles.sectionTinted}>
+          <div className={familyStyles.sectionWrap}>
+            <div className={familyStyles.sectionHead}>
+              <span className={familyStyles.sectionEyebrow}>Pair with</span>
+              <h2 className={familyStyles.sectionHeading}>Match the rest of the system</h2>
+              <p className={familyStyles.sectionIntro}>
+                {seriesObj.productName} modules are tuned to work with ENVO drivers, controls and
+                accessories — pick the matching system parts for a clean install.
+              </p>
+            </div>
+            <div className={styles.pairGrid}>
+              {seriesObj.pairWith.map((p) => (
+                <Link key={p.title} href={p.href} className={styles.pairCard}>
+                  {p.image && (
+                    <div className={styles.pairImage}>
+                      <Image
+                        src={p.image}
+                        alt={p.title}
+                        width={400}
+                        height={240}
+                        sizes="(min-width: 1100px) 33vw, (min-width: 641px) 50vw, 100vw"
+                      />
+                    </div>
+                  )}
+                  <div className={styles.pairBody}>
+                    <h3 className={styles.pairTitle}>{p.title}</h3>
+                    <p className={styles.pairDesc}>{p.description}</p>
+                    <span className={styles.pairCta}>
+                      Explore <span>→</span>
+                    </span>
+                  </div>
+                </Link>
+              ))}
+            </div>
+          </div>
+        </section>
+      )}
+
+      {/* ============== DESIGN ASSISTANCE BANNER ============== */}
+      <section className={familyStyles.sectionWrap}>
+        <div className={styles.designBanner}>
+          <div>
+            <span className={styles.designEyebrow}>Free layout design</span>
+            <h2 className={styles.designHeading}>Not sure which variant?</h2>
+            <p className={styles.designBody}>
+              Send your sign sketch — we will spec the {seriesObj.productName} variant, driver and
+              accessories for you in 1–2 business days.
+            </p>
+          </div>
+          <div className={styles.designCtas}>
+            <EnvoButton href="/free-layout-design" variant="primary" arrow>
+              Free layout design
+            </EnvoButton>
+            <EnvoButton href="#where-to-buy" variant="ghost">
+              Where to buy
+            </EnvoButton>
+          </div>
+        </div>
+      </section>
+
+      {/* ============== SIBLING SERIES ============== */}
+      <section className={familyStyles.sectionWrap}>
+        <div className={familyStyles.sectionHead}>
+          <span className={familyStyles.sectionEyebrow}>Other series</span>
+          <h2 className={familyStyles.sectionHeading}>Other series in {family.name}</h2>
+          <p className={familyStyles.sectionIntro}>
+            Sibling series tuned for different applications within the family.
+          </p>
+        </div>
+        <div className={styles.siblingList}>
+          {siblings.map((s) =>
+            isLive(s) ? (
+              <Link key={s.label} href={s.href} className={styles.siblingItem}>
+                {s.label} <span>→</span>
+              </Link>
+            ) : (
+              <span key={s.label} className={styles.siblingItemDisabled}>
+                {s.label}
+                <em>· Coming soon</em>
+              </span>
+            ),
+          )}
+        </div>
+      </section>
+
+      {/* ============== FINAL CTA ============== */}
       <section className="sig-cta-banner">
         <div className="sig-cta-inner">
           <span className="sig-cta-eyebrow">Find your match · 60-sec wizard</span>
           <h2>
-            Spec the right {seriesObj.label} variant. <em>And the system around it.</em>
+            Spec the right {seriesObj.productName} variant. <em>And the system around it.</em>
           </h2>
           <p>
             Tell us your sign type, dimensions and install environment — we will pick the right

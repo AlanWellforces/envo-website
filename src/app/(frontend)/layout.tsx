@@ -6,6 +6,7 @@ import { TopSubnav } from '@/components/layout/top-subnav'
 import { Footer } from '@/components/layout/footer'
 import { CursorGlow } from '@/components/layout/cursor-glow'
 import { RevealOnScroll } from '@/components/layout/reveal-on-scroll'
+import { BackToTop } from '@/components/layout/back-to-top'
 
 const interTight = Inter_Tight({
   variable: '--font-inter-tight',
@@ -33,6 +34,7 @@ export default function RootLayout({
         {children}
         <Footer />
         <RevealOnScroll />
+        <BackToTop />
       </body>
     </html>
   )
