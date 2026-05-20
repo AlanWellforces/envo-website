@@ -75,6 +75,8 @@ export type SeriesLink =
       applications?: ApplicationCard[]
       /** "Pair With" cross-product recommendations. */
       pairWith?: PairWithCard[]
+      /** Downloadable / requestable resource cards (datasheet, photometric, etc.). */
+      resources?: ResourceCard[]
     })
 
 /** Application use-case card shown on the family page. */
@@ -123,6 +125,31 @@ export type SeriesVariant = {
   badge?: string
   /** Optional thumbnail under /public. Falls back to the series image. */
   image?: string
+  /**
+   * Representative SKU used to pull live image / brightness data from Payload
+   * for this variant card. Typically the variant's most popular CCT (e.g.,
+   * the 4000K natural-white SKU). The card itself is not a link — this only
+   * tells the page which Payload record to display.
+   */
+  defaultSku?: string
+}
+
+/**
+ * Downloadable / requestable resource shown in the series-detail "Resources"
+ * grid. Renders as a download card when `url` is set, or a "Request via
+ * contact" card otherwise.
+ */
+export type ResourceCard = {
+  /** Tag label above the title, e.g. "Datasheet", "Photometric", "Guide". */
+  label: string
+  /** Card heading, e.g. "EcoGlo Datasheet". */
+  title: string
+  /** Optional one-line description (e.g. "Covers all 4 LED variants"). */
+  description?: string
+  /** Direct URL (PDF / ZIP). Omit to render a "Request via contact" CTA. */
+  url?: string
+  /** Optional file metadata badge, e.g. "PDF · 1.2 MB". */
+  meta?: string
 }
 
 /** Cross-product recommendation in "Pair With" — link to another family slug. */
@@ -350,19 +377,23 @@ export const PRODUCT_FAMILIES: ProductFamily[] = [
           {
             name: 'Single LED',
             specs: ['0.4 W · 1 × SMD2835', 'Letter strokes 25–40 mm', 'Border accents, small letters'],
+            defaultSku: 'EV-BLEG01LBY-NW',
           },
           {
             name: 'Duo LED',
             specs: ['0.8 W · 2 × SMD2835', 'Letter strokes 40–60 mm', 'Slim channel letters'],
+            defaultSku: 'EV-BLEG02LBY-NW',
           },
           {
             name: 'Triple LED',
             specs: ['1.2 W · 3 × SMD2835', 'Letter strokes 60–80 mm', 'Mid-size channel letters'],
+            defaultSku: 'EV-BLEG03LBY-NW',
           },
           {
             name: 'Quad LED',
             specs: ['1.6 W · 4 × SMD2835', 'Letter strokes 80–120 mm', 'Lightboxes & large letters'],
             badge: 'Most popular',
+            defaultSku: 'EV-BLEG04LBY-NW',
           },
         ],
         variantsFootnote:
@@ -408,6 +439,33 @@ export const PRODUCT_FAMILIES: ProductFamily[] = [
               'IP67 push-fit connectors and pre-tinned 16AWG cables to wire the run cleanly.',
             href: '/products/accessories',
             image: '/assets/images/cat-sensors.png',
+          },
+        ],
+        resources: [
+          {
+            label: 'Datasheet',
+            title: 'EcoGlo Datasheet',
+            description: 'Full specs for all 4 LED variants and 3 CCT options.',
+            url: 'https://wellforces-akeneo-pim.s3.ap-southeast-2.amazonaws.com/d/6/4/6/d6463bba636326069341b37708dcca84b9372628_EcoGlo.pdf',
+            meta: 'PDF',
+          },
+          {
+            label: 'Photometric',
+            title: 'IES photometric files',
+            description: 'Light distribution data for lighting simulations (DIALux, Relux).',
+            meta: 'On request',
+          },
+          {
+            label: 'Guide',
+            title: 'Stroke width guide',
+            description: 'Pick the right LED count for your letter stroke and cabinet depth.',
+            meta: 'On request',
+          },
+          {
+            label: 'Compliance',
+            title: 'Compliance pack',
+            description: 'UL · CE · TUV · LM-80 · RoHS certificates bundled.',
+            meta: 'On request',
           },
         ],
       },

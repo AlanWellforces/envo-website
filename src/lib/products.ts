@@ -101,6 +101,34 @@ async function payload() {
   return getPayload({ config })
 }
 
+/**
+ * Resolve the best image URL for a product.
+ *
+ * TODO(#24): Akeneo S3 URL is intentionally preferred over the Payload upload
+ *            right now because Payload Media uses local-disk storage and the
+ *            files are not shared across machines / Vercel. Once Alan switches
+ *            Media to a shared adapter (S3 / Supabase Storage), flip the
+ *            priority back so Payload uploads (editorial overrides) win again.
+ *            Tracked in https://github.com/AlanWellforces/envo-website/issues/24
+ *
+ * Returns `isLocal` so callers can pick Next/Image (for same-origin paths) or
+ * a plain <img> tag (for external Akeneo S3 URLs that aren't whitelisted in
+ * next.config images).
+ */
+export function resolveProductImage(
+  product: Product,
+  seriesFallback: string,
+): { src: string; isLocal: boolean; alt: string } {
+  if (product.image_url_fallback) {
+    return { src: product.image_url_fallback, isLocal: false, alt: product.name }
+  }
+  const upload = product.image as { url?: string; alt?: string } | null | undefined
+  if (upload?.url) {
+    return { src: upload.url, isLocal: true, alt: upload.alt ?? product.name }
+  }
+  return { src: seriesFallback, isLocal: true, alt: product.name }
+}
+
 /** Single product by SKU. Returns null if not found. */
 export async function getProduct(sku: string): Promise<Product | null> {
   const p = await payload()

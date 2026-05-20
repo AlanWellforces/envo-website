@@ -1,242 +1,171 @@
-# Product Detail (SKU) Page — Design Spec
+# Product Series Page — Design Spec
 
-**Date:** 2026-05-21
+**Date:** 2026-05-21 (revised same-day after design reference review)
 **Pilot series:** LED Signage Modules → Eco Series
-**Status:** Approved — ready for implementation plan
+**Status:** Implemented
 
 ---
 
 ## 1. Goal
 
-Build the first front-end page that consumes the Payload `products` collection.
-Pilot scope: one series (eco-series) under the LED Signage Modules family.
+Make the series page (`/products/[slug]/[series]`) the canonical product
+landing page — one page per series, no SKU-level drill-down. The page reuses
+Payload product data for the live variant cards (image, marketing data) but
+the page itself stays at the series level, listing all LED-count variants and
+CCT options as aggregates.
 
-Every Akeneo-synced SKU in that series gets its own page at
-`/products/led-signage-modules/eco-series/[sku]`, with full specs from
-Payload and supporting marketing copy reused from the existing series page.
+## 2. Direction change from the first draft
 
-## 2. Out of scope (this round)
+The initial draft proposed an SKU-level route at
+`/products/[slug]/[series]/[sku]` with CCT-switching siblings. After reviewing
+the reference design (marketing-cyber.github.io/envo-website/products/signage-mini-series.html)
+we pivoted to a series-level page only — same depth as today, no per-CCT
+detail pages. SKU-level data still feeds the page through the variant cards,
+but every URL terminates at the series.
 
-- Other series / families (deferred; eco-series proves the pipeline first).
-- A new Payload field for variant grouping (e.g. `variant_label`) — solved
-  editorially in Git instead.
+## 3. Out of scope
+
+- SKU detail pages (`/.../[sku]`) — removed.
+- CCT switcher / per-CCT pages — covered by the variantsFootnote naming
+  convention (-WW / -NW / -CW).
+- A new Payload field for variant grouping — solved editorially in Git.
 - SKU-level marketing copy in Payload (features stay at series level).
-- AI integration on this page (Find-your-match links to its own page).
-- Search / autocomplete entry into SKU pages.
 
-## 3. Architecture
+## 4. Architecture
 
 ### Routing
 
 ```
-URL:               /products/[slug]/[series]/[sku]
-Example:           /products/led-signage-modules/eco-series/ECO-Q-4K
-[sku]:             Akeneo identifier verbatim — no slug mapping.
-                   ENVO's identifiers are alphanumeric + `-` / `_`,
-                   already URL-safe with no encoding.
-generateStaticParams:  All SKUs where enabled=true AND hidden=false AND
-                       series='eco-series'
-dynamicParams:     false   (unknown SKU → 404)
-revalidate:        3600    (1 hour ISR)
-Manual bust:       revalidateTag('products') — called after Akeneo sync or
-                   editorial change in Payload admin
+URL:        /products/[slug]/[series]
+Example:    /products/led-signage-modules/eco-series
+[sku]:      not exposed as a URL — Payload data is consumed inside the series
+            page via getProduct(defaultSku) for each variant card
+ISR:        revalidate=3600 + revalidateTag('products') after Akeneo sync
 ```
 
 ### Data ownership
 
 | Layer | Owns |
 |---|---|
-| Akeneo PIM | All SKU specs (electrical, LED, physical, sensor, compliance, pricing, datasheet URLs) |
-| Payload (synced) | Materialised SKU records; editorially-overrideable when `sync_locked=true` |
-| Git (`product-families.ts`) | Series-level copy (features, applications, hero badges), variant taxonomy (which SKUs roll up to which variant card), purchase channels |
+| Akeneo PIM | All SKU specs |
+| Payload | Materialised SKU records; powers variant card images + (future) live data |
+| Git (`product-families.ts`) | Series-level copy, variant taxonomy, resources list, applications, pairWith, hero, key features |
 
-Three-source rule honoured: Payload never holds variant taxonomy; Git never
-holds SKU specs.
+### Series page = "one product page" for the series
 
-### Entry point
+The series page is the lowest-grained URL we expose. Every "buy / spec /
+download" intent must be satisfied at this depth — there is no deeper page
+to send the user to. Variant cards are informational.
 
-The existing series page `/products/[slug]/[series]` keeps its layout, but
-the **Available Variants** section is rewired:
+## 5. Page layout (matches reference)
 
-- Variant cards (Single LED / Duo LED / Triple LED / Quad LED) become live
-  links to `/.../[defaultSku]`.
-- Each card's image, brightness number, etc., comes from the linked SKU's
-  Payload record (so they stay in sync with Akeneo).
-- A card whose `defaultSku` isn't found / is disabled in Payload renders as
-  `Coming soon` (non-clickable), mirroring today's `#` placeholder pattern.
+| # | Block | Source | Notes |
+|---|---|---|---|
+| 1 | Breadcrumb | Mixed | Home › Products › Family › Series |
+| 2 | Hero | Git | name + subtitle + badges + Datasheet / Where-to-buy CTAs |
+| 3 | Key Features (6 cards) | Git | series.features |
+| 4 | Specifications (table) | Git | series.specifications — reference variant |
+| 5 | Available Variants (4 cards) | **Payload-driven** | series.variants × getProduct(defaultSku) for image |
+| 6 | Regional Availability | Git | PURCHASE_CHANNELS |
+| 7 | Where It Works | Git | series.applications |
+| 8 | **Resources Grid** | Git | series.resources — datasheet + 3 placeholders |
+| 9 | Pair With | Git | series.pairWith |
+| 10 | Design Assistance | Static | Free layout design banner |
+| 11 | Sibling Series | Git | family.series — others in family |
+| 12 | Final CTA | Static | Find your match · Contact |
 
-## 4. Page layout (Layout C — Two-Act)
+## 6. Payload integration (the only Payload-driven block)
 
-### Act 1 — Marketing
+`Available Variants` is the only block that consumes Payload. For each
+`SeriesVariant` with a `defaultSku`, the page calls `getProduct(defaultSku)`
+and renders the card with:
 
-| Block | Source | Fields |
-|---|---|---|
-| Breadcrumb | Mixed | Home › Products › Family › Series › Variant · CCT |
-| Hero | Payload + Git | `name`, `subtitle`, `short_description`, 4 callout badges from `power_w` / `cct_k` / `brightness_lm` / `waterproof`, `image` (with fallback chain), CTAs (Datasheet · Where to buy · Find your match) |
-| Key features (4 cards) | Git | `family.series.features[]` — reused as-is, no SKU-level features |
-| Where it works | Git | `family.series.applications[]` |
+- **Image:** Payload upload (`product.image.url`) → Akeneo S3 fallback
+  (`product.image_url_fallback`) → series-level fallback (`v.image ??
+  seriesObj.image`). See `resolveProductImage()` in `src/lib/products.ts`.
+- **Card text:** stays from Git (`v.name`, `v.specs`, `v.badge`).
 
-### Act 2 — Datasheet
+The card is **not a link**. The reference design treats variants as
+informational — the user converts via the page-level CTAs (Where to buy,
+Datasheet, Find your match), not through a per-variant deep link.
 
-| Block | Source | Fields |
-|---|---|---|
-| Specifications | Payload | Full grouped table mirroring Payload's tab groups: **Electrical**, **LED & Light Output**, **Driver / Controller**, **Physical**, **Sensor**, **Compliance**. Empty rows hidden; entirely empty groups hidden. |
-| Resources | Payload | `spec_sheet_url` (Datasheet PDF), `standards_met` (compliance badges) |
-| Same variant, other CCTs | Payload + Git | From `cctSkus` mapping — links to sibling SKUs that exist in Payload. Hidden if only one CCT is live. |
-| Other variants in this series | Payload + Git | Sibling variant cards (excluding current). Hidden if no other variant is live. |
+When `defaultSku` is missing or unresolvable in Payload, the card falls back
+to the Git image (`v.image ?? seriesObj.image`) and renders normally — no
+"Coming soon" state needed since the card is always informative.
 
-### Act 3 — Conversion
+## 7. Resources Grid (new in this round)
 
-| Block | Source | Fields |
-|---|---|---|
-| Where to buy | Git | `PURCHASE_CHANNELS` (NZ / US) |
-| Final CTA | Git | Find your match · Contact engineering |
-
-### Hero callout selection (v1)
-
-For signage modules specifically, the four hero badges are: **Power**,
-**CCT**, **Brightness**, **IP rating**. Hardcoded for this pilot. When other
-product families come online (drivers, control gear), each will get its own
-callout mapping — that's a later round.
-
-## 5. Variant grouping (key data structure decision)
-
-Eco-series has 4 variants × 3 CCTs = ~12 SKUs. The series page shows 4
-variant cards, and the SKU page shows "other CCTs in this variant" — both
-require knowing which SKUs roll up to which variant.
-
-**Decision:** keep the variant taxonomy in `product-families.ts` (Git), not
-in Payload. Each variant explicitly lists its SKUs.
+`ResourceCard[]` type added to `product-families.ts`:
 
 ```ts
-// In src/data/product-families.ts, eco-series.variants[] gets two new fields:
-variants: [
-  {
-    name: 'Quad LED',
-    badge: 'Most popular',
-    specs: [...],
-    defaultSku: 'ECO-Q-4K',
-    cctSkus: { warm: 'ECO-Q-3K', natural: 'ECO-Q-4K', cool: 'ECO-Q-7K' },
-  },
-  // Single / Duo / Triple — same shape
-]
+type ResourceCard = {
+  label: string          // "Datasheet" | "Photometric" | "Guide" | "Compliance"
+  title: string          // "EcoGlo Datasheet"
+  description?: string
+  url?: string           // omit → renders "Request via contact" → /contact
+  meta?: string          // "PDF" / "On request" / etc.
+}
 ```
 
-### Why this over a Payload `variant_label` field
+For eco-series, 4 cards: Datasheet (real Akeneo S3 URL), Photometric files
+(on request), Stroke width guide (on request), Compliance pack (on request).
+The 3 "on request" cards point at `/contact` until URLs come in.
 
-- Akeneo unchanged → no sync-script work, no new attribute coordinated with
-  Wei.
-- Payload schema unchanged → no migration.
-- Variant taxonomy is editorial copy (it groups SKUs into marketing
-  concepts), so it belongs alongside the rest of the series editorial in
-  Git.
-- Explicit > convention: SKU-naming conventions break the moment a SKU is
-  renamed or follows a different scheme in a future series.
-- New SKUs added in Akeneo don't appear on the website until Git is updated
-  — this is a *feature*, not a bug: it forces a deliberate "this is shipped"
-  moment.
+This is intentionally Git-only for now — when other resources land we add
+them to `product-families.ts` next to the series; no Payload schema change
+needed.
 
-### Lookup helpers (`src/lib/products.ts`)
-
-Add (or co-locate in a new file if `products.ts` grows past ~250 lines):
-
-- `getVariantForSku(sku)` — walks `PRODUCT_FAMILIES`, returns
-  `{ family, series, variant }` or `null`.
-- `getOtherCctSkus(variant, currentSku)` — returns the other CCT SKUs from
-  `cctSkus`, filtered to those that exist + enabled in Payload.
-- `getOtherVariantsInSeries(series, currentVariant)` — returns sibling
-  variants with their `defaultSku` Payload data.
-
-## 6. Data flow
-
-```
-[Akeneo PIM]
-   ↓ scripts/akeneo-sync.ts (existing)
-[Payload products collection]
-   ↓ src/lib/products.ts → getProduct(sku), listProducts({series}), ...
-[Server Component /products/[slug]/[series]/[sku]/page.tsx]
-   ↑ also reads PRODUCT_FAMILIES (Git) to find variant + features + apps
-[Rendered HTML, cached for 1h]
-   ↓
-[Browser]
-
-Series page entry:
-[/products/[slug]/[series]/page.tsx]
-   ↓ for each variant in family.series.variants:
-   ↓   getProduct(variant.defaultSku) — if present & enabled, render live card
-   ↓   else render "Coming soon"
-```
-
-## 7. Error handling & edge cases
+## 8. Error handling & edge cases
 
 | Situation | Behaviour |
 |---|---|
-| `[sku]` not in Payload | `notFound()` |
-| SKU `enabled=false` or `hidden=true` | `notFound()` (also excluded from `generateStaticParams`) |
-| SKU in Payload but not registered in `product-families.ts` | `notFound()` — orphan data not exposed |
-| No `image` AND no `image_url_fallback` | Fall back to `seriesObj.image` |
-| No `spec_sheet_url` | "Datasheet (PDF)" CTA becomes "Request datasheet" → `/contact` |
-| Entire spec group empty | That group's section is not rendered |
-| Individual spec field empty | That row is not rendered |
-| A `cctSkus` entry points to a missing/disabled SKU | That CCT link silently omitted; section still renders if ≥ 1 sibling exists |
-| Only the current CCT exists for this variant | "Same variant, other CCTs" hidden |
-| Only the current variant is live in this series | "Other variants in this series" hidden |
-| `standards_met` empty array | Compliance badge row in Resources hidden |
-| `defaultSku` on series page card not found in Payload | Card renders as `Coming soon`, non-clickable (parity with today's `#` pattern) |
+| Series slug unknown | `notFound()` (existing behaviour, unchanged) |
+| Variant `defaultSku` missing in Payload | Card uses Git image fallback, still renders |
+| Variant has no `defaultSku` | Card uses `v.image ?? seriesObj.image` |
+| Resource `url` missing | Renders as "Request via contact" link to /contact |
 
-## 8. Files to change / create
+## 9. Files changed (this round)
 
 ```
 src/data/product-families.ts
-  - eco-series.variants[]: add defaultSku + cctSkus per variant
-    (Single LED / Duo LED / Triple LED / Quad LED)
+  - Added SeriesVariant.defaultSku (no cctSkus — dropped from earlier draft)
+  - Added ResourceCard type + SeriesLink.resources field
+  - Populated eco-series.variants[].defaultSku (4 entries)
+  - Populated eco-series.resources (4 entries)
 
-src/app/(frontend)/products/[slug]/[series]/[sku]/page.tsx        NEW
-src/app/(frontend)/products/[slug]/[series]/[sku]/page.module.css NEW
+src/lib/products.ts
+  - Added resolveProductImage(product, fallback) — 3-step image fallback chain
 
 src/app/(frontend)/products/[slug]/[series]/page.tsx
-  - Variants block: replace hardcoded card content with
-    getProduct(variant.defaultSku) data
-  - Wrap card in <Link> to /.../[defaultSku] when SKU resolves
-  - Keep "Coming soon" rendering for unmapped or missing SKUs
+  - Variants block: now pulls product image from Payload via getProduct()
+  - Added Resources Grid section between Where-It-Works and Pair-With
 
-src/lib/products.ts (or new file if it grows)
-  - getVariantForSku(sku)
-  - getOtherCctSkus(variant, currentSku)
-  - getOtherVariantsInSeries(series, currentVariant)
+src/app/(frontend)/products/[slug]/[series]/page.module.css
+  - Added .resourcesGrid + .resourceCard + .resourceLabel/.resourceTitle/
+    .resourceDesc/.resourceCta styles
+  - No structural changes to other blocks
+
+REMOVED (from the initial SKU-detail-page draft):
+  - src/app/(frontend)/products/[slug]/[series]/[sku]/     entire dir deleted
+  - SeriesVariant.cctSkus field
 ```
 
-## 9. Verification plan
+## 10. Verification
 
 ```
-Build:   npm run build  — generateStaticParams emits one path per enabled
-                          eco-series SKU (4 variants × up to 3 CCTs = up to
-                          12 paths). At minimum the 4 defaultSku paths must
-                          be present.
-
-Routes:  dev server — visit each of:
-         /products/led-signage-modules/eco-series/<each default SKU>
-         (actual identifiers TBD — check Payload after sync)
-
-Visual:  desktop + mobile screenshots for each variant page
-         - hero renders with image + 4 callouts + CTAs
-         - specs table groups render and obey empty-hide rules
-         - CCT switcher shows the right siblings
-         - sibling-variants block shows the other 3 variants
-
-Entry:   /products/led-signage-modules/eco-series — Variants section
-         - 4 live cards with Payload images
-         - clicking each lands on the right SKU
-         - any unmapped/disabled SKU appears as "Coming soon"
-
-404:     /products/led-signage-modules/eco-series/NOT-A-REAL-SKU → 404
+Series page:   /products/led-signage-modules/eco-series → 200
+Old SKU URL:   /products/led-signage-modules/eco-series/EV-BLEG04LBY-NW → 404
+Variant cards: 4 cards, 0 outbound links, all using Payload images
+Resources:     1 Download (Datasheet PDF) + 3 Request-via-contact cards
+No regressions: home / catalogue / family page all 200
+TypeScript:    clean (one pre-existing listProducts type warning, unchanged)
 ```
 
-## 10. Open issues / follow-ups (later rounds)
+## 11. Open follow-ups
 
-- Roll the SKU page out to remaining series (each will need its own variant
-  mapping in `product-families.ts`).
-- Per-family hero-callout configuration (currently hardcoded for signage).
-- SKU-level marketing copy in Payload, once Wei wants it.
-- Admin button in Payload to call `revalidateTag('products')`.
-- Search / find-your-match deep-linking into SKU pages.
+- Real URLs for photometric / stroke width / compliance pack resources.
+- Promote variant card data beyond image (e.g., show Payload brightness_lm
+  numbers in the card if needed).
+- When other series go live, populate their `defaultSku` + `resources`.
+- Per-family hero-callout configuration (deferred until non-signage series
+  go live).
