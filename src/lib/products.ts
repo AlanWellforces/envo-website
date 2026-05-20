@@ -104,12 +104,16 @@ async function payload() {
 /**
  * Resolve the best image URL for a product.
  *
- * TODO(#24): Akeneo S3 URL is intentionally preferred over the Payload upload
- *            right now because Payload Media uses local-disk storage and the
- *            files are not shared across machines / Vercel. Once Alan switches
- *            Media to a shared adapter (S3 / Supabase Storage), flip the
- *            priority back so Payload uploads (editorial overrides) win again.
- *            Tracked in https://github.com/AlanWellforces/envo-website/issues/24
+ * Brand rule: prefer the CLEAN (background-removed) image at every step. Falls
+ * back to the regular image only if no clean version is available.
+ *
+ * TODO(#24): Akeneo S3 URLs are intentionally preferred over the Payload
+ *            uploads right now because Payload Media uses local-disk storage
+ *            and the files are not shared across machines / Vercel. Once Alan
+ *            switches Media to a shared adapter (S3 / Supabase Storage), flip
+ *            the Akeneo / Payload pairs so Payload uploads (editorial
+ *            overrides) win again. Tracked in
+ *            https://github.com/AlanWellforces/envo-website/issues/24
  *
  * Returns `isLocal` so callers can pick Next/Image (for same-origin paths) or
  * a plain <img> tag (for external Akeneo S3 URLs that aren't whitelisted in
@@ -119,13 +123,25 @@ export function resolveProductImage(
   product: Product,
   seriesFallback: string,
 ): { src: string; isLocal: boolean; alt: string } {
+  // 1. Clean image, Akeneo S3
+  if (product.clean_image_url_fallback) {
+    return { src: product.clean_image_url_fallback, isLocal: false, alt: product.name }
+  }
+  // 2. Regular image, Akeneo S3
   if (product.image_url_fallback) {
     return { src: product.image_url_fallback, isLocal: false, alt: product.name }
   }
+  // 3. Clean image, Payload upload  (disabled by #24 workaround in practice)
+  const cleanUpload = product.clean_image as { url?: string; alt?: string } | null | undefined
+  if (cleanUpload?.url) {
+    return { src: cleanUpload.url, isLocal: true, alt: cleanUpload.alt ?? product.name }
+  }
+  // 4. Regular image, Payload upload  (disabled by #24 workaround in practice)
   const upload = product.image as { url?: string; alt?: string } | null | undefined
   if (upload?.url) {
     return { src: upload.url, isLocal: true, alt: upload.alt ?? product.name }
   }
+  // 5. Series-level Git fallback
   return { src: seriesFallback, isLocal: true, alt: product.name }
 }
 
