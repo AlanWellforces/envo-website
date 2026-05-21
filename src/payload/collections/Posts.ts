@@ -4,6 +4,7 @@
 // Hooks (autoSlug, calcReadingTime, revalidate) are added in later tasks.
 
 import type { CollectionConfig } from 'payload'
+import { slugify } from '../../lib/slugify'
 
 export const Posts: CollectionConfig = {
   slug: 'posts',
@@ -139,4 +140,15 @@ export const Posts: CollectionConfig = {
       },
     },
   ],
+  hooks: {
+    beforeChange: [
+      ({ data, operation }) => {
+        // Auto-fill slug from title on create, only if slug is blank.
+        if (operation === 'create' && !data.slug && data.title) {
+          data.slug = slugify(data.title)
+        }
+        return data
+      },
+    ],
+  },
 }
