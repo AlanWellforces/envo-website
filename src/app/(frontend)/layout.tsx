@@ -18,6 +18,11 @@ export const metadata: Metadata = {
   title: 'ENVO — Engineered Illumination',
   description:
     'ENVO designs and manufactures professional-grade LED lighting systems that power signage and architectural illumination worldwide.',
+  icons: {
+    icon: [
+      { url: '/assets/images/favicon.svg', type: 'image/svg+xml' },
+    ],
+  },
 }
 
 export default function RootLayout({
