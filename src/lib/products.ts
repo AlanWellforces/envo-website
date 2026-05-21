@@ -182,7 +182,7 @@ export async function listProducts(opts: {
 } = {}): Promise<{ docs: Product[]; totalDocs: number; totalPages: number }> {
   const p = await payload()
 
-  const conditions: object[] = [
+  const conditions: import('payload').Where[] = [
     { enabled: { equals: true } },
     { hidden: { equals: false } },
   ]
