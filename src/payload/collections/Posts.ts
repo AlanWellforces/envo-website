@@ -159,5 +159,40 @@ export const Posts: CollectionConfig = {
         return data
       },
     ],
+    afterChange: [
+      async ({ doc, previousDoc }) => {
+        // Revalidate Next.js ISR cache when public state changes.
+        // Skip silently when this is a draft→draft change (nothing public moved).
+        const wasPublic = previousDoc?._status === 'published'
+        const isPublic = doc._status === 'published'
+        if (!wasPublic && !isPublic) return doc
+
+        const siteUrl = process.env.NEXT_PUBLIC_SITE_URL
+        const secret = process.env.REVALIDATE_SECRET
+        if (!siteUrl || !secret) {
+          // Env not configured (CI, fresh checkout). Don't fail the save.
+          return doc
+        }
+
+        const paths = new Set<string>(['/blog'])
+        if (doc.slug) paths.add(`/blog/${doc.slug}`)
+        if (doc.category) paths.add(`/blog/category/${doc.category}`)
+        // Old slug: revalidate too, so a rename clears the old static page.
+        if (previousDoc?.slug && previousDoc.slug !== doc.slug) {
+          paths.add(`/blog/${previousDoc.slug}`)
+        }
+
+        try {
+          await fetch(
+            `${siteUrl}/api/revalidate?paths=${Array.from(paths).join(',')}`,
+            { method: 'POST', headers: { 'x-revalidate-secret': secret } },
+          )
+        } catch (err) {
+          console.error('[Posts.afterChange] revalidate fetch failed:', err)
+        }
+
+        return doc
+      },
+    ],
   },
 }
