@@ -550,7 +550,22 @@ export const PRODUCT_FAMILIES: ProductFamily[] = [
         productName: 'Linear Driver',
         shortDesc: 'Slim linear-form drivers for surface-mount and channel-letter installs.',
         image: '/assets/images/cat-drivers.png',
-        href: '#',
+        href: '/products/led-drivers/linear-series',
+        slug: 'linear-series',
+        seriesCode: 'envo_sl_us',
+        subtitle: 'Linear-form driver · LED Drivers',
+        description:
+          'Slim linear-form drivers for surface-mount and channel-letter installs.',
+        variants: [
+          { name: 'ENVO EV-SL-100-12 Linear Type LED Driver 100W 12V', defaultSku: 'EV-SL-100-12', specs: [] },
+          { name: 'ENVO EV-SL-100-24 Linear Type LED Driver 100W 24V', defaultSku: 'EV-SL-100-24', specs: [] },
+          { name: 'ENVO EV-SL-100-48 Linear Type LED Driver 100W 48V', defaultSku: 'EV-SL-100-48', specs: [] },
+          { name: 'ENVO EV-SL-150-12 Linear Type LED Driver 150W 12V', defaultSku: 'EV-SL-150-12', specs: [] },
+          { name: 'ENVO EV-SL-150-24 Linear Type LED Driver 150W 24V', defaultSku: 'EV-SL-150-24', specs: [] },
+          { name: 'ENVO EV-SL-150-48 Linear Type LED Driver 150W 48V', defaultSku: 'EV-SL-150-48', specs: [] },
+          { name: 'ENVO EV-SL-60-12US Linear Type LED Driver 60W 12V', defaultSku: 'EV-SL-60-12US', specs: [] },
+          { name: 'ENVO EV-SL-60-24US Linear Type LED Driver 60W 24V', defaultSku: 'EV-SL-60-24US', specs: [] },
+        ],
       },
       {
         label: 'Screw Terminal',
