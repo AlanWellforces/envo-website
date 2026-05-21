@@ -5,8 +5,24 @@ import Link from 'next/link'
 import { usePathname } from 'next/navigation'
 import { useCallback, useEffect, useRef, useState, useSyncExternalStore } from 'react'
 import { cn } from '@/lib/utils'
+import { PURCHASE_CHANNELS, type PurchaseChannel } from '@/data/purchase-channels'
 
 const STORAGE_KEY = 'envo-c-sidebar-collapsed'
+const REGION_STORAGE_KEY = 'envo-region'
+const REGION_DEFAULT: PurchaseChannel['id'] = 'nz-ap'
+
+// Short display labels for the sidebar foot — purchase-channels.ts holds long
+// regionLabel strings that don't fit the narrow row.
+const REGION_LABELS: Record<PurchaseChannel['id'], { short: string; meta: string }> = {
+  'nz-ap': {
+    short: 'Oceania',
+    meta: 'NZ · Australia · Pacific Islands · via wellforces.co.nz',
+  },
+  'us-global': {
+    short: 'International',
+    meta: 'US · Americas · EMEA · Asia · via powersupplymall.com',
+  },
+}
 
 const subscribeCollapsed = (cb: () => void) => {
   window.addEventListener('envo-sidebar-change', cb)
@@ -19,32 +35,35 @@ const subscribeCollapsed = (cb: () => void) => {
 const getCollapsedSnapshot = () => window.localStorage.getItem(STORAGE_KEY) === '1'
 const getCollapsedServerSnapshot = () => false
 
-const NAV = [
+type NavItem = {
+  section: string
+  href: string
+  label: string
+  icon: React.ReactNode
+}
+
+const NAVIGATE: NavItem[] = [
   {
     section: 'home',
     href: '/',
     label: 'Home',
     icon: (
       <svg className="sidebar-icon" viewBox="0 0 24 24" aria-hidden="true">
-        <path className="duotone-fill" d="M5 10.5l7-7 7 7V20H5z" />
         <path d="M3 12l9-9 9 9" />
         <path d="M5 10v10h14V10" />
-        <path d="M10 20v-6h4v6" />
       </svg>
     ),
   },
   {
     section: 'products',
     href: '/products',
-    label: 'Product',
+    label: 'Products',
     icon: (
       <svg className="sidebar-icon" viewBox="0 0 24 24" aria-hidden="true">
-        <path
-          className="duotone-fill"
-          d="M4 4h5v5H4zM15 4h5v5h-5zM4 15h5v5H4zM15 15h5v5h-5z"
-        />
-        <rect x="3" y="3" width="18" height="18" rx="2" />
-        <path d="M3 9h18M3 15h18M9 3v18M15 3v18" />
+        <rect x="3" y="3" width="7" height="7" />
+        <rect x="14" y="3" width="7" height="7" />
+        <rect x="3" y="14" width="7" height="7" />
+        <rect x="14" y="14" width="7" height="7" />
       </svg>
     ),
   },
@@ -54,33 +73,19 @@ const NAV = [
     label: 'Solutions',
     icon: (
       <svg className="sidebar-icon" viewBox="0 0 24 24" aria-hidden="true">
-        <path
-          className="duotone-fill"
-          d="M12 3a6 6 0 0 0-3.4 11A4.2 4.2 0 0 1 9.5 16.5h5a4.2 4.2 0 0 1 .9-2.5A6 6 0 0 0 12 3z"
-        />
-        <path d="M9 18h6" />
-        <path d="M10 22h4" />
-        <path d="M12 2a7 7 0 0 0-4 12.6A4.5 4.5 0 0 1 9 18h6a4.5 4.5 0 0 1 1-3.4A7 7 0 0 0 12 2z" />
+        <polygon points="12,2 22,8 12,14 2,8" />
+        <polyline points="2,14 12,20 22,14" />
       </svg>
     ),
   },
   {
     section: 'projects',
     href: '/projects',
-    label: 'Project',
+    label: 'Projects',
     icon: (
       <svg className="sidebar-icon" viewBox="0 0 24 24" aria-hidden="true">
-        <rect className="duotone-fill" x="5" y="3" width="14" height="18" rx="1" />
-        <rect x="5" y="3" width="14" height="18" rx="1" />
-        <path d="M5 9h14M5 15h14" />
-        <rect
-          className="duotone-fill-strong"
-          x="9.5"
-          y="10.5"
-          width="5"
-          height="3"
-          rx="0.3"
-        />
+        <rect x="3" y="7" width="18" height="14" rx="2" />
+        <path d="M8 7V5a2 2 0 012-2h4a2 2 0 012 2v2" />
       </svg>
     ),
   },
@@ -90,13 +95,44 @@ const NAV = [
     label: 'Support',
     icon: (
       <svg className="sidebar-icon" viewBox="0 0 24 24" aria-hidden="true">
-        <path
-          className="duotone-fill"
-          d="M3 15h3v6H3zM18 15h3v6h-3z"
-        />
-        <path d="M3 18v-6a9 9 0 0 1 18 0v6" />
-        <path d="M21 19a2 2 0 0 1-2 2h-1v-6h3v4z" />
-        <path d="M3 19a2 2 0 0 0 2 2h1v-6H3v4z" />
+        <circle cx="12" cy="12" r="9" />
+        <path d="M9.5 9a2.5 2.5 0 015 0c0 2-2.5 2-2.5 4" />
+        <circle cx="12" cy="17" r="0.5" />
+      </svg>
+    ),
+  },
+]
+
+const TOOLS: NavItem[] = [
+  {
+    section: 'find-your-match',
+    href: '/find-your-match',
+    label: 'Find your match',
+    icon: (
+      <svg className="sidebar-icon" viewBox="0 0 24 24" aria-hidden="true">
+        <polygon points="13,2 4,14 12,14 11,22 20,10 12,10 13,2" />
+      </svg>
+    ),
+  },
+  {
+    section: 'free-layout-design',
+    href: '/free-layout-design',
+    label: 'Free layout design',
+    icon: (
+      <svg className="sidebar-icon" viewBox="0 0 24 24" aria-hidden="true">
+        <path d="M12 19l7-7 3 3-7 7-3-3z" />
+        <path d="M18 13l-1.5-7.5L2 2l3.5 14.5L13 18l5-5z" />
+      </svg>
+    ),
+  },
+  {
+    section: 'contact',
+    href: '/contact',
+    label: 'Contact engineering',
+    icon: (
+      <svg className="sidebar-icon" viewBox="0 0 24 24" aria-hidden="true">
+        <rect x="3" y="5" width="18" height="14" rx="2" />
+        <path d="M3 7l9 6 9-6" />
       </svg>
     ),
   },
@@ -115,13 +151,46 @@ export function Sidebar() {
     getCollapsedServerSnapshot,
   )
   const [open, setOpen] = useState(false)
+  const [region, setRegion] = useState<PurchaseChannel['id']>(REGION_DEFAULT)
+  const [regionOpen, setRegionOpen] = useState(false)
   const sidebarRef = useRef<HTMLElement>(null)
   const toggleRef = useRef<HTMLButtonElement>(null)
+  const regionRef = useRef<HTMLDivElement>(null)
 
   useEffect(() => {
     document.body.classList.toggle('sidebar-collapsed', collapsed)
     return () => document.body.classList.remove('sidebar-collapsed')
   }, [collapsed])
+
+  // Hydrate region from localStorage after mount (avoids SSR mismatch).
+  useEffect(() => {
+    try {
+      const saved = window.localStorage.getItem(REGION_STORAGE_KEY)
+      if (saved === 'nz-ap' || saved === 'us-global') {
+        setRegion(saved)
+      }
+    } catch {}
+  }, [])
+
+  // Close the region dropdown when clicking outside it.
+  useEffect(() => {
+    if (!regionOpen) return
+    const onDocClick = (e: MouseEvent) => {
+      if (regionRef.current && !regionRef.current.contains(e.target as Node)) {
+        setRegionOpen(false)
+      }
+    }
+    document.addEventListener('click', onDocClick)
+    return () => document.removeEventListener('click', onDocClick)
+  }, [regionOpen])
+
+  const pickRegion = useCallback((id: PurchaseChannel['id']) => {
+    setRegion(id)
+    setRegionOpen(false)
+    try {
+      window.localStorage.setItem(REGION_STORAGE_KEY, id)
+    } catch {}
+  }, [])
 
   useEffect(() => {
     if (!open) return
@@ -147,6 +216,20 @@ export function Sidebar() {
     } catch {}
     window.dispatchEvent(new Event('envo-sidebar-change'))
   }, [])
+
+  const renderItems = (items: NavItem[]) =>
+    items.map((item) => (
+      <Link
+        key={item.section}
+        href={item.href}
+        className={cn('sidebar-link', isActive(pathname, item.href) && 'active')}
+        data-section={item.section}
+        onClick={() => setOpen(false)}
+      >
+        {item.icon}
+        <span className="sidebar-label">{item.label}</span>
+      </Link>
+    ))
 
   return (
     <>
@@ -198,52 +281,77 @@ export function Sidebar() {
 
           <nav className="sidebar-nav">
             <div className="sidebar-section">
-              {NAV.map((item) => (
-                <Link
-                  key={item.section}
-                  href={item.href}
-                  className={cn('sidebar-link', isActive(pathname, item.href) && 'active')}
-                  data-section={item.section}
-                  onClick={() => setOpen(false)}
-                >
-                  {item.icon}
-                  <span className="sidebar-label">{item.label}</span>
-                </Link>
-              ))}
+              <div className="sidebar-section-title">Navigate</div>
+              {renderItems(NAVIGATE)}
+            </div>
+            <div className="sidebar-section">
+              <div className="sidebar-section-title">Tools</div>
+              {renderItems(TOOLS)}
             </div>
           </nav>
 
           <div className="sidebar-footer">
-            <Link
-              href="/find-your-match"
-              className="sidebar-cta"
-              aria-label="Find your match — product wizard"
-              onClick={() => setOpen(false)}
+            <div
+              ref={regionRef}
+              className={cn('sidebar-region-wrap', regionOpen && 'open')}
             >
-              <svg className="sidebar-cta-icon" viewBox="0 0 24 24" aria-hidden="true">
-                <path d="M12 3 L13.5 8 L18 9.5 L13.5 11 L12 16 L10.5 11 L6 9.5 L10.5 8 Z" />
-                <path d="M19 14 L19.7 16 L21.5 16.7 L19.7 17.4 L19 19.5 L18.3 17.4 L16.5 16.7 L18.3 16 Z" />
-                <path d="M5 16 L5.5 17.5 L7 18 L5.5 18.5 L5 20 L4.5 18.5 L3 18 L4.5 17.5 Z" />
-              </svg>
-              <span className="sidebar-cta-label">Find your match</span>
-              <span className="sidebar-cta-sub">60-sec wizard</span>
-            </Link>
+              <button
+                type="button"
+                className="sidebar-region"
+                aria-haspopup="listbox"
+                aria-expanded={regionOpen}
+                aria-label={`Region: ${REGION_LABELS[region].short}. Click to change.`}
+                onClick={(e) => {
+                  e.stopPropagation()
+                  setRegionOpen((o) => !o)
+                }}
+              >
+                <span className="sidebar-region-flag" aria-hidden="true">
+                  {PURCHASE_CHANNELS.find((c) => c.id === region)?.flag}
+                </span>
+                <span className="sidebar-region-label">{REGION_LABELS[region].short}</span>
+                <svg
+                  className={cn('sidebar-region-caret', regionOpen && 'flip')}
+                  viewBox="0 0 24 24"
+                  aria-hidden="true"
+                >
+                  <path d="M6 9l6 6 6-6" />
+                </svg>
+              </button>
 
-            <button
-              type="button"
-              className="sidebar-region"
-              aria-label="Region: US Global (region selector coming soon)"
-              disabled
-            >
-              <svg viewBox="0 0 24 24" aria-hidden="true">
-                <circle cx="12" cy="12" r="9" />
-                <path d="M3 12h18M12 3a14 14 0 0 1 0 18M12 3a14 14 0 0 0 0 18" />
-              </svg>
-              <span className="sidebar-region-label">US · Global</span>
-              <svg className="sidebar-region-caret" viewBox="0 0 24 24" aria-hidden="true">
-                <path d="M6 9l6 6 6-6" />
-              </svg>
-            </button>
+              {regionOpen && (
+                <div className="sidebar-region-dropdown" role="listbox">
+                  <div className="sidebar-region-dropdown-head">Shipping region</div>
+                  {PURCHASE_CHANNELS.map((channel) => {
+                    const active = channel.id === region
+                    const labels = REGION_LABELS[channel.id]
+                    return (
+                      <button
+                        key={channel.id}
+                        type="button"
+                        role="option"
+                        aria-selected={active}
+                        className={cn('sidebar-region-option', active && 'active')}
+                        onClick={() => pickRegion(channel.id)}
+                      >
+                        <span className="sidebar-region-option-flag" aria-hidden="true">
+                          {channel.flag}
+                        </span>
+                        <span className="sidebar-region-option-body">
+                          <span className="sidebar-region-option-name">{labels.short}</span>
+                          <span className="sidebar-region-option-meta">{labels.meta}</span>
+                        </span>
+                        {active && (
+                          <span className="sidebar-region-option-check" aria-hidden="true">✓</span>
+                        )}
+                      </button>
+                    )
+                  })}
+                </div>
+              )}
+            </div>
+
+            <div className="sidebar-status" aria-hidden="true">CATALOGUE LIVE · v2.4</div>
 
             <button
               type="button"
