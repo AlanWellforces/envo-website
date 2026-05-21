@@ -5,6 +5,7 @@ import { notFound } from 'next/navigation'
 import { EnvoButton } from '@/components/ui/envo-button'
 import { PRODUCT_FAMILIES, type SeriesLink } from '@/data/product-families'
 import { PURCHASE_CHANNELS } from '@/data/purchase-channels'
+import { getProduct, resolveProductImage, type Product } from '@/lib/products'
 import familyStyles from '../page.module.css'
 import styles from './page.module.css'
 
@@ -48,6 +49,27 @@ export default async function SeriesDetailPage({ params }: { params: Params }) {
 
   const applications = seriesObj.applications ?? family.applications ?? []
   const siblings = family.series.filter((s) => !(isLive(s) && s.slug === series))
+
+  // Resolve each variant's defaultSku → Payload product. Used both for the
+  // variant cards (image + per-variant datasheet) and to pick the hero image:
+  // the "Most popular" variant's Payload image takes precedence; otherwise
+  // the first variant with a Payload product wins; otherwise we fall back to
+  // the Git-side series image.
+  const variantData = await Promise.all(
+    (seriesObj.variants ?? []).map(async (v) => {
+      if (!v.defaultSku) return { variant: v, product: null as Product | null }
+      const p = await getProduct(v.defaultSku)
+      return { variant: v, product: p && p.enabled && !p.hidden ? p : null }
+    }),
+  )
+
+  const heroProduct =
+    variantData.find((d) => d.variant.badge && d.product)?.product ??
+    variantData.find((d) => d.product)?.product ??
+    null
+  const heroImage = heroProduct
+    ? resolveProductImage(heroProduct, seriesObj.image)
+    : { src: seriesObj.image, isLocal: true, alt: `${seriesObj.productName} module` }
 
   return (
     <div className="theme-light">
@@ -104,14 +126,19 @@ export default async function SeriesDetailPage({ params }: { params: Params }) {
             </div>
           </div>
           <div className={styles.heroImageCol}>
-            <Image
-              src={seriesObj.image}
-              alt={`${seriesObj.productName} module`}
-              width={640}
-              height={640}
-              sizes="(min-width: 1100px) 480px, 100vw"
-              priority
-            />
+            {heroImage.isLocal ? (
+              <Image
+                src={heroImage.src}
+                alt={heroImage.alt}
+                width={640}
+                height={640}
+                sizes="(min-width: 1100px) 480px, 100vw"
+                priority
+              />
+            ) : (
+              // eslint-disable-next-line @next/next/no-img-element
+              <img src={heroImage.src} alt={heroImage.alt} loading="eager" />
+            )}
           </div>
         </div>
       </section>
@@ -163,40 +190,58 @@ export default async function SeriesDetailPage({ params }: { params: Params }) {
       )}
 
       {/* ============== AVAILABLE VARIANTS ============== */}
-      {seriesObj.variants && seriesObj.variants.length > 0 && (
+      {variantData.length > 0 && (
         <section className={familyStyles.sectionWrap}>
           <div className={familyStyles.sectionHead}>
             <span className={familyStyles.sectionEyebrow}>Variants</span>
             <h2 className={familyStyles.sectionHeading}>Available variants</h2>
             <p className={familyStyles.sectionIntro}>
-              {seriesObj.variants.length} LED-count variants in the {seriesObj.productName} line.
+              {variantData.length} LED-count variants in the {seriesObj.productName} line.
               Each available in 3000K / 4000K / 7000K.
             </p>
           </div>
           <div className={styles.variantsGrid}>
-            {seriesObj.variants.map((v) => (
-              <div
-                key={v.name}
-                className={v.badge ? styles.variantCardPopular : styles.variantCard}
-              >
-                {v.badge && <span className={styles.variantBadge}>{v.badge}</span>}
-                <div className={styles.variantImage}>
-                  <Image
-                    src={v.image ?? seriesObj.image}
-                    alt={`${v.name} ${seriesObj.productName}`}
-                    width={400}
-                    height={400}
-                    sizes="(min-width: 1100px) 25vw, (min-width: 641px) 50vw, 100vw"
-                  />
+            {variantData.map(({ variant: v, product }) => {
+              const image = product
+                ? resolveProductImage(product, v.image ?? seriesObj.image)
+                : null
+              const cardClass = v.badge ? styles.variantCardPopular : styles.variantCard
+              return (
+                <div key={v.name} className={cardClass}>
+                  {v.badge && <span className={styles.variantBadge}>{v.badge}</span>}
+                  <div className={styles.variantImage}>
+                    {image && !image.isLocal ? (
+                      // eslint-disable-next-line @next/next/no-img-element
+                      <img src={image.src} alt={image.alt} loading="lazy" />
+                    ) : (
+                      <Image
+                        src={image?.src ?? v.image ?? seriesObj.image}
+                        alt={image?.alt ?? `${v.name} ${seriesObj.productName}`}
+                        width={400}
+                        height={400}
+                        sizes="(min-width: 1100px) 25vw, (min-width: 641px) 50vw, 100vw"
+                      />
+                    )}
+                  </div>
+                  <h3 className={styles.variantName}>{v.name}</h3>
+                  <ul className={styles.variantSpecs}>
+                    {v.specs.map((spec) => (
+                      <li key={spec}>{spec}</li>
+                    ))}
+                  </ul>
+                  {product?.spec_sheet_url && (
+                    <a
+                      href={product.spec_sheet_url}
+                      className={styles.variantDatasheet}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                    >
+                      Datasheet PDF <span aria-hidden="true">↗</span>
+                    </a>
+                  )}
                 </div>
-                <h3 className={styles.variantName}>{v.name}</h3>
-                <ul className={styles.variantSpecs}>
-                  {v.specs.map((spec) => (
-                    <li key={spec}>{spec}</li>
-                  ))}
-                </ul>
-              </div>
-            ))}
+              )
+            })}
           </div>
           {seriesObj.variantsFootnote && (
             <p className={styles.variantsFootnote}>{seriesObj.variantsFootnote}</p>
@@ -260,6 +305,55 @@ export default async function SeriesDetailPage({ params }: { params: Params }) {
                 </div>
               </article>
             ))}
+          </div>
+        </section>
+      )}
+
+      {/* ============== RESOURCES ============== */}
+      {seriesObj.resources && seriesObj.resources.length > 0 && (
+        <section className={familyStyles.sectionWrap}>
+          <div className={familyStyles.sectionHead}>
+            <span className={familyStyles.sectionEyebrow}>Resources</span>
+            <h2 className={familyStyles.sectionHeading}>Datasheet &amp; downloads</h2>
+            <p className={familyStyles.sectionIntro}>
+              Engineering files for {seriesObj.productName} — datasheets, photometric data and
+              compliance certificates.
+            </p>
+          </div>
+          <div className={styles.resourcesGrid}>
+            {seriesObj.resources.map((r) => {
+              const inner = (
+                <>
+                  <span className={styles.resourceLabel}>{r.label}</span>
+                  <h3 className={styles.resourceTitle}>{r.title}</h3>
+                  {r.description && (
+                    <p className={styles.resourceDesc}>{r.description}</p>
+                  )}
+                  <span className={styles.resourceCta}>
+                    {r.url ? (
+                      <>Download {r.meta && <em>· {r.meta}</em>} <span aria-hidden="true">↗</span></>
+                    ) : (
+                      <>Request via contact {r.meta && <em>· {r.meta}</em>} <span aria-hidden="true">→</span></>
+                    )}
+                  </span>
+                </>
+              )
+              return r.url ? (
+                <a
+                  key={r.title}
+                  href={r.url}
+                  className={styles.resourceCard}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                >
+                  {inner}
+                </a>
+              ) : (
+                <Link key={r.title} href="/contact" className={styles.resourceCard}>
+                  {inner}
+                </Link>
+              )
+            })}
           </div>
         </section>
       )}
