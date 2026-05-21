@@ -69,6 +69,7 @@ export interface Config {
   collections: {
     products: Product;
     media: Media;
+    posts: Post;
     'payload-kv': PayloadKv;
     users: User;
     'payload-locked-documents': PayloadLockedDocument;
@@ -79,6 +80,7 @@ export interface Config {
   collectionsSelect: {
     products: ProductsSelect;
     media: MediaSelect;
+    posts: PostsSelect;
     'payload-kv': PayloadKvSelect;
     users: UsersSelect;
     'payload-locked-documents': PayloadLockedDocumentsSelect;
@@ -411,6 +413,80 @@ export interface Media {
   };
 }
 /**
+ * ENVO editorial content. Publish to make a post visible on the website.
+ *
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "posts".
+ */
+export interface Post {
+  id: number;
+  title: string;
+  /**
+   * Auto-generated from title. Edit in the database if you must change it.
+   */
+  slug: string;
+  /**
+   * Shown on cards and as the meta-description fallback. 200 chars max.
+   */
+  excerpt: string;
+  /**
+   * Cover image. Used on list cards and the detail page header.
+   */
+  cover: number | Media;
+  body: {
+    root: {
+      type: string;
+      children: {
+        type: any;
+        version: number;
+        [k: string]: unknown;
+      }[];
+      direction: ('ltr' | 'rtl') | null;
+      format: 'left' | 'start' | 'center' | 'right' | 'end' | 'justify' | '';
+      indent: number;
+      version: number;
+    };
+    [k: string]: unknown;
+  };
+  category: 'guides' | 'tech_insights' | 'company_news' | 'industry';
+  /**
+   * Free-form tags. Used for /blog/tag/[t] pages.
+   */
+  tags?:
+    | {
+        tag: string;
+        id?: string | null;
+      }[]
+    | null;
+  /**
+   * When this post becomes visible. Future dates work as scheduled publishing.
+   */
+  publishedAt: string;
+  /**
+   * Show in featured spots on /blog and home.
+   */
+  featured?: boolean | null;
+  /**
+   * Optional. Falls back to title if empty.
+   */
+  seoTitle?: string | null;
+  /**
+   * Optional. Falls back to excerpt if empty.
+   */
+  seoDescription?: string | null;
+  /**
+   * Optional. Falls back to cover if empty.
+   */
+  ogImage?: (number | null) | Media;
+  /**
+   * Estimated minutes to read. Calculated on save.
+   */
+  readingTime?: number | null;
+  updatedAt: string;
+  createdAt: string;
+  _status?: ('draft' | 'published') | null;
+}
+/**
  * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "payload-kv".
  */
@@ -466,6 +542,10 @@ export interface PayloadLockedDocument {
     | ({
         relationTo: 'media';
         value: number | Media;
+      } | null)
+    | ({
+        relationTo: 'posts';
+        value: number | Post;
       } | null)
     | ({
         relationTo: 'users';
@@ -670,6 +750,33 @@ export interface MediaSelect {
               filename?: boolean;
             };
       };
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "posts_select".
+ */
+export interface PostsSelect {
+  title?: boolean;
+  slug?: boolean;
+  excerpt?: boolean;
+  cover?: boolean;
+  body?: boolean;
+  category?: boolean;
+  tags?:
+    | boolean
+    | {
+        tag?: boolean;
+        id?: boolean;
+      };
+  publishedAt?: boolean;
+  featured?: boolean;
+  seoTitle?: boolean;
+  seoDescription?: boolean;
+  ogImage?: boolean;
+  readingTime?: boolean;
+  updatedAt?: boolean;
+  createdAt?: boolean;
+  _status?: boolean;
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
