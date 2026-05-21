@@ -1,0 +1,21 @@
+version: '3.8'
+
+services:
+  envo-website:
+    image: envo-website:latest
+    container_name: envo-website
+    restart: unless-stopped
+    ports:
+      - "4110:3000"
+    env_file:
+      - .env
+    volumes:
+      - envo-media:/app/media
+    environment:
+      NODE_ENV: production
+      PORT: 3000
+      HOSTNAME: 0.0.0.0
+
+volumes:
+  envo-media:
+    driver: local

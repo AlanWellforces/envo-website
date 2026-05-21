@@ -1,20 +1,23 @@
+import Image from 'next/image'
 import Link from 'next/link'
 import type { Metadata } from 'next'
-import { EnvoButton } from '@/components/ui/envo-button'
 import { PRODUCT_FAMILIES } from '@/data/product-families'
+import familyStyles from './[slug]/page.module.css'
+import styles from './page.module.css'
 
 export const metadata: Metadata = {
   title: 'Products — ENVO',
   description:
-    'A complete LED ecosystem: modules, drivers, controllers and accessories engineered, tested and warranted as one system.',
+    'A complete ecosystem for LED lighting. From the driver to the module to the control — every ENVO component is engineered to work together.',
 }
 
-const STATS = [
-  { label: 'Module families', value: '6' },
-  { label: 'Driver families', value: '3' },
-  { label: 'Control protocols', value: '4' },
-  { label: 'Warranty', value: '5 years' },
-]
+/** Single-word category eyebrow per family, as in the reference catalog. */
+const EYEBROW: Record<string, string> = {
+  'led-signage-modules': 'Signage',
+  'led-drivers': 'Power',
+  'control-gear': 'Control',
+  accessories: 'Accessory',
+}
 
 export default function ProductsPage() {
   return (
@@ -27,80 +30,51 @@ export default function ProductsPage() {
         </div>
       </div>
 
+      {/* ============== HERO ============== */}
       <section className="sig-hero">
         <div className="container">
           <div className="sig-hero-inner">
-            <span className="sig-eyebrow">Product · Overview</span>
+            <span className="sig-eyebrow">Our products</span>
             <h1>
-              A complete LED ecosystem for <em>every signage install.</em>
+              A complete ecosystem for <em>LED lighting.</em>
             </h1>
             <p className="sig-hero-desc">
-              Four product families that work together by design — modules, drivers, controllers
-              and accessories engineered, tested and warranted as one system.
+              From the driver to the module to the control — every ENVO component is engineered
+              to work together for clean, reliable installations.
             </p>
           </div>
         </div>
       </section>
 
-      <div className="sig-stats">
-        {STATS.map((s) => (
-          <div key={s.label} className="sig-stat">
-            <div className="sig-stat-label">{s.label}</div>
-            <div className="sig-stat-value">{s.value}</div>
-          </div>
-        ))}
-      </div>
-
-      <section className="sig-grid-section">
-        <div className="sig-grid">
+      {/* ============== 4 FAMILY CARDS ============== */}
+      <section className={familyStyles.sectionWrap}>
+        <div className={styles.familyGrid}>
           {PRODUCT_FAMILIES.map((f) => (
             <Link
               key={f.slug}
               href={f.href}
-              className={`sig-card${f.popular ? ' is-popular' : ''}`}
+              className={`${styles.familyCard}${f.popular ? ` ${styles.familyCardPopular}` : ''}`}
             >
-              <div className="sig-img">
-                <img src={f.image} alt={f.name} />
+              {f.popular && <span className={styles.familyBadge}>Most popular</span>}
+              <div className={styles.familyImg}>
+                <Image
+                  src={f.image}
+                  alt={f.name}
+                  width={800}
+                  height={600}
+                  sizes="(min-width: 1100px) 25vw, (min-width: 640px) 50vw, 100vw"
+                />
               </div>
-              <div className="sig-body">
-                <span className="sig-tag">{f.tag}</span>
-                <div className="sig-name">{f.name}</div>
-                <div className="sig-sku">{f.sku}</div>
-                <p className="sig-desc">{f.longDesc}</p>
-                <div className="sig-meta">
-                  {f.pills.map((p) => (
-                    <span key={p} className="sig-meta-pill">
-                      <strong>{p}</strong>
-                    </span>
-                  ))}
-                </div>
-                <span className="sig-cta">
-                  {f.cta} <span>→</span>
+              <div className={styles.familyBody}>
+                <span className={styles.familyTag}>{EYEBROW[f.slug] ?? f.tag}</span>
+                <h2 className={styles.familyName}>{f.name}</h2>
+                <p className={styles.familyDesc}>{f.longDesc}</p>
+                <span className={styles.familyCta}>
+                  Explore <span>→</span>
                 </span>
               </div>
             </Link>
           ))}
-        </div>
-      </section>
-
-      <section className="sig-cta-banner">
-        <div className="sig-cta-inner">
-          <span className="sig-cta-eyebrow">Find your match · 60-sec wizard</span>
-          <h2>
-            Need help selecting across families? <em>We will spec the full BOM.</em>
-          </h2>
-          <p>
-            Tell us your sign type, dimensions and install environment — we will spec modules,
-            driver, controller and accessories as a complete bundled order.
-          </p>
-          <div className="sig-cta-actions">
-            <EnvoButton href="/find-your-match" variant="primary" arrow>
-              Try Find your match
-            </EnvoButton>
-            <EnvoButton href="#" variant="ghost">
-              Download full product catalogue (PDF)
-            </EnvoButton>
-          </div>
         </div>
       </section>
     </div>

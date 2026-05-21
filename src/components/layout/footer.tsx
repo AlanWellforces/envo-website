@@ -1,3 +1,4 @@
+import Image from 'next/image'
 import Link from 'next/link'
 
 export function Footer() {
@@ -6,7 +7,12 @@ export function Footer() {
       <div className="container">
         <div className="footer-grid">
           <div className="footer-brand">
-            <img src="/assets/images/logo-envo-darkbg.svg" alt="ENVO" />
+            <Image
+              src="/assets/images/logo-envo-darkbg.svg"
+              alt="ENVO"
+              width={120}
+              height={22}
+            />
             <p>Engineered illumination to elevate performance.</p>
             <a href="mailto:contact@envo.com" className="footer-brand-email">
               contact@envo.com
@@ -45,8 +51,8 @@ export function Footer() {
             <h5>Company</h5>
             <ul>
               <li><Link href="/about">About ENVO</Link></li>
-              <li><a href="#">News</a></li>
-              <li><a href="#">Careers</a></li>
+              <li><span aria-disabled="true">News</span></li>
+              <li><span aria-disabled="true">Careers</span></li>
             </ul>
           </div>
         </div>
@@ -54,9 +60,9 @@ export function Footer() {
         <div className="footer-bottom">
           <p>© {new Date().getFullYear()} ENVO — Engineered Illumination</p>
           <div className="footer-legal">
-            <a href="#">Privacy Policy</a>
-            <a href="#">Terms of Use</a>
-            <a href="#">Sitemap</a>
+            <span aria-disabled="true">Privacy Policy</span>
+            <span aria-disabled="true">Terms of Use</span>
+            <span aria-disabled="true">Sitemap</span>
           </div>
         </div>
       </div>

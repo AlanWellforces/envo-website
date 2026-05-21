@@ -1,3 +1,4 @@
+import Image from 'next/image'
 import { EnvoButton } from '@/components/ui/envo-button'
 
 const USED_PRODUCTS = [
@@ -13,17 +14,24 @@ export function FeaturedDetail() {
       <div className="container">
         <div className="featured-grid">
           <div className="featured-image reveal">
+            <Image
+              src="/assets/images/ind-architectural.jpg"
+              alt="Auckland CBD commercial facade lit at night with ENVO modules"
+              fill
+              sizes="(min-width: 1280px) 56vw, (min-width: 980px) 60vw, 100vw"
+              style={{ objectFit: 'cover' }}
+            />
             <span className="featured-image-tag">★ Featured project</span>
           </div>
           <div className="featured-content reveal" data-delay="1">
             <div className="section-eyebrow" style={{ marginBottom: 16 }}>
               Auckland CBD · Commercial facade
             </div>
-            <h3>
+            <h2>
               One specification.
               <br />
               <em>Years of consistent light.</em>
-            </h3>
+            </h2>
             <p>
               EcoGlo Quad modules, Linear driver banks, and a single zigbee gateway delivered
               facade-grade uniformity across multiple installation phases — same colour binning,
@@ -33,7 +41,7 @@ export function FeaturedDetail() {
             <div className="used-products">
               {USED_PRODUCTS.map((p) => (
                 <div key={p.name} className="used-product">
-                  <img src={p.img} alt={p.name} />
+                  <Image src={p.img} alt={p.name} width={40} height={40} />
                   <div className="used-product-text">
                     <div className="used-product-name">{p.name}</div>
                     <div className="used-product-meta">{p.meta}</div>

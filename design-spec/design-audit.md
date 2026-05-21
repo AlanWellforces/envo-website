@@ -4,6 +4,8 @@
 **Date:** 2026-05-15
 **Purpose:** Identify a single set of design tokens + shared components, so every page draws from one design system instead of each page reinventing its own.
 
+**Status (2026-05-15):** ✅ All 6 decisions made — see Section 6 tracker. Frontend refactor can proceed.
+
 ---
 
 ## TL;DR — what the audit found
@@ -210,11 +212,21 @@ Assuming you accept the recommendations above (or with your own decisions):
 
 When you've decided, write your call here so future PRs/sessions can pick up consistently:
 
-| ID | Decision | Recommended | Your call |
+| ID | Decision | Recommended | Final call (2026-05-15) |
 |---|---|---|---|
-| D1 | Two-theme system | A. Keep both | __ |
-| D2 | Token naming | A. Semantic per role | __ |
-| D3 | Card component | A. One Card with variants | __ |
-| D4 | Container width | A. Single 1440 | __ |
-| D5 | Sub-page CSS | A. envo.css + CSS modules | __ |
-| D6 | eco-series scope | A. Template for /products/[slug] | __ |
+| Q1 | Tailwind v4 utility usage *(added during decision pass)* | New code uses utilities, migrate envo.css out | **A. Tailwind utilities for new code, envo.css migrates out gradually** |
+| D1 | Two-theme system | A. Keep both | **Dark + light surfaces coexist as design choices; NO user-toggleable theme switch. Home dark / catalog light / sidebar always dark — same as today.** |
+| D2 | Token naming | A. Semantic per role | **A. Semantic per role** (`--surface-base`, `--text-primary`, etc.) |
+| D3 | Card component | A. One Card with variants | **A. One `<Card>` with variants** (`catalog` / `project` / `feature` / `resource` / `solution` / `product`) |
+| D4 | Container width | A. Single 1440 | **A. Single 1440px** |
+| D5 | Sub-page CSS | A. envo.css + CSS modules | **A. envo.css shared layer + per-page CSS modules when needed** |
+| D6 | eco-series scope | A. Template for /products/[slug] | **A. Template-driven /products/[slug]** (Round D scope) |
+
+### Implications of these decisions
+
+1. **Token layer rewrite (unblocks everything):** `globals.css @theme` gets semantic tokens (`--surface-base`, `--surface-elevated`, `--text-primary`, `--text-muted`, `--brand-blue`, `--brand-lime`); shadcn's unused oklch block gets removed; the legacy short-name aliases (`--bg`, `--fg`, `--line`) stay pointing at the new tokens **only as long as envo.css needs them** during migration.
+2. **`.theme-light` scoped wrapper stays** — it's the only "theme switch" we need (catalog page contents wrap in it; sidebar sits outside).
+3. **New components use Tailwind utilities** referencing the semantic tokens via `bg-surface-base` / `text-text-primary` etc. — Tailwind v4 auto-generates these from `@theme` color tokens.
+4. **`<Card>` component** built with `data-variant` attribute, CSS lives in envo.css (during migration) or eventually as a tailwind utility composition.
+5. **envo.css 2818-line monolith stays put for now**; only split into CSS modules when a page needs styles that don't generalise (eco-series is the future candidate).
+6. **Hardcoded data arrays** in home/* sections — separate concern, not a CSS decision. Will migrate to Payload progressively (nav + footer first, editorial copy later).

@@ -5,8 +5,9 @@ import path from 'node:path'
 import { buildConfig } from 'payload'
 import sharp from 'sharp'
 
-import { Products } from './payload/collections/Products'
-import { Media } from './payload/collections/Media'
+import { Products } from './payload/collections/Products.ts'
+import { Media } from './payload/collections/Media.ts'
+import { Posts } from './payload/collections/Posts.ts'
 
 const filename = fileURLToPath(import.meta.url)
 const dirname = path.dirname(filename)
@@ -17,7 +18,7 @@ export default buildConfig({
       baseDir: path.resolve(dirname),
     },
   },
-  collections: [Products, Media],
+  collections: [Products, Media, Posts],
   editor: lexicalEditor(),
   secret: process.env.PAYLOAD_SECRET || '',
   typescript: {
@@ -27,6 +28,7 @@ export default buildConfig({
     pool: {
       connectionString: process.env.DATABASE_URL || '',
     },
+    push: process.env.NODE_ENV !== 'production',
   }),
   sharp,
 })

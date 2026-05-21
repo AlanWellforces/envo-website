@@ -1,0 +1,616 @@
+/* Series detail page (/products/[slug]/[series]) — local styles only.
+   Shared section frame (sectionWrap / sectionTinted / sectionHead / sectionIntro
+   / appsGrid / appCard*) comes from the family page module (../page.module.css)
+   so the two pages stay visually aligned. */
+
+/* ============================================================
+   HERO — 2-col split: text left, product image right
+   ============================================================ */
+.heroSplit {
+  display: grid;
+  grid-template-columns: minmax(0, 1.05fr) minmax(0, 0.95fr);
+  gap: clamp(32px, 5vw, 64px);
+  align-items: center;
+  max-width: 1440px;
+  margin: 0 auto;
+  padding: 8px 40px;
+}
+.heroText {
+  min-width: 0;
+}
+.heroImageCol {
+  position: relative;
+  aspect-ratio: 1 / 1;
+  background: #fff;
+  border: 1px solid var(--line);
+  border-radius: 22px;
+  overflow: hidden;
+  box-shadow: 0 1px 0 rgba(15, 23, 42, 0.02), 0 24px 56px -24px rgba(15, 23, 42, 0.18);
+}
+.heroImageCol img {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  padding: 8%;
+  mix-blend-mode: multiply;
+}
+
+/* ============================================================
+   HERO TYPE — series label + product name, metric badges, dual CTA
+   ============================================================ */
+.heroSeriesLabel {
+  font-style: normal;
+  background: linear-gradient(135deg, var(--envo-blue) 0%, var(--envo-lime-deep) 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+.heroBadges {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  margin: 28px 0 28px;
+}
+.heroBadge {
+  display: inline-flex;
+  flex-direction: column;
+  gap: 2px;
+  padding: 8px 14px;
+  border-radius: 10px;
+  background: #fff;
+  border: 1px solid var(--line);
+  min-width: 0;
+}
+.heroBadge strong {
+  font-size: 14px;
+  font-weight: 700;
+  color: var(--fg);
+  letter-spacing: -0.005em;
+  font-variant-numeric: tabular-nums;
+}
+.heroBadge em {
+  font-style: normal;
+  font-size: 9.5px;
+  font-weight: 700;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--fg-soft);
+}
+.heroCtas {
+  display: inline-flex;
+  gap: 12px;
+  flex-wrap: wrap;
+  margin-top: 8px;
+}
+
+/* ============================================================
+   KEY FEATURES — 3-col grid (2-col tablet, 1-col mobile)
+   ============================================================ */
+.featuresGrid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 22px;
+}
+.featureCard {
+  padding: 24px 26px;
+  background: var(--bg-card);
+  border: 1px solid var(--line);
+  border-radius: 14px;
+  position: relative;
+}
+.featureCard::before {
+  content: '';
+  position: absolute;
+  left: 26px;
+  top: -1px;
+  width: 32px;
+  height: 2px;
+  background: var(--envo-lime);
+}
+.featureTitle {
+  font-size: 17px;
+  font-weight: 700;
+  letter-spacing: -0.005em;
+  color: var(--fg);
+  margin-bottom: 8px;
+}
+.featureDesc {
+  font-size: 13.5px;
+  color: var(--fg-mute);
+  line-height: 1.6;
+}
+
+/* ============================================================
+   SPECIFICATIONS — 2-col label/value list inside a card
+   ============================================================ */
+.specsCard {
+  background: #fff;
+  border: 1px solid var(--line);
+  border-radius: 18px;
+  padding: 8px 0;
+  box-shadow: 0 1px 0 rgba(15, 23, 42, 0.02), 0 12px 32px -20px rgba(15, 23, 42, 0.1);
+}
+.specsList {
+  margin: 0;
+}
+.specsRow {
+  display: grid;
+  grid-template-columns: minmax(180px, 240px) 1fr;
+  gap: 24px;
+  padding: 14px 28px;
+  border-bottom: 1px solid var(--line);
+}
+.specsRow:last-child {
+  border-bottom: none;
+}
+.specsLabel {
+  font-size: 10.5px;
+  font-weight: 700;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--fg-soft);
+  align-self: center;
+}
+.specsValue {
+  margin: 0;
+  font-size: 14px;
+  color: var(--fg);
+  font-weight: 500;
+  font-variant-numeric: tabular-nums;
+}
+
+/* ============================================================
+   AVAILABLE VARIANTS — 4-card grid, "Most popular" highlighted
+   ============================================================ */
+.variantsGrid {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 18px;
+}
+.variantCard,
+.variantCardPopular {
+  position: relative;
+  padding: 24px 24px 22px;
+  background: var(--bg-card);
+  border: 1px solid var(--line);
+  border-radius: 14px;
+  transition: transform 0.2s ease, border-color 0.2s ease, box-shadow 0.25s ease;
+}
+.variantCard:hover,
+.variantCardPopular:hover {
+  transform: translateY(-2px);
+  border-color: rgba(0, 113, 188, 0.4);
+  box-shadow: 0 12px 28px -12px rgba(0, 113, 188, 0.2);
+}
+.variantCardPopular {
+  border: 1px solid var(--envo-blue);
+  background: linear-gradient(180deg, rgba(0, 113, 188, 0.04) 0%, transparent 70%);
+}
+.variantImage {
+  position: relative;
+  aspect-ratio: 1 / 1;
+  margin-bottom: 16px;
+  border-radius: 10px;
+  background: #fff;
+  border: 1px solid var(--line);
+  overflow: hidden;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.variantImage img {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  padding: 10%;
+  mix-blend-mode: multiply;
+}
+.variantBadge {
+  position: absolute;
+  top: 14px;
+  right: 14px;
+  padding: 4px 9px;
+  font-size: 9.5px;
+  font-weight: 700;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: #1a2332;
+  background: var(--envo-lime);
+  border-radius: 999px;
+}
+.variantName {
+  font-size: 18px;
+  font-weight: 700;
+  letter-spacing: -0.01em;
+  color: var(--fg);
+  margin-bottom: 14px;
+}
+.variantSpecs {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+.variantSpecs li {
+  position: relative;
+  padding-left: 16px;
+  margin-bottom: 8px;
+  font-size: 13px;
+  color: var(--fg-mute);
+  line-height: 1.5;
+}
+.variantSpecs li::before {
+  content: '';
+  position: absolute;
+  left: 0;
+  top: 8px;
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: var(--envo-blue);
+  opacity: 0.55;
+}
+.variantsFootnote {
+  margin-top: 18px;
+  font-size: 12.5px;
+  color: var(--fg-soft);
+  font-style: italic;
+}
+.variantDatasheet {
+  margin-top: 14px;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 12.5px;
+  font-weight: 600;
+  color: var(--envo-blue);
+  text-decoration: none;
+  padding-top: 12px;
+  border-top: 1px dashed var(--line);
+}
+.variantDatasheet span {
+  transition: transform 0.2s ease;
+}
+.variantDatasheet:hover {
+  color: var(--envo-blue);
+}
+.variantDatasheet:hover span {
+  transform: translate(2px, -2px);
+}
+
+/* ============================================================
+   REGIONAL AVAILABILITY — 2 stacked blocks side-by-side
+   ============================================================ */
+.regionGrid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 22px;
+}
+.regionCard {
+  padding: 30px 32px;
+  background: #fff;
+  border: 1px solid var(--line);
+  border-radius: 18px;
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  box-shadow: 0 1px 0 rgba(15, 23, 42, 0.02), 0 12px 32px -20px rgba(15, 23, 42, 0.1);
+}
+.regionHeader {
+  display: inline-flex;
+  align-items: center;
+  gap: 12px;
+}
+.regionFlag {
+  font-size: 28px;
+  line-height: 1;
+}
+.regionLabel {
+  font-size: 10.5px;
+  font-weight: 700;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: var(--fg-soft);
+}
+.regionHeading {
+  font-size: 20px;
+  font-weight: 700;
+  letter-spacing: -0.01em;
+  color: var(--fg);
+  margin: 0;
+}
+.regionBody {
+  font-size: 13.5px;
+  color: var(--fg-mute);
+  line-height: 1.55;
+  margin: 0;
+}
+.regionCtas {
+  display: inline-flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  margin-top: 6px;
+}
+
+/* ============================================================
+   RESOURCES GRID — datasheet + download cards
+   ============================================================ */
+.resourcesGrid {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 18px;
+}
+.resourceCard {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  padding: 22px 24px;
+  background: var(--bg-card);
+  border: 1px solid var(--line);
+  border-radius: 14px;
+  color: var(--fg);
+  text-decoration: none;
+  transition: border-color 0.2s ease, transform 0.15s ease, box-shadow 0.2s ease;
+}
+.resourceCard:hover {
+  border-color: rgba(0, 113, 188, 0.45);
+  transform: translateY(-1px);
+  box-shadow: 0 12px 28px -16px rgba(0, 113, 188, 0.22);
+}
+.resourceLabel {
+  font-size: 10.5px;
+  font-weight: 700;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: var(--fg-soft);
+}
+.resourceTitle {
+  font-size: 16px;
+  font-weight: 700;
+  letter-spacing: -0.005em;
+  color: var(--fg);
+  margin: 0;
+}
+.resourceDesc {
+  font-size: 13px;
+  color: var(--fg-mute);
+  line-height: 1.55;
+  margin: 0;
+  flex: 1;
+}
+.resourceCta {
+  margin-top: 4px;
+  font-size: 12.5px;
+  font-weight: 600;
+  color: var(--envo-blue);
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+}
+.resourceCta em {
+  font-style: normal;
+  font-weight: 500;
+  color: var(--fg-soft);
+}
+.resourceCta span {
+  transition: transform 0.2s ease;
+}
+.resourceCard:hover .resourceCta span {
+  transform: translateX(3px);
+}
+@media (max-width: 900px) {
+  .resourcesGrid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+}
+@media (max-width: 540px) {
+  .resourcesGrid { grid-template-columns: 1fr; }
+}
+
+/* ============================================================
+   PAIR WITH — 3 cross-product cards
+   ============================================================ */
+.pairGrid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 18px;
+}
+.pairCard {
+  display: flex;
+  flex-direction: column;
+  background: var(--bg-card);
+  border: 1px solid var(--line);
+  border-radius: 14px;
+  overflow: hidden;
+  color: var(--fg);
+  text-decoration: none;
+  transition: transform 0.2s ease, border-color 0.2s ease, box-shadow 0.25s ease;
+}
+.pairCard:hover {
+  transform: translateY(-2px);
+  border-color: rgba(0, 113, 188, 0.4);
+  box-shadow: 0 12px 28px -12px rgba(0, 113, 188, 0.2);
+}
+.pairImage {
+  position: relative;
+  aspect-ratio: 16 / 9;
+  background: #fff;
+  border-bottom: 1px solid var(--line);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+}
+.pairImage img {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  padding: 14%;
+  transition: transform 0.3s ease;
+}
+.pairCard:hover .pairImage img {
+  transform: scale(1.04);
+}
+.pairBody {
+  padding: 22px 24px 22px;
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+}
+.pairTitle {
+  font-size: 16px;
+  font-weight: 700;
+  letter-spacing: -0.005em;
+  color: var(--fg);
+  margin-bottom: 8px;
+}
+.pairDesc {
+  font-size: 13.5px;
+  color: var(--fg-mute);
+  line-height: 1.55;
+  margin-bottom: 14px;
+}
+.pairCta {
+  margin-top: auto;
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--envo-blue);
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+}
+.pairCta span {
+  transition: transform 0.2s ease;
+}
+.pairCard:hover .pairCta span {
+  transform: translateX(4px);
+}
+
+/* ============================================================
+   DESIGN ASSISTANCE BANNER — full-width gradient card
+   ============================================================ */
+.designBanner {
+  padding: clamp(28px, 4vw, 48px);
+  background: linear-gradient(135deg, #f4f7fa 0%, #e8eef5 100%);
+  border: 1px solid var(--line);
+  border-radius: 18px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 28px;
+  flex-wrap: wrap;
+}
+.designEyebrow {
+  display: inline-block;
+  font-size: 10.5px;
+  font-weight: 700;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: var(--envo-lime-deep);
+  margin-bottom: 8px;
+}
+.designHeading {
+  font-size: clamp(24px, 2.2vw, 32px);
+  font-weight: 700;
+  letter-spacing: -0.015em;
+  color: var(--fg);
+  margin-bottom: 10px;
+}
+.designBody {
+  font-size: 14.5px;
+  color: var(--fg-mute);
+  line-height: 1.55;
+  max-width: 560px;
+  margin: 0;
+}
+.designCtas {
+  display: inline-flex;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+
+/* ============================================================
+   SIBLING SERIES — pill list
+   ============================================================ */
+.siblingList {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+.siblingItem {
+  font-size: 13.5px;
+  padding: 10px 18px;
+  background: var(--bg-card);
+  border: 1px solid var(--line);
+  border-radius: 999px;
+  color: var(--envo-blue);
+  font-weight: 600;
+  text-decoration: none;
+  transition: border-color 0.2s ease, transform 0.15s ease, box-shadow 0.2s ease;
+}
+.siblingItem span {
+  transition: transform 0.2s ease;
+  display: inline-block;
+}
+.siblingItem:hover {
+  border-color: var(--envo-blue);
+  transform: translateY(-1px);
+  box-shadow: 0 6px 18px -6px rgba(0, 113, 188, 0.25);
+}
+.siblingItem:hover span {
+  transform: translateX(3px);
+}
+.siblingItemDisabled {
+  font-size: 13.5px;
+  padding: 10px 18px;
+  background: var(--bg-page-alt, #eaecf0);
+  border: 1px solid var(--line);
+  border-radius: 999px;
+  color: var(--fg-soft);
+  font-weight: 500;
+}
+.siblingItemDisabled em {
+  font-style: normal;
+  opacity: 0.55;
+  margin-left: 6px;
+  font-size: 11.5px;
+}
+
+/* ============================================================
+   RESPONSIVE
+   ============================================================ */
+@media (max-width: 1100px) {
+  .heroSplit {
+    grid-template-columns: 1fr;
+    gap: 32px;
+    padding: 8px 32px;
+  }
+  .featuresGrid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+  .variantsGrid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+  .pairGrid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+  .regionGrid {
+    grid-template-columns: 1fr;
+  }
+}
+@media (max-width: 640px) {
+  .featuresGrid,
+  .variantsGrid,
+  .pairGrid {
+    grid-template-columns: 1fr;
+  }
+  .specsRow {
+    grid-template-columns: 1fr;
+    gap: 6px;
+    padding: 14px 20px;
+  }
+  .heroBadges {
+    gap: 8px;
+  }
+  .designBanner {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+}

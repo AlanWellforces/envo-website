@@ -17,3 +17,4 @@ media/
 # misc
 .DS_Store
 *.log
+.superpowers/

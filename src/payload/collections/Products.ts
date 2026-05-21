@@ -185,6 +185,141 @@ export const Products: CollectionConfig = {
                     { label: 'Zigbee',      value: 'zigbee'  },
                   ],
                 },
+                {
+                  type: 'row',
+                  fields: [
+                    { name: 'cc_region_min', type: 'number', label: 'Min Output Voltage (V)', admin: { width: '50%' } },
+                    { name: 'cc_region_max', type: 'number', label: 'Max Output Voltage (V)', admin: { width: '50%' } },
+                  ],
+                },
+              ],
+            },
+            {
+              type: 'collapsible',
+              label: 'Driver / Controller',
+              admin: { description: 'Applies to PSU controllers and switch modules. Leave blank for other families.' },
+              fields: [
+                {
+                  type: 'row',
+                  fields: [
+                    {
+                      name: 'controller_type',
+                      type: 'json',
+                      label: 'Controller Type',
+                      admin: { description: 'Raw array from Akeneo. e.g. ["push_dim","rf"]', width: '50%' },
+                    },
+                    {
+                      name: 'output_channel',
+                      type: 'text',
+                      label: 'Output Channel',
+                      admin: { width: '50%', description: 'e.g. 1ch, rgb, rgbw, cct' },
+                    },
+                  ],
+                },
+                {
+                  type: 'row',
+                  fields: [
+                    {
+                      name: 'output_type',
+                      type: 'text',
+                      label: 'Output Type',
+                      admin: { width: '33%', description: 'e.g. cv, cc, pwm' },
+                    },
+                    { name: 'module_size',      type: 'number', label: 'Module Size',            admin: { width: '33%' } },
+                    { name: 'switch_no_module', type: 'number', label: 'No. of Switch Modules',  admin: { width: '33%' } },
+                  ],
+                },
+                {
+                  type: 'row',
+                  fields: [
+                    {
+                      name: 'switch_operation_method',
+                      type: 'text',
+                      label: 'Switch Operation',
+                      admin: { width: '33%', description: 'e.g. push, touch, rotary' },
+                    },
+                    {
+                      name: 'mounting_info',
+                      type: 'text',
+                      label: 'Mounting',
+                      admin: { width: '33%', description: 'e.g. surface, recessed, din_rail, in_wall' },
+                    },
+                    {
+                      name: 'switch_back_light',
+                      type: 'checkbox',
+                      label: 'Switch Backlight',
+                      defaultValue: false,
+                      admin: { width: '33%' },
+                    },
+                  ],
+                },
+                {
+                  type: 'row',
+                  fields: [
+                    {
+                      name: 'finish_colour',
+                      type: 'text',
+                      label: 'Finish Colour',
+                      admin: { width: '50%', description: 'e.g. white, black, silver' },
+                    },
+                    {
+                      name: 'material',
+                      type: 'text',
+                      label: 'Material',
+                      admin: { width: '50%', description: 'e.g. aluminum, plastic, steel' },
+                    },
+                  ],
+                },
+              ],
+            },
+            {
+              type: 'collapsible',
+              label: 'LED / Light Output',
+              admin: { description: 'Applies to LED modules, strips, and light sources. Leave blank for drivers and controllers.' },
+              fields: [
+                {
+                  type: 'row',
+                  fields: [
+                    { name: 'brightness_lm',    type: 'number', label: 'Brightness (lm)',   admin: { width: '25%' } },
+                    { name: 'efficacy_lm_w',    type: 'number', label: 'Efficacy (lm/W)',   admin: { width: '25%' } },
+                    { name: 'cct_k',            type: 'number', label: 'Colour Temp (K)',   admin: { width: '25%' } },
+                    { name: 'cri',              type: 'number', label: 'CRI',               admin: { width: '25%' } },
+                  ],
+                },
+                {
+                  type: 'row',
+                  fields: [
+                    { name: 'beam_angle_deg',   type: 'number', label: 'Beam Angle (°)',    admin: { width: '25%' } },
+                    { name: 'lifetime_hrs',     type: 'number', label: 'Lifetime (hrs)',    admin: { width: '25%' } },
+                    { name: 'max_in_series',    type: 'number', label: 'Max in Series',     admin: { width: '25%' } },
+                    {
+                      name: 'led_chip_colour',
+                      type: 'select',
+                      label: 'Chip Colour',
+                      options: [
+                        { label: 'Warm White (2700–3000K)',  value: 'warm_white'    },
+                        { label: 'Natural White (4000K)',    value: 'natural_white' },
+                        { label: 'Cool White (6000–7000K)',  value: 'cool_white'    },
+                        { label: 'RGB',                      value: 'rgb'           },
+                        { label: 'RGBW',                     value: 'rgbw'          },
+                        { label: 'Tunable White',            value: 'tunable_white' },
+                      ],
+                      admin: { width: '25%' },
+                    },
+                  ],
+                },
+                {
+                  type: 'row',
+                  fields: [
+                    { name: 'led_pitch', type: 'number', label: 'LED Pitch (mm)', admin: { width: '50%' } },
+                    {
+                      name: 'led_light_power_input',
+                      type: 'json',
+                      label: 'LED Light Power Input',
+                      admin: { description: 'Raw array from Akeneo.', width: '50%' },
+                    },
+                  ],
+                },
               ],
             },
             {
@@ -225,6 +360,48 @@ export const Products: CollectionConfig = {
             },
             {
               type: 'collapsible',
+              label: 'Sensor',
+              admin: { description: 'Applies to sensor products only. Leave blank for other families.' },
+              fields: [
+                {
+                  type: 'row',
+                  fields: [
+                    {
+                      name: 'sensor_type',
+                      type: 'select',
+                      label: 'Sensor Type',
+                      options: [
+                        { label: 'PIR',                  value: 'pir'       },
+                        { label: 'Microwave',            value: 'microwave' },
+                        { label: 'Daylight',             value: 'daylight'  },
+                        { label: 'Dual (PIR+Microwave)', value: 'dual'      },
+                      ],
+                      admin: { width: '33%' },
+                    },
+                    {
+                      name: 'technology',
+                      type: 'text',
+                      label: 'Technology',
+                      admin: { width: '33%', description: 'e.g. pir, microwave, infrared' },
+                    },
+                    {
+                      name: 'maximum_detection_range',
+                      type: 'text',
+                      label: 'Max Detection Range',
+                      admin: { width: '33%', description: 'e.g. 12m, 6m radius' },
+                    },
+                  ],
+                },
+                {
+                  name: 'multiway',
+                  type: 'checkbox',
+                  label: 'Multiway Compatible',
+                  defaultValue: false,
+                },
+              ],
+            },
+            {
+              type: 'collapsible',
               label: 'Compliance & Warranty',
               fields: [
                 {
@@ -241,6 +418,9 @@ export const Products: CollectionConfig = {
                     { label: 'FCC',      value: 'c_fcc'  },
                     { label: 'RoHS',     value: 'c_rohs' },
                     { label: 'ENEC',     value: 'c_enec' },
+                    { label: 'BIS',      value: 'c_bis'  },
+                    { label: 'CB',       value: 'c_cb'   },
+                    { label: 'LM-80',    value: 'c_lm80' },
                   ],
                 },
                 {

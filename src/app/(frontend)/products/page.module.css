@@ -1,0 +1,130 @@
+/* /products catalog page — local styles only. Shared section framing
+   (sectionWrap / sectionTinted / sectionHead / badgesGrid / faqList) comes
+   from the family page module (./[slug]/page.module.css). */
+
+/* ============================================================
+   FAMILY CARDS — 4-col card grid matching the reference catalog
+   (Signage Module / LED Driver / Control Gear / Accessories).
+   White surface, hover lifts the card and slides the arrow.
+   ============================================================ */
+.familyGrid {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 20px;
+}
+.familyCard,
+.familyCardPopular {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  background: #fff;
+  border: 1px solid var(--line);
+  border-radius: 18px;
+  overflow: hidden;
+  text-decoration: none;
+  color: var(--fg);
+  transition: transform 0.25s ease, border-color 0.25s ease, box-shadow 0.3s ease;
+  box-shadow: 0 1px 0 rgba(15, 23, 42, 0.02), 0 12px 32px -20px rgba(15, 23, 42, 0.1);
+}
+.familyCard:hover,
+.familyCardPopular:hover {
+  transform: translateY(-3px);
+  border-color: rgba(0, 113, 188, 0.4);
+  box-shadow: 0 18px 44px -14px rgba(0, 113, 188, 0.22), 0 0 32px -8px rgba(174, 201, 11, 0.1);
+}
+.familyCardPopular {
+  border: 1px solid var(--envo-blue);
+}
+.familyBadge {
+  position: absolute;
+  top: 16px;
+  right: 16px;
+  z-index: 2;
+  padding: 5px 11px;
+  font-size: 9.5px;
+  font-weight: 700;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: #1a2332;
+  background: var(--envo-lime);
+  border-radius: 999px;
+}
+.familyImg {
+  position: relative;
+  aspect-ratio: 4 / 3;
+  background: #fff;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-bottom: 1px solid var(--line);
+  overflow: hidden;
+}
+.familyImg img {
+  max-width: 72%;
+  max-height: 72%;
+  object-fit: contain;
+  transition: transform 0.35s ease;
+}
+.familyCard:hover .familyImg img,
+.familyCardPopular:hover .familyImg img {
+  transform: scale(1.05);
+}
+.familyBody {
+  padding: 24px 26px 26px;
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+}
+.familyTag {
+  display: inline-block;
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--envo-lime-deep);
+  margin-bottom: 12px;
+  align-self: flex-start;
+}
+.familyName {
+  font-size: 22px;
+  font-weight: 700;
+  letter-spacing: -0.015em;
+  color: var(--fg);
+  margin-bottom: 8px;
+}
+.familyDesc {
+  font-size: 13.5px;
+  color: var(--fg-mute);
+  line-height: 1.55;
+  margin-bottom: 16px;
+}
+.familyCta {
+  margin-top: auto;
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--envo-blue);
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+}
+.familyCta span {
+  transition: transform 0.25s ease;
+}
+.familyCard:hover .familyCta span,
+.familyCardPopular:hover .familyCta span {
+  transform: translateX(4px);
+}
+
+/* ============================================================
+   RESPONSIVE
+   ============================================================ */
+@media (max-width: 1100px) {
+  .familyGrid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+@media (max-width: 640px) {
+  .familyGrid {
+    grid-template-columns: 1fr;
+  }
+}

@@ -1,38 +1,25 @@
 'use client'
 
+import Image from 'next/image'
 import Link from 'next/link'
 import { useEffect, useRef } from 'react'
+import { PRODUCT_FAMILIES } from '@/data/product-families'
 
-const PRODUCTS = [
-  {
-    href: '/products/led-signage-modules',
-    name: 'Signage Module',
-    desc: 'Consistent brightness. Built to last.',
-    cta: 'Explore Modules',
-    img: '/assets/images/cat-modules.png',
-  },
-  {
-    href: '/products/led-drivers',
-    name: 'LED Driver',
-    desc: 'Stable power. Maximum efficiency.',
-    cta: 'Explore Drivers',
-    img: '/assets/images/cat-drivers.png',
-  },
-  {
-    href: '/products/control-gear',
-    name: 'Control Gear',
-    desc: 'Intelligent control. Seamless integration.',
-    cta: 'Explore Control Gear',
-    img: '/assets/images/cat-controllers.png',
-  },
-  {
-    href: '/products/accessories',
-    name: 'Accessories',
-    desc: 'Complete the system. Every detail matters.',
-    cta: 'Explore Accessories',
-    img: '/assets/images/cat-sensors.png',
-  },
-]
+// Hero uses shorter, punchier copy than the canonical PRODUCT_FAMILIES
+// (e.g. "Signage Module" singular vs "Signage Modules" plural). href + image
+// are derived from PRODUCT_FAMILIES so a slug/path/image rename can't drift.
+const HERO_COPY: Record<string, { name: string; desc: string; cta: string }> = {
+  'led-signage-modules': { name: 'Signage Module', desc: 'Consistent brightness. Built to last.',           cta: 'Explore Modules' },
+  'led-drivers':         { name: 'LED Driver',     desc: 'Stable power. Maximum efficiency.',                cta: 'Explore Drivers' },
+  'control-gear':        { name: 'Control Gear',   desc: 'Intelligent control. Seamless integration.',      cta: 'Explore Control Gear' },
+  'accessories':         { name: 'Accessories',    desc: 'Complete the system. Every detail matters.',      cta: 'Explore Accessories' },
+}
+
+const PRODUCTS = PRODUCT_FAMILIES.filter((f) => HERO_COPY[f.slug]).map((f) => ({
+  href: f.href,
+  img: f.image,
+  ...HERO_COPY[f.slug],
+}))
 
 export function Hero() {
   const videoRef = useRef<HTMLVideoElement>(null)
@@ -71,7 +58,7 @@ export function Hero() {
         muted
         loop
         playsInline
-        preload="auto"
+        preload="metadata"
       >
         <source src="/assets/videos/hero-led-night.mp4" type="video/mp4" />
       </video>
@@ -89,7 +76,7 @@ export function Hero() {
 
         <div className="hero-features">
           <div className="hero-feature">
-            <svg className="hero-feature-icon" viewBox="0 0 24 24">
+            <svg className="hero-feature-icon" viewBox="0 0 24 24" aria-hidden="true">
               <circle cx="12" cy="12" r="9" />
               <circle cx="12" cy="12" r="5" />
               <circle cx="12" cy="12" r="1.5" />
@@ -100,7 +87,7 @@ export function Hero() {
             </div>
           </div>
           <div className="hero-feature">
-            <svg className="hero-feature-icon" viewBox="0 0 24 24">
+            <svg className="hero-feature-icon" viewBox="0 0 24 24" aria-hidden="true">
               <circle cx="12" cy="12" r="3" />
               <path d="M12 4v2M12 18v2M4 12h2M18 12h2M6.3 6.3l1.4 1.4M16.3 16.3l1.4 1.4M6.3 17.7l1.4-1.4M16.3 7.7l1.4-1.4" />
             </svg>
@@ -110,7 +97,7 @@ export function Hero() {
             </div>
           </div>
           <div className="hero-feature">
-            <svg className="hero-feature-icon" viewBox="0 0 24 24">
+            <svg className="hero-feature-icon" viewBox="0 0 24 24" aria-hidden="true">
               <path d="M3 10h13l3 4v3h-2" />
               <circle cx="7.5" cy="17" r="2" />
               <circle cx="16.5" cy="17" r="2" />
@@ -136,7 +123,13 @@ export function Hero() {
                 </div>
               </div>
               <div className="hpc-img">
-                <img src={p.img} alt={p.name} />
+                <Image
+                  src={p.img}
+                  alt={p.name}
+                  width={400}
+                  height={300}
+                  sizes="(min-width: 980px) 200px, 30vw"
+                />
               </div>
             </Link>
           ))}

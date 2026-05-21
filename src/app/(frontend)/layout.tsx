@@ -2,14 +2,16 @@ import type { Metadata } from 'next'
 import { Inter_Tight } from 'next/font/google'
 import '../globals.css'
 import { Sidebar } from '@/components/layout/sidebar'
+import { TopSubnav } from '@/components/layout/top-subnav'
 import { Footer } from '@/components/layout/footer'
 import { CursorGlow } from '@/components/layout/cursor-glow'
 import { RevealOnScroll } from '@/components/layout/reveal-on-scroll'
+import { BackToTop } from '@/components/layout/back-to-top'
 
 const interTight = Inter_Tight({
   variable: '--font-inter-tight',
   subsets: ['latin'],
-  weight: ['300', '400', '500', '600', '700', '800'],
+  weight: ['400', '500', '600', '700'],
 })
 
 export const metadata: Metadata = {
@@ -27,10 +29,12 @@ export default function RootLayout({
     <html lang="en" className={interTight.variable}>
       <body>
         <Sidebar />
+        <TopSubnav />
         <CursorGlow />
         {children}
         <Footer />
         <RevealOnScroll />
+        <BackToTop />
       </body>
     </html>
   )
