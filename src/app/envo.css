@@ -1859,26 +1859,40 @@
       box-shadow: 0 0 12px rgba(174,201,11,.25);
     }
 
-    /* ===== SIDEBAR — 固定 92px / icon 上 + label 下 / 永远可见 ===== */
+    /* ===== SIDEBAR — v3: gradient bg + atmospheric radial glow ===== */
     .sidebar {
       position: fixed;
       top: 3px; left: 0; bottom: 0;          /* below light-bin bar */
       width: var(--sidebar-w);
-      background: var(--sidebar-bg);
+      background: linear-gradient(180deg,
+        #1a3a66 0%,
+        #0f2347 20%,
+        #06122a 55%,
+        #03081a 100%);
       z-index: 50;
       overflow: hidden;
-      border-right: 1px solid var(--line);
+      border-right: 1px solid rgba(77,195,255,.22);
       transition: width .32s cubic-bezier(.4, 0, .2, 1);
       will-change: width;
     }
-    .sidebar::before {  /* 顶部 lime 扫描线，呼应 feature-strip 顶线 */
+    /* Atmospheric overlay — blue glow top-right, lime tint bottom-left */
+    .sidebar::before {
+      content: ''; position: absolute; inset: 0; pointer-events: none;
+      background:
+        radial-gradient(ellipse 400px 300px at 70% 5%, rgba(77,195,255,.18) 0%, transparent 65%),
+        radial-gradient(ellipse 300px 400px at 30% 100%, rgba(174,201,11,.06) 0%, transparent 60%);
+    }
+    /* Restore the lime scan line as a sibling layer above the overlay */
+    .sidebar::after {
       content: ''; position: absolute; top: 0; left: 0; right: 0; height: 1px;
       background: linear-gradient(90deg, transparent 0%, rgba(174,201,11,.5) 50%, transparent 100%);
+      pointer-events: none;
     }
     .sidebar-inner {
       width: 100%; height: 100%;
       display: flex; flex-direction: column;
       padding: 22px 0;
+      position: relative; z-index: 1;        /* sit above ::before overlay */
     }
 
     /* ===== Logo（完整 ENVO wordmark + tagline 小字 + 缓慢 lime 脉冲） ===== */
@@ -1944,8 +1958,17 @@
       color: #fff;
     }
     .sidebar-link.active {
-      background: rgba(77,195,255,.14);
-      color: var(--envo-blue-glow);
+      background: linear-gradient(90deg, rgba(0,113,188,.22), rgba(0,113,188,.05));
+      color: #fff;
+    }
+    /* v3 lime left bar marker for active */
+    .sidebar-link.active::before {
+      content: '';
+      position: absolute;
+      left: 0; top: 8px; bottom: 8px;
+      width: 2px;
+      background: var(--envo-lime);
+      box-shadow: 0 0 6px var(--envo-lime);
     }
     .sidebar-link.active .sidebar-icon {
       filter: drop-shadow(0 0 6px rgba(77,195,255,.6))
@@ -1992,8 +2015,6 @@
       transition: max-width .28s cubic-bezier(.4, 0, .2, 1),
                   opacity .18s cubic-bezier(.4, 0, .2, 1);
     }
-    .sidebar-cta-label,
-    .sidebar-cta-sub,
     .sidebar-region-label,
     .sidebar-collapse-label {
       overflow: hidden;
@@ -2068,100 +2089,56 @@
     }
     .sidebar-sublink:hover .sidebar-sub-desc { color: rgba(255,255,255,.7); }
 
-    /* ===== Footer CTA — 重设计：dark lime-border 卡片，hover 才填 lime ===== */
+    /* ===== v3 sidebar footer — region row + status pill ===== */
     .sidebar-footer {
       padding: 14px 12px 12px;
       display: flex; flex-direction: column; gap: 10px;
-      border-top: 1px solid var(--line);
-    }
-    /* Ghost 风格：dark lime-border 卡片，hover 才填 lime（对齐参考图） */
-    .sidebar-cta {
-      display: flex; flex-direction: column; align-items: center; gap: 6px;
-      padding: 14px 12px;
-      background: rgba(174,201,11,.07);
-      color: var(--envo-lime);
-      border: 1px solid rgba(174,201,11,.32);
-      border-radius: 10px;
-      cursor: pointer;
-      font-family: inherit;
-      transition: background .25s ease, border-color .25s ease,
-                  color .25s ease, transform .2s ease, box-shadow .25s ease;
-      position: relative;
-      overflow: hidden;
-    }
-    .sidebar-cta::before {
-      content: ''; position: absolute; inset: 0;
-      background: linear-gradient(135deg, var(--envo-lime) 0%, var(--envo-lime-glow) 100%);
-      opacity: 0;
-      transition: opacity .3s ease;
-      z-index: 0;
-    }
-    .sidebar-cta > * { position: relative; z-index: 1; }
-    .sidebar-cta:hover {
-      transform: translateY(-1px);
-      color: var(--bg);
-      border-color: var(--envo-lime);
-      box-shadow: 0 8px 24px -4px rgba(174,201,11,.5),
-                  0 0 24px -6px rgba(174,201,11,.45);
-    }
-    .sidebar-cta:hover::before { opacity: 1; }
-    .sidebar-cta:active { transform: translateY(0); }
-    .sidebar-cta-icon {
-      width: 22px; height: 22px;
-      stroke: currentColor; stroke-width: 1.7; fill: none;
-      stroke-linecap: round; stroke-linejoin: round;
-      transition: transform .35s ease;
-    }
-    .sidebar-cta:hover .sidebar-cta-icon {
-      animation: ctaSparkle .9s ease;
-    }
-    @keyframes ctaSparkle {
-      0%   { transform: scale(1) rotate(0); }
-      30%  { transform: scale(1.2) rotate(-8deg); }
-      60%  { transform: scale(1.1) rotate(8deg); }
-      100% { transform: scale(1) rotate(0); }
-    }
-    .sidebar-cta-label {
-      font-size: 12px; font-weight: 700;
-      letter-spacing: .02em;
-    }
-    .sidebar-cta-sub {
-      font-size: 9.5px; font-weight: 600;
-      letter-spacing: .08em;
-      text-transform: uppercase;
-      opacity: .65;
+      border-top: 1px solid rgba(77,195,255,.10);
     }
     .sidebar-region {
-      display: flex; align-items: center; justify-content: center; gap: 6px;
-      padding: 6px 8px;
-      font-size: 9.5px; color: var(--fg-soft);
-      letter-spacing: .14em;
-      text-transform: uppercase;
-      background: transparent;
-      border: 1px solid transparent;
-      border-radius: 6px;
-      cursor: pointer;
+      display: flex; align-items: center; gap: 8px;
+      padding: 8px 10px;
+      background: rgba(77,195,255,.06);
+      border: 1px solid rgba(77,195,255,.10);
+      border-radius: 7px;
+      color: #f5f7fa;
       font-family: inherit;
-      transition: color .2s ease, border-color .2s ease, background .2s ease;
+      cursor: pointer;
+      text-align: left;
+      transition: border-color .15s ease, background .15s ease;
     }
     .sidebar-region:not(:disabled):hover {
-      color: #fff;
-      border-color: rgba(255,255,255,.12);
-      background: rgba(255,255,255,.04);
+      border-color: rgba(77,195,255,.30);
+      background: rgba(77,195,255,.12);
     }
-    .sidebar-region:disabled {
-      cursor: default;
-      opacity: .6;
+    .sidebar-region:disabled { cursor: default; opacity: .85; }
+    .sidebar-region-flag {
+      font-size: 16px; line-height: 1; flex-shrink: 0;
     }
-    .sidebar-region svg {
+    .sidebar-region-label {
+      flex: 1;
+      font-size: 12.5px; font-weight: 500;
+      letter-spacing: 0; text-transform: none;
+      color: #f5f7fa;
+    }
+    .sidebar-region-caret {
       width: 12px; height: 12px;
-      stroke: currentColor; stroke-width: 1.7; fill: none;
+      stroke: rgba(255,255,255,.45); stroke-width: 1.8; fill: none;
       stroke-linecap: round; stroke-linejoin: round;
       flex-shrink: 0;
     }
-    .sidebar-region-caret {
-      width: 8px; height: 8px;
-      opacity: .6;
+    .sidebar-status {
+      font-family: var(--mono, ui-monospace, 'JetBrains Mono', SFMono-Regular, Menlo, monospace);
+      font-size: 9.5px;
+      color: rgba(139,156,176,.85);
+      letter-spacing: .16em;
+      padding: 0 4px;
+    }
+    .sidebar-status::before {
+      content: ''; display: inline-block;
+      width: 5px; height: 5px; border-radius: 50%;
+      background: var(--envo-lime);
+      margin-right: 6px; vertical-align: 1px;
     }
     @media (prefers-reduced-motion: reduce) {
       .sidebar-logo img,
@@ -2203,8 +2180,6 @@
 
     /* Collapsed: shrink labels' width AND fade — frees space so icons truly center */
     body.sidebar-collapsed .sidebar-label,
-    body.sidebar-collapsed .sidebar-cta-label,
-    body.sidebar-collapsed .sidebar-cta-sub,
     body.sidebar-collapsed .sidebar-region-label,
     body.sidebar-collapsed .sidebar-collapse-label {
       max-width: 0;
@@ -2216,11 +2191,18 @@
       opacity: 0;
       pointer-events: none;
     }
+    /* Status line hides entirely when collapsed (no icon to fall back to) */
+    body.sidebar-collapsed .sidebar-status {
+      opacity: 0;
+      height: 0;
+      padding: 0;
+      overflow: hidden;
+      pointer-events: none;
+    }
     /* Eliminate flex gap so icons sit dead-center, not offset by ghost-label gap */
     body.sidebar-collapsed .sidebar-link { gap: 0; }
-    body.sidebar-collapsed .sidebar-region { gap: 0; }
+    body.sidebar-collapsed .sidebar-region { gap: 0; padding: 8px 0; justify-content: center; }
     body.sidebar-collapsed .sidebar-collapse-btn { gap: 0; }
-    body.sidebar-collapsed .sidebar-cta { gap: 0; padding: 12px 0; }
 
     body.sidebar-collapsed { padding-left: var(--sidebar-w-collapsed); }
     body.sidebar-collapsed .sidebar { width: var(--sidebar-w-collapsed); }
@@ -2231,13 +2213,6 @@
     body.sidebar-collapsed .sidebar-section-title { opacity: 0; }
     .sidebar-section-title { transition: opacity .2s ease; }
     body.sidebar-collapsed .sidebar-link { justify-content: center; padding: 11px 0; }
-    body.sidebar-collapsed .sidebar-cta {
-      padding: 12px 0;
-      justify-content: center;
-      grid-template-columns: 1fr;
-    }
-    body.sidebar-collapsed .sidebar-cta-icon { margin: 0; }
-    body.sidebar-collapsed .sidebar-region { justify-content: center; padding: 10px 0; }
     body.sidebar-collapsed .sidebar-collapse-btn { justify-content: center; padding: 9px 0; }
     body.sidebar-collapsed .sidebar-collapse-icon { transform: rotate(180deg); }
     body.sidebar-collapsed .top-subnav { left: var(--sidebar-w-collapsed); }
@@ -2247,8 +2222,8 @@
     .sidebar-logo img,
     .sidebar-nav,
     .sidebar-link,
-    .sidebar-cta,
     .sidebar-region,
+    .sidebar-status,
     .sidebar-collapse-btn {
       transition: padding .32s cubic-bezier(.4, 0, .2, 1),
                   justify-content .32s cubic-bezier(.4, 0, .2, 1),
@@ -2481,8 +2456,6 @@
       }
       /* Restore label visibility inside open drawer even if collapsed flag is set */
       .sidebar.open .sidebar-label,
-      .sidebar.open .sidebar-cta-label,
-      .sidebar.open .sidebar-cta-sub,
       .sidebar.open .sidebar-region-label,
       .sidebar.open .sidebar-collapse-label {
         opacity: 1;
