@@ -5,6 +5,7 @@
 
 import type { CollectionConfig } from 'payload'
 import { slugify } from '../../lib/slugify'
+import { lexicalToText, readingTimeMinutes } from '../../lib/lexical-text'
 
 export const Posts: CollectionConfig = {
   slug: 'posts',
@@ -146,6 +147,14 @@ export const Posts: CollectionConfig = {
         // Auto-fill slug from title on create, only if slug is blank.
         if (operation === 'create' && !data.slug && data.title) {
           data.slug = slugify(data.title)
+        }
+        return data
+      },
+      ({ data }) => {
+        // Calculate readingTime from body. Re-runs on every save.
+        if (data.body) {
+          const text = lexicalToText(data.body)
+          data.readingTime = readingTimeMinutes(text)
         }
         return data
       },
