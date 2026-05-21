@@ -5,8 +5,24 @@ import Link from 'next/link'
 import { usePathname } from 'next/navigation'
 import { useCallback, useEffect, useRef, useState, useSyncExternalStore } from 'react'
 import { cn } from '@/lib/utils'
+import { PURCHASE_CHANNELS, type PurchaseChannel } from '@/data/purchase-channels'
 
 const STORAGE_KEY = 'envo-c-sidebar-collapsed'
+const REGION_STORAGE_KEY = 'envo-region'
+const REGION_DEFAULT: PurchaseChannel['id'] = 'nz-ap'
+
+// Short display labels for the sidebar foot — purchase-channels.ts holds long
+// regionLabel strings that don't fit the narrow row.
+const REGION_LABELS: Record<PurchaseChannel['id'], { short: string; meta: string }> = {
+  'nz-ap': {
+    short: 'Oceania',
+    meta: 'NZ · Australia · Pacific Islands · via wellforces.co.nz',
+  },
+  'us-global': {
+    short: 'International',
+    meta: 'US · Americas · EMEA · Asia · via powersupplymall.com',
+  },
+}
 
 const subscribeCollapsed = (cb: () => void) => {
   window.addEventListener('envo-sidebar-change', cb)
@@ -135,13 +151,46 @@ export function Sidebar() {
     getCollapsedServerSnapshot,
   )
   const [open, setOpen] = useState(false)
+  const [region, setRegion] = useState<PurchaseChannel['id']>(REGION_DEFAULT)
+  const [regionOpen, setRegionOpen] = useState(false)
   const sidebarRef = useRef<HTMLElement>(null)
   const toggleRef = useRef<HTMLButtonElement>(null)
+  const regionRef = useRef<HTMLDivElement>(null)
 
   useEffect(() => {
     document.body.classList.toggle('sidebar-collapsed', collapsed)
     return () => document.body.classList.remove('sidebar-collapsed')
   }, [collapsed])
+
+  // Hydrate region from localStorage after mount (avoids SSR mismatch).
+  useEffect(() => {
+    try {
+      const saved = window.localStorage.getItem(REGION_STORAGE_KEY)
+      if (saved === 'nz-ap' || saved === 'us-global') {
+        setRegion(saved)
+      }
+    } catch {}
+  }, [])
+
+  // Close the region dropdown when clicking outside it.
+  useEffect(() => {
+    if (!regionOpen) return
+    const onDocClick = (e: MouseEvent) => {
+      if (regionRef.current && !regionRef.current.contains(e.target as Node)) {
+        setRegionOpen(false)
+      }
+    }
+    document.addEventListener('click', onDocClick)
+    return () => document.removeEventListener('click', onDocClick)
+  }, [regionOpen])
+
+  const pickRegion = useCallback((id: PurchaseChannel['id']) => {
+    setRegion(id)
+    setRegionOpen(false)
+    try {
+      window.localStorage.setItem(REGION_STORAGE_KEY, id)
+    } catch {}
+  }, [])
 
   useEffect(() => {
     if (!open) return
@@ -242,18 +291,65 @@ export function Sidebar() {
           </nav>
 
           <div className="sidebar-footer">
-            <button
-              type="button"
-              className="sidebar-region"
-              aria-label="Region: Oceania (region selector coming soon)"
-              disabled
+            <div
+              ref={regionRef}
+              className={cn('sidebar-region-wrap', regionOpen && 'open')}
             >
-              <span className="sidebar-region-flag" aria-hidden="true">🇳🇿</span>
-              <span className="sidebar-region-label">Oceania</span>
-              <svg className="sidebar-region-caret" viewBox="0 0 24 24" aria-hidden="true">
-                <path d="M6 9l6 6 6-6" />
-              </svg>
-            </button>
+              <button
+                type="button"
+                className="sidebar-region"
+                aria-haspopup="listbox"
+                aria-expanded={regionOpen}
+                aria-label={`Region: ${REGION_LABELS[region].short}. Click to change.`}
+                onClick={(e) => {
+                  e.stopPropagation()
+                  setRegionOpen((o) => !o)
+                }}
+              >
+                <span className="sidebar-region-flag" aria-hidden="true">
+                  {PURCHASE_CHANNELS.find((c) => c.id === region)?.flag}
+                </span>
+                <span className="sidebar-region-label">{REGION_LABELS[region].short}</span>
+                <svg
+                  className={cn('sidebar-region-caret', regionOpen && 'flip')}
+                  viewBox="0 0 24 24"
+                  aria-hidden="true"
+                >
+                  <path d="M6 9l6 6 6-6" />
+                </svg>
+              </button>
+
+              {regionOpen && (
+                <div className="sidebar-region-dropdown" role="listbox">
+                  <div className="sidebar-region-dropdown-head">Shipping region</div>
+                  {PURCHASE_CHANNELS.map((channel) => {
+                    const active = channel.id === region
+                    const labels = REGION_LABELS[channel.id]
+                    return (
+                      <button
+                        key={channel.id}
+                        type="button"
+                        role="option"
+                        aria-selected={active}
+                        className={cn('sidebar-region-option', active && 'active')}
+                        onClick={() => pickRegion(channel.id)}
+                      >
+                        <span className="sidebar-region-option-flag" aria-hidden="true">
+                          {channel.flag}
+                        </span>
+                        <span className="sidebar-region-option-body">
+                          <span className="sidebar-region-option-name">{labels.short}</span>
+                          <span className="sidebar-region-option-meta">{labels.meta}</span>
+                        </span>
+                        {active && (
+                          <span className="sidebar-region-option-check" aria-hidden="true">✓</span>
+                        )}
+                      </button>
+                    )
+                  })}
+                </div>
+              )}
+            </div>
 
             <div className="sidebar-status" aria-hidden="true">CATALOGUE LIVE · v2.4</div>
 

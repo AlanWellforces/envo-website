@@ -2140,6 +2140,69 @@
       background: var(--envo-lime);
       margin-right: 6px; vertical-align: 1px;
     }
+    .sidebar-region-caret.flip { transform: rotate(180deg); }
+
+    /* ===== Region dropdown — pops UP from the sidebar foot row ===== */
+    .sidebar-region-wrap { position: relative; }
+    .sidebar-region-wrap .sidebar-region { width: 100%; }
+    .sidebar-region-dropdown {
+      position: absolute;
+      bottom: calc(100% + 6px);
+      left: 0; right: 0;
+      background: #0a1424;
+      border: 1px solid rgba(77,195,255,.18);
+      border-radius: 8px;
+      padding: 6px;
+      box-shadow: 0 18px 38px -14px rgba(0,0,0,.6),
+                  0 4px 10px rgba(0,0,0,.3);
+      z-index: 60;
+    }
+    .sidebar-region-dropdown-head {
+      padding: 8px 10px 6px;
+      font-family: var(--mono, ui-monospace, 'JetBrains Mono', SFMono-Regular, Menlo, monospace);
+      font-size: 9.5px;
+      color: rgba(139,156,176,.85);
+      letter-spacing: .2em;
+      text-transform: uppercase;
+      border-bottom: 1px solid rgba(77,195,255,.10);
+      margin-bottom: 4px;
+    }
+    .sidebar-region-option {
+      display: flex; align-items: center; gap: 10px;
+      width: 100%;
+      padding: 9px 10px;
+      background: transparent;
+      border: none;
+      border-radius: 5px;
+      color: #f5f7fa;
+      text-align: left;
+      font-family: inherit;
+      cursor: pointer;
+      transition: background .15s ease;
+    }
+    .sidebar-region-option:hover { background: rgba(77,195,255,.10); }
+    .sidebar-region-option.active { background: rgba(174,201,11,.10); }
+    .sidebar-region-option-flag { font-size: 18px; line-height: 1; flex-shrink: 0; }
+    .sidebar-region-option-body { display: flex; flex-direction: column; gap: 2px; flex: 1; min-width: 0; }
+    .sidebar-region-option-name { font-size: 12.5px; font-weight: 600; color: #f5f7fa; }
+    .sidebar-region-option-meta {
+      font-family: var(--mono, ui-monospace, 'JetBrains Mono', SFMono-Regular, Menlo, monospace);
+      font-size: 9.5px;
+      color: rgba(139,156,176,.85);
+      letter-spacing: .04em;
+      white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+    }
+    .sidebar-region-option-check { color: var(--envo-lime); font-weight: 700; flex-shrink: 0; }
+
+    /* When collapsed, the dropdown still pops out at full width to the right
+       so the metadata strings remain readable. */
+    body.sidebar-collapsed .sidebar-region-dropdown {
+      left: 100%;
+      right: auto;
+      bottom: 0;
+      margin-left: 8px;
+      width: 280px;
+    }
     @media (prefers-reduced-motion: reduce) {
       .sidebar-logo img,
       .sidebar-link.active::before { animation: none !important; }
