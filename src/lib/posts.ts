@@ -65,6 +65,7 @@ export async function getPosts(opts: GetPostsOpts = {}): Promise<{
   const conditions: object[] = [dateFilter()]
   if (opts.category) conditions.push({ category: { equals: opts.category } })
   if (opts.tag) conditions.push({ 'tags.tag': { equals: opts.tag } })
+  // Truthy-only guard: `featured: false` means "don't filter", not "non-featured".
   if (opts.featured) conditions.push({ featured: { equals: true } })
 
   const result = await p.find({
@@ -152,7 +153,7 @@ export async function getAllSlugs(): Promise<string[]> {
   const p = await payload()
   const result = await p.find({
     collection: 'posts',
-    where: { and: [dateFilter()] },
+    where: dateFilter(),
     limit: 500,
     depth: 0,
   })

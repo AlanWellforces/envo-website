@@ -8,7 +8,7 @@ vi.mock('payload', () => ({
 vi.mock('@/payload.config', () => ({ default: {} }))
 
 // Import after the mocks.
-import { getPosts, getPostBySlug, getPostsByCategory, getPostsByTag, getRelatedPosts, getAllSlugs } from './posts'
+import { getPosts, getPostBySlug, getPostsByCategory, getPostsByTag, getRelatedPosts, getAllSlugs, type Post } from './posts'
 
 beforeEach(() => {
   mockFind.mockReset()
@@ -81,7 +81,7 @@ describe('posts accessor — filter options', () => {
 
 describe('getRelatedPosts', () => {
   it('queries same category, excludes current id, defaults limit 3', async () => {
-    await getRelatedPosts({ id: 7, category: 'guides' } as any)
+    await getRelatedPosts({ id: 7, category: 'guides' } as Pick<Post, 'id' | 'category'>)
     const call = findCall()
     const conditions: object[] = call.where.and
     expect(conditions.some((c: any) => c.category?.equals === 'guides')).toBe(true)
@@ -104,5 +104,13 @@ describe('getAllSlugs', () => {
   it('paginates internally to 500 limit (smoke check)', async () => {
     await getAllSlugs()
     expect(findCall().limit).toBe(500)
+  })
+
+  it('passes the publishedAt filter directly (no redundant and-wrap)', async () => {
+    await getAllSlugs()
+    const where = findCall().where
+    // Should be { publishedAt: { less_than_equal: ... } } directly, not { and: [...] }
+    expect(where.publishedAt?.less_than_equal).toBeDefined()
+    expect(where.and).toBeUndefined()
   })
 })
