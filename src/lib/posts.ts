@@ -4,7 +4,7 @@
 // applied centrally. Route handlers and components must NOT call
 // payload.find({ collection: 'posts' }) directly.
 
-import { getPayload } from 'payload'
+import { getPayload, type Where } from 'payload'
 import config from '@/payload.config'
 
 export type PostCategory =
@@ -43,7 +43,7 @@ async function payload() {
  * 'published'. Payload's drafts behavior already hides _status='draft' from
  * default reads, so we don't add an explicit _status filter here.
  */
-function dateFilter(): object {
+function dateFilter(): Where {
   return { publishedAt: { less_than_equal: new Date().toISOString() } }
 }
 
@@ -62,7 +62,7 @@ export async function getPosts(opts: GetPostsOpts = {}): Promise<{
   totalPages: number
 }> {
   const p = await payload()
-  const conditions: object[] = [dateFilter()]
+  const conditions: Where[] = [dateFilter()]
   if (opts.category) conditions.push({ category: { equals: opts.category } })
   if (opts.tag) conditions.push({ 'tags.tag': { equals: opts.tag } })
   // Truthy-only guard: `featured: false` means "don't filter", not "non-featured".
