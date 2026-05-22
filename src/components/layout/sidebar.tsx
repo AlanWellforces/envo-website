@@ -271,11 +271,21 @@ export function Sidebar() {
         <div className="sidebar-inner">
           <Link href="/" className="sidebar-logo" aria-label="ENVO home" onClick={() => setOpen(false)}>
             <Image
+              className="logo-full"
               src="/assets/images/logo-envo-darkbg.svg"
               alt="ENVO"
               width={108}
               height={20}
               priority
+            />
+            <Image
+              className="logo-mark"
+              src="/assets/images/favicon.svg"
+              alt=""
+              width={28}
+              height={28}
+              priority
+              aria-hidden
             />
           </Link>
 
