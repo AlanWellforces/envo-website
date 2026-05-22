@@ -4,8 +4,8 @@
 // Hooks (autoSlug, calcReadingTime, revalidate) are added in later tasks.
 
 import type { CollectionConfig } from 'payload'
-import { slugify } from '../../lib/slugify'
-import { lexicalToText, readingTimeMinutes } from '../../lib/lexical-text'
+import { slugify } from '../../lib/slugify.ts'
+import { lexicalToText, readingTimeMinutes } from '../../lib/lexical-text.ts'
 
 export const Posts: CollectionConfig = {
   slug: 'posts',
