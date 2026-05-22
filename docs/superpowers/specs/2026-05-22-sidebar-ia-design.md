@@ -149,16 +149,20 @@ Two files, three concrete edits:
 - **Href:** `/blog`
 - **Section:** `blog` (used for active-state highlighting; matches the
   pattern of existing items like `home` / `products`)
-- **Icon:** document-with-lines (matches the mockup option file):
-  ```svg
-  <svg viewBox="0 0 24 24" stroke="currentColor" fill="none" stroke-width="1.6">
-    <path d="M4 19V5a2 2 0 0 1 2-2h11l3 3v13a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2z"/>
-    <path d="M8 8h8M8 12h8M8 16h5"/>
+- **Icon:** document-with-lines (matches the mockup option file). Stroke
+  and fill come from the `.sidebar-icon` CSS class (consistent with
+  existing items like Home / Products):
+
+  ```tsx
+  <svg className="sidebar-icon" viewBox="0 0 24 24" aria-hidden="true">
+    <path d="M4 19V5a2 2 0 0 1 2-2h11l3 3v13a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2z" />
+    <path d="M8 8h8M8 12h8M8 16h5" />
   </svg>
   ```
-  Icon is a document outline with three short text rules — readable as
-  "an article" / "an editorial page". Matches the visual weight of the
-  existing 16×16 sidebar icons.
+
+  Reads as "a document with three short rules of text" — visually
+  equivalent in weight to the existing 16×16 outline icons in the
+  sidebar.
 
 ## Verification
 
