@@ -43,7 +43,7 @@ export async function getSiteSettings(): Promise<SiteSettings> {
   if (cache && Date.now() - cache.ts < TTL) return cache.data
 
   const p = await getPayload({ config })
-  const raw = await p.findGlobal({ slug: 'site-settings' as any, depth: 1 })
+  const raw = await (p.findGlobal as any)({ slug: 'site-settings', depth: 1 })
   const data = raw as unknown as SiteSettings
   cache = { data, ts: Date.now() }
   return data
