@@ -173,26 +173,97 @@ export async function getProductsByFamily(
   return result.docs as unknown as Product[]
 }
 
-/** Paginated product list with optional filters — for catalog / search pages. */
-export async function listProducts(opts: {
+export type ProductFilters = {
+  // Catalog
   family?: string
   series?: string
+  search?: string                  // matches name + SKU (case-insensitive)
+
+  // Electrical — drivers
+  operation_mode?: 'cv' | 'cc' | 'cv_cc'
+  dimming_control?: string[]       // any of: 'dali','0_10v','pwm','triac','casambi','dmx','knx','matter','zigbee','none'
+  output_voltage_min?: number      // output_voltage_v >=
+  output_voltage_max?: number      // output_voltage_v <=
+  input_voltage_min?: number       // input_voltage_min_v >=
+  input_voltage_max?: number       // input_voltage_max_v <=
+  power_min?: number               // power_w >=
+  power_max?: number               // power_w <=
+  rated_current_min?: number       // rated_current_a >=
+  rated_current_max?: number       // rated_current_a <=
+
+  // Light output — LED modules / fixtures
+  brightness_min?: number          // brightness_lm >=
+  brightness_max?: number          // brightness_lm <=
+  cct_min?: number                 // cct_k >=
+  cct_max?: number                 // cct_k <=
+  cri_min?: number                 // cri >=
+  led_chip_colour?: string         // 'warm_white'|'natural_white'|'cool_white'|'tunable_white'|'rgb'|'rgbw'
+
+  // Physical / compliance
+  waterproof?: string              // 'ip20'|'ip44'|'ip65'|'ip67'|'ip68'|'non_waterproof'
+  standards_met?: string[]         // any of: 'c_ce','c_saa','c_rcm','c_ul','c_tuv','c_fcc','c_rohs','c_enec'
+
+  // Pagination
   limit?: number
   page?: number
-} = {}): Promise<{ docs: Product[]; totalDocs: number; totalPages: number }> {
+  sort?: string                    // Payload field name, prefix '-' for descending e.g. '-price_nzd'
+}
+
+/** Paginated product list with optional filters — for catalog / search pages. */
+export async function listProducts(
+  opts: ProductFilters = {},
+): Promise<{ docs: Product[]; totalDocs: number; totalPages: number }> {
   const p = await payload()
 
   const conditions: import('payload').Where[] = [
     { enabled: { equals: true } },
     { hidden: { equals: false } },
   ]
+
+  // Catalog
   if (opts.family) conditions.push({ family: { equals: opts.family } })
   if (opts.series) conditions.push({ series: { equals: opts.series } })
+  if (opts.search) {
+    conditions.push({
+      or: [
+        { name: { like: opts.search } },
+        { sku:  { like: opts.search } },
+      ],
+    })
+  }
+
+  // Electrical
+  if (opts.operation_mode) conditions.push({ operation_mode: { equals: opts.operation_mode } })
+  if (opts.dimming_control?.length) {
+    conditions.push({ or: opts.dimming_control.map(d => ({ dimming_control: { contains: d } })) })
+  }
+  if (opts.output_voltage_min != null) conditions.push({ output_voltage_v: { greater_than_equal: opts.output_voltage_min } })
+  if (opts.output_voltage_max != null) conditions.push({ output_voltage_v: { less_than_equal: opts.output_voltage_max } })
+  if (opts.input_voltage_min  != null) conditions.push({ input_voltage_min_v: { greater_than_equal: opts.input_voltage_min } })
+  if (opts.input_voltage_max  != null) conditions.push({ input_voltage_max_v: { less_than_equal: opts.input_voltage_max } })
+  if (opts.power_min != null) conditions.push({ power_w: { greater_than_equal: opts.power_min } })
+  if (opts.power_max != null) conditions.push({ power_w: { less_than_equal: opts.power_max } })
+  if (opts.rated_current_min != null) conditions.push({ rated_current_a: { greater_than_equal: opts.rated_current_min } })
+  if (opts.rated_current_max != null) conditions.push({ rated_current_a: { less_than_equal: opts.rated_current_max } })
+
+  // Light output
+  if (opts.brightness_min != null) conditions.push({ brightness_lm: { greater_than_equal: opts.brightness_min } })
+  if (opts.brightness_max != null) conditions.push({ brightness_lm: { less_than_equal: opts.brightness_max } })
+  if (opts.cct_min != null) conditions.push({ cct_k: { greater_than_equal: opts.cct_min } })
+  if (opts.cct_max != null) conditions.push({ cct_k: { less_than_equal: opts.cct_max } })
+  if (opts.cri_min != null) conditions.push({ cri: { greater_than_equal: opts.cri_min } })
+  if (opts.led_chip_colour) conditions.push({ led_chip_colour: { equals: opts.led_chip_colour } })
+
+  // Physical / compliance
+  if (opts.waterproof) conditions.push({ waterproof: { equals: opts.waterproof } })
+  if (opts.standards_met?.length) {
+    conditions.push({ or: opts.standards_met.map(s => ({ standards_met: { contains: s } })) })
+  }
 
   const result = await p.find({
     collection: 'products',
     where: { and: conditions },
-    sort: 'name',
+    sort: opts.sort ?? 'name',
     limit: opts.limit ?? 48,
     page: opts.page ?? 1,
     depth: 1,
