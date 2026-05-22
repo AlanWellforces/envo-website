@@ -1912,6 +1912,16 @@
     }
     body.sidebar-collapsed .sidebar-logo { padding: 14px 8px 18px; }
     body.sidebar-collapsed .sidebar-logo img { height: 14px; width: auto; }
+
+    /* Logo mark/full swap when sidebar collapses
+       (full wordmark expanded, brand E-mark collapsed) */
+    .sidebar-logo .logo-mark { display: none; }
+    body.sidebar-collapsed .sidebar-logo .logo-full { display: none; }
+    body.sidebar-collapsed .sidebar-logo .logo-mark {
+      display: block;
+      height: 28px;
+      width: 28px;
+    }
     .sidebar-logo:hover img {
       filter: drop-shadow(0 0 8px rgba(77,195,255,.55));
     }
