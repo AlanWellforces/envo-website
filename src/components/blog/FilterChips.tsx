@@ -26,7 +26,7 @@ export function FilterChips({
   return (
     <nav
       aria-label="Filter by category"
-      style={{ display: 'flex', gap: '8px', flexWrap: 'wrap', padding: '0 14px 24px' }}
+      style={{ display: 'flex', gap: '8px', flexWrap: 'wrap', padding: '0 56px 24px' }}
     >
       {chips.map((chip) => {
         const isActive = chip.value === active

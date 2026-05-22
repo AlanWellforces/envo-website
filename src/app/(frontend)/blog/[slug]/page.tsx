@@ -1,11 +1,24 @@
+import Link from 'next/link'
 import { notFound } from 'next/navigation'
 import type { Metadata } from 'next'
-import { getPostBySlug, getAllSlugs, getRelatedPosts } from '@/lib/posts'
+import { getPostBySlug, getAllSlugs, getRelatedPosts, type Post } from '@/lib/posts'
 import { PostHeader } from '@/components/blog/PostHeader'
 import { PostCard } from '@/components/blog/PostCard'
 import { RichTextRenderer } from '@/components/blog/RichTextRenderer'
 
 export const revalidate = 3600
+
+const CATEGORY_LABEL: Record<string, string> = {
+  guides: 'Guides',
+  tech_insights: 'Tech Insights',
+  company_news: 'Company News',
+  industry: 'Industry',
+}
+
+function coverUrl(cover: Post['cover']): string | null {
+  if (typeof cover === 'number') return null
+  return cover?.url ?? null
+}
 
 export async function generateStaticParams() {
   const slugs = await getAllSlugs()
@@ -39,25 +52,213 @@ export default async function PostDetailPage(
   if (!post) notFound()
 
   const related = await getRelatedPosts(post)
+  const cover = coverUrl(post.cover)
+  const categoryLabel = CATEGORY_LABEL[post.category] ?? post.category
 
   return (
-    <main className="container mx-auto max-w-3xl px-4 py-12">
+    <div className="theme-light" style={{ minHeight: '100vh', background: '#f4f5f7', color: '#1a2332' }}>
+      {/* Sticky subnav */}
+      <div
+        style={{
+          position: 'sticky',
+          top: 0,
+          zIndex: 50,
+          height: '44px',
+          display: 'flex',
+          alignItems: 'center',
+          gap: '10px',
+          padding: '0 56px',
+          borderBottom: '1px solid #e2e5ea',
+          backdropFilter: 'blur(20px)',
+          background: 'rgba(244,245,247,0.92)',
+          fontSize: '13px',
+        }}
+      >
+        <Link href="/" style={{ color: '#6a7a8a', fontWeight: 500, textDecoration: 'none' }}>ENVO</Link>
+        <span style={{ color: '#6a7a8a', opacity: 0.4 }}>/</span>
+        <Link href="/blog" style={{ color: '#6a7a8a', fontWeight: 500, textDecoration: 'none' }}>Blog</Link>
+        <span style={{ color: '#6a7a8a', opacity: 0.4 }}>/</span>
+        <span
+          style={{
+            color: '#1a2332',
+            fontWeight: 600,
+            maxWidth: '360px',
+            whiteSpace: 'nowrap',
+            overflow: 'hidden',
+            textOverflow: 'ellipsis',
+          }}
+        >
+          {post.title}
+        </span>
+      </div>
+
+      {/* Back link */}
+      <div style={{ padding: '40px 56px 0' }}>
+        <Link
+          href="/blog"
+          style={{
+            display: 'inline-flex',
+            alignItems: 'center',
+            gap: '6px',
+            fontSize: '13px',
+            color: '#0071bc',
+            fontWeight: 500,
+            textDecoration: 'none',
+          }}
+        >
+          ← All articles
+        </Link>
+      </div>
+
       <PostHeader post={post} />
 
-      <article className="prose prose-slate max-w-none">
+      {/* Cover image */}
+      {cover && (
+        <div style={{ margin: '0 0 48px', padding: '0 56px' }}>
+          <div
+            style={{
+              borderRadius: '18px',
+              overflow: 'hidden',
+              aspectRatio: '16 / 8',
+              background: '#e8ecf2',
+              backgroundImage: `url(${cover})`,
+              backgroundSize: 'cover',
+              backgroundPosition: 'center',
+            }}
+            aria-hidden="true"
+          />
+        </div>
+      )}
+
+      {/* Article body — prose styles in envo.css */}
+      <article className="blog-article-body">
         <RichTextRenderer doc={post.body} />
       </article>
 
+      {/* Tags */}
+      {post.tags && post.tags.length > 0 && (
+        <div
+          style={{
+            maxWidth: '820px',
+            margin: '16px auto 0',
+            padding: '24px 56px 32px',
+            display: 'flex',
+            gap: '8px',
+            flexWrap: 'wrap',
+            borderTop: '1px solid #e2e5ea',
+          }}
+        >
+          {post.tags.map((t, i) => (
+            <Link
+              key={i}
+              href={`/blog/tag/${t.tag}`}
+              style={{
+                display: 'inline-flex',
+                alignItems: 'center',
+                padding: '6px 14px',
+                background: '#ffffff',
+                border: '1px solid #e2e5ea',
+                borderRadius: '999px',
+                fontSize: '12.5px',
+                color: '#4a5568',
+                textDecoration: 'none',
+                transition: 'all 0.15s',
+              }}
+            >
+              <span style={{ color: '#6a7a8a', marginRight: '3px' }}>#</span>
+              {t.tag}
+            </Link>
+          ))}
+        </div>
+      )}
+
+      {/* Related posts */}
       {related.length > 0 && (
-        <section className="mt-16 pt-8 border-t border-slate-200">
-          <h2 className="text-2xl font-bold mb-6">Related posts</h2>
-          <div className="grid gap-6 md:grid-cols-3">
+        <section
+          style={{
+            margin: '24px 0 0',
+            padding: '56px 56px 64px',
+            borderTop: '1px solid #e2e5ea',
+          }}
+        >
+          <div
+            style={{
+              display: 'flex',
+              alignItems: 'baseline',
+              justifyContent: 'space-between',
+              padding: '0',
+              marginBottom: '24px',
+            }}
+          >
+            <h2
+              className="font-bold"
+              style={{ fontSize: '24px', letterSpacing: '-0.015em', margin: 0 }}
+            >
+              More from {categoryLabel}
+            </h2>
+            <Link
+              href={`/blog/category/${post.category}`}
+              style={{ fontSize: '13px', color: '#0071bc', fontWeight: 500, textDecoration: 'none' }}
+            >
+              View all {categoryLabel} →
+            </Link>
+          </div>
+          <div
+            style={{
+              display: 'grid',
+              gridTemplateColumns: 'repeat(3, minmax(0, 1fr))',
+              gap: '20px',
+            }}
+          >
             {related.map((p) => (
               <PostCard key={p.id} post={p} />
             ))}
           </div>
         </section>
       )}
-    </main>
+
+      {/* End CTA */}
+      <div style={{ padding: '0 56px 64px' }}>
+        <div
+          style={{
+            background: '#1a2332',
+            color: '#fff',
+            borderRadius: '18px',
+            padding: '40px 48px',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'space-between',
+            gap: '32px',
+          }}
+        >
+          <div>
+            <h3
+              className="font-bold"
+              style={{ fontSize: '24px', letterSpacing: '-0.015em', margin: '0 0 6px' }}
+            >
+              Need help speccing controls for a project?
+            </h3>
+            <p style={{ fontSize: '14.5px', color: 'rgba(255,255,255,0.7)', margin: 0, maxWidth: '48ch' }}>
+              Our engineering team reviews installations larger than 30 luminaires for free. Send us your floor plan and luminaire schedule — we&apos;ll come back within two business days.
+            </p>
+          </div>
+          <Link
+            href="/contact"
+            className="font-semibold"
+            style={{
+              padding: '13px 24px',
+              background: '#ffffff',
+              color: '#1a2332',
+              borderRadius: '999px',
+              fontSize: '13.5px',
+              textDecoration: 'none',
+              whiteSpace: 'nowrap',
+            }}
+          >
+            Contact engineering →
+          </Link>
+        </div>
+      </div>
+    </div>
   )
 }

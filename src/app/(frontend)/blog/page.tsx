@@ -34,7 +34,7 @@ export default async function BlogIndexPage() {
           display: 'flex',
           alignItems: 'center',
           gap: '10px',
-          padding: '0 28px',
+          padding: '0 56px',
           borderBottom: '1px solid #e2e5ea',
           backdropFilter: 'blur(20px)',
           background: 'rgba(244,245,247,0.92)',
@@ -51,14 +51,14 @@ export default async function BlogIndexPage() {
       <FilterChips counts={counts} active="all" />
 
       {rest.length === 0 && !hero ? (
-        <p style={{ padding: '0 28px 48px', color: '#4a5568' }}>No posts yet — check back soon.</p>
+        <p style={{ padding: '0 56px 48px', color: '#4a5568' }}>No posts yet — check back soon.</p>
       ) : (
         <section
           aria-label="Articles"
           style={{
             display: 'grid',
             gap: '20px',
-            padding: '0 14px 32px',
+            padding: '0 56px 32px',
             gridTemplateColumns: 'repeat(3, minmax(0, 1fr))',
           }}
         >
@@ -69,7 +69,7 @@ export default async function BlogIndexPage() {
       )}
 
       {recent.totalPages > 1 && (
-        <div style={{ display: 'flex', justifyContent: 'center', padding: '24px 14px 56px' }}>
+        <div style={{ display: 'flex', justifyContent: 'center', padding: '24px 56px 56px' }}>
           <button
             type="button"
             disabled

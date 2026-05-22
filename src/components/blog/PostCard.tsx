@@ -125,8 +125,6 @@ export function PostCard({ post }: { post: Post }) {
           }}
         >
           <span>{formatDate(post.publishedAt)}</span>
-          <span style={{ opacity: 0.4 }}>·</span>
-          <span>{post.readingTime ?? 1} min</span>
         </div>
       </div>
     </Link>
