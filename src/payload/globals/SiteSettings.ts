@@ -1,5 +1,4 @@
 import type { GlobalConfig } from 'payload'
-import { clearSiteSettingsCache } from '../../lib/site-settings.ts'
 
 export const SiteSettings: GlobalConfig = {
   slug: 'site-settings',
@@ -10,11 +9,6 @@ export const SiteSettings: GlobalConfig = {
   },
   access: {
     read: () => true,
-  },
-  hooks: {
-    afterChange: [
-      () => { clearSiteSettingsCache() },
-    ],
   },
   fields: [
     // ─── Announcement Banner ────────────────────────────────────────────────
