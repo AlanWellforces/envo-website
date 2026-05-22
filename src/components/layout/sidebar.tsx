@@ -90,6 +90,17 @@ const NAVIGATE: NavItem[] = [
     ),
   },
   {
+    section: 'blog',
+    href: '/blog',
+    label: 'Blog',
+    icon: (
+      <svg className="sidebar-icon" viewBox="0 0 24 24" aria-hidden="true">
+        <path d="M4 19V5a2 2 0 0 1 2-2h11l3 3v13a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2z" />
+        <path d="M8 8h8M8 12h8M8 16h5" />
+      </svg>
+    ),
+  },
+  {
     section: 'support',
     href: '/support',
     label: 'Support',
@@ -122,17 +133,6 @@ const TOOLS: NavItem[] = [
       <svg className="sidebar-icon" viewBox="0 0 24 24" aria-hidden="true">
         <path d="M12 19l7-7 3 3-7 7-3-3z" />
         <path d="M18 13l-1.5-7.5L2 2l3.5 14.5L13 18l5-5z" />
-      </svg>
-    ),
-  },
-  {
-    section: 'contact',
-    href: '/contact',
-    label: 'Contact engineering',
-    icon: (
-      <svg className="sidebar-icon" viewBox="0 0 24 24" aria-hidden="true">
-        <rect x="3" y="5" width="18" height="14" rx="2" />
-        <path d="M3 7l9 6 9-6" />
       </svg>
     ),
   },
