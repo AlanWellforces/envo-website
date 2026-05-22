@@ -28,7 +28,7 @@ export function PostHero({ post }: { post: Post }) {
       href={`/blog/${post.slug}`}
       className="relative block rounded-2xl overflow-hidden flex items-end isolate"
       style={{
-        margin: '14px 14px 24px',
+        margin: '14px 56px 24px',
         minHeight: '460px',
         background: 'linear-gradient(135deg, #1a3a66 0%, #0f2347 50%, #06122a 100%)',
         color: '#ffffff',
@@ -80,8 +80,6 @@ export function PostHero({ post }: { post: Post }) {
           style={{ display: 'flex', alignItems: 'center', gap: '14px', color: 'rgba(255,255,255,0.65)', fontSize: '13px' }}
         >
           <span>{formatDate(post.publishedAt)}</span>
-          <span>·</span>
-          <span>{post.readingTime ?? 1} min read</span>
         </div>
 
         <span

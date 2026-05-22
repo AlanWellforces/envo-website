@@ -282,8 +282,8 @@ export function Sidebar() {
               className="logo-mark"
               src="/assets/images/favicon.svg"
               alt=""
-              width={28}
-              height={28}
+              width={36}
+              height={36}
               priority
               aria-hidden
             />
@@ -291,7 +291,6 @@ export function Sidebar() {
 
           <nav className="sidebar-nav">
             <div className="sidebar-section">
-              <div className="sidebar-section-title">Navigate</div>
               {renderItems(NAVIGATE)}
             </div>
             <div className="sidebar-section">
@@ -360,8 +359,6 @@ export function Sidebar() {
                 </div>
               )}
             </div>
-
-            <div className="sidebar-status" aria-hidden="true">CATALOGUE LIVE · v2.4</div>
 
             <button
               type="button"

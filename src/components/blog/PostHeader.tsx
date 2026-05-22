@@ -1,5 +1,3 @@
-// Placeholder layout — Mackenzie replaces with final design later.
-
 import type { Post } from '@/lib/posts'
 
 const CATEGORY_LABEL: Record<string, string> = {
@@ -9,29 +7,73 @@ const CATEGORY_LABEL: Record<string, string> = {
   industry: 'Industry',
 }
 
-function coverUrl(cover: Post['cover']): string | null {
-  if (typeof cover === 'number') return null
-  return cover?.url ?? null
+function formatDate(iso: string): string {
+  return new Date(iso).toLocaleDateString('en-GB', {
+    day: 'numeric',
+    month: 'short',
+    year: 'numeric',
+  })
 }
 
 export function PostHeader({ post }: { post: Post }) {
-  const img = coverUrl(post.cover)
+  const categoryLabel = CATEGORY_LABEL[post.category] ?? post.category
   return (
-    <header className="mb-8">
-      <div className="text-xs uppercase tracking-wide text-slate-500">
-        {CATEGORY_LABEL[post.category] ?? post.category}
+    <header style={{ margin: '28px 0 32px', padding: '0 56px' }}>
+      <div
+        style={{
+          display: 'inline-flex',
+          alignItems: 'center',
+          gap: '12px',
+          fontSize: '12px',
+          fontWeight: 600,
+          letterSpacing: '0.08em',
+          textTransform: 'uppercase',
+          color: '#7a8c08',
+          marginBottom: '22px',
+        }}
+      >
+        {categoryLabel}
+        <span style={{ display: 'inline-block', width: '32px', height: '2px', background: '#aec90b' }} />
       </div>
-      <h1 className="mt-2 text-3xl md:text-4xl font-bold leading-tight">{post.title}</h1>
-      <p className="mt-3 text-lg text-slate-600">{post.excerpt}</p>
-      <div className="mt-4 text-sm text-slate-500">
-        ENVO Team · {new Date(post.publishedAt).toLocaleDateString()} · {post.readingTime ?? 1} min read
+      <h1
+        className="font-semibold"
+        style={{
+          fontSize: '46px',
+          lineHeight: 1.1,
+          letterSpacing: '-0.015em',
+          color: '#1a2332',
+          margin: '0 0 18px',
+          maxWidth: '22ch',
+        }}
+      >
+        {post.title}
+      </h1>
+      <p
+        style={{
+          fontSize: '18px',
+          lineHeight: 1.55,
+          color: '#4a5568',
+          margin: '0 0 28px',
+          maxWidth: '60ch',
+        }}
+      >
+        {post.excerpt}
+      </p>
+      <div
+        style={{
+          display: 'flex',
+          alignItems: 'center',
+          gap: '12px',
+          fontSize: '13.5px',
+          color: '#6a7a8a',
+          paddingBottom: '32px',
+          borderBottom: '1px solid #e2e5ea',
+        }}
+      >
+        <span style={{ color: '#1a2332', fontWeight: 500 }}>ENVO Team</span>
+        <span style={{ opacity: 0.4 }}>·</span>
+        <span>{formatDate(post.publishedAt)}</span>
       </div>
-      {img && (
-        <div className="mt-6 aspect-[2/1] bg-slate-100 overflow-hidden rounded-lg">
-          {/* eslint-disable-next-line @next/next/no-img-element */}
-          <img src={img} alt="" className="w-full h-full object-cover" />
-        </div>
-      )}
     </header>
   )
 }
