@@ -148,6 +148,37 @@ export async function getRelatedPosts(
   return result.docs as unknown as Post[]
 }
 
+/** Counts per category + total. Powers the filter chips on /blog. */
+export async function getPostCounts(): Promise<{
+  all: number
+  guides: number
+  tech_insights: number
+  company_news: number
+  industry: number
+}> {
+  const p = await payload()
+  const cats: PostCategory[] = ['guides', 'tech_insights', 'company_news', 'industry']
+  const queries = [
+    p.find({ collection: 'posts', where: dateFilter(), limit: 0, depth: 0 }),
+    ...cats.map((c) =>
+      p.find({
+        collection: 'posts',
+        where: { and: [{ category: { equals: c } }, dateFilter()] },
+        limit: 0,
+        depth: 0,
+      }),
+    ),
+  ]
+  const [all, guides, tech, news, industry] = await Promise.all(queries)
+  return {
+    all: all.totalDocs,
+    guides: guides.totalDocs,
+    tech_insights: tech.totalDocs,
+    company_news: news.totalDocs,
+    industry: industry.totalDocs,
+  }
+}
+
 /** All published slugs — feeds generateStaticParams on /blog/[slug]. */
 export async function getAllSlugs(): Promise<string[]> {
   const p = await payload()
