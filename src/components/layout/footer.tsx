@@ -51,7 +51,7 @@ export function Footer() {
             <h5>Company</h5>
             <ul>
               <li><Link href="/about">About ENVO</Link></li>
-              <li><span aria-disabled="true">News</span></li>
+              <li><Link href="/blog">Blog</Link></li>
               <li><span aria-disabled="true">Careers</span></li>
             </ul>
           </div>
