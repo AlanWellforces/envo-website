@@ -5,14 +5,14 @@
   "scripts": {
     "dev": "next dev",
     "build": "next build",
-    "start": "next start",
+    "start": "node .next/standalone/server.js",
     "lint": "eslint",
     "typecheck": "tsc --noEmit",
     "test": "vitest run",
     "test:watch": "vitest",
     "payload": "payload",
     "generate:types": "tsx --tsconfig tsconfig.json scripts/generate-types.mts",
-    "generate:importmap": "payload generate:importmap"
+    "generate:importmap": "tsx --tsconfig tsconfig.json scripts/generate-importmap.mts"
   },
   "dependencies": {
     "@base-ui/react": "^1.4.1",
