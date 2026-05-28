@@ -15,7 +15,10 @@ export const Posts: CollectionConfig = {
   },
   admin: {
     useAsTitle: 'title',
-    defaultColumns: ['coverPreview', 'title', '_status', 'category', 'updatedAt', 'publishedAt'],
+    // title must lead: Payload only links the FIRST column to the edit view,
+    // and only for a real-field cell — a custom ui Cell (coverPreview) first
+    // would make the row unclickable. Cover thumbnail follows.
+    defaultColumns: ['title', 'coverPreview', '_status', 'category', 'updatedAt', 'publishedAt'],
     description: 'ENVO editorial content. Publish to make a post visible on the website.',
     group: 'Editorial',
   },
