@@ -9,6 +9,7 @@ import { Products } from './payload/collections/Products.ts'
 import { Media } from './payload/collections/Media.ts'
 import { Posts } from './payload/collections/Posts.ts'
 import { SiteSettings } from './payload/globals/SiteSettings.ts'
+import { HomePage } from './payload/globals/HomePage.ts'
 
 const filename = fileURLToPath(import.meta.url)
 const dirname = path.dirname(filename)
@@ -21,7 +22,7 @@ export default buildConfig({
     },
   },
   collections: [Products, Media, Posts],
-  globals: [SiteSettings],
+  globals: [SiteSettings, HomePage],
   editor: lexicalEditor(),
   secret: process.env.PAYLOAD_SECRET || '',
   typescript: {
