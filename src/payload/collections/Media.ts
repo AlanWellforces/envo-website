@@ -9,6 +9,8 @@ export const Media: CollectionConfig = {
     useAsTitle: 'alt',
     group: 'Products',
     defaultColumns: ['preview', 'fileName', 'alt', 'url', 'createdAt', 'fileSize'],
+    // Search box matches both the alt text and the filename (1000+ uploads).
+    listSearchableFields: ['alt', 'filename'],
   },
   access: {
     read: () => true,
