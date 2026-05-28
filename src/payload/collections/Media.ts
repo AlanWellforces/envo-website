@@ -8,6 +8,9 @@ export const Media: CollectionConfig = {
   admin: {
     useAsTitle: 'alt',
     group: 'Products',
+    defaultColumns: ['preview', 'filename', 'alt', 'url', 'createdAt', 'fileSize'],
+    // Search box matches both the alt text and the filename (1000+ uploads).
+    listSearchableFields: ['alt', 'filename'],
   },
   access: {
     read: () => true,
@@ -38,6 +41,28 @@ export const Media: CollectionConfig = {
     mimeTypes: ['image/jpeg', 'image/png', 'image/webp', 'image/gif'],
   },
   fields: [
+    {
+      // Image preview column for the list view (no stored data).
+      name: 'preview',
+      type: 'ui',
+      label: 'Preview',
+      admin: {
+        components: {
+          Cell: '/payload/components/MediaThumbnailCell#MediaThumbnailCell',
+        },
+      },
+    },
+    {
+      // Human-readable file size (reads filesize bytes from the row).
+      name: 'fileSize',
+      type: 'ui',
+      label: 'Size',
+      admin: {
+        components: {
+          Cell: '/payload/components/MediaFileSizeCell#MediaFileSizeCell',
+        },
+      },
+    },
     {
       name: 'alt',
       type: 'text',
