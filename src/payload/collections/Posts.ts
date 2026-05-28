@@ -9,6 +9,10 @@ import { lexicalToText, readingTimeMinutes } from '../../lib/lexical-text.ts'
 
 export const Posts: CollectionConfig = {
   slug: 'posts',
+  labels: {
+    singular: 'Blog Post',
+    plural: 'Blog Posts',
+  },
   admin: {
     useAsTitle: 'title',
     defaultColumns: ['coverPreview', 'title', '_status', 'category', 'updatedAt', 'publishedAt'],
