@@ -2361,7 +2361,7 @@
       left: var(--sidebar-w);
       right: 0;
       height: 40px;
-      background: rgba(5,11,26,.55);   /* lighter, hero shows through */
+      background: rgba(5,11,26,.95);   /* near-opaque: keeps nav legible when light content scrolls under */
       backdrop-filter: saturate(160%) blur(12px);
       -webkit-backdrop-filter: saturate(160%) blur(12px);
       border-bottom: 1px solid rgba(255,255,255,.05);
