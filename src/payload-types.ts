@@ -93,9 +93,11 @@ export interface Config {
   fallbackLocale: null;
   globals: {
     'site-settings': SiteSetting;
+    'home-page': HomePage;
   };
   globalsSelect: {
     'site-settings': SiteSettingsSelect;
+    'home-page': HomePageSelect;
   };
   locale: null;
   widgets: {
@@ -944,6 +946,79 @@ export interface SiteSetting {
   createdAt?: string | null;
 }
 /**
+ * Content for each homepage section. Changes take effect on next publish.
+ *
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "home-page".
+ */
+export interface HomePage {
+  id: number;
+  /**
+   * Small label above the headline.
+   */
+  hero_eyebrow?: string | null;
+  /**
+   * Main H1. Use a period at the end.
+   */
+  hero_headline?: string | null;
+  hero_subheading?: string | null;
+  /**
+   * Path to background video. Leave as-is unless you upload a new one.
+   */
+  hero_video_url?: string | null;
+  /**
+   * 3 feature bullets shown under the headline. Leave empty to use defaults.
+   */
+  hero_features?:
+    | {
+        label: string;
+        desc: string;
+        id?: string | null;
+      }[]
+    | null;
+  stats_heading?: string | null;
+  stats_description?: string | null;
+  stats_cta_label?: string | null;
+  stats_cta_url?: string | null;
+  /**
+   * 4 stat cards. Icons are fixed — only text is editable here.
+   */
+  stats_items?:
+    | {
+        label: string;
+        desc: string;
+        id?: string | null;
+      }[]
+    | null;
+  /**
+   * Testimonial quote. No quotation marks needed — they are added automatically.
+   */
+  quote_text?: string | null;
+  quote_author_role?: string | null;
+  quote_author_location?: string | null;
+  process_heading?: string | null;
+  process_cta_label?: string | null;
+  process_cta_url?: string | null;
+  /**
+   * 4 process steps. Step numbers and icons are fixed.
+   */
+  process_steps?:
+    | {
+        name: string;
+        desc: string;
+        id?: string | null;
+      }[]
+    | null;
+  cta_heading?: string | null;
+  cta_body?: string | null;
+  cta_primary_label?: string | null;
+  cta_primary_url?: string | null;
+  cta_secondary_label?: string | null;
+  cta_secondary_url?: string | null;
+  updatedAt?: string | null;
+  createdAt?: string | null;
+}
+/**
  * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "site-settings_select".
  */
@@ -1016,6 +1091,56 @@ export interface SiteSettingsSelect {
         google_analytics_id?: boolean;
         google_tag_manager_id?: boolean;
       };
+  updatedAt?: boolean;
+  createdAt?: boolean;
+  globalType?: boolean;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "home-page_select".
+ */
+export interface HomePageSelect {
+  hero_eyebrow?: boolean;
+  hero_headline?: boolean;
+  hero_subheading?: boolean;
+  hero_video_url?: boolean;
+  hero_features?:
+    | boolean
+    | {
+        label?: boolean;
+        desc?: boolean;
+        id?: boolean;
+      };
+  stats_heading?: boolean;
+  stats_description?: boolean;
+  stats_cta_label?: boolean;
+  stats_cta_url?: boolean;
+  stats_items?:
+    | boolean
+    | {
+        label?: boolean;
+        desc?: boolean;
+        id?: boolean;
+      };
+  quote_text?: boolean;
+  quote_author_role?: boolean;
+  quote_author_location?: boolean;
+  process_heading?: boolean;
+  process_cta_label?: boolean;
+  process_cta_url?: boolean;
+  process_steps?:
+    | boolean
+    | {
+        name?: boolean;
+        desc?: boolean;
+        id?: boolean;
+      };
+  cta_heading?: boolean;
+  cta_body?: boolean;
+  cta_primary_label?: boolean;
+  cta_primary_url?: boolean;
+  cta_secondary_label?: boolean;
+  cta_secondary_url?: boolean;
   updatedAt?: boolean;
   createdAt?: boolean;
   globalType?: boolean;

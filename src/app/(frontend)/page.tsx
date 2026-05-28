@@ -10,21 +10,24 @@ import { Process } from '@/components/home/process'
 import { Resources } from '@/components/home/resources'
 import { FinalCta } from '@/components/home/final-cta'
 import { Newsletter } from '@/components/home/newsletter'
+import { getHomePage } from '@/lib/home-page'
 
-export default function HomePage() {
+export default async function HomePage() {
+  const hp = await getHomePage().catch(() => null)
+
   return (
     <>
-      <Hero />
-      <Impact />
+      <Hero       data={hp?.hero} />
+      <Impact     data={hp?.stats} />
       <Trust />
       <ProductFamilies />
       <Solutions />
       <Projects />
-      <Quote />
+      <Quote      data={hp?.quote} />
       <FeaturedDetail />
-      <Process />
+      <Process    data={hp?.process} />
       <Resources />
-      <FinalCta />
+      <FinalCta   data={hp?.cta} />
       <Newsletter />
     </>
   )

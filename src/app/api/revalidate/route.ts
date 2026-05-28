@@ -1,6 +1,7 @@
 import { revalidatePath } from 'next/cache'
 import { NextRequest, NextResponse } from 'next/server'
 import { clearSiteSettingsCache } from '@/lib/site-settings'
+import { clearHomePageCache } from '@/lib/home-page'
 
 // POST /api/revalidate?paths=/blog,/blog/foo
 // Header: x-revalidate-secret: <REVALIDATE_SECRET>
@@ -26,6 +27,7 @@ export async function POST(req: NextRequest) {
   }
 
   if (paths.includes('/__site-settings')) clearSiteSettingsCache()
+  if (paths.includes('/__home-page')) clearHomePageCache()
 
   return NextResponse.json({ ok: true, revalidated: paths })
 }
