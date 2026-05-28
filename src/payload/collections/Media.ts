@@ -8,6 +8,7 @@ export const Media: CollectionConfig = {
   admin: {
     useAsTitle: 'alt',
     group: 'Products',
+    defaultColumns: ['preview', 'fileName', 'alt', 'createdAt', 'fileSize'],
   },
   access: {
     read: () => true,
@@ -38,6 +39,39 @@ export const Media: CollectionConfig = {
     mimeTypes: ['image/jpeg', 'image/png', 'image/webp', 'image/gif'],
   },
   fields: [
+    {
+      // Image preview column for the list view (no stored data).
+      name: 'preview',
+      type: 'ui',
+      label: ' ',
+      admin: {
+        components: {
+          Cell: '/payload/components/MediaThumbnailCell#MediaThumbnailCell',
+        },
+      },
+    },
+    {
+      // Shopify-style filename + format subtitle (reads filename/mimeType from the row).
+      name: 'fileName',
+      type: 'ui',
+      label: 'File name',
+      admin: {
+        components: {
+          Cell: '/payload/components/MediaFileNameCell#MediaFileNameCell',
+        },
+      },
+    },
+    {
+      // Human-readable file size (reads filesize bytes from the row).
+      name: 'fileSize',
+      type: 'ui',
+      label: 'Size',
+      admin: {
+        components: {
+          Cell: '/payload/components/MediaFileSizeCell#MediaFileSizeCell',
+        },
+      },
+    },
     {
       name: 'alt',
       type: 'text',
