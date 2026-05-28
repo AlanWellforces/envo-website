@@ -9,9 +9,13 @@ import { lexicalToText, readingTimeMinutes } from '../../lib/lexical-text.ts'
 
 export const Posts: CollectionConfig = {
   slug: 'posts',
+  labels: {
+    singular: 'Blog Post',
+    plural: 'Blog Posts',
+  },
   admin: {
     useAsTitle: 'title',
-    defaultColumns: ['title', 'category', 'publishedAt', 'featured', '_status'],
+    defaultColumns: ['coverPreview', 'title', '_status', 'category', 'updatedAt', 'publishedAt'],
     description: 'ENVO editorial content. Publish to make a post visible on the website.',
     group: 'Editorial',
   },
@@ -128,6 +132,18 @@ export const Posts: CollectionConfig = {
           ],
         },
       ],
+    },
+
+    // List-only cover thumbnail (no stored data; reads the populated cover relationship).
+    {
+      name: 'coverPreview',
+      type: 'ui',
+      label: 'Cover',
+      admin: {
+        components: {
+          Cell: '/payload/components/PostCoverCell#PostCoverCell',
+        },
+      },
     },
 
     // Hook-managed, admin-readonly. Lives outside the tabs so it's compact.
