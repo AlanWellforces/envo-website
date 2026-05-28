@@ -91,8 +91,12 @@ export interface Config {
     defaultIDType: number;
   };
   fallbackLocale: null;
-  globals: {};
-  globalsSelect: {};
+  globals: {
+    'site-settings': SiteSetting;
+  };
+  globalsSelect: {
+    'site-settings': SiteSettingsSelect;
+  };
   locale: null;
   widgets: {
     collections: CollectionsWidget;
@@ -839,6 +843,182 @@ export interface PayloadMigrationsSelect {
   batch?: boolean;
   updatedAt?: boolean;
   createdAt?: boolean;
+}
+/**
+ * Global site configuration — nav, footer, contact, SEO, and announcement banner.
+ *
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "site-settings".
+ */
+export interface SiteSetting {
+  id: number;
+  /**
+   * Shown at the very top of every page. Leave message blank to hide.
+   */
+  banner?: {
+    enabled?: boolean | null;
+    message?: string | null;
+    link_label?: string | null;
+    link_url?: string | null;
+    style?: ('info' | 'success' | 'warning' | 'promo') | null;
+  };
+  nav?: {
+    /**
+     * Main links shown in the sidebar / top nav.
+     */
+    primary_links?:
+      | {
+          label: string;
+          url: string;
+          /**
+           * e.g. "Zap", "Package", "BookOpen"
+           */
+          icon?: string | null;
+          open_in_new_tab?: boolean | null;
+          id?: string | null;
+        }[]
+      | null;
+    cta_label?: string | null;
+    cta_url?: string | null;
+  };
+  footer?: {
+    tagline?: string | null;
+    link_columns?:
+      | {
+          heading: string;
+          links?:
+            | {
+                label: string;
+                url: string;
+                id?: string | null;
+              }[]
+            | null;
+          id?: string | null;
+        }[]
+      | null;
+    /**
+     * e.g. "© 2026 Wellforces Ltd. All rights reserved."
+     */
+    legal_text?: string | null;
+    social_links?:
+      | {
+          platform?: ('linkedin' | 'instagram' | 'facebook' | 'youtube' | 'twitter') | null;
+          url: string;
+          id?: string | null;
+        }[]
+      | null;
+  };
+  contact?: {
+    email?: string | null;
+    phone?: string | null;
+    address?: string | null;
+    /**
+     * e.g. "Mon–Fri 8am–5pm NZST"
+     */
+    hours?: string | null;
+  };
+  seo?: {
+    /**
+     * Used in title tags: "Product Name | ENVO"
+     */
+    site_name?: string | null;
+    title_separator?: string | null;
+    /**
+     * Fallback if a page has no specific description.
+     */
+    default_description?: string | null;
+    /**
+     * Fallback Open Graph image for social sharing (1200×630px recommended).
+     */
+    default_og_image?: (number | null) | Media;
+    /**
+     * e.g. G-XXXXXXXXXX
+     */
+    google_analytics_id?: string | null;
+    /**
+     * e.g. GTM-XXXXXXX
+     */
+    google_tag_manager_id?: string | null;
+  };
+  updatedAt?: string | null;
+  createdAt?: string | null;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "site-settings_select".
+ */
+export interface SiteSettingsSelect {
+  banner?:
+    | boolean
+    | {
+        enabled?: boolean;
+        message?: boolean;
+        link_label?: boolean;
+        link_url?: boolean;
+        style?: boolean;
+      };
+  nav?:
+    | boolean
+    | {
+        primary_links?:
+          | boolean
+          | {
+              label?: boolean;
+              url?: boolean;
+              icon?: boolean;
+              open_in_new_tab?: boolean;
+              id?: boolean;
+            };
+        cta_label?: boolean;
+        cta_url?: boolean;
+      };
+  footer?:
+    | boolean
+    | {
+        tagline?: boolean;
+        link_columns?:
+          | boolean
+          | {
+              heading?: boolean;
+              links?:
+                | boolean
+                | {
+                    label?: boolean;
+                    url?: boolean;
+                    id?: boolean;
+                  };
+              id?: boolean;
+            };
+        legal_text?: boolean;
+        social_links?:
+          | boolean
+          | {
+              platform?: boolean;
+              url?: boolean;
+              id?: boolean;
+            };
+      };
+  contact?:
+    | boolean
+    | {
+        email?: boolean;
+        phone?: boolean;
+        address?: boolean;
+        hours?: boolean;
+      };
+  seo?:
+    | boolean
+    | {
+        site_name?: boolean;
+        title_separator?: boolean;
+        default_description?: boolean;
+        default_og_image?: boolean;
+        google_analytics_id?: boolean;
+        google_tag_manager_id?: boolean;
+      };
+  updatedAt?: boolean;
+  createdAt?: boolean;
+  globalType?: boolean;
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
