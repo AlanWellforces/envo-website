@@ -3,6 +3,7 @@ import Image from 'next/image'
 import Link from 'next/link'
 import { notFound } from 'next/navigation'
 import { EnvoButton } from '@/components/ui/envo-button'
+import MiniSeriesPage from '@/components/products/mini-series/MiniSeriesPage'
 import { PRODUCT_FAMILIES, type SeriesLink } from '@/data/product-families'
 import { PURCHASE_CHANNELS } from '@/data/purchase-channels'
 import { getProduct, resolveProductImage, type Product } from '@/lib/products'
@@ -46,6 +47,18 @@ export default async function SeriesDetailPage({ params }: { params: Params }) {
   if (!family) notFound()
   const seriesObj = family.series.find((s): s is LiveSeries => isLive(s) && s.slug === series)
   if (!seriesObj) notFound()
+
+  // Mini Series uses a bespoke design (v3 mockup ported via Shadow DOM) —
+  // the generic data-driven template below does not fit its tabbed layout.
+  // Pre-fetch the three -NW (Natural White) reference variants from Akeneo so
+  // the Compare tab can render live data (SKU, power, dimensions, lumens,
+  // max-per-string, datasheet URL); the client component substitutes them
+  // into the mockup HTML via [data-akeneo] markers after the shadow attaches.
+  if (series === 'mini-series') {
+    const variantSkus = ['EV-BLML01LBY-NW', 'EV-BLML02LBY-NW', 'EV-BLML03LBY-NW']
+    const variants = await Promise.all(variantSkus.map((s) => getProduct(s)))
+    return <MiniSeriesPage variants={variants.filter((v): v is Product => v !== null)} />
+  }
 
   const applications = seriesObj.applications ?? family.applications ?? []
   const siblings = family.series.filter((s) => !(isLive(s) && s.slug === series))
