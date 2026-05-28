@@ -8,7 +8,7 @@ export const Media: CollectionConfig = {
   admin: {
     useAsTitle: 'alt',
     group: 'Products',
-    defaultColumns: ['preview', 'fileName', 'alt', 'createdAt', 'fileSize'],
+    defaultColumns: ['preview', 'fileName', 'alt', 'url', 'createdAt', 'fileSize'],
   },
   access: {
     read: () => true,
