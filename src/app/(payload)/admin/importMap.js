@@ -1,5 +1,4 @@
 import { MediaThumbnailCell as MediaThumbnailCell_bbf30dfb62b443d2b784c99b6ce2588d } from '../../../payload/components/MediaThumbnailCell'
-import { MediaFileNameCell as MediaFileNameCell_6fb891f32ee7e3e10e0d65bd28883bc3 } from '../../../payload/components/MediaFileNameCell'
 import { MediaFileSizeCell as MediaFileSizeCell_ca95d1010c71823510510c471475fd57 } from '../../../payload/components/MediaFileSizeCell'
 import { RscEntryLexicalCell as RscEntryLexicalCell_44fe37237e0ebf4470c9990d8cb7b07e } from '@payloadcms/richtext-lexical/rsc'
 import { RscEntryLexicalField as RscEntryLexicalField_44fe37237e0ebf4470c9990d8cb7b07e } from '@payloadcms/richtext-lexical/rsc'
@@ -29,7 +28,6 @@ import { CollectionCards as CollectionCards_f9c02e79a4aed9a3924487c0cd4cafb1 } f
 /** @type import('payload').ImportMap */
 export const importMap = {
   "/payload/components/MediaThumbnailCell#MediaThumbnailCell": MediaThumbnailCell_bbf30dfb62b443d2b784c99b6ce2588d,
-  "/payload/components/MediaFileNameCell#MediaFileNameCell": MediaFileNameCell_6fb891f32ee7e3e10e0d65bd28883bc3,
   "/payload/components/MediaFileSizeCell#MediaFileSizeCell": MediaFileSizeCell_ca95d1010c71823510510c471475fd57,
   "@payloadcms/richtext-lexical/rsc#RscEntryLexicalCell": RscEntryLexicalCell_44fe37237e0ebf4470c9990d8cb7b07e,
   "@payloadcms/richtext-lexical/rsc#RscEntryLexicalField": RscEntryLexicalField_44fe37237e0ebf4470c9990d8cb7b07e,

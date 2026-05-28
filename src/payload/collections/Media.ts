@@ -8,7 +8,7 @@ export const Media: CollectionConfig = {
   admin: {
     useAsTitle: 'alt',
     group: 'Products',
-    defaultColumns: ['preview', 'fileName', 'alt', 'url', 'createdAt', 'fileSize'],
+    defaultColumns: ['preview', 'filename', 'alt', 'url', 'createdAt', 'fileSize'],
     // Search box matches both the alt text and the filename (1000+ uploads).
     listSearchableFields: ['alt', 'filename'],
   },
@@ -45,21 +45,10 @@ export const Media: CollectionConfig = {
       // Image preview column for the list view (no stored data).
       name: 'preview',
       type: 'ui',
-      label: ' ',
+      label: 'Preview',
       admin: {
         components: {
           Cell: '/payload/components/MediaThumbnailCell#MediaThumbnailCell',
-        },
-      },
-    },
-    {
-      // Shopify-style filename + format subtitle (reads filename/mimeType from the row).
-      name: 'fileName',
-      type: 'ui',
-      label: 'File name',
-      admin: {
-        components: {
-          Cell: '/payload/components/MediaFileNameCell#MediaFileNameCell',
         },
       },
     },
