@@ -38,11 +38,11 @@ export function Footer() {
           </div>
 
           <div className="footer-col">
-            <h5>Support</h5>
+            <h5>Resources</h5>
             <ul>
               <li><Link href="/free-layout-design">Free Layout Design</Link></li>
-              <li><Link href="/support/resources">Resources &amp; Downloads</Link></li>
-              <li><Link href="/support/tools">Tools &amp; Guides</Link></li>
+              <li><Link href="/resources/downloads">Resources &amp; Downloads</Link></li>
+              <li><Link href="/resources/tools">Tools &amp; Guides</Link></li>
               <li><Link href="/contact">Contact Us</Link></li>
             </ul>
           </div>
