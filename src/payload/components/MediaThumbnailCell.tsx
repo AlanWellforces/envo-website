@@ -8,8 +8,8 @@
 // the thumbnail-first layout while staying clickable into the edit view.
 
 import React from 'react'
-import { Link, useConfig } from '@payloadcms/ui'
 import type { DefaultCellComponentProps } from 'payload'
+import { EditLink } from './EditLink.tsx'
 
 const THUMB_STYLE: React.CSSProperties = {
   width: 36,
@@ -21,9 +21,7 @@ const THUMB_STYLE: React.CSSProperties = {
   border: '1px solid var(--theme-elevation-150)',
 }
 
-export const MediaThumbnailCell: React.FC<DefaultCellComponentProps> = ({ rowData, collectionSlug, link }) => {
-  const { config } = useConfig()
-
+export const MediaThumbnailCell: React.FC<DefaultCellComponentProps> = ({ rowData, collectionSlug }) => {
   const data = rowData as
     | { id?: string | number; url?: string; thumbnailURL?: string; alt?: string; sizes?: { thumbnail?: { url?: string } } }
     | undefined
@@ -34,15 +32,12 @@ export const MediaThumbnailCell: React.FC<DefaultCellComponentProps> = ({ rowDat
     return <span style={{ color: 'var(--theme-elevation-400)' }}>—</span>
   }
 
-  // eslint-disable-next-line @next/next/no-img-element
-  const img = <img src={src} alt={data?.alt ?? ''} style={THUMB_STYLE} />
-
-  if (link && data?.id != null) {
-    const href = `${config.routes.admin}/collections/${collectionSlug}/${encodeURIComponent(String(data.id))}`
-    return <Link href={href}>{img}</Link>
-  }
-
-  return img
+  return (
+    <EditLink collectionSlug={collectionSlug} id={data?.id}>
+      {/* eslint-disable-next-line @next/next/no-img-element */}
+      <img src={src} alt={data?.alt ?? ''} style={THUMB_STYLE} />
+    </EditLink>
+  )
 }
 
 export default MediaThumbnailCell

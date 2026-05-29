@@ -37,7 +37,18 @@ export const Posts: CollectionConfig = {
         {
           label: 'Content',
           fields: [
-            { name: 'title', type: 'text', required: true },
+            {
+              name: 'title',
+              type: 'text',
+              required: true,
+              admin: {
+                // Make the title text link into the edit view even though the
+                // cover thumbnail is the first column. List-only; no form effect.
+                components: {
+                  Cell: '/payload/components/LinkedTextCell#LinkedTextCell',
+                },
+              },
+            },
             {
               name: 'slug',
               type: 'text',
