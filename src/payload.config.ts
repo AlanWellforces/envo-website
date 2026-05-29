@@ -15,7 +15,10 @@ const filename = fileURLToPath(import.meta.url)
 const dirname = path.dirname(filename)
 
 export default buildConfig({
-  serverURL: process.env.NEXT_PUBLIC_SITE_URL || 'http://localhost:3000',
+  // PAYLOAD_SERVER_URL drives CSRF allowlist. Leave unset in dev/NAS so the
+  // list stays empty and cookie auth works in all browsers (no Origin/Sec-Fetch-Site required).
+  // Set PAYLOAD_SERVER_URL=https://yourdomain.com on production (Vercel).
+  serverURL: process.env.PAYLOAD_SERVER_URL ?? '',
   admin: {
     importMap: {
       baseDir: path.resolve(dirname),
