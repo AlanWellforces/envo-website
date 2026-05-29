@@ -40,6 +40,8 @@ type NavItem = {
   href: string
   label: string
   icon: React.ReactNode
+  /** When set, the item is rendered with a caret toggle + inline child list. */
+  children?: { slug: string; href: string; label: string }[]
 }
 
 const NAVIGATE: NavItem[] = [
@@ -66,6 +68,12 @@ const NAVIGATE: NavItem[] = [
         <rect x="14" y="14" width="7" height="7" />
       </svg>
     ),
+    children: [
+      { slug: 'led-signage-modules', href: '/products/led-signage-modules', label: 'Signage Modules' },
+      { slug: 'led-drivers', href: '/products/led-drivers', label: 'LED Drivers' },
+      { slug: 'control-gear', href: '/products/control-gear', label: 'Control Gear' },
+      { slug: 'accessories', href: '/products/accessories', label: 'Accessories' },
+    ],
   },
   {
     section: 'solutions',
@@ -153,6 +161,9 @@ export function Sidebar() {
   const [open, setOpen] = useState(false)
   const [region, setRegion] = useState<PurchaseChannel['id']>(REGION_DEFAULT)
   const [regionOpen, setRegionOpen] = useState(false)
+  // Track which parent groups are user-expanded. Auto-expand when the active
+  // route is inside a group; users can still manually toggle from there.
+  const [openGroups, setOpenGroups] = useState<Set<string>>(() => new Set())
   const sidebarRef = useRef<HTMLElement>(null)
   const toggleRef = useRef<HTMLButtonElement>(null)
   const regionRef = useRef<HTMLDivElement>(null)
@@ -161,6 +172,21 @@ export function Sidebar() {
     document.body.classList.toggle('sidebar-collapsed', collapsed)
     return () => document.body.classList.remove('sidebar-collapsed')
   }, [collapsed])
+
+  // Auto-expand any parent group whose route the user is currently inside.
+  useEffect(() => {
+    setOpenGroups((prev) => {
+      const next = new Set(prev)
+      let changed = false
+      for (const item of NAVIGATE) {
+        if (item.children && isActive(pathname, item.href) && !next.has(item.section)) {
+          next.add(item.section)
+          changed = true
+        }
+      }
+      return changed ? next : prev
+    })
+  }, [pathname])
 
   // Hydrate region from localStorage after mount (avoids SSR mismatch).
   useEffect(() => {
@@ -217,19 +243,94 @@ export function Sidebar() {
     window.dispatchEvent(new Event('envo-sidebar-change'))
   }, [])
 
+  const toggleGroup = (section: string) =>
+    setOpenGroups((prev) => {
+      const next = new Set(prev)
+      if (next.has(section)) next.delete(section)
+      else next.add(section)
+      return next
+    })
+
+  // After click navigation, blur the link so the collapsed-mode flyout's
+  // `:focus-within` doesn't keep it open when the mouse leaves.
+  const handleNavClick = (e: React.MouseEvent<HTMLAnchorElement>) => {
+    setOpen(false)
+    e.currentTarget.blur()
+  }
+
   const renderItems = (items: NavItem[]) =>
-    items.map((item) => (
-      <Link
-        key={item.section}
-        href={item.href}
-        className={cn('sidebar-link', isActive(pathname, item.href) && 'active')}
-        data-section={item.section}
-        onClick={() => setOpen(false)}
-      >
-        {item.icon}
-        <span className="sidebar-label">{item.label}</span>
-      </Link>
-    ))
+    items.map((item) => {
+      // Leaf — no children. `data-tooltip` powers the collapsed-sidebar
+      // hover label (CSS-only ::after). Parent group links skip this since
+      // they have a richer flyout that already names the category.
+      if (!item.children) {
+        return (
+          <Link
+            key={item.section}
+            href={item.href}
+            className={cn('sidebar-link', isActive(pathname, item.href) && 'active')}
+            data-section={item.section}
+            data-tooltip={item.label}
+            onClick={handleNavClick}
+          >
+            {item.icon}
+            <span className="sidebar-label">{item.label}</span>
+          </Link>
+        )
+      }
+
+      // Parent group — link to the overview page + separate caret toggle.
+      // Parent row is "active" only when the user is on the exact /products
+      // catalog page; child links handle deeper /products/<family> highlights.
+      const groupOpen = openGroups.has(item.section)
+      const parentActive = pathname === item.href
+      return (
+        <div
+          key={item.section}
+          className={cn('sidebar-group', groupOpen && 'open')}
+        >
+          <div className="sidebar-group-row">
+            <Link
+              href={item.href}
+              className={cn('sidebar-link', parentActive && 'active')}
+              data-section={item.section}
+              onClick={handleNavClick}
+            >
+              {item.icon}
+              <span className="sidebar-label">{item.label}</span>
+            </Link>
+            <button
+              type="button"
+              className="sidebar-group-caret-btn"
+              aria-label={groupOpen ? `Collapse ${item.label}` : `Expand ${item.label}`}
+              aria-expanded={groupOpen}
+              onClick={() => toggleGroup(item.section)}
+            >
+              <svg className="sidebar-caret" viewBox="0 0 24 24" aria-hidden="true">
+                <path d="M9 6l6 6-6 6" />
+              </svg>
+            </button>
+          </div>
+          <ul
+            className="sidebar-sub"
+            role="list"
+            data-parent-label={item.label}
+          >
+            {item.children.map((c) => (
+              <li key={c.slug}>
+                <Link
+                  href={c.href}
+                  className={cn('sidebar-sublink', isActive(pathname, c.href) && 'active')}
+                  onClick={handleNavClick}
+                >
+                  {c.label}
+                </Link>
+              </li>
+            ))}
+          </ul>
+        </div>
+      )
+    })
 
   return (
     <>
