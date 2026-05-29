@@ -28,122 +28,73 @@ export const Posts: CollectionConfig = {
   versions: {
     drafts: true,
   },
+  // Editor-style layout: the main column is for writing (title, excerpt,
+  // cover, body); everything else (publishing knobs, taxonomy, SEO) lives in
+  // the right sidebar or a collapsed section, so the writing surface stays
+  // front-and-centre — like WordPress / Ghost.
   fields: [
+    // ===== Main column — the writing surface =====
     {
-      type: 'tabs',
-      tabs: [
-
-        // ----- Tab 1: Content -----
-        {
-          label: 'Content',
-          fields: [
-            {
-              name: 'title',
-              type: 'text',
-              required: true,
-              admin: {
-                // Make the title text link into the edit view even though the
-                // cover thumbnail is the first column. List-only; no form effect.
-                components: {
-                  Cell: '/payload/components/LinkedTextCell#LinkedTextCell',
-                },
-              },
-            },
-            {
-              name: 'slug',
-              type: 'text',
-              required: true,
-              unique: true,
-              admin: {
-                readOnly: true,
-                description: 'Auto-generated from title. Edit in the database if you must change it.',
-              },
-            },
-            {
-              name: 'excerpt',
-              type: 'textarea',
-              required: true,
-              maxLength: 200,
-              admin: { description: 'Shown on cards and as the meta-description fallback. 200 chars max.' },
-            },
-            {
-              name: 'cover',
-              type: 'upload',
-              relationTo: 'media',
-              required: true,
-              admin: { description: 'Cover image. Used on list cards and the detail page header.' },
-            },
-            { name: 'body', type: 'richText', required: true },
-          ],
+      name: 'title',
+      type: 'text',
+      required: true,
+      admin: {
+        placeholder: 'Post headline',
+        // Make the title text link into the edit view even though the cover
+        // thumbnail is the first list column. List-only; no form effect.
+        components: {
+          Cell: '/payload/components/LinkedTextCell#LinkedTextCell',
         },
+      },
+    },
+    {
+      name: 'excerpt',
+      type: 'textarea',
+      required: true,
+      maxLength: 200,
+      admin: {
+        placeholder: 'One or two sentences shown on cards and in search results.',
+        description: 'Shown on blog cards and used as the meta-description fallback (max 200 characters).',
+      },
+    },
+    {
+      name: 'cover',
+      type: 'upload',
+      relationTo: 'media',
+      required: true,
+      admin: { description: 'Cover image — used on list cards and as the detail-page header.' },
+    },
+    {
+      name: 'body',
+      type: 'richText',
+      required: true,
+      label: 'Body',
+    },
 
-        // ----- Tab 2: Taxonomy -----
+    // SEO & social — collapsed by default so it stays out of the way until needed.
+    {
+      type: 'collapsible',
+      label: 'SEO & social (optional)',
+      admin: { initCollapsed: true },
+      fields: [
         {
-          label: 'Taxonomy',
-          fields: [
-            {
-              name: 'category',
-              type: 'select',
-              required: true,
-              options: [
-                { label: 'Guides', value: 'guides' },
-                { label: 'Tech Insights', value: 'tech_insights' },
-                { label: 'Company News', value: 'company_news' },
-                { label: 'Industry', value: 'industry' },
-              ],
-            },
-            {
-              name: 'tags',
-              type: 'array',
-              fields: [{ name: 'tag', type: 'text', required: true }],
-              admin: { description: 'Free-form tags. Used for /blog/tag/[t] pages.' },
-            },
-          ],
+          name: 'seoTitle',
+          type: 'text',
+          label: 'SEO title',
+          admin: { description: 'Optional. Falls back to the post title if empty.' },
         },
-
-        // ----- Tab 3: Publishing -----
         {
-          label: 'Publishing',
-          fields: [
-            {
-              name: 'publishedAt',
-              type: 'date',
-              required: true,
-              admin: {
-                description: 'When this post becomes visible. Future dates work as scheduled publishing.',
-                date: { displayFormat: 'dd/MM/yyyy HH:mm' },
-              },
-            },
-            {
-              name: 'featured',
-              type: 'checkbox',
-              defaultValue: false,
-              admin: { description: 'Show in featured spots on /blog and home.' },
-            },
-          ],
+          name: 'seoDescription',
+          type: 'textarea',
+          label: 'SEO description',
+          admin: { description: 'Optional. Falls back to the excerpt if empty.' },
         },
-
-        // ----- Tab 4: SEO -----
         {
-          label: 'SEO',
-          fields: [
-            {
-              name: 'seoTitle',
-              type: 'text',
-              admin: { description: 'Optional. Falls back to title if empty.' },
-            },
-            {
-              name: 'seoDescription',
-              type: 'textarea',
-              admin: { description: 'Optional. Falls back to excerpt if empty.' },
-            },
-            {
-              name: 'ogImage',
-              type: 'upload',
-              relationTo: 'media',
-              admin: { description: 'Optional. Falls back to cover if empty.' },
-            },
-          ],
+          name: 'ogImage',
+          type: 'upload',
+          relationTo: 'media',
+          label: 'Social share image',
+          admin: { description: 'Optional. Falls back to the cover image if empty.' },
         },
       ],
     },
@@ -160,22 +111,79 @@ export const Posts: CollectionConfig = {
       },
     },
 
-    // Hook-managed, admin-readonly. Lives outside the tabs so it's compact.
+    // ===== Right sidebar — publishing knobs & metadata =====
+    {
+      name: 'publishedAt',
+      type: 'date',
+      required: true,
+      defaultValue: () => new Date().toISOString(),
+      admin: {
+        position: 'sidebar',
+        description: 'When the post goes live. Set a future date/time to schedule it.',
+        date: { displayFormat: 'dd/MM/yyyy HH:mm' },
+      },
+    },
+    {
+      name: 'category',
+      type: 'select',
+      required: true,
+      options: [
+        { label: 'Guides', value: 'guides' },
+        { label: 'Tech Insights', value: 'tech_insights' },
+        { label: 'Company News', value: 'company_news' },
+        { label: 'Industry', value: 'industry' },
+      ],
+      admin: {
+        position: 'sidebar',
+        description: 'Primary section. Drives the /blog/category pages.',
+      },
+    },
+    {
+      name: 'featured',
+      type: 'checkbox',
+      defaultValue: false,
+      admin: {
+        position: 'sidebar',
+        description: 'Show in featured spots on /blog and the home page.',
+      },
+    },
+    {
+      name: 'slug',
+      type: 'text',
+      required: true,
+      unique: true,
+      admin: {
+        position: 'sidebar',
+        description: 'Post URL: /blog/<slug>. Auto-filled from the title — edit only for a custom URL.',
+      },
+    },
+    {
+      name: 'tags',
+      type: 'array',
+      fields: [{ name: 'tag', type: 'text', required: true }],
+      admin: {
+        position: 'sidebar',
+        description: 'Free-form tags. Power the /blog/tag pages.',
+      },
+    },
     {
       name: 'readingTime',
       type: 'number',
       admin: {
         readOnly: true,
-        description: 'Estimated minutes to read. Calculated on save.',
         position: 'sidebar',
+        description: 'Estimated minutes to read. Calculated on save.',
       },
     },
   ],
   hooks: {
     beforeChange: [
       ({ data, operation }) => {
-        // Auto-fill slug from title on create, only if slug is blank.
-        if (operation === 'create' && !data.slug && data.title) {
+        // Slug is now editable: normalize whatever was typed so the URL stays
+        // clean, and fall back to the title when left blank on create.
+        if (data.slug) {
+          data.slug = slugify(data.slug)
+        } else if (operation === 'create' && data.title) {
           data.slug = slugify(data.title)
         }
         return data
