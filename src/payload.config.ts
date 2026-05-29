@@ -30,7 +30,9 @@ export default buildConfig({
       baseDir: path.resolve(dirname),
     },
   },
-  collections: [Users, Products, Media, Posts, Projects],
+  // Order drives the admin nav group order: content first (Products,
+  // Editorial), then Settings (Users) last — so Users/Settings sits at the bottom.
+  collections: [Products, Media, Posts, Projects, Users],
   globals: [SiteSettings, HomePage],
   editor: lexicalEditor(),
   secret: process.env.PAYLOAD_SECRET || '',
