@@ -8,6 +8,9 @@ export const Media: CollectionConfig = {
   admin: {
     useAsTitle: 'alt',
     group: 'Products',
+    // Thumbnail leads (Shopify-style). Payload only links the FIRST column, and
+    // a custom ui Cell isn't auto-wrapped — so MediaThumbnailCell renders its
+    // own link to the edit view when it's the linked column.
     defaultColumns: ['preview', 'filename', 'alt', 'url', 'createdAt', 'fileSize'],
     // Search box matches both the alt text and the filename (1000+ uploads).
     listSearchableFields: ['alt', 'filename'],

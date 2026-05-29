@@ -2,13 +2,28 @@
 
 // Renders a small image preview in the Media list view.
 // Used by the `preview` ui field in collections/Media.ts.
+//
+// When this is the FIRST (linked) column, Payload sets `link: true` but does
+// NOT wrap a custom Cell in a link — so we render the link ourselves, keeping
+// the thumbnail-first layout while staying clickable into the edit view.
 
 import React from 'react'
 import type { DefaultCellComponentProps } from 'payload'
+import { EditLink } from './EditLink.tsx'
 
-export const MediaThumbnailCell: React.FC<DefaultCellComponentProps> = ({ rowData }) => {
+const THUMB_STYLE: React.CSSProperties = {
+  width: 36,
+  height: 36,
+  objectFit: 'cover',
+  borderRadius: 6,
+  display: 'block',
+  background: 'var(--theme-elevation-100)',
+  border: '1px solid var(--theme-elevation-150)',
+}
+
+export const MediaThumbnailCell: React.FC<DefaultCellComponentProps> = ({ rowData, collectionSlug }) => {
   const data = rowData as
-    | { url?: string; thumbnailURL?: string; alt?: string; sizes?: { thumbnail?: { url?: string } } }
+    | { id?: string | number; url?: string; thumbnailURL?: string; alt?: string; sizes?: { thumbnail?: { url?: string } } }
     | undefined
 
   const src = data?.sizes?.thumbnail?.url ?? data?.thumbnailURL ?? data?.url
@@ -18,20 +33,10 @@ export const MediaThumbnailCell: React.FC<DefaultCellComponentProps> = ({ rowDat
   }
 
   return (
-    // eslint-disable-next-line @next/next/no-img-element
-    <img
-      src={src}
-      alt={data?.alt ?? ''}
-      style={{
-        width: 36,
-        height: 36,
-        objectFit: 'cover',
-        borderRadius: 6,
-        display: 'block',
-        background: 'var(--theme-elevation-100)',
-        border: '1px solid var(--theme-elevation-150)',
-      }}
-    />
+    <EditLink collectionSlug={collectionSlug} id={data?.id}>
+      {/* eslint-disable-next-line @next/next/no-img-element */}
+      <img src={src} alt={data?.alt ?? ''} style={THUMB_STYLE} />
+    </EditLink>
   )
 }
 

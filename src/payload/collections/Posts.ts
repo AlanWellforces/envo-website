@@ -4,6 +4,7 @@
 // Hooks (autoSlug, calcReadingTime, revalidate) are added in later tasks.
 
 import type { CollectionConfig } from 'payload'
+import { lexicalEditor, FixedToolbarFeature, BlocksFeature } from '@payloadcms/richtext-lexical'
 import { slugify } from '../../lib/slugify.ts'
 import { lexicalToText, readingTimeMinutes } from '../../lib/lexical-text.ts'
 
@@ -15,6 +16,9 @@ export const Posts: CollectionConfig = {
   },
   admin: {
     useAsTitle: 'title',
+    // Cover leads (Shopify-style). Payload only links the FIRST column, and a
+    // custom ui Cell isn't auto-wrapped — so PostCoverCell renders its own link
+    // to the edit view when it's the linked column. Title is not clickable here.
     defaultColumns: ['coverPreview', 'title', '_status', 'category', 'updatedAt', 'publishedAt'],
     description: 'ENVO editorial content. Publish to make a post visible on the website.',
     group: 'Editorial',
@@ -25,111 +29,102 @@ export const Posts: CollectionConfig = {
   versions: {
     drafts: true,
   },
+  // Editor-style layout: the main column is for writing (title, excerpt,
+  // cover, body); everything else (publishing knobs, taxonomy, SEO) lives in
+  // the right sidebar or a collapsed section, so the writing surface stays
+  // front-and-centre — like WordPress / Ghost.
   fields: [
+    // ===== Main column — the writing surface =====
     {
-      type: 'tabs',
-      tabs: [
-
-        // ----- Tab 1: Content -----
-        {
-          label: 'Content',
-          fields: [
-            { name: 'title', type: 'text', required: true },
-            {
-              name: 'slug',
-              type: 'text',
-              required: true,
-              unique: true,
-              admin: {
-                readOnly: true,
-                description: 'Auto-generated from title. Edit in the database if you must change it.',
+      name: 'title',
+      type: 'text',
+      required: true,
+      admin: {
+        placeholder: 'Post headline',
+        // Make the title text link into the edit view even though the cover
+        // thumbnail is the first list column. List-only; no form effect.
+        components: {
+          Cell: '/payload/components/LinkedTextCell#LinkedTextCell',
+        },
+      },
+    },
+    {
+      name: 'excerpt',
+      type: 'textarea',
+      required: true,
+      maxLength: 200,
+      admin: {
+        placeholder: 'One or two sentences shown on cards and in search results.',
+        description: 'Shown on blog cards and used as the meta-description fallback (max 200 characters).',
+      },
+    },
+    {
+      name: 'cover',
+      type: 'upload',
+      relationTo: 'media',
+      required: true,
+      admin: { description: 'Cover image — used on list cards and as the detail-page header.' },
+    },
+    {
+      name: 'body',
+      type: 'richText',
+      required: true,
+      label: 'Content',
+      editor: lexicalEditor({
+        features: ({ defaultFeatures }) => [
+          ...defaultFeatures,
+          // Always-visible formatting toolbar (headings, bold/italic, lists,
+          // links, quote… all already in defaultFeatures).
+          FixedToolbarFeature(),
+          // Escape hatch for custom layout: insert a raw-HTML block anywhere in
+          // the content. Rendered verbatim on the published page.
+          BlocksFeature({
+            blocks: [
+              {
+                slug: 'html',
+                labels: { singular: 'HTML', plural: 'HTML blocks' },
+                fields: [
+                  {
+                    name: 'html',
+                    type: 'code',
+                    label: 'Raw HTML',
+                    admin: {
+                      language: 'html',
+                      description: 'Custom HTML for special layouts. Rendered as-is on the published page.',
+                    },
+                  },
+                ],
               },
-            },
-            {
-              name: 'excerpt',
-              type: 'textarea',
-              required: true,
-              maxLength: 200,
-              admin: { description: 'Shown on cards and as the meta-description fallback. 200 chars max.' },
-            },
-            {
-              name: 'cover',
-              type: 'upload',
-              relationTo: 'media',
-              required: true,
-              admin: { description: 'Cover image. Used on list cards and the detail page header.' },
-            },
-            { name: 'body', type: 'richText', required: true },
-          ],
-        },
+            ],
+          }),
+        ],
+      }),
+    },
 
-        // ----- Tab 2: Taxonomy -----
+    // SEO & social — collapsed by default so it stays out of the way until needed.
+    {
+      type: 'collapsible',
+      label: 'SEO & social (optional)',
+      admin: { initCollapsed: false },
+      fields: [
         {
-          label: 'Taxonomy',
-          fields: [
-            {
-              name: 'category',
-              type: 'select',
-              required: true,
-              options: [
-                { label: 'Guides', value: 'guides' },
-                { label: 'Tech Insights', value: 'tech_insights' },
-                { label: 'Company News', value: 'company_news' },
-                { label: 'Industry', value: 'industry' },
-              ],
-            },
-            {
-              name: 'tags',
-              type: 'array',
-              fields: [{ name: 'tag', type: 'text', required: true }],
-              admin: { description: 'Free-form tags. Used for /blog/tag/[t] pages.' },
-            },
-          ],
+          name: 'seoTitle',
+          type: 'text',
+          label: 'SEO title',
+          admin: { description: 'Optional. Falls back to the post title if empty.' },
         },
-
-        // ----- Tab 3: Publishing -----
         {
-          label: 'Publishing',
-          fields: [
-            {
-              name: 'publishedAt',
-              type: 'date',
-              required: true,
-              admin: {
-                description: 'When this post becomes visible. Future dates work as scheduled publishing.',
-                date: { displayFormat: 'dd/MM/yyyy HH:mm' },
-              },
-            },
-            {
-              name: 'featured',
-              type: 'checkbox',
-              defaultValue: false,
-              admin: { description: 'Show in featured spots on /blog and home.' },
-            },
-          ],
+          name: 'seoDescription',
+          type: 'textarea',
+          label: 'SEO description',
+          admin: { description: 'Optional. Falls back to the excerpt if empty.' },
         },
-
-        // ----- Tab 4: SEO -----
         {
-          label: 'SEO',
-          fields: [
-            {
-              name: 'seoTitle',
-              type: 'text',
-              admin: { description: 'Optional. Falls back to title if empty.' },
-            },
-            {
-              name: 'seoDescription',
-              type: 'textarea',
-              admin: { description: 'Optional. Falls back to excerpt if empty.' },
-            },
-            {
-              name: 'ogImage',
-              type: 'upload',
-              relationTo: 'media',
-              admin: { description: 'Optional. Falls back to cover if empty.' },
-            },
-          ],
+          name: 'ogImage',
+          type: 'upload',
+          relationTo: 'media',
+          label: 'Social share image',
+          admin: { description: 'Optional. Falls back to the cover image if empty.' },
         },
       ],
     },
@@ -146,22 +141,79 @@ export const Posts: CollectionConfig = {
       },
     },
 
-    // Hook-managed, admin-readonly. Lives outside the tabs so it's compact.
+    // ===== Right sidebar — publishing knobs & metadata =====
+    {
+      name: 'publishedAt',
+      type: 'date',
+      required: true,
+      defaultValue: () => new Date().toISOString(),
+      admin: {
+        position: 'sidebar',
+        description: 'When the post goes live. Set a future date/time to schedule it.',
+        date: { displayFormat: 'dd/MM/yyyy HH:mm' },
+      },
+    },
+    {
+      name: 'category',
+      type: 'select',
+      required: true,
+      options: [
+        { label: 'Guides', value: 'guides' },
+        { label: 'Tech Insights', value: 'tech_insights' },
+        { label: 'Company News', value: 'company_news' },
+        { label: 'Industry', value: 'industry' },
+      ],
+      admin: {
+        position: 'sidebar',
+        description: 'Primary section. Drives the /blog/category pages.',
+      },
+    },
+    {
+      name: 'featured',
+      type: 'checkbox',
+      defaultValue: false,
+      admin: {
+        position: 'sidebar',
+        description: 'Show in featured spots on /blog and the home page.',
+      },
+    },
+    {
+      name: 'slug',
+      type: 'text',
+      required: true,
+      unique: true,
+      admin: {
+        position: 'sidebar',
+        description: 'Post URL: /blog/<slug>. Auto-filled from the title — edit only for a custom URL.',
+      },
+    },
+    {
+      name: 'tags',
+      type: 'array',
+      fields: [{ name: 'tag', type: 'text', required: true }],
+      admin: {
+        position: 'sidebar',
+        description: 'Free-form tags. Power the /blog/tag pages.',
+      },
+    },
     {
       name: 'readingTime',
       type: 'number',
       admin: {
         readOnly: true,
-        description: 'Estimated minutes to read. Calculated on save.',
         position: 'sidebar',
+        description: 'Estimated minutes to read. Calculated on save.',
       },
     },
   ],
   hooks: {
     beforeChange: [
       ({ data, operation }) => {
-        // Auto-fill slug from title on create, only if slug is blank.
-        if (operation === 'create' && !data.slug && data.title) {
+        // Slug is now editable: normalize whatever was typed so the URL stays
+        // clean, and fall back to the title when left blank on create.
+        if (data.slug) {
+          data.slug = slugify(data.slug)
+        } else if (operation === 'create' && data.title) {
           data.slug = slugify(data.title)
         }
         return data
