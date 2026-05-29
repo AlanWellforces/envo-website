@@ -9,6 +9,7 @@ import { Users } from './payload/collections/Users.ts'
 import { Products } from './payload/collections/Products.ts'
 import { Media } from './payload/collections/Media.ts'
 import { Posts } from './payload/collections/Posts.ts'
+import { Projects } from './payload/collections/Projects.ts'
 import { SiteSettings } from './payload/globals/SiteSettings.ts'
 import { HomePage } from './payload/globals/HomePage.ts'
 
@@ -29,7 +30,7 @@ export default buildConfig({
       baseDir: path.resolve(dirname),
     },
   },
-  collections: [Users, Products, Media, Posts],
+  collections: [Users, Products, Media, Posts, Projects],
   globals: [SiteSettings, HomePage],
   editor: lexicalEditor(),
   secret: process.env.PAYLOAD_SECRET || '',
