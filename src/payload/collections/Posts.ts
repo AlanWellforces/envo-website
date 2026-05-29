@@ -101,32 +101,25 @@ export const Posts: CollectionConfig = {
       }),
     },
 
-    // SEO & social — collapsed by default so it stays out of the way until needed.
+    // SEO & social — flat fields right below the content (no collapsible).
     {
-      type: 'collapsible',
-      label: 'SEO & social (optional)',
-      admin: { initCollapsed: false },
-      fields: [
-        {
-          name: 'seoTitle',
-          type: 'text',
-          label: 'SEO title',
-          admin: { description: 'Optional. Falls back to the post title if empty.' },
-        },
-        {
-          name: 'seoDescription',
-          type: 'textarea',
-          label: 'SEO description',
-          admin: { description: 'Optional. Falls back to the excerpt if empty.' },
-        },
-        {
-          name: 'ogImage',
-          type: 'upload',
-          relationTo: 'media',
-          label: 'Social share image',
-          admin: { description: 'Optional. Falls back to the cover image if empty.' },
-        },
-      ],
+      name: 'seoTitle',
+      type: 'text',
+      label: 'SEO title',
+      admin: { description: 'Optional. Falls back to the post title if empty.' },
+    },
+    {
+      name: 'seoDescription',
+      type: 'textarea',
+      label: 'SEO description',
+      admin: { description: 'Optional. Falls back to the excerpt if empty.' },
+    },
+    {
+      name: 'ogImage',
+      type: 'upload',
+      relationTo: 'media',
+      label: 'Social share image',
+      admin: { description: 'Optional. Falls back to the cover image if empty.' },
     },
 
     // List-only cover thumbnail (no stored data; reads the populated cover relationship).
