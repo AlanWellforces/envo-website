@@ -11,7 +11,7 @@ type LexicalNode = {
   format?: number
   url?: string
   newTab?: boolean
-  fields?: { url?: string; newTab?: boolean }
+  fields?: { url?: string; newTab?: boolean; blockType?: string; html?: string }
   listType?: 'bullet' | 'number'
   children?: LexicalNode[]
 }
@@ -75,6 +75,14 @@ function Node({ node }: { node: LexicalNode }): React.ReactNode {
     }
     case 'linebreak':
       return <br />
+    case 'block': {
+      // Custom blocks from BlocksFeature. The "html" block renders its raw
+      // HTML verbatim — authored by trusted editors, used for special layouts.
+      if (node.fields?.blockType === 'html' && typeof node.fields.html === 'string') {
+        return <div className="blog-html-block" dangerouslySetInnerHTML={{ __html: node.fields.html }} />
+      }
+      return <>{renderChildren(node.children)}</>
+    }
     default:
       // Unknown node — render children if any, else nothing.
       return <>{renderChildren(node.children)}</>

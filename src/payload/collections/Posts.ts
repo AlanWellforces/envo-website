@@ -4,6 +4,7 @@
 // Hooks (autoSlug, calcReadingTime, revalidate) are added in later tasks.
 
 import type { CollectionConfig } from 'payload'
+import { lexicalEditor, FixedToolbarFeature, BlocksFeature } from '@payloadcms/richtext-lexical'
 import { slugify } from '../../lib/slugify.ts'
 import { lexicalToText, readingTimeMinutes } from '../../lib/lexical-text.ts'
 
@@ -21,6 +22,12 @@ export const Posts: CollectionConfig = {
     defaultColumns: ['coverPreview', 'title', '_status', 'category', 'updatedAt', 'publishedAt'],
     description: 'ENVO editorial content. Publish to make a post visible on the website.',
     group: 'Editorial',
+    // "View" button → the live post. Works once published; an unpublished draft
+    // has no public page yet (full draft preview would need Next draftMode).
+    preview: (doc) => {
+      const slug = (doc as { slug?: string })?.slug
+      return slug ? `/blog/${slug}` : null
+    },
   },
   access: {
     read: () => true,
@@ -68,14 +75,43 @@ export const Posts: CollectionConfig = {
       name: 'body',
       type: 'richText',
       required: true,
-      label: 'Body',
+      label: 'Content',
+      editor: lexicalEditor({
+        features: ({ defaultFeatures }) => [
+          ...defaultFeatures,
+          // Always-visible formatting toolbar (headings, bold/italic, lists,
+          // links, quote… all already in defaultFeatures).
+          FixedToolbarFeature(),
+          // Escape hatch for custom layout: insert a raw-HTML block anywhere in
+          // the content. Rendered verbatim on the published page.
+          BlocksFeature({
+            blocks: [
+              {
+                slug: 'html',
+                labels: { singular: 'HTML', plural: 'HTML blocks' },
+                fields: [
+                  {
+                    name: 'html',
+                    type: 'code',
+                    label: 'Raw HTML',
+                    admin: {
+                      language: 'html',
+                      description: 'Custom HTML for special layouts. Rendered as-is on the published page.',
+                    },
+                  },
+                ],
+              },
+            ],
+          }),
+        ],
+      }),
     },
 
     // SEO & social — collapsed by default so it stays out of the way until needed.
     {
       type: 'collapsible',
       label: 'SEO & social (optional)',
-      admin: { initCollapsed: true },
+      admin: { initCollapsed: false },
       fields: [
         {
           name: 'seoTitle',
