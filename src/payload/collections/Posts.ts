@@ -22,12 +22,6 @@ export const Posts: CollectionConfig = {
     defaultColumns: ['coverPreview', 'title', '_status', 'category', 'updatedAt', 'publishedAt'],
     description: 'ENVO editorial content. Publish to make a post visible on the website.',
     group: 'Editorial',
-    // "View" button → the live post. Works once published; an unpublished draft
-    // has no public page yet (full draft preview would need Next draftMode).
-    preview: (doc) => {
-      const slug = (doc as { slug?: string })?.slug
-      return slug ? `/blog/${slug}` : null
-    },
   },
   access: {
     read: () => true,
