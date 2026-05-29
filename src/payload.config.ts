@@ -20,6 +20,10 @@ export default buildConfig({
   // Set PAYLOAD_SERVER_URL=https://yourdomain.com on production (Vercel).
   serverURL: process.env.PAYLOAD_SERVER_URL ?? '',
   admin: {
+    components: {
+      // Injects small global admin CSS (e.g. a taller rich-text editor).
+      providers: ['/payload/components/AdminStyles#AdminStyles'],
+    },
     importMap: {
       baseDir: path.resolve(dirname),
     },
