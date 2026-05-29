@@ -5,6 +5,7 @@ import path from 'node:path'
 import { buildConfig } from 'payload'
 import sharp from 'sharp'
 
+import { Users } from './payload/collections/Users.ts'
 import { Products } from './payload/collections/Products.ts'
 import { Media } from './payload/collections/Media.ts'
 import { Posts } from './payload/collections/Posts.ts'
@@ -28,7 +29,7 @@ export default buildConfig({
       baseDir: path.resolve(dirname),
     },
   },
-  collections: [Products, Media, Posts],
+  collections: [Users, Products, Media, Posts],
   globals: [SiteSettings, HomePage],
   editor: lexicalEditor(),
   secret: process.env.PAYLOAD_SECRET || '',

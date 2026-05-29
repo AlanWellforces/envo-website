@@ -67,22 +67,22 @@ export interface Config {
   };
   blocks: {};
   collections: {
+    users: User;
     products: Product;
     media: Media;
     posts: Post;
     'payload-kv': PayloadKv;
-    users: User;
     'payload-locked-documents': PayloadLockedDocument;
     'payload-preferences': PayloadPreference;
     'payload-migrations': PayloadMigration;
   };
   collectionsJoins: {};
   collectionsSelect: {
+    users: UsersSelect;
     products: ProductsSelect;
     media: MediaSelect;
     posts: PostsSelect;
     'payload-kv': PayloadKvSelect;
-    users: UsersSelect;
     'payload-locked-documents': PayloadLockedDocumentsSelect;
     'payload-preferences': PayloadPreferencesSelect;
     'payload-migrations': PayloadMigrationsSelect;
@@ -126,6 +126,36 @@ export interface UserAuthOperations {
     email: string;
     password: string;
   };
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "users".
+ */
+export interface User {
+  id: number;
+  name?: string | null;
+  /**
+   * Admins can manage users and settings. Editors can create and edit content.
+   */
+  role: 'admin' | 'editor';
+  updatedAt: string;
+  createdAt: string;
+  email: string;
+  resetPasswordToken?: string | null;
+  resetPasswordExpiration?: string | null;
+  salt?: string | null;
+  hash?: string | null;
+  loginAttempts?: number | null;
+  lockUntil?: string | null;
+  sessions?:
+    | {
+        id: string;
+        createdAt?: string | null;
+        expiresAt: string;
+      }[]
+    | null;
+  password?: string | null;
+  collection: 'users';
 }
 /**
  * ENVO product catalogue. Synced from Akeneo — edit freely. Enable sync_locked to prevent Akeneo from overwriting your changes.
@@ -428,15 +458,11 @@ export interface Post {
   id: number;
   title: string;
   /**
-   * Auto-generated from title. Edit in the database if you must change it.
-   */
-  slug: string;
-  /**
-   * Shown on cards and as the meta-description fallback. 200 chars max.
+   * Shown on blog cards and used as the meta-description fallback (max 200 characters).
    */
   excerpt: string;
   /**
-   * Cover image. Used on list cards and the detail page header.
+   * Cover image — used on list cards and as the detail-page header.
    */
   cover: number | Media;
   body: {
@@ -454,9 +480,36 @@ export interface Post {
     };
     [k: string]: unknown;
   };
+  /**
+   * Optional. Falls back to the post title if empty.
+   */
+  seoTitle?: string | null;
+  /**
+   * Optional. Falls back to the excerpt if empty.
+   */
+  seoDescription?: string | null;
+  /**
+   * Optional. Falls back to the cover image if empty.
+   */
+  ogImage?: (number | null) | Media;
+  /**
+   * When the post goes live. Set a future date/time to schedule it.
+   */
+  publishedAt: string;
+  /**
+   * Primary section. Drives the /blog/category pages.
+   */
   category: 'guides' | 'tech_insights' | 'company_news' | 'industry';
   /**
-   * Free-form tags. Used for /blog/tag/[t] pages.
+   * Show in featured spots on /blog and the home page.
+   */
+  featured?: boolean | null;
+  /**
+   * Post URL: /blog/<slug>. Auto-filled from the title — edit only for a custom URL.
+   */
+  slug: string;
+  /**
+   * Free-form tags. Power the /blog/tag pages.
    */
   tags?:
     | {
@@ -464,26 +517,6 @@ export interface Post {
         id?: string | null;
       }[]
     | null;
-  /**
-   * When this post becomes visible. Future dates work as scheduled publishing.
-   */
-  publishedAt: string;
-  /**
-   * Show in featured spots on /blog and home.
-   */
-  featured?: boolean | null;
-  /**
-   * Optional. Falls back to title if empty.
-   */
-  seoTitle?: string | null;
-  /**
-   * Optional. Falls back to excerpt if empty.
-   */
-  seoDescription?: string | null;
-  /**
-   * Optional. Falls back to cover if empty.
-   */
-  ogImage?: (number | null) | Media;
   /**
    * Estimated minutes to read. Calculated on save.
    */
@@ -511,36 +544,15 @@ export interface PayloadKv {
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
- * via the `definition` "users".
- */
-export interface User {
-  id: number;
-  updatedAt: string;
-  createdAt: string;
-  email: string;
-  resetPasswordToken?: string | null;
-  resetPasswordExpiration?: string | null;
-  salt?: string | null;
-  hash?: string | null;
-  loginAttempts?: number | null;
-  lockUntil?: string | null;
-  sessions?:
-    | {
-        id: string;
-        createdAt?: string | null;
-        expiresAt: string;
-      }[]
-    | null;
-  password?: string | null;
-  collection: 'users';
-}
-/**
- * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "payload-locked-documents".
  */
 export interface PayloadLockedDocument {
   id: number;
   document?:
+    | ({
+        relationTo: 'users';
+        value: number | User;
+      } | null)
     | ({
         relationTo: 'products';
         value: number | Product;
@@ -552,10 +564,6 @@ export interface PayloadLockedDocument {
     | ({
         relationTo: 'posts';
         value: number | Post;
-      } | null)
-    | ({
-        relationTo: 'users';
-        value: number | User;
       } | null);
   globalSlug?: string | null;
   user: {
@@ -598,6 +606,30 @@ export interface PayloadMigration {
   batch?: number | null;
   updatedAt: string;
   createdAt: string;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "users_select".
+ */
+export interface UsersSelect {
+  name?: boolean;
+  role?: boolean;
+  updatedAt?: boolean;
+  createdAt?: boolean;
+  email?: boolean;
+  resetPasswordToken?: boolean;
+  resetPasswordExpiration?: boolean;
+  salt?: boolean;
+  hash?: boolean;
+  loginAttempts?: boolean;
+  lockUntil?: boolean;
+  sessions?:
+    | boolean
+    | {
+        id?: boolean;
+        createdAt?: boolean;
+        expiresAt?: boolean;
+      };
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
@@ -763,22 +795,22 @@ export interface MediaSelect {
  */
 export interface PostsSelect {
   title?: boolean;
-  slug?: boolean;
   excerpt?: boolean;
   cover?: boolean;
   body?: boolean;
+  seoTitle?: boolean;
+  seoDescription?: boolean;
+  ogImage?: boolean;
+  publishedAt?: boolean;
   category?: boolean;
+  featured?: boolean;
+  slug?: boolean;
   tags?:
     | boolean
     | {
         tag?: boolean;
         id?: boolean;
       };
-  publishedAt?: boolean;
-  featured?: boolean;
-  seoTitle?: boolean;
-  seoDescription?: boolean;
-  ogImage?: boolean;
   readingTime?: boolean;
   updatedAt?: boolean;
   createdAt?: boolean;
@@ -791,28 +823,6 @@ export interface PostsSelect {
 export interface PayloadKvSelect {
   key?: boolean;
   data?: boolean;
-}
-/**
- * This interface was referenced by `Config`'s JSON-Schema
- * via the `definition` "users_select".
- */
-export interface UsersSelect {
-  updatedAt?: boolean;
-  createdAt?: boolean;
-  email?: boolean;
-  resetPasswordToken?: boolean;
-  resetPasswordExpiration?: boolean;
-  salt?: boolean;
-  hash?: boolean;
-  loginAttempts?: boolean;
-  lockUntil?: boolean;
-  sessions?:
-    | boolean
-    | {
-        id?: boolean;
-        createdAt?: boolean;
-        expiresAt?: boolean;
-      };
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
