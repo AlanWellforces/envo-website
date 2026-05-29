@@ -57,7 +57,21 @@ export default async function SeriesDetailPage({ params }: { params: Params }) {
   if (series === 'mini-series') {
     const variantSkus = ['EV-BLML01LBY-NW', 'EV-BLML02LBY-NW', 'EV-BLML03LBY-NW']
     const variants = await Promise.all(variantSkus.map((s) => getProduct(s)))
-    return <MiniSeriesPage variants={variants.filter((v): v is Product => v !== null)} />
+    // Sibling-series list powers the in-subnav dropdown switcher. Each entry
+    // carries enough metadata to render the row and (for live ones) navigate.
+    const siblings = family.series.map((s) => ({
+      label: s.label,
+      productName: s.productName,
+      href: s.href,
+      live: isLive(s),
+      current: isLive(s) && s.slug === series,
+    }))
+    return (
+      <MiniSeriesPage
+        variants={variants.filter((v): v is Product => v !== null)}
+        siblings={siblings}
+      />
+    )
   }
 
   const applications = seriesObj.applications ?? family.applications ?? []

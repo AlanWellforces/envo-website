@@ -44,7 +44,10 @@ const MOCKUP_CSS = `  :host {
     --lime: #aec90b;
     --lime-deep: #7a8c08;
     --lime-soft: #f4f8d8;
-    --mono: ui-monospace, 'JetBrains Mono', SFMono-Regular, Menlo, monospace;
+    /* Site-wide font unification: --mono is aliased to the sans stack so every
+       mockup label, eyebrow and dim callout renders in Inter Tight. Token name
+       kept for back-compat with the 40+ in-shadow CSS rules. */
+    --mono: 'Inter Tight', -apple-system, system-ui, sans-serif;
     --sans: 'Inter Tight', -apple-system, system-ui, sans-serif;
     --sidebar-w: 232px;
     --subnav-h: 44px;
@@ -155,20 +158,118 @@ const MOCKUP_CSS = `  :host {
     backdrop-filter: blur(20px);
     border-bottom: 1px solid var(--line);
   }
-  .subnav-left { display: flex; align-items: center; }
-  /* Sub-page path eyebrow — series + product name, sans, blog-style */
+  .subnav-left { display: flex; align-items: center; position: relative; }
+  /* Sub-page path eyebrow — now a button that opens the series-switcher dropdown */
   .subnav-path {
     font-family: var(--sans);
     font-size: 14px;
     color: var(--text);
     text-decoration: none;
-    display: inline-flex; align-items: baseline; gap: 6px;
+    display: inline-flex; align-items: center; gap: 6px;
     transition: opacity .15s ease;
+    background: none; border: none; padding: 0;
+    cursor: pointer;
   }
   .subnav-path:hover { opacity: 0.7; }
+  .subnav-path:focus-visible { outline: 2px solid var(--blue); outline-offset: 4px; border-radius: 4px; }
   .subnav-path .path-fam { font-weight: 600; color: var(--text); }
-  .subnav-path .path-sep { color: var(--text-subtle); }
+  .subnav-path .path-chev {
+    color: var(--text-subtle);
+    transition: transform .15s ease;
+    margin-right: 2px;
+  }
+  .subnav-path[aria-expanded="true"] .path-chev { transform: rotate(180deg); }
+  .subnav-path .path-sep { color: var(--text-subtle); margin: 0 2px; }
   .subnav-path .path-prod { color: var(--text-muted); font-weight: 400; }
+
+  /* Series-switcher dropdown — opens beneath the subnav path button */
+  .series-dropdown {
+    position: absolute;
+    top: calc(100% + 6px); left: 0;
+    min-width: 280px;
+    background: var(--bg-card);
+    border: 1px solid var(--line-strong);
+    border-radius: 10px;
+    box-shadow: 0 12px 32px rgba(10,20,40,0.10), 0 2px 8px rgba(10,20,40,0.06);
+    padding: 6px;
+    z-index: 200;
+    display: flex; flex-direction: column; gap: 1px;
+    animation: series-drop-fade .14s ease-out;
+  }
+  .series-dropdown[hidden] { display: none; }
+  @keyframes series-drop-fade {
+    from { opacity: 0; transform: translateY(-4px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+  .series-item {
+    display: flex; flex-direction: column; gap: 1px;
+    padding: 10px 14px 10px 16px;
+    border-radius: 7px;
+    text-decoration: none;
+    color: var(--text);
+    font-family: inherit;
+    position: relative;
+    transition: background .12s ease;
+  }
+  .series-item:hover { background: rgba(0,113,188,0.06); }
+  .series-item.current { background: rgba(174,201,11,0.10); }
+  .series-item.current::before {
+    content: ''; position: absolute; left: 4px; top: 10px; bottom: 10px;
+    width: 2px; background: var(--lime); border-radius: 2px;
+  }
+  .series-item .item-label {
+    font-size: 14px; font-weight: 600; color: var(--text);
+    letter-spacing: -0.005em;
+  }
+  .series-item .item-prod {
+    font-size: 12px; color: var(--text-muted);
+    font-family: var(--mono); letter-spacing: 0.02em;
+  }
+  .series-item.coming-soon {
+    opacity: 0.55;
+    pointer-events: none;
+    cursor: default;
+  }
+  .series-item.coming-soon .item-label::after {
+    content: 'Coming soon';
+    display: inline-block;
+    margin-left: 10px;
+    padding: 2px 7px;
+    font-family: var(--mono); font-size: 9px; font-weight: 500;
+    color: var(--text-subtle); background: var(--line);
+    border-radius: 3px;
+    letter-spacing: 0.16em; text-transform: uppercase;
+    vertical-align: 2px;
+  }
+
+  /* Dropdown head — 2-segment clickable breadcrumb:
+       ← ALL CATEGORIES (→ /products) · CURRENT FAMILY (→ /products/<slug>)
+     Replaces the old static eyebrow AND the old foot link, since the
+     family link is now the right half of this row. */
+  .series-dd-head {
+    display: flex; align-items: center; gap: 6px;
+    padding: 10px 12px 9px;
+    font-size: 10px; font-weight: 500;
+    letter-spacing: 0.16em; text-transform: uppercase;
+    border-bottom: 1px solid var(--line);
+    margin-bottom: 4px;
+  }
+  .series-dd-head a {
+    display: inline-flex; align-items: center; gap: 4px;
+    padding: 4px 6px;
+    border-radius: 4px;
+    color: var(--text-subtle);
+    text-decoration: none;
+    transition: color .12s ease, background .12s ease;
+  }
+  .series-dd-head a:hover { color: var(--blue); background: var(--blue-soft); }
+  .series-dd-head .dd-back-arrow {
+    font-size: 12px; letter-spacing: 0;
+    margin-right: 1px;
+    transition: transform .15s ease;
+  }
+  .series-dd-head a:hover .dd-back-arrow { transform: translateX(-2px); }
+  .series-dd-head .dd-head-sep { color: var(--line-strong); }
   .subnav-tabs { display: flex; align-items: center; gap: 30px; }
   .subnav-tabs a {
     font-family: var(--sans);
@@ -1429,11 +1530,15 @@ const MOCKUP_CSS = `  :host {
 const MOCKUP_BODY = `
   <div class="subnav">
     <div class="subnav-left">
-      <a class="subnav-path" href="/files/products-v3.html#signage">
+      <button class="subnav-path" id="series-trigger" type="button" aria-expanded="false" aria-haspopup="menu" aria-controls="series-dropdown">
         <span class="path-fam">Mini Series</span>
+        <svg class="path-chev" width="9" height="9" viewBox="0 0 10 10" aria-hidden="true">
+          <path d="M2 3.5 L5 6.5 L8 3.5" stroke="currentColor" stroke-width="1.4" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
+        </svg>
         <span class="path-sep">·</span>
         <span class="path-prod">MiniLux Backlit</span>
-      </a>
+      </button>
+      <div class="series-dropdown" id="series-dropdown" role="menu" hidden></div>
     </div>
     <div class="subnav-tabs">
       <a data-tab class="active" href="#overview">Overview</a>
@@ -2288,19 +2393,30 @@ function applyAkeneo(shadow: ShadowRoot, variants: Product[]) {
   })
 }
 
-type Props = { variants: Product[] }
+export type SeriesSibling = {
+  label: string
+  productName: string
+  href: string
+  live: boolean
+  current: boolean
+}
 
-export default function MiniSeriesPage({ variants }: Props) {
+type Props = { variants: Product[]; siblings: SeriesSibling[] }
+
+export default function MiniSeriesPage({ variants, siblings }: Props) {
   const hostRef = useRef<HTMLDivElement>(null)
 
   useEffect(() => {
     const host = hostRef.current
     if (!host) return
-    if (host.shadowRoot) return // already attached (React strict-mode double-invoke guard)
-    const shadow = host.attachShadow({ mode: 'open' })
-    shadow.innerHTML = `<style>${MOCKUP_CSS}</style>${MOCKUP_BODY}`
-
-    applyAkeneo(shadow, variants)
+    // React strict mode invokes effects twice. We can't re-attach a shadow root,
+    // but we DO need to re-bind event listeners after the first cleanup removed
+    // them — so reuse the existing shadow if present and only render content once.
+    const shadow = host.shadowRoot ?? host.attachShadow({ mode: 'open' })
+    if (!shadow.firstChild) {
+      shadow.innerHTML = `<style>${MOCKUP_CSS}</style>${MOCKUP_BODY}`
+      applyAkeneo(shadow, variants)
+    }
 
     // Tab switching (mirrors the mockup script). Scoped to this shadow root.
     const VALID = ['overview', 'compare', 'solutions']
@@ -2344,11 +2460,77 @@ export default function MiniSeriesPage({ variants }: Props) {
     window.addEventListener('hashchange', onHash)
     setActive(fromHash())
 
+    // Series-switcher dropdown — populate items + wire toggle / outside-click / Esc.
+    const trigger = shadow.querySelector<HTMLButtonElement>('#series-trigger')
+    const dropdown = shadow.querySelector<HTMLDivElement>('#series-dropdown')
+    if (trigger && dropdown) {
+      const itemsHtml = siblings
+        .map((s) => {
+          const cls = ['series-item']
+          if (s.current) cls.push('current')
+          if (!s.live) cls.push('coming-soon')
+          const tag = s.live && !s.current ? 'a' : 'span'
+          const hrefAttr = s.live && !s.current ? ` href="${s.href}"` : ''
+          const roleAttr = s.live ? ' role="menuitem"' : ''
+          return `<${tag} class="${cls.join(' ')}"${hrefAttr}${roleAttr}>
+            <span class="item-label">${s.label}</span>
+            <span class="item-prod">${s.productName}</span>
+          </${tag}>`
+        })
+        .join('')
+      dropdown.innerHTML = `
+        <div class="series-dd-head">
+          <a href="/products">
+            <span class="dd-back-arrow" aria-hidden="true">←</span>
+            All categories
+          </a>
+          <span class="dd-head-sep" aria-hidden="true">·</span>
+          <a href="/products/led-signage-modules">LED Signage Modules</a>
+        </div>
+        ${itemsHtml}
+      `
+
+      const close = () => {
+        dropdown.hidden = true
+        trigger.setAttribute('aria-expanded', 'false')
+      }
+      const open = () => {
+        dropdown.hidden = false
+        trigger.setAttribute('aria-expanded', 'true')
+      }
+      const onTriggerClick = (e: Event) => {
+        e.preventDefault()
+        e.stopPropagation()
+        if (dropdown.hidden) open()
+        else close()
+      }
+      const onOutsideClick = (e: Event) => {
+        if (dropdown.hidden) return
+        const path = (e as Event & { composedPath?: () => EventTarget[] }).composedPath?.() ?? []
+        if (path.includes(trigger) || path.includes(dropdown)) return
+        close()
+      }
+      const onKey = (e: KeyboardEvent) => {
+        if (e.key === 'Escape' && !dropdown.hidden) close()
+      }
+      trigger.addEventListener('click', onTriggerClick)
+      document.addEventListener('click', onOutsideClick)
+      document.addEventListener('keydown', onKey)
+
+      return () => {
+        shadow.removeEventListener('click', onClick)
+        window.removeEventListener('hashchange', onHash)
+        trigger.removeEventListener('click', onTriggerClick)
+        document.removeEventListener('click', onOutsideClick)
+        document.removeEventListener('keydown', onKey)
+      }
+    }
+
     return () => {
       shadow.removeEventListener('click', onClick)
       window.removeEventListener('hashchange', onHash)
     }
-  }, [variants])
+  }, [variants, siblings])
 
   return <div ref={hostRef} className="mini-series-shadow-host" />
 }
