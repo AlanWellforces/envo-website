@@ -6,12 +6,12 @@ export const metadata: Metadata = { title: 'Resources & Downloads — ENVO' }
 export default function ResourcesPage() {
   return (
     <PageStub
-      eyebrow="Support · Resources"
+      eyebrow="Resources · Downloads"
       title="Catalogues, datasheets, IES files."
       description="Full technical library — product catalogue, specification sheets, IES photometric files and installation guides."
       breadcrumb={[
-        { href: '/support', label: 'Support' },
-        { label: 'Resources' },
+        { href: '/resources', label: 'Resources' },
+        { label: 'Downloads' },
       ]}
     />
   )
