@@ -10,9 +10,13 @@ export const Users: CollectionConfig = {
     useAsTitle: 'email',
     group: 'Settings',
     defaultColumns: ['email', 'name', 'role'],
+    // Hide this collection from the sidebar for non-admins.
+    // NOTE: do NOT use access.admin for this — Payload uses that to gate
+    // the entire admin panel, which would lock out all editors.
+    hidden: ({ user }: { user: any }) => user?.role !== 'admin',
   },
   access: {
-    // Only admins can create, update, or delete user accounts
+    // Only admins can create or delete user accounts
     create: isAdmin,
     delete: isAdmin,
     // Admins see all users; editors can only read their own profile
@@ -27,8 +31,6 @@ export const Users: CollectionConfig = {
       if (user.role === 'admin') return true
       return { id: { equals: user.id } }
     },
-    // Only admins can access the Users list in the admin panel
-    admin: isAdmin,
   },
   fields: [
     {
