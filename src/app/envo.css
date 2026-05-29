@@ -1329,9 +1329,9 @@
       z-index: 3;
     }
     .pc-name { font-size: 18px; font-weight: 600; color: #fff; margin-bottom: 6px; letter-spacing: -.005em; }
-    /* ENVO 工程目录质感：monospace SKU 代码 */
+    /* SKU code — was mono; site-wide font unification uses sans across the brand. */
     .pc-sku {
-      font-family: 'SF Mono', Monaco, Consolas, 'Courier New', monospace;
+      font-family: var(--font-inter-tight, 'Inter Tight'), -apple-system, BlinkMacSystemFont, sans-serif;
       font-size: 11px; letter-spacing: .03em;
       color: var(--envo-lime);
       margin-bottom: 8px;
@@ -1631,7 +1631,7 @@
       text-align: center;
       font-size: 11px; letter-spacing: .28em; text-transform: uppercase;
       color: var(--envo-lime); font-weight: 500;
-      font-family: 'SF Mono', 'JetBrains Mono', Menlo, Consolas, monospace;
+      font-family: var(--font-inter-tight, 'Inter Tight'), -apple-system, BlinkMacSystemFont, sans-serif;
       margin-bottom: 30px;
     }
     .cert-grid {
@@ -1653,7 +1653,7 @@
     .cert-spec {
       font-size: 10px; letter-spacing: .06em;
       color: var(--fg-mute);
-      font-family: 'SF Mono', 'JetBrains Mono', Menlo, Consolas, monospace;
+      font-family: var(--font-inter-tight, 'Inter Tight'), -apple-system, BlinkMacSystemFont, sans-serif;
       white-space: nowrap;
     }
     @media (max-width: 900px) {
@@ -1891,7 +1891,10 @@
     .sidebar-inner {
       width: 100%; height: 100%;
       display: flex; flex-direction: column;
-      padding: 22px 0;
+      /* Top trimmed to 8px so the logo sits ~26px from the top — matches the
+         logo's own 26px left padding for symmetric framing. Bottom stays 22px
+         so the footer keeps its breathing room above the sidebar's edge. */
+      padding: 8px 0 22px;
       position: relative; z-index: 1;        /* sit above ::before overlay */
     }
 
@@ -1948,7 +1951,7 @@
     .sidebar-nav::-webkit-scrollbar { width: 0; }
     .sidebar-section { padding: 14px 14px 6px; }
     .sidebar-section-title {
-      font-family: var(--font-mono);
+      font-family: var(--font-inter-tight, 'Inter Tight'), -apple-system, BlinkMacSystemFont, sans-serif;
       font-size: 9px; font-weight: 600;
       letter-spacing: .2em; text-transform: uppercase;
       color: var(--fg-soft);
@@ -2105,6 +2108,135 @@
     }
     .sidebar-sublink:hover .sidebar-sub-desc { color: rgba(255,255,255,.7); }
 
+    /* Group row — link on the left, caret-toggle button on the right.
+       The link itself still navigates to the parent overview page (e.g.
+       /products); only the caret toggles the child list. */
+    .sidebar-group { display: flex; flex-direction: column; }
+    .sidebar-group-row {
+      display: flex; align-items: stretch;
+      position: relative;
+    }
+    .sidebar-group-row > .sidebar-link { flex: 1; min-width: 0; }
+    .sidebar-group-caret-btn {
+      display: flex; align-items: center; justify-content: center;
+      width: 28px; flex-shrink: 0;
+      background: none; border: none; padding: 0;
+      color: rgba(245,247,250,.55);
+      cursor: pointer;
+      border-radius: 5px;
+      transition: background .15s ease, color .15s ease;
+    }
+    .sidebar-group-caret-btn:hover { background: rgba(77,195,255,.08); color: #f5f7fa; }
+    .sidebar-group-caret-btn:focus-visible {
+      outline: 2px solid var(--envo-lime);
+      outline-offset: 1px;
+    }
+    .sidebar-group-caret-btn .sidebar-caret { opacity: 1; }
+
+    /* Collapsed (64px) sidebar — caret has nowhere to fit, so hide it.
+       Sub list converts from inline accordion to a right-side flyout that
+       shows on hover/focus of the Products group. Apple Sidebar pattern. */
+    body.sidebar-collapsed .sidebar-group-caret-btn { display: none; }
+    body.sidebar-collapsed .sidebar-group { position: relative; }
+    body.sidebar-collapsed .sidebar-sub {
+      display: block;
+      max-height: none;
+      overflow: visible;
+      position: absolute;
+      top: 0; left: 100%;
+      margin: 0; padding: 6px;
+      min-width: 220px;
+      background: linear-gradient(180deg, #112c5a 0%, #06122a 100%);
+      border: 1px solid rgba(77,195,255,.22);
+      border-radius: 10px;
+      box-shadow: 0 12px 28px rgba(0,0,0,.40), 0 2px 8px rgba(0,0,0,.20);
+      z-index: 200;
+      opacity: 0;
+      visibility: hidden;
+      transform: translateX(-4px);
+      transition: opacity .14s ease, transform .14s ease,
+                  visibility 0s linear .14s;
+    }
+    body.sidebar-collapsed .sidebar-group:hover .sidebar-sub,
+    body.sidebar-collapsed .sidebar-group:focus-within .sidebar-sub {
+      opacity: 1;
+      visibility: visible;
+      transform: translateX(0);
+      transition: opacity .14s ease, transform .14s ease,
+                  visibility 0s linear 0s;
+    }
+    /* Eyebrow inside the flyout names the parent (e.g. "PRODUCTS").
+       Source: data-parent-label attribute on the <ul>. */
+    body.sidebar-collapsed .sidebar-sub::before {
+      content: attr(data-parent-label);
+      display: block;
+      padding: 8px 12px 7px;
+      font-family: var(--font-inter-tight, 'Inter Tight'), -apple-system, BlinkMacSystemFont, sans-serif;
+      font-size: 10.5px; font-weight: 600;
+      color: rgba(245,247,250,.55);
+      text-transform: uppercase;
+      letter-spacing: 0.16em;
+      border-bottom: 1px solid rgba(77,195,255,.10);
+      margin-bottom: 4px;
+    }
+    /* Sublinks inside the flyout — keep the existing lime-active treatment
+       but add a touch more horizontal padding so they read as cards. */
+    body.sidebar-collapsed .sidebar-sub .sidebar-sublink {
+      padding: 8px 12px;
+      font-size: 13px;
+      border-radius: 6px;
+      border-left: none;
+    }
+    body.sidebar-collapsed .sidebar-sub .sidebar-sublink:hover {
+      border-left: none;
+      background: rgba(77,195,255,.10);
+    }
+    body.sidebar-collapsed .sidebar-sub .sidebar-sublink.active {
+      border-left: none;
+      background: rgba(174,201,11,.12);
+      color: var(--envo-lime);
+    }
+
+    /* ===== Collapsed-sidebar tooltip — only on LEAF links (Home / Solutions /
+       Projects / Blog / Support / Find your match / Free layout design).
+       Parent groups (Products) use the flyout above instead, which already
+       names the category in its eyebrow. ===== */
+    body.sidebar-collapsed .sidebar-link[data-tooltip] {
+      position: relative;
+    }
+    body.sidebar-collapsed .sidebar-link[data-tooltip]::after {
+      content: attr(data-tooltip);
+      position: absolute;
+      left: calc(100% + 12px);
+      top: 50%;
+      transform: translateY(-50%) translateX(-4px);
+      padding: 7px 14px;
+      background: linear-gradient(180deg, #112c5a 0%, #06122a 100%);
+      border: 1px solid rgba(77,195,255,.22);
+      border-radius: 8px;
+      color: #f5f7fa;
+      font-family: var(--font-inter-tight, 'Inter Tight'), -apple-system, BlinkMacSystemFont, sans-serif;
+      font-size: 13px; font-weight: 500;
+      letter-spacing: 0.005em;
+      white-space: nowrap;
+      box-shadow: 0 8px 22px rgba(0,0,0,.40), 0 2px 6px rgba(0,0,0,.20);
+      opacity: 0;
+      visibility: hidden;
+      pointer-events: none;
+      transition: opacity .14s ease, transform .14s ease,
+                  visibility 0s linear .14s;
+      z-index: 250;
+    }
+    body.sidebar-collapsed .sidebar-link[data-tooltip]:hover::after,
+    body.sidebar-collapsed .sidebar-link[data-tooltip]:focus-visible::after {
+      opacity: 1;
+      visibility: visible;
+      transform: translateY(-50%) translateX(0);
+      transition: opacity .14s ease, transform .14s ease,
+                  visibility 0s linear 0s;
+      transition-delay: 0.35s, 0.35s, 0s;
+    }
+
     /* ===== v3 sidebar footer — region row + status pill ===== */
     .sidebar-footer {
       padding: 14px;
@@ -2144,7 +2276,7 @@
       flex-shrink: 0;
     }
     .sidebar-status {
-      font-family: var(--mono, ui-monospace, 'JetBrains Mono', SFMono-Regular, Menlo, monospace);
+      font-family: var(--font-inter-tight, 'Inter Tight'), -apple-system, BlinkMacSystemFont, sans-serif;
       font-size: 9.5px;
       color: rgba(139,156,176,.85);
       letter-spacing: .16em;
@@ -2175,7 +2307,7 @@
     }
     .sidebar-region-dropdown-head {
       padding: 8px 10px 6px;
-      font-family: var(--mono, ui-monospace, 'JetBrains Mono', SFMono-Regular, Menlo, monospace);
+      font-family: var(--font-inter-tight, 'Inter Tight'), -apple-system, BlinkMacSystemFont, sans-serif;
       font-size: 9.5px;
       color: rgba(139,156,176,.85);
       letter-spacing: .2em;
@@ -2202,7 +2334,7 @@
     .sidebar-region-option-body { display: flex; flex-direction: column; gap: 2px; flex: 1; min-width: 0; }
     .sidebar-region-option-name { font-size: 12.5px; font-weight: 600; color: #f5f7fa; }
     .sidebar-region-option-meta {
-      font-family: var(--mono, ui-monospace, 'JetBrains Mono', SFMono-Regular, Menlo, monospace);
+      font-family: var(--font-inter-tight, 'Inter Tight'), -apple-system, BlinkMacSystemFont, sans-serif;
       font-size: 9.5px;
       color: rgba(139,156,176,.85);
       letter-spacing: .04em;
@@ -2285,8 +2417,14 @@
     body.sidebar-collapsed .sidebar-collapse-btn { gap: 0; }
 
     body.sidebar-collapsed { padding-left: var(--sidebar-w-collapsed); }
-    body.sidebar-collapsed .sidebar { width: var(--sidebar-w-collapsed); }
-    body.sidebar-collapsed .sidebar-inner { padding: 22px 0; }
+    body.sidebar-collapsed .sidebar {
+      width: var(--sidebar-w-collapsed);
+      /* Let the children-flyout and leaf tooltip escape the 64px column.
+         Expanded mode keeps `overflow: hidden` to clip the width-transition. */
+      overflow: visible;
+    }
+    body.sidebar-collapsed .sidebar-nav { overflow: visible; }
+    body.sidebar-collapsed .sidebar-inner { overflow: visible; }
     body.sidebar-collapsed .sidebar-logo::after { opacity: 0; }
     .sidebar-logo::after { transition: opacity .2s ease; }
     body.sidebar-collapsed .sidebar-nav { padding: 4px 8px 12px; }
