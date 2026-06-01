@@ -67,10 +67,11 @@ export interface Config {
   };
   blocks: {};
   collections: {
-    users: User;
     products: Product;
     media: Media;
     posts: Post;
+    projects: Project;
+    users: User;
     'payload-kv': PayloadKv;
     'payload-locked-documents': PayloadLockedDocument;
     'payload-preferences': PayloadPreference;
@@ -78,10 +79,11 @@ export interface Config {
   };
   collectionsJoins: {};
   collectionsSelect: {
-    users: UsersSelect;
     products: ProductsSelect;
     media: MediaSelect;
     posts: PostsSelect;
+    projects: ProjectsSelect;
+    users: UsersSelect;
     'payload-kv': PayloadKvSelect;
     'payload-locked-documents': PayloadLockedDocumentsSelect;
     'payload-preferences': PayloadPreferencesSelect;
@@ -126,36 +128,6 @@ export interface UserAuthOperations {
     email: string;
     password: string;
   };
-}
-/**
- * This interface was referenced by `Config`'s JSON-Schema
- * via the `definition` "users".
- */
-export interface User {
-  id: number;
-  name?: string | null;
-  /**
-   * Admins can manage users and settings. Editors can create and edit content.
-   */
-  role: 'admin' | 'editor';
-  updatedAt: string;
-  createdAt: string;
-  email: string;
-  resetPasswordToken?: string | null;
-  resetPasswordExpiration?: string | null;
-  salt?: string | null;
-  hash?: string | null;
-  loginAttempts?: number | null;
-  lockUntil?: string | null;
-  sessions?:
-    | {
-        id: string;
-        createdAt?: string | null;
-        expiresAt: string;
-      }[]
-    | null;
-  password?: string | null;
-  collection: 'users';
 }
 /**
  * ENVO product catalogue. Synced from Akeneo — edit freely. Enable sync_locked to prevent Akeneo from overwriting your changes.
@@ -526,6 +498,144 @@ export interface Post {
   _status?: ('draft' | 'published') | null;
 }
 /**
+ * Real-world ENVO LED installations. Publish to make a case study visible on the website.
+ *
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "projects".
+ */
+export interface Project {
+  id: number;
+  title: string;
+  /**
+   * Client or building owner. Leave blank if under NDA.
+   */
+  client?: string | null;
+  /**
+   * City and country.
+   */
+  location?: string | null;
+  /**
+   * Year completed.
+   */
+  completedYear?: number | null;
+  /**
+   * Shown on project cards and used as the meta-description fallback (max 200 characters).
+   */
+  excerpt: string;
+  /**
+   * Cover image — used on list cards and as the detail-page hero.
+   */
+  cover: number | Media;
+  body: {
+    root: {
+      type: string;
+      children: {
+        type: any;
+        version: number;
+        [k: string]: unknown;
+      }[];
+      direction: ('ltr' | 'rtl') | null;
+      format: 'left' | 'start' | 'center' | 'right' | 'end' | 'justify' | '';
+      indent: number;
+      version: number;
+    };
+    [k: string]: unknown;
+  };
+  /**
+   * Install photos. Caption is optional but boosts SEO + alt-text quality.
+   */
+  gallery?:
+    | {
+        image: number | Media;
+        caption?: string | null;
+        id?: string | null;
+      }[]
+    | null;
+  /**
+   * ENVO SKU codes used in this install. Front-end resolves each via getProduct() at render time — type a real Akeneo SKU.
+   */
+  productsUsed?:
+    | {
+        sku: string;
+        id?: string | null;
+      }[]
+    | null;
+  /**
+   * Leave blank to hide the testimonial block.
+   */
+  testimonial?: string | null;
+  /**
+   * Optional. Falls back to the project title if empty.
+   */
+  seoTitle?: string | null;
+  /**
+   * Optional. Falls back to the excerpt if empty.
+   */
+  seoDescription?: string | null;
+  /**
+   * Optional. Falls back to the cover image if empty.
+   */
+  ogImage?: (number | null) | Media;
+  /**
+   * When the project goes live. Set a future date/time to schedule it.
+   */
+  publishedAt: string;
+  /**
+   * Drives /projects/industry/[i] pages. Pick all that fit — a project can span sectors.
+   */
+  industry: ('retail' | 'hotel' | 'storefront' | 'architectural' | 'canopy' | 'other')[];
+  /**
+   * Show in the Featured strip on /projects and the home page.
+   */
+  featured?: boolean | null;
+  /**
+   * Project URL: /projects/<slug>. Auto-filled from the title — edit only for a custom URL.
+   */
+  slug: string;
+  /**
+   * Free-form tags. Power the /projects/tag/[t] pages.
+   */
+  tags?:
+    | {
+        tag: string;
+        id?: string | null;
+      }[]
+    | null;
+  updatedAt: string;
+  createdAt: string;
+  _status?: ('draft' | 'published') | null;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "users".
+ */
+export interface User {
+  id: number;
+  name?: string | null;
+  /**
+   * Admins can manage users and settings. Editors can create and edit content.
+   */
+  role: 'admin' | 'editor';
+  updatedAt: string;
+  createdAt: string;
+  email: string;
+  resetPasswordToken?: string | null;
+  resetPasswordExpiration?: string | null;
+  salt?: string | null;
+  hash?: string | null;
+  loginAttempts?: number | null;
+  lockUntil?: string | null;
+  sessions?:
+    | {
+        id: string;
+        createdAt?: string | null;
+        expiresAt: string;
+      }[]
+    | null;
+  password?: string | null;
+  collection: 'users';
+}
+/**
  * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "payload-kv".
  */
@@ -550,10 +660,6 @@ export interface PayloadLockedDocument {
   id: number;
   document?:
     | ({
-        relationTo: 'users';
-        value: number | User;
-      } | null)
-    | ({
         relationTo: 'products';
         value: number | Product;
       } | null)
@@ -564,6 +670,14 @@ export interface PayloadLockedDocument {
     | ({
         relationTo: 'posts';
         value: number | Post;
+      } | null)
+    | ({
+        relationTo: 'projects';
+        value: number | Project;
+      } | null)
+    | ({
+        relationTo: 'users';
+        value: number | User;
       } | null);
   globalSlug?: string | null;
   user: {
@@ -606,30 +720,6 @@ export interface PayloadMigration {
   batch?: number | null;
   updatedAt: string;
   createdAt: string;
-}
-/**
- * This interface was referenced by `Config`'s JSON-Schema
- * via the `definition` "users_select".
- */
-export interface UsersSelect {
-  name?: boolean;
-  role?: boolean;
-  updatedAt?: boolean;
-  createdAt?: boolean;
-  email?: boolean;
-  resetPasswordToken?: boolean;
-  resetPasswordExpiration?: boolean;
-  salt?: boolean;
-  hash?: boolean;
-  loginAttempts?: boolean;
-  lockUntil?: boolean;
-  sessions?:
-    | boolean
-    | {
-        id?: boolean;
-        createdAt?: boolean;
-        expiresAt?: boolean;
-      };
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
@@ -815,6 +905,73 @@ export interface PostsSelect {
   updatedAt?: boolean;
   createdAt?: boolean;
   _status?: boolean;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "projects_select".
+ */
+export interface ProjectsSelect {
+  title?: boolean;
+  client?: boolean;
+  location?: boolean;
+  completedYear?: boolean;
+  excerpt?: boolean;
+  cover?: boolean;
+  body?: boolean;
+  gallery?:
+    | boolean
+    | {
+        image?: boolean;
+        caption?: boolean;
+        id?: boolean;
+      };
+  productsUsed?:
+    | boolean
+    | {
+        sku?: boolean;
+        id?: boolean;
+      };
+  testimonial?: boolean;
+  seoTitle?: boolean;
+  seoDescription?: boolean;
+  ogImage?: boolean;
+  publishedAt?: boolean;
+  industry?: boolean;
+  featured?: boolean;
+  slug?: boolean;
+  tags?:
+    | boolean
+    | {
+        tag?: boolean;
+        id?: boolean;
+      };
+  updatedAt?: boolean;
+  createdAt?: boolean;
+  _status?: boolean;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "users_select".
+ */
+export interface UsersSelect {
+  name?: boolean;
+  role?: boolean;
+  updatedAt?: boolean;
+  createdAt?: boolean;
+  email?: boolean;
+  resetPasswordToken?: boolean;
+  resetPasswordExpiration?: boolean;
+  salt?: boolean;
+  hash?: boolean;
+  loginAttempts?: boolean;
+  lockUntil?: boolean;
+  sessions?:
+    | boolean
+    | {
+        id?: boolean;
+        createdAt?: boolean;
+        expiresAt?: boolean;
+      };
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
