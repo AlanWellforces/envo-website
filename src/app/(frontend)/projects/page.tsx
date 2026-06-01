@@ -1,8 +1,8 @@
 import type { Metadata } from 'next'
-import Image from 'next/image'
 import Link from 'next/link'
 import { EnvoButton } from '@/components/ui/envo-button'
-import { PROJECTS } from '@/data/projects'
+import { ProjectCard } from '@/components/projects/ProjectCard'
+import { getProjects } from '@/lib/projects'
 
 export const metadata: Metadata = {
   title: 'Projects — ENVO',
@@ -17,7 +17,12 @@ const STATS = [
   { label: 'Repeat clients', value: '80%' },
 ]
 
-export default function ProjectsPage() {
+export default async function ProjectsPage() {
+  const [{ docs: featured }, { docs: projects, totalDocs }] = await Promise.all([
+    getProjects({ featured: true, limit: 3 }),
+    getProjects({ limit: 60 }),
+  ])
+
   return (
     <div className="theme-light">
       <div className="container">
@@ -52,28 +57,27 @@ export default function ProjectsPage() {
         ))}
       </div>
 
-      <section className="proj-section">
-        <div className="proj-grid">
-          {PROJECTS.map((p) => (
-            <Link key={p.slug} href={p.href} className="proj-card">
-              <div className="proj-img">
-                <Image
-                  src={p.img}
-                  alt={p.name}
-                  fill
-                  sizes="(min-width: 1100px) 25vw, (min-width: 540px) 50vw, 100vw"
-                />
-              </div>
-              <div className="proj-body">
-                <div className="proj-name">{p.name}</div>
-                <div className="proj-desc">{p.desc}</div>
-                <div className="proj-cta">
-                  View case <span>→</span>
-                </div>
-              </div>
-            </Link>
-          ))}
-        </div>
+      {/* FEATURED — conditional render */}
+      {featured.length > 0 && (
+        <section className="container projects-featured">
+          <h2 className="projects-featured-heading">Featured installations</h2>
+          <div className="projects-grid">
+            {featured.map((p) => <ProjectCard key={p.id} project={p} />)}
+          </div>
+        </section>
+      )}
+
+      {/* GRID */}
+      <section className="container projects-list">
+        {totalDocs === 0 ? (
+          <p className="projects-empty">
+            Case studies coming soon — check back as our latest installs land.
+          </p>
+        ) : (
+          <div className="projects-grid">
+            {projects.map((p) => <ProjectCard key={p.id} project={p} />)}
+          </div>
+        )}
       </section>
 
       <section className="sig-cta-banner">
