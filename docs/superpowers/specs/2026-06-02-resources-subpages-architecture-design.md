@@ -2,6 +2,7 @@
 
 **Date:** 2026-06-02
 **Status:** Approved (architecture direction). Downloads source = Option A (hybrid).
+Series selection/compare table lives under Tools at `/resources/tools/<family>-selector`.
 **Scope:** Architecture only — how the `/resources` sub-pages store content and link to the
 backend. This spec does **not** design pixel-level layouts; each sub-page reuses an existing
 frontend pattern (blog list/detail). Implementation of each page is a follow-on plan.
@@ -16,7 +17,8 @@ wiring pattern that connects every CMS-driven sub-page to Payload.
 
 Three sub-pages are in scope:
 1. **Downloads** — `/resources/downloads`
-2. **Tools & Guides** — `/resources/tools`
+2. **Tools & Guides** — `/resources/tools` (incl. series selection tables, e.g.
+   `/resources/tools/signage-selector`)
 3. **FAQ** — `/resources/faq` (new; currently inline on the hub)
 
 ## Governing rule — three-source ownership
@@ -29,6 +31,8 @@ Per `CLAUDE.md`, every piece of content has exactly one owner:
 | FAQ question & answer copy | **Payload** | new `Faqs` collection (migrate `resource-faqs.ts` verbatim) |
 | How-to / installation guide articles | **Payload** | **reuse `Posts`** — its `category` select already includes `guides` |
 | Selection calculators / wiring logic | **Git** | React components under `src/` (same principle as `find-your-match` prompt logic) |
+| Series cross-compare values (SKU count, voltage, power, beam, IP, CCT) | **Akeneo** | computed per series from `Products` (aggregated, not stored) |
+| Selection-table editorial bits (per-series "best for" tagline, column order, footnote) | **Git** | small `src/data/series-meta.ts` map (no Series collection yet) |
 | Brand-level files (master catalogue PDF, IES bundles, layout templates) | **Payload** | new `Downloads` collection (Option A) |
 | Where-to-buy regions | **Git** constant | `src/data/purchase-channels.ts` (unchanged — brand-wide constant) |
 | Section intro/eyebrow copy | **Payload** | `SiteSettings` global (optional; may stay inline initially) |
@@ -85,6 +89,25 @@ query helper.
   `/blog/category/guides` — intentional cross-surfacing, single source.
 - **Layout templates** (downloadable files): Payload Media, surfaced through the same
   `Downloads` collection (category = template) as the Downloads page.
+- **Selection tables (series cross-compare):** an engineer-facing selector comparing all series
+  in a family side-by-side (columns = series, rows = spec attributes), e.g.
+  `/resources/tools/signage-selector`. **This is the one resources sub-page that reads Akeneo
+  product data rather than Payload editorial — and that is correct: the table *is* product data.**
+  - **Component:** reusable `SeriesCompareTable` — columns = series (name + clean product
+    thumbnail, prefer `clean_image*`); rows = family-specific attribute definitions; sticky first
+    column; horizontal scroll on narrow screens; footer row links to each
+    `/products/<family>/<series>` detail page.
+  - **Data:** `getSeriesComparison(family)` groups `Products` by series and computes the
+    aggregates (SKU count, power min–max, distinct voltage / IP / CCT, beam angle). Editorial
+    bits (per-series "best for" tagline, column order, warranty/cert footnote) come from a small
+    `src/data/series-meta.ts` map — **no Series collection yet** (deferred until ≥2 more series
+    are scoped).
+  - **Generalises:** row definitions are per family (signage compares beam/CCT; drivers compare
+    wattage / dimming / output), so the same component later serves `/resources/tools/driver-selector`,
+    etc. Signage is the first instance and matches the existing reference mockup
+    ("Pick the right signage module", 6 series × 9 rows).
+  - **Layout:** matches the supplied reference screenshot; only a value-accuracy pass against
+    real Akeneo data is needed (cross-check per `envo-minilux-real-specs` — past mockups had wrong values).
 
 ### 3. Downloads — `/resources/downloads` (Option A · hybrid)
 
@@ -122,7 +145,8 @@ Two merged sources:
 | `Faqs` | FAQ Q&A (editorial) | ✅ new |
 | `Downloads` | brand-level downloadable files | ✅ new (Option A) |
 | `Posts` (category=guides) | how-to / guide articles | reuse |
-| `Products` (`spec_sheet_url`) | per-product datasheets | reuse (Akeneo) |
+| `Products` (`spec_sheet_url` + spec fields) | per-product datasheets; series-compare aggregates | reuse (Akeneo) |
+| (series selection tables) | cross-compare matrix | reuse `Products` + Git `series-meta.ts` — **no new collection** |
 
 Net: **2 new Payload collections.** Each follows the canonical editor-style collection layout
 (`Posts.ts` is the template) and the Collection → `src/lib` → Server Component wiring above.
@@ -133,6 +157,8 @@ Net: **2 new Payload collections.** Each follows the canonical editor-style coll
 - `Downloads` (brand files) is self-contained; the Akeneo spec-sheet listing depends only on
   the existing `Products.spec_sheet_url` field.
 - Tools/Guides reuse depends on `Posts` (done) — only a guides query + list view is new.
+- The signage selection table depends only on existing `Products` data + a new
+  `series-meta.ts` map; no collection or Akeneo schema work. Buildable independently of FAQ.
 
 ## Out of scope for this spec
 
