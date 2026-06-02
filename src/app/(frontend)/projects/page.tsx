@@ -18,13 +18,10 @@ const STATS = [
 ]
 
 export default async function ProjectsPage() {
-  const [{ docs: featured }, { docs: projects, totalDocs }] = await Promise.all([
-    getProjects({ featured: true, limit: 3 }),
-    getProjects({ limit: 60 }),
-  ])
+  const { docs: projects, totalDocs } = await getProjects({ limit: 60 })
 
   return (
-    <div className="theme-light">
+    <div className="theme-light projects-page">
       <div className="container">
         <div className="breadcrumb">
           <Link href="/">Home</Link>
@@ -57,17 +54,7 @@ export default async function ProjectsPage() {
         ))}
       </div>
 
-      {/* FEATURED — conditional render */}
-      {featured.length > 0 && (
-        <section className="container projects-featured">
-          <h2 className="projects-featured-heading">Featured installations</h2>
-          <div className="projects-grid">
-            {featured.map((p) => <ProjectCard key={p.id} project={p} />)}
-          </div>
-        </section>
-      )}
-
-      {/* GRID */}
+      {/* GRID — all projects, in order, 3 per row */}
       <section className="container projects-list">
         {totalDocs === 0 ? (
           <p className="projects-empty">
