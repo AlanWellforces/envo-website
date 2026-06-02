@@ -122,40 +122,6 @@
 }
 
 /* ============================================================
-   STICKY JUMP-NAV
-   ============================================================ */
-.jumpnav {
-  position: sticky;
-  top: 3px;
-  z-index: 20;
-  padding: 9px 0;
-  background: color-mix(in srgb, var(--color-surface-base) 90%, transparent);
-  backdrop-filter: saturate(160%) blur(10px);
-  border-top: 1px solid var(--color-line-strong);
-  border-bottom: 1px solid var(--color-line-strong);
-}
-.jumpnavInner {
-  display: flex;
-  gap: 6px;
-  flex-wrap: wrap;
-}
-.jumpLink {
-  padding: 7px 14px;
-  font-size: 13px;
-  font-weight: 550;
-  color: var(--color-text-muted);
-  text-decoration: none;
-  border-radius: 999px;
-  border: 1px solid transparent;
-  transition: color 0.15s ease, background 0.15s ease, border-color 0.15s ease;
-}
-.jumpLink:hover {
-  color: var(--color-text-primary);
-  background: var(--color-surface-card);
-  border-color: var(--color-line-strong);
-}
-
-/* ============================================================
    SECTION header — numbered kicker for an obvious boundary
    ============================================================ */
 .section {
@@ -315,73 +281,6 @@
 }
 
 /* ============================================================
-   HELP — selection / tools helper
-   ============================================================ */
-.helpGrid {
-  display: grid;
-  grid-template-columns: repeat(2, minmax(0, 1fr));
-  gap: 16px;
-}
-.helpCard {
-  display: flex;
-  gap: 15px;
-  align-items: flex-start;
-  padding: 22px;
-  background: var(--card-bg, var(--color-surface-card));
-  border: 1px solid var(--color-line-strong);
-  border-radius: 16px;
-  text-decoration: none;
-  color: var(--color-text-primary);
-  transition: transform 0.2s ease, border-color 0.2s ease, box-shadow 0.25s ease;
-}
-.helpCard:hover {
-  transform: translateY(-3px);
-  border-color: rgba(0, 113, 188, 0.45);
-  box-shadow: 0 18px 40px -22px rgba(0, 113, 188, 0.25);
-}
-.helpIcon {
-  flex-shrink: 0;
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  width: 44px;
-  height: 44px;
-  border-radius: 12px;
-  background: rgba(174, 201, 11, 0.16);
-  color: var(--color-brand-lime-deep);
-}
-.helpIcon svg {
-  width: 21px;
-  height: 21px;
-  fill: none;
-  stroke: currentColor;
-  stroke-width: 1.7;
-  stroke-linecap: round;
-  stroke-linejoin: round;
-}
-.helpTitle {
-  display: block;
-  font-size: 16px;
-  font-weight: 650;
-}
-.helpDesc {
-  display: block;
-  margin-top: 4px;
-  font-size: 13.5px;
-  line-height: 1.5;
-  color: var(--color-text-muted);
-}
-.helpCta {
-  display: inline-flex;
-  align-items: center;
-  gap: 6px;
-  margin-top: 8px;
-  font-size: 13px;
-  font-weight: 650;
-  color: var(--color-brand-blue);
-}
-
-/* ============================================================
    WHERE TO BUY — region routing
    ============================================================ */
 .buyGrid {
@@ -507,7 +406,6 @@
 }
 @media (max-width: 760px) {
   .intentGrid,
-  .helpGrid,
   .buyGrid {
     grid-template-columns: 1fr;
   }

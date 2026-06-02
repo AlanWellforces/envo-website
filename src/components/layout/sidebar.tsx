@@ -114,9 +114,8 @@ const NAVIGATE: NavItem[] = [
     label: 'Resources',
     icon: (
       <svg className="sidebar-icon" viewBox="0 0 24 24" aria-hidden="true">
-        <circle cx="12" cy="12" r="9" />
-        <path d="M9.5 9a2.5 2.5 0 015 0c0 2-2.5 2-2.5 4" />
-        <circle cx="12" cy="17" r="0.5" />
+        <path d="M12 7v14" />
+        <path d="M3 18a1 1 0 0 1-1-1V4a1 1 0 0 1 1-1h5a4 4 0 0 1 4 4 4 4 0 0 1 4-4h5a1 1 0 0 1 1 1v13a1 1 0 0 1-1 1h-6a3 3 0 0 0-3 3 3 3 0 0 0-3-3z" />
       </svg>
     ),
   },
