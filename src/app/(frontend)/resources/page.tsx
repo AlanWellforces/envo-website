@@ -2,7 +2,6 @@ import type { Metadata } from 'next'
 import Link from 'next/link'
 import { EnvoButton } from '@/components/ui/envo-button'
 import { RESOURCES } from '@/data/resources'
-import { RESOURCE_FAQS } from '@/data/resource-faqs'
 import { PURCHASE_CHANNELS } from '@/data/purchase-channels'
 import styles from './page.module.css'
 
@@ -105,19 +104,12 @@ export default function SupportPage() {
             <span className={styles.sectionNum}>02</span>
             <h2 className={styles.sectionTitle}>Frequently asked questions</h2>
           </div>
-          {RESOURCE_FAQS.map((group) => (
-            <div key={group.group} className={styles.faqGroup}>
-              <h3 className={styles.faqGroupTitle}>{group.group}</h3>
-              <div className={styles.faqList}>
-                {group.items.map((item) => (
-                  <details key={item.q} className={styles.faqItem}>
-                    <summary className={styles.faqQ}>{item.q}</summary>
-                    <div className={styles.faqA}>{item.a}</div>
-                  </details>
-                ))}
-              </div>
-            </div>
-          ))}
+          <p className={styles.sectionSub}>
+            Ordering, product compatibility, installation and warranty — answered in one place.
+          </p>
+          <Link className={styles.dlCta} href="/resources/faq">
+            Read all FAQs <span>→</span>
+          </Link>
         </div>
       </section>
 
