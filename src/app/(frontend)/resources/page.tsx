@@ -77,29 +77,6 @@ export default function SupportPage() {
         </section>
       </div>
 
-      {/* ===== JUMP NAV ===== */}
-      <nav className={styles.jumpnav} aria-label="Resources sections">
-        <div className="container">
-          <div className={styles.jumpnavInner}>
-            <a className={styles.jumpLink} href="#downloads">
-              Downloads
-            </a>
-            <a className={styles.jumpLink} href="#faqs">
-              FAQs
-            </a>
-            <a className={styles.jumpLink} href="#help">
-              Get help
-            </a>
-            <a className={styles.jumpLink} href="#buy">
-              Where to buy
-            </a>
-            <a className={styles.jumpLink} href="#contact">
-              Contact
-            </a>
-          </div>
-        </div>
-      </nav>
-
       {/* ===== 01 · DOWNLOADS (white band) ===== */}
       <section className={`${styles.bandWhite} ${styles.section}`} id="downloads">
         <div className="container">
@@ -144,55 +121,11 @@ export default function SupportPage() {
         </div>
       </section>
 
-      {/* ===== 03 · GET HELP (white band) ===== */}
-      <section className={`${styles.bandWhite} ${styles.section}`} id="help">
-        <div className="container">
-          <div className={styles.sectionHead}>
-            <span className={styles.sectionNum}>03</span>
-            <h2 className={styles.sectionTitle}>Not sure? Let us help you choose</h2>
-          </div>
-          <div className={styles.helpGrid}>
-            <Link className={styles.helpCard} href="/find-your-match">
-              <span className={styles.helpIcon} aria-hidden="true">
-                <svg viewBox="0 0 24 24">
-                  <path d="M12 2l2.4 7.4H22l-6 4.4 2.3 7.2-6.3-4.6L5.7 21l2.3-7.2-6-4.4h7.6z" />
-                </svg>
-              </span>
-              <span>
-                <span className={styles.helpTitle}>Match driver to modules</span>
-                <span className={styles.helpDesc}>
-                  Size the driver and confirm voltage for your run.
-                </span>
-                <span className={styles.helpCta}>Find your match →</span>
-              </span>
-            </Link>
-
-            <Link className={styles.helpCard} href="/free-layout-design">
-              <span className={styles.helpIcon} aria-hidden="true">
-                <svg viewBox="0 0 24 24">
-                  <rect x="3" y="3" width="7" height="7" rx="1" />
-                  <rect x="14" y="3" width="7" height="7" rx="1" />
-                  <rect x="3" y="14" width="7" height="7" rx="1" />
-                  <rect x="14" y="14" width="7" height="7" rx="1" />
-                </svg>
-              </span>
-              <span>
-                <span className={styles.helpTitle}>Plan a layout</span>
-                <span className={styles.helpDesc}>
-                  Send dimensions, get a free layout and parts list.
-                </span>
-                <span className={styles.helpCta}>Free layout design →</span>
-              </span>
-            </Link>
-          </div>
-        </div>
-      </section>
-
-      {/* ===== 04 · WHERE TO BUY (gray band) ===== */}
+      {/* ===== 03 · WHERE TO BUY (gray band) ===== */}
       <section className={`${styles.bandGray} ${styles.section}`} id="buy">
         <div className="container">
           <div className={styles.sectionHead}>
-            <span className={styles.sectionNum}>04</span>
+            <span className={styles.sectionNum}>03</span>
             <div>
               <h2 className={styles.sectionTitle}>Where to buy</h2>
               <p className={styles.sectionSub}>
@@ -241,9 +174,6 @@ export default function SupportPage() {
               <div className={styles.contactActions}>
                 <EnvoButton href="/contact" variant="primary" arrow>
                   Contact engineering
-                </EnvoButton>
-                <EnvoButton href="/free-layout-design" variant="ghost">
-                  Free layout design
                 </EnvoButton>
               </div>
             </div>
