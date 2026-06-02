@@ -1,7 +1,8 @@
 // src/payload/collections/Faqs.ts
-// FAQ entries for /resources/faq. Editorial content (Wei's domain) — migrated
-// from the old src/data/resource-faqs.ts stopgap. `group` stores the short key;
-// the human label lives in src/lib/faqs.ts (FAQ_GROUP_LABELS).
+// FAQ entries for /resources/faq. Editorial content (Wei's domain) — now the
+// source of truth (the src/data/resource-faqs.ts stopgap has been retired).
+// `group` stores the short key; the human label lives in src/lib/faqs.ts
+// (FAQ_GROUP_LABELS).
 import type { CollectionConfig } from 'payload'
 import { lexicalEditor, FixedToolbarFeature } from '@payloadcms/richtext-lexical'
 
