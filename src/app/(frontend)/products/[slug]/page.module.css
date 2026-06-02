@@ -1,109 +1,12 @@
-/* Family page (/products/[slug]) — local styles. Hero / sig-* / breadcrumb /
-   sig-cta-banner come from envo.css. Anything below is specific to the new
-   reference-driven layout. heroImage + heroImageInner are also consumed by
-   the series detail page (../[series]/page.tsx) — keep their class names. */
+/* Family page (/products/[slug]) + series detail (../[series]) — shared local
+   styles. Hero / sig-* / breadcrumb / sig-cta-banner come from envo.css.
+   The family landing renders a series-card grid (BOUNCE /signage/ style); the
+   series detail page reuses the section frame + applications grid. */
 
 /* ============================================================
-   HERO — extras on top of the global .sig-hero (envo.css):
-   benefit pills row + spec callout. Hero itself is text-only.
-   ============================================================ */
-.heroBenefits {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 8px;
-  margin: 28px 0 4px;
-}
-.heroBenefitPill {
-  display: inline-flex;
-  align-items: center;
-  font-size: 10.5px;
-  font-weight: 700;
-  letter-spacing: 0.14em;
-  text-transform: uppercase;
-  color: var(--envo-blue);
-  background: rgba(0, 113, 188, 0.08);
-  border: 1px solid rgba(0, 113, 188, 0.18);
-  padding: 6px 12px;
-  border-radius: 999px;
-}
-.heroSpecCallout {
-  display: inline-block;
-  margin-top: 18px;
-  font-size: 12px;
-  font-weight: 600;
-  letter-spacing: 0.08em;
-  color: var(--fg-mute);
-  text-transform: uppercase;
-}
-/* Existing keys preserved — consumed by the series detail page too. */
-.heroImage {
-  position: relative;
-  max-width: 1440px;
-  margin: 0 auto 48px;
-  padding: 0 40px;
-}
-.heroImageInner {
-  position: relative;
-  aspect-ratio: 16 / 9;
-  background: var(--bg-card);
-  border: 1px solid var(--line);
-  border-radius: 18px;
-  overflow: hidden;
-}
-
-/* ============================================================
-   CONFIGURATOR PROMO STRIP — sits as a card inside a sectionTinted
-   wrapper so its outer breathing room comes from the section, not
-   from the card's own margins (keeps section rhythm consistent).
-   ============================================================ */
-.configStrip {
-  padding: 32px clamp(24px, 3vw, 40px);
-  background: linear-gradient(135deg, #f4f7fa 0%, #e8eef5 100%);
-  border: 1px solid var(--line);
-  border-radius: 18px;
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 24px;
-  flex-wrap: wrap;
-}
-.configCopy {
-  flex: 1 1 320px;
-}
-.configEyebrow {
-  display: inline-block;
-  font-size: 10.5px;
-  font-weight: 700;
-  letter-spacing: 0.18em;
-  text-transform: uppercase;
-  color: var(--envo-lime-deep);
-  margin-bottom: 8px;
-}
-.configHeading {
-  font-size: clamp(22px, 2vw, 28px);
-  font-weight: 700;
-  letter-spacing: -0.01em;
-  color: var(--fg);
-  margin-bottom: 8px;
-}
-.configBody {
-  font-size: 14px;
-  color: var(--fg-mute);
-  line-height: 1.55;
-  max-width: 560px;
-}
-
-/* ============================================================
-   SECTION FRAME — every below-hero section uses this for the
-   horizontal inset + vertical rhythm. Width matches the global
-   .container (envo.css: max-width 1440 / padding 0 40). One token
-   means hero / breadcrumb / table / apps all share the same left
-   edge.
-
-   .sectionTinted is a full-bleed gray modifier wrapper — apply it
-   around a sectionWrap to flip the section's background to bg-page
-   with separator borders. Use it on alternating sections to keep
-   the page rhythm calm.
+   SECTION FRAME — horizontal inset + vertical rhythm. Width
+   matches the global .container (envo.css). .sectionTinted is a
+   full-bleed gray modifier wrapper for alternating sections.
    ============================================================ */
 .sectionWrap {
   max-width: 1440px;
@@ -143,201 +46,91 @@
 }
 
 /* ============================================================
-   COMPARE TABLE — design pass: pure-white card surface, square
-   product thumbnails on white, generous row rhythm, subtle lime
-   accent on live rows. Horizontal scroll on narrow viewports.
+   SERIES CARD GRID — family landing (BOUNCE /signage/ style):
+   technical line-art render on a brand-tinted tile · name · short
+   description · View Range. Live series link to their detail page;
+   unpublished series show a muted "Coming soon".
    ============================================================ */
-.compareWrap {
-  background: #fff;
+.seriesGrid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 20px;
+}
+.seriesCard {
+  display: flex;
+  flex-direction: column;
+  background: var(--bg-card);
   border: 1px solid var(--line);
-  border-radius: 18px;
-  overflow-x: auto;
-  box-shadow: 0 1px 0 rgba(15, 23, 42, 0.02), 0 12px 32px -20px rgba(15, 23, 42, 0.1);
+  border-radius: 16px;
+  overflow: hidden;
+  text-decoration: none;
+  color: inherit;
+  transition: transform 0.2s ease, border-color 0.2s ease, box-shadow 0.2s ease;
 }
-.compareTable {
-  width: 100%;
-  border-collapse: collapse;
-  font-size: 13.5px;
-  min-width: 920px;
+a.seriesCard:hover {
+  transform: translateY(-4px);
+  border-color: var(--envo-blue);
+  box-shadow: 0 18px 40px -22px rgba(26, 35, 50, 0.45);
 }
-.compareTable thead th {
-  text-align: left;
-  font-size: 10px;
-  font-weight: 700;
-  letter-spacing: 0.16em;
-  text-transform: uppercase;
-  color: var(--fg-soft);
-  padding: 16px 18px;
-  border-bottom: 1px solid var(--line);
-  white-space: nowrap;
-  background: #fafbfc;
-}
-.compareTable thead th:first-child {
-  border-top-left-radius: 18px;
-}
-.compareTable thead th:last-child {
-  border-top-right-radius: 18px;
-}
-.compareTable tbody td {
-  padding: 22px 18px;
-  border-bottom: 1px solid var(--line);
-  color: var(--fg);
-  vertical-align: middle;
-  white-space: nowrap;
-}
-.compareTable tbody tr:last-child td {
-  border-bottom: none;
-}
-
-/* Thumbnail — square white tile, product image fills with breathing
-   room. PNG sources have transparent / near-white backgrounds, so the
-   tile reads pure-white. */
-.compareThumbCell {
-  width: 112px;
-  padding: 14px 0 14px 18px !important;
-}
-.compareThumb {
-  position: relative;
-  width: 84px;
-  height: 84px;
-  border-radius: 12px;
-  background: #fff;
-  border: 1px solid var(--line);
+.seriesCardThumb {
+  aspect-ratio: 16 / 10;
+  background: linear-gradient(135deg, #f4f7fa 0%, #e8eef5 100%);
   display: flex;
   align-items: center;
   justify-content: center;
-  overflow: hidden;
-  transition: transform 0.25s ease, border-color 0.25s ease, box-shadow 0.25s ease;
+  padding: 24px;
 }
-.compareThumb img {
-  max-width: 78%;
-  max-height: 78%;
+.seriesCardThumb img {
+  max-width: 68%;
+  max-height: 84%;
   width: auto;
   height: auto;
   object-fit: contain;
-  mix-blend-mode: multiply;
 }
-.compareRowLive:hover .compareThumb {
-  border-color: rgba(0, 113, 188, 0.4);
-  box-shadow: 0 6px 20px -8px rgba(0, 113, 188, 0.25);
-  transform: translateY(-1px);
+/* Brand-tinted tile (blue → lime wash) behind line-art renders. */
+.seriesCardThumbBrand {
+  background: linear-gradient(135deg, #e8f1fb 0%, #eef3d6 100%);
 }
-.compareRowDisabled .compareThumb {
-  opacity: 0.45;
-  filter: grayscale(0.2);
+.seriesCardBody {
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+  padding: 18px 22px 22px;
 }
-
-/* Series cell — label + product name stack with a stronger visual
-   hierarchy. Live rows get a thin lime indicator anchored to the first
-   cell (avoids `position: relative` on <tr>, which is browser-quirky).
-   The Link wrapper inside live cells is `display: block` so its
-   baseline matches the plain-text disabled cells. */
-.compareRowLive {
-  cursor: pointer;
-  transition: background 0.18s ease;
-}
-.compareRowLive > td:first-child {
-  position: relative;
-}
-.compareRowLive > td:first-child::before {
-  content: '';
-  position: absolute;
-  left: 0;
-  top: 14px;
-  bottom: 14px;
-  width: 3px;
-  background: var(--envo-lime);
-  border-radius: 0 3px 3px 0;
-  opacity: 0;
-  transition: opacity 0.2s ease;
-}
-.compareRowLive:hover {
-  background: rgba(0, 113, 188, 0.025);
-}
-.compareRowLive:hover > td:first-child::before {
-  opacity: 1;
-}
-.compareSeriesCell {
+.seriesCardName {
+  font-size: 20px;
   font-weight: 700;
-  letter-spacing: -0.01em;
+  letter-spacing: -0.02em;
   color: var(--fg);
-  font-size: 15px;
+  margin: 0 0 8px;
 }
-.compareSeriesCell > a {
-  display: block;
-}
-.compareSeriesCell .product {
-  display: block;
-  margin-top: 4px;
-  font-size: 11px;
-  font-weight: 600;
-  letter-spacing: 0.14em;
-  text-transform: uppercase;
-  color: var(--envo-blue);
-}
-.compareRowDisabled td {
-  color: var(--fg-soft);
-}
-.compareRowDisabled .compareSeriesCell {
+.seriesCardDesc {
+  font-size: 14px;
+  line-height: 1.55;
   color: var(--fg-mute);
+  margin: 0 0 18px;
 }
-.compareRowDisabled .compareSeriesCell .product {
-  color: var(--fg-soft);
-  letter-spacing: 0.14em;
-}
-
-.compareSpec {
-  font-variant-numeric: tabular-nums;
-  color: var(--fg);
-  font-weight: 500;
-}
-.compareRowDisabled .compareSpec {
-  color: var(--fg-soft);
-  font-weight: 400;
-}
-.compareBestFor {
-  color: var(--fg-mute);
-  white-space: normal;
-  max-width: 220px;
-  line-height: 1.45;
-}
-
-/* Last cell — the explore arrow / coming-soon tag. Right-aligned,
-   restrained typography so it doesn't compete with the series cell. */
-.compareArrow {
-  text-align: right;
-  font-size: 13px;
-  font-weight: 600;
+.seriesCardCta {
+  margin-top: auto;
+  font-size: 13.5px;
+  font-weight: 700;
   color: var(--envo-blue);
-  padding-right: 22px !important;
-}
-.compareRowLive .compareArrow span {
-  transition: transform 0.25s ease;
-  display: inline-block;
-}
-.compareRowLive:hover .compareArrow span {
-  transform: translateX(5px);
-}
-.compareTag {
   display: inline-flex;
   align-items: center;
   gap: 6px;
-  font-size: 10px;
-  font-weight: 700;
-  letter-spacing: 0.14em;
-  text-transform: uppercase;
-  color: var(--fg-soft);
 }
-.compareTag::before {
-  content: '';
-  width: 6px;
-  height: 6px;
-  border-radius: 50%;
-  background: var(--line-strong, #cbd5e1);
+.seriesCardComing .seriesCardThumb img {
+  filter: grayscale(0.3);
+  opacity: 0.82;
+}
+.seriesCardComing .seriesCardCta {
+  color: var(--fg-soft);
+  font-weight: 600;
 }
 
 /* ============================================================
-   APPLICATIONS — image-led cards, 4-col with overlay title
+   APPLICATIONS — image-led cards, 4-col with overlay title.
+   Consumed by the series detail page (../[series]/page.tsx).
    ============================================================ */
 .appsGrid {
   display: grid;
@@ -427,106 +220,6 @@
 }
 
 /* ============================================================
-   FAQ — 2-col Q/A list on desktop, stacks on mobile. <dl> for
-   semantics; question = <dt>, answer = <dd>.
-   ============================================================ */
-.faqList {
-  display: grid;
-  grid-template-columns: repeat(2, minmax(0, 1fr));
-  gap: 32px 48px;
-  margin: 0;
-}
-.faqItem {
-  border-top: 1px solid var(--line);
-  padding-top: 20px;
-}
-.faqQuestion {
-  font-size: 15px;
-  font-weight: 700;
-  letter-spacing: -0.005em;
-  color: var(--fg);
-  margin-bottom: 10px;
-}
-.faqAnswer {
-  font-size: 13.5px;
-  color: var(--fg-mute);
-  line-height: 1.6;
-  margin: 0;
-}
-
-/* ============================================================
-   COMPLETE YOUR SYSTEM — 3 sibling-family cards
-   ============================================================ */
-.systemGrid {
-  display: grid;
-  grid-template-columns: repeat(3, minmax(0, 1fr));
-  gap: 22px;
-}
-.systemCard {
-  display: flex;
-  flex-direction: column;
-  background: var(--bg-card);
-  border: 1px solid var(--line);
-  border-radius: 14px;
-  overflow: hidden;
-  color: var(--fg);
-  text-decoration: none;
-  transition: transform 0.25s ease, border-color 0.25s ease, box-shadow 0.3s ease;
-}
-.systemCard:hover {
-  transform: translateY(-3px);
-  border-color: rgba(0, 113, 188, 0.4);
-  box-shadow: 0 16px 40px -12px rgba(0, 113, 188, 0.18);
-}
-.systemCardImg {
-  position: relative;
-  aspect-ratio: 16 / 9;
-  background: #fafbfc;
-  border-bottom: 1px solid var(--line);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-}
-.systemCardImg img {
-  max-width: 60%;
-  max-height: 60%;
-  object-fit: contain;
-  transition: transform 0.35s ease;
-}
-.systemCard:hover .systemCardImg img {
-  transform: scale(1.05);
-}
-.systemCardBody {
-  padding: 22px 24px 24px;
-}
-.systemCardName {
-  font-size: 18px;
-  font-weight: 700;
-  color: var(--fg);
-  margin-bottom: 8px;
-}
-.systemCardDesc {
-  font-size: 13.5px;
-  color: var(--fg-mute);
-  line-height: 1.55;
-  margin-bottom: 14px;
-}
-.systemCardCta {
-  font-size: 13px;
-  font-weight: 600;
-  color: var(--envo-blue);
-  display: inline-flex;
-  align-items: center;
-  gap: 6px;
-}
-.systemCardCta span {
-  transition: transform 0.25s ease;
-}
-.systemCard:hover .systemCardCta span {
-  transform: translateX(4px);
-}
-
-/* ============================================================
    RESPONSIVE
    ============================================================ */
 @media (max-width: 1100px) {
@@ -536,25 +229,26 @@
   .badgesGrid {
     grid-template-columns: repeat(2, 1fr);
   }
-  .systemGrid {
+}
+@media (max-width: 1000px) {
+  .seriesGrid {
     grid-template-columns: repeat(2, 1fr);
   }
 }
 @media (max-width: 640px) {
-  .appsGrid,
-  .systemGrid,
-  .faqList {
+  .appsGrid {
     grid-template-columns: 1fr;
   }
   .badgesGrid {
     grid-template-columns: 1fr;
     gap: 20px;
   }
-  .configStrip {
-    flex-direction: column;
-    align-items: flex-start;
-  }
   .sectionWrap {
     padding: 56px 20px;
+  }
+}
+@media (max-width: 620px) {
+  .seriesGrid {
+    grid-template-columns: 1fr;
   }
 }
