@@ -2,6 +2,9 @@
 // Server-only. Reads signage/driver/etc. products from the Payload `Products`
 // collection and flattens them into rows for the <ProductSelectorTable>.
 // Do NOT import from a client component.
+import { listProducts, resolveProductImage, type Product } from './products'
+import { formatDims } from './units'
+import { SELECTOR_CONFIGS, type SeriesMeta } from '@/data/selector-config'
 
 const NUM_TO_WORD: Record<number, string> = { 1: 'Single', 2: 'Duo', 3: 'Triple', 4: 'Quad' }
 
@@ -14,17 +17,13 @@ export function parseLedCount(name: string): string | null {
   return null
 }
 
-// append to src/lib/product-selector.ts
-import { listProducts, resolveProductImage, type Product } from './products'
-import { formatDims } from './units'
-import { SELECTOR_CONFIGS, type SeriesMeta } from '@/data/selector-config'
-
 export type SelectorRow = {
   sku: string
   name: string
   seriesCode: string
   seriesLabel: string
   seriesType: 'backlit' | 'sidelit'
+  bestFor: string | null
   detailHref: string | null
   voltage: string | null
   ledCount: string | null
@@ -54,10 +53,12 @@ function voltageOf(p: Product): string | null {
 export async function getProductsForSelector(family: string): Promise<SelectorRow[]> {
   const cfg = SELECTOR_CONFIGS[family]
   if (!cfg) throw new Error(`No selector config for family "${family}"`)
-  const { docs } = await listProducts({ family: cfg.familyCode })
+  // limit well above any family's SKU count — the default (48) would silently
+  // truncate signage (73 SKUs) and drivers (113).
+  const { docs } = await listProducts({ family: cfg.familyCode, limit: 500 })
   const metaByCode = new Map<string, SeriesMeta>(cfg.series.map((s) => [s.code, s]))
 
-  return docs.map((p): SelectorRow => {
+  const rows = docs.map((p): SelectorRow => {
     const meta = p.series ? metaByCode.get(p.series) : undefined
     return {
       sku: p.sku,
@@ -65,6 +66,7 @@ export async function getProductsForSelector(family: string): Promise<SelectorRo
       seriesCode: p.series ?? '',
       seriesLabel: meta?.label ?? (p.series ? humanise(p.series) : '—'),
       seriesType: meta?.type ?? 'backlit',
+      bestFor: meta?.bestFor ?? null,
       detailHref: meta?.detailHref ?? null,
       voltage: voltageOf(p),
       ledCount: parseLedCount(p.name),
@@ -82,4 +84,10 @@ export async function getProductsForSelector(family: string): Promise<SelectorRo
       specSheetUrl: p.spec_sheet_url,
     }
   })
+
+  // Sort by series label then SKU so the table groups each series contiguously
+  // (the table groups consecutive rows by series — don't rely on Akeneo order).
+  return rows.sort(
+    (a, b) => a.seriesLabel.localeCompare(b.seriesLabel) || a.sku.localeCompare(b.sku),
+  )
 }

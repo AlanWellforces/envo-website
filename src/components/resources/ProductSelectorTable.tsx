@@ -4,7 +4,7 @@
 import { useMemo, useState } from 'react'
 import Link from 'next/link'
 import type { SelectorRow } from '@/lib/product-selector'
-import type { FamilySelectorConfig } from '@/data/selector-config'
+import type { FamilySelectorConfig, SelectorFilter } from '@/data/selector-config'
 import styles from './ProductSelectorTable.module.css'
 
 const uniq = (xs: (string | null)[]) =>
@@ -61,15 +61,17 @@ export function ProductSelectorTable({
           <label>Search</label>
           <input value={q} onChange={(e) => setQ(e.target.value)} placeholder="model or SKU…" />
         </div>
-        <Select label="Series" value={series} set={setSeries} opts={opts.series} />
-        <Select label="LED count" value={led} set={setLed} opts={opts.led} />
-        <Select label="Voltage" value={volt} set={setVolt} opts={opts.volt} />
-        <Select label="CCT" value={cct} set={setCct} opts={opts.cct} />
-        <Select label="IP rating" value={ip} set={setIp} opts={opts.ip} />
-        <div className={styles.f}>
-          <label>Max height {maxH >= 40 ? 'any' : `≤${maxH}mm`}</label>
-          <input type="range" min={6} max={40} step={1} value={maxH} onChange={(e) => setMaxH(+e.target.value)} />
-        </div>
+        <Select label="Series" value={series} set={setSeries} opts={opts.series} filter="series" />
+        <Select label="LED count" value={led} set={setLed} opts={opts.led} filter="ledCount" />
+        <Select label="Voltage" value={volt} set={setVolt} opts={opts.volt} filter="voltage" />
+        <Select label="CCT" value={cct} set={setCct} opts={opts.cct} filter="cct" />
+        <Select label="IP rating" value={ip} set={setIp} opts={opts.ip} filter="ip" />
+        {config.filters.includes('maxHeight') && (
+          <div className={styles.f}>
+            <label>Max height {maxH >= 40 ? 'any' : `≤${maxH}mm`}</label>
+            <input type="range" min={6} max={40} step={1} value={maxH} onChange={(e) => setMaxH(+e.target.value)} />
+          </div>
+        )}
         <div className={styles.right}>
           <span className={styles.count}><b>{filtered.length}</b> modules</span>
           <button className={styles.reset} onClick={reset}>Reset</button>
@@ -102,8 +104,8 @@ export function ProductSelectorTable({
     </div>
   )
 
-  function Select({ label, value, set, opts }: { label: string; value: string; set: (v: string) => void; opts: string[] }) {
-    if (!config.filters.length) return null
+  function Select({ label, value, set, opts, filter }: { label: string; value: string; set: (v: string) => void; opts: string[]; filter: SelectorFilter }) {
+    if (!config.filters.includes(filter)) return null
     return (
       <div className={styles.f}>
         <label>{label}</label>
@@ -117,6 +119,8 @@ export function ProductSelectorTable({
 
   function Zone({ title, rows }: { title: string; rows: SelectorRow[] }) {
     if (!rows.length) return null
+    const counts = new Map<string, number>()
+    for (const r of rows) counts.set(r.seriesLabel, (counts.get(r.seriesLabel) ?? 0) + 1)
     let cur = ''
     const out: React.ReactNode[] = [
       <tr key={title} className={styles.group}><td colSpan={12}>{title} — {rows.length}</td></tr>,
@@ -126,7 +130,7 @@ export function ProductSelectorTable({
         cur = r.seriesLabel
         out.push(
           <tr key={`${title}-${cur}`} className={styles.group}>
-            <td colSpan={12} style={{ paddingLeft: 22 }}>{cur} — {rows.filter((x) => x.seriesLabel === cur).length}</td>
+            <td colSpan={12} style={{ paddingLeft: 22 }}>{cur}{r.bestFor ? ` · ${r.bestFor}` : ''} — {counts.get(cur)}</td>
           </tr>,
         )
       }
@@ -147,7 +151,9 @@ export function ProductSelectorTable({
           <td className={styles.num}>{r.maxInSeries ?? '—'}</td>
           <td>{r.dims ? <>{r.dims.mm}<span className={styles.sub}>{r.dims.in}</span></> : '—'}</td>
           <td>
-            <Link className={styles.view} href={r.detailHref ?? '#'} aria-disabled={!r.detailHref}>View →</Link>
+            {r.detailHref
+              ? <Link className={styles.view} href={r.detailHref}>View →</Link>
+              : <span className={styles.view} aria-disabled="true">View →</span>}
             {r.specSheetUrl && <a className={styles.pdf} href={r.specSheetUrl} target="_blank" rel="noopener noreferrer">Datasheet ↗</a>}
           </td>
         </tr>,

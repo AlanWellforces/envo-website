@@ -1,7 +1,7 @@
 // src/lib/product-selector.test.ts
 /* eslint-disable @typescript-eslint/no-explicit-any */
-import { describe, it, expect } from 'vitest'
-import { parseLedCount } from './product-selector'
+import { describe, it, expect, vi } from 'vitest'
+import { parseLedCount, getProductsForSelector } from './product-selector'
 
 describe('parseLedCount', () => {
   it('maps word tokens to a normalised label', () => {
@@ -20,16 +20,11 @@ describe('parseLedCount', () => {
   })
 })
 
-// append to src/lib/product-selector.test.ts
-import { vi } from 'vitest'
-
 const mockList = vi.fn()
 vi.mock('./products', async (orig) => ({
   ...(await orig<typeof import('./products')>()),
   listProducts: (...a: unknown[]) => mockList(...a),
 }))
-
-import { getProductsForSelector } from './product-selector'
 
 describe('getProductsForSelector', () => {
   it('maps signage products to selector rows', async () => {
@@ -42,7 +37,7 @@ describe('getProductsForSelector', () => {
     }], totalDocs: 1, totalPages: 1 })
 
     const rows = await getProductsForSelector('signage')
-    expect(mockList).toHaveBeenCalledWith({ family: 'led_module' })
+    expect(mockList).toHaveBeenCalledWith({ family: 'led_module', limit: 500 })
     expect(rows[0]).toMatchObject({
       sku: 'EV-BLEG04LBY-NW', seriesLabel: 'EcoGlo', seriesType: 'backlit',
       voltage: '12V', ledCount: 'Quad', cct: '4K', ip: 'IP65',
