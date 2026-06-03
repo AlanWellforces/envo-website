@@ -1,0 +1,24 @@
+.layout { display: grid; grid-template-columns: 1fr 1.2fr; gap: 40px; align-items: start; }
+.imgCol { border: 1px solid var(--color-border, #e4e9f0); border-radius: 16px; overflow: hidden; background: #fff; aspect-ratio: 1/1; display: flex; align-items: center; justify-content: center; }
+.imgCol img { width: 86%; height: 86%; object-fit: contain; }
+.sku { color: #5a6b82; font-size: 13px; margin: 10px 0 0; }
+.lead { max-width: 70ch; margin: 0 0 28px; color: #5a6b82; }
+
+.datasheetBtn { display: inline-flex; align-items: center; gap: 8px; margin-top: 16px;
+  background: var(--envo-blue, #0071bc); color: #fff; font-weight: 600; font-size: 15px;
+  padding: 13px 22px; border-radius: 11px; text-decoration: none; }
+.datasheetBtn:hover { background: #0084dc; }
+
+.specTable { width: 100%; border-collapse: collapse; margin: 0 0 28px; max-width: 720px; }
+.groupTitle { font-size: 13px; font-weight: 700; letter-spacing: .08em; text-transform: uppercase;
+  color: var(--envo-blue, #0071bc); padding: 22px 0 8px; }
+.specTable tr { border-bottom: 1px solid var(--color-border, #e4e9f0); }
+.specTable th { text-align: left; font-weight: 500; color: #5a6b82; padding: 11px 16px 11px 0; width: 40%; vertical-align: top; }
+.specTable td { padding: 11px 0; font-weight: 600; color: #14233b; }
+
+.related { display: grid; grid-template-columns: repeat(4, 1fr); gap: 14px; margin-top: 18px; }
+.relatedCard { border: 1px solid var(--color-border, #e4e9f0); border-radius: 12px; padding: 16px;
+  text-decoration: none; color: #14233b; font-weight: 600; font-size: 14px; transition: .16s; }
+.relatedCard:hover { border-color: var(--envo-blue, #0071bc); transform: translateY(-2px); }
+
+@media (max-width: 900px) { .layout { grid-template-columns: 1fr; } .related { grid-template-columns: repeat(2, 1fr); } }
