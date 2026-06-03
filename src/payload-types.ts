@@ -71,6 +71,7 @@ export interface Config {
     media: Media;
     posts: Post;
     projects: Project;
+    faqs: Faq;
     users: User;
     'payload-kv': PayloadKv;
     'payload-locked-documents': PayloadLockedDocument;
@@ -83,6 +84,7 @@ export interface Config {
     media: MediaSelect;
     posts: PostsSelect;
     projects: ProjectsSelect;
+    faqs: FaqsSelect;
     users: UsersSelect;
     'payload-kv': PayloadKvSelect;
     'payload-locked-documents': PayloadLockedDocumentsSelect;
@@ -606,6 +608,42 @@ export interface Project {
   _status?: ('draft' | 'published') | null;
 }
 /**
+ * Questions answered on /resources/faq. Publish to make one visible.
+ *
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "faqs".
+ */
+export interface Faq {
+  id: number;
+  question: string;
+  answer: {
+    root: {
+      type: string;
+      children: {
+        type: any;
+        version: number;
+        [k: string]: unknown;
+      }[];
+      direction: ('ltr' | 'rtl') | null;
+      format: 'left' | 'start' | 'center' | 'right' | 'end' | 'justify' | '';
+      indent: number;
+      version: number;
+    };
+    [k: string]: unknown;
+  };
+  /**
+   * Which FAQ section this appears under.
+   */
+  group: 'ordering' | 'products' | 'installation' | 'warranty';
+  /**
+   * Sort order within the group (low → high).
+   */
+  order: number;
+  updatedAt: string;
+  createdAt: string;
+  _status?: ('draft' | 'published') | null;
+}
+/**
  * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "users".
  */
@@ -674,6 +712,10 @@ export interface PayloadLockedDocument {
     | ({
         relationTo: 'projects';
         value: number | Project;
+      } | null)
+    | ({
+        relationTo: 'faqs';
+        value: number | Faq;
       } | null)
     | ({
         relationTo: 'users';
@@ -945,6 +987,19 @@ export interface ProjectsSelect {
         tag?: boolean;
         id?: boolean;
       };
+  updatedAt?: boolean;
+  createdAt?: boolean;
+  _status?: boolean;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "faqs_select".
+ */
+export interface FaqsSelect {
+  question?: boolean;
+  answer?: boolean;
+  group?: boolean;
+  order?: boolean;
   updatedAt?: boolean;
   createdAt?: boolean;
   _status?: boolean;
