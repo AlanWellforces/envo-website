@@ -1,16 +1,15 @@
+/* eslint-disable @next/next/no-img-element */
 import type { Metadata } from 'next'
 import Image from 'next/image'
 import Link from 'next/link'
 import { notFound } from 'next/navigation'
-import { PRODUCT_FAMILIES, type SeriesLink } from '@/data/product-families'
+import { PRODUCT_FAMILIES } from '@/data/product-families'
 import { TrustIcon } from '@/components/ui/trust-icon'
+import { getProductsByMarketingFamily, groupProductsBySeries, resolveProductImage } from '@/lib/products'
+import { seriesSlug, seriesLabel } from '@/data/family-map'
 import styles from './page.module.css'
 
 type Params = Promise<{ slug: string }>
-
-function isLive(s: SeriesLink): s is Extract<SeriesLink, { slug: string }> {
-  return s.href !== '#'
-}
 
 export async function generateStaticParams() {
   return PRODUCT_FAMILIES.map((f) => ({ slug: f.slug }))
@@ -32,6 +31,10 @@ export default async function ProductFamilyPage({ params }: { params: Params }) 
   const { slug } = await params
   const family = PRODUCT_FAMILIES.find((f) => f.slug === slug)
   if (!family) notFound()
+
+  // Series list is DB-driven: group this family's real products by series.
+  const products = await getProductsByMarketingFamily(slug)
+  const groups = groupProductsBySeries(products)
 
   // All four product families render a BOUNCE /signage/-style landing:
   // page header + a grid of series cards (image · name · short description
@@ -61,40 +64,34 @@ export default async function ProductFamilyPage({ params }: { params: Params }) 
 
       <section className={styles.sectionWrap}>
         <div className={styles.seriesGrid}>
-          {family.series.map((s) => {
-            const live = isLive(s)
-            // Every series card uses a faithful technical line-art render on a
-            // brand-tinted (blue→lime) tile. Each line file lives alongside its
-            // source photo as <name>-line.png.
-            const imgSrc = s.image.replace(/\.png$/, '-line.png')
-            const inner = (
-              <>
+          {groups.map((g) => {
+            const rep = g.products[0]
+            const img = resolveProductImage(rep, '/assets/images/cat-modules.png')
+            return (
+              <Link
+                key={g.code ?? 'other'}
+                href={`/products/${slug}/${seriesSlug(g.code)}`}
+                className={styles.seriesCard}
+              >
                 <div className={`${styles.seriesCardThumb} ${styles.seriesCardThumbBrand}`}>
-                  <Image
-                    src={imgSrc}
-                    alt={s.productName}
-                    width={400}
-                    height={250}
-                    sizes="(min-width: 1000px) 33vw, (min-width: 621px) 50vw, 100vw"
-                  />
+                  {img.isLocal ? (
+                    <Image
+                      src={img.src}
+                      alt={img.alt}
+                      width={400}
+                      height={250}
+                      sizes="(min-width: 1000px) 33vw, (min-width: 621px) 50vw, 100vw"
+                    />
+                  ) : (
+                    <img src={img.src} alt={img.alt} />
+                  )}
                 </div>
                 <div className={styles.seriesCardBody}>
-                  <h3 className={styles.seriesCardName}>{s.label}</h3>
-                  <p className={styles.seriesCardDesc}>{s.shortDesc}</p>
-                  <span className={styles.seriesCardCta}>
-                    {live ? <>View range <span>→</span></> : 'Coming soon'}
-                  </span>
+                  <h3 className={styles.seriesCardName}>{seriesLabel(g.code)}</h3>
+                  <p className={styles.seriesCardDesc}>{g.products.length} products</p>
+                  <span className={styles.seriesCardCta}>View range <span>→</span></span>
                 </div>
-              </>
-            )
-            return live ? (
-              <Link key={s.label} href={s.href} className={styles.seriesCard}>
-                {inner}
               </Link>
-            ) : (
-              <div key={s.label} className={`${styles.seriesCard} ${styles.seriesCardComing}`}>
-                {inner}
-              </div>
             )
           })}
         </div>
