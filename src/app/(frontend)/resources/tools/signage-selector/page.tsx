@@ -4,11 +4,14 @@ import Link from 'next/link'
 import { getProductsForSelector } from '@/lib/product-selector'
 import { SIGNAGE_SELECTOR } from '@/data/selector-config'
 import { ProductSelectorTable } from '@/components/resources/ProductSelectorTable'
+import { metadataForRoute } from '@/lib/page-seo'
 
-export const metadata: Metadata = {
-  title: 'Signage module selector — ENVO',
-  description:
-    'Filter ENVO signage LED modules by output, beam, colour temperature, ingress rating and size, then download the datasheet.',
+export async function generateMetadata(): Promise<Metadata> {
+  return metadataForRoute('/resources/tools/signage-selector', {
+    title: 'Signage module selector — ENVO',
+    description:
+      'Filter ENVO signage LED modules by output, beam, colour temperature, ingress rating and size, then download the datasheet.',
+  })
 }
 
 // Akeneo data changes only on sync — revalidate hourly.

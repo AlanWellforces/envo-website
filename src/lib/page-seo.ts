@@ -1,6 +1,7 @@
 import { getPayload } from 'payload'
 import config from '@/payload.config'
 import type { Metadata } from 'next'
+import type { PageSeo as PageSeoDoc } from '@/payload-types'
 
 export type PageSeo = {
   seoTitle?: string
@@ -21,14 +22,15 @@ export async function getPageSeo(route: string): Promise<PageSeo | null> {
     depth: 1,
     limit: 1,
   })
-  const doc = res.docs[0] as
-    | { seoTitle?: string; metaDescription?: string; ogImage?: { url?: string } | null }
-    | undefined
+  const doc = res.docs[0] as PageSeoDoc | undefined
   if (!doc) return null
+  // ogImage is `number | Media | null`; at depth 1 it expands to the Media doc.
+  const og = doc.ogImage
+  const ogUrl = og && typeof og === 'object' ? (og.url ?? undefined) : undefined
   return {
     seoTitle: doc.seoTitle || undefined,
     metaDescription: doc.metaDescription || undefined,
-    ogImage: doc.ogImage?.url ? { url: doc.ogImage.url } : undefined,
+    ogImage: ogUrl ? { url: ogUrl } : undefined,
   }
 }
 
