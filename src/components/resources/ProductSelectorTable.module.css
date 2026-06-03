@@ -1,0 +1,24 @@
+/* src/components/resources/ProductSelectorTable.module.css */
+.bar { display:flex; flex-wrap:wrap; gap:10px; align-items:flex-end; background:#1e293b; border-radius:10px 10px 0 0; padding:14px 16px; }
+.f { display:flex; flex-direction:column; gap:4px; }
+.f label { font-size:9.5px; letter-spacing:.12em; text-transform:uppercase; color:#7c8aa0; font-weight:700; }
+.f select, .f input { background:#0b1220; color:#e2e8f0; border:1px solid #334155; border-radius:6px; padding:7px 9px; font-size:12.5px; min-width:104px; }
+.f select:focus, .f input:focus { outline:none; border-color:#aec90b; }
+.search { flex:1; min-width:150px; }
+.right { margin-left:auto; display:flex; align-items:center; gap:14px; }
+.count { color:#cbd5e1; font-size:12px; } .count b { color:#fff; font-size:15px; }
+.reset { background:none; border:1px solid #475569; color:#cbd5e1; border-radius:6px; padding:7px 11px; font-size:11.5px; cursor:pointer; }
+.tableWrap { background:#fff; border:1px solid #dbe2ea; border-top:none; border-radius:0 0 10px 10px; overflow:hidden; }
+.tableWrap :global(table) { border-collapse:collapse; width:100%; }
+.tableWrap :global(th), .tableWrap :global(td) { padding:9px 11px; text-align:left; border-bottom:1px solid #dbe2ea; }
+.tableWrap :global(thead th) { background:#f1f5f9; font-size:9.5px; letter-spacing:.09em; text-transform:uppercase; color:#64748b; font-weight:800; border-bottom:2px solid #cbd5e1; }
+.num { text-align:right; font-variant-numeric:tabular-nums; }
+.thumb { width:66px; height:66px; border-radius:8px; background:#f1f5f9; border:1px solid #dbe2ea; object-fit:contain; display:block; }
+.tag { display:inline-block; font-size:10px; font-weight:700; padding:1px 6px; border-radius:4px; background:#eef4f9; color:#0071bc; margin-left:6px; }
+.sub { display:block; color:#94a3b8; font-size:10.5px; }
+.group :global(td) { background:#f8fafc; font-weight:800; font-size:10.5px; letter-spacing:.08em; text-transform:uppercase; color:#0071bc; }
+.view { color:#0071bc; font-weight:700; text-decoration:none; font-size:11.5px; }
+.view[aria-disabled="true"] { color:#cbd5e1; pointer-events:none; }
+.pdf { display:block; color:#64748b; font-size:11px; text-decoration:none; margin-top:3px; }
+.none { padding:30px; text-align:center; color:#94a3b8; }
+.hint { font-size:11.5px; color:#94a3b8; margin:10px 2px 0; }
