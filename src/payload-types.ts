@@ -72,6 +72,7 @@ export interface Config {
     posts: Post;
     projects: Project;
     faqs: Faq;
+    'page-seo': PageSeo;
     users: User;
     'payload-kv': PayloadKv;
     'payload-locked-documents': PayloadLockedDocument;
@@ -85,6 +86,7 @@ export interface Config {
     posts: PostsSelect;
     projects: ProjectsSelect;
     faqs: FaqsSelect;
+    'page-seo': PageSeoSelect;
     users: UsersSelect;
     'payload-kv': PayloadKvSelect;
     'payload-locked-documents': PayloadLockedDocumentsSelect;
@@ -644,6 +646,37 @@ export interface Faq {
   _status?: ('draft' | 'published') | null;
 }
 /**
+ * SEO title / description / share image for code-built pages, keyed by route. Empty fields fall back to the page’s in-code defaults.
+ *
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "page-seo".
+ */
+export interface PageSeo {
+  id: number;
+  /**
+   * Exact route path, e.g. /about or /solutions/signage-lighting
+   */
+  route: string;
+  /**
+   * Optional friendly name shown in the admin list.
+   */
+  label?: string | null;
+  /**
+   * Overrides the <title>. Leave blank to keep the page default.
+   */
+  seoTitle?: string | null;
+  /**
+   * Overrides <meta name="description">. Aim ≤ 155 characters.
+   */
+  metaDescription?: string | null;
+  /**
+   * Optional social share image.
+   */
+  ogImage?: (number | null) | Media;
+  updatedAt: string;
+  createdAt: string;
+}
+/**
  * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "users".
  */
@@ -716,6 +749,10 @@ export interface PayloadLockedDocument {
     | ({
         relationTo: 'faqs';
         value: number | Faq;
+      } | null)
+    | ({
+        relationTo: 'page-seo';
+        value: number | PageSeo;
       } | null)
     | ({
         relationTo: 'users';
@@ -1003,6 +1040,19 @@ export interface FaqsSelect {
   updatedAt?: boolean;
   createdAt?: boolean;
   _status?: boolean;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "page-seo_select".
+ */
+export interface PageSeoSelect {
+  route?: boolean;
+  label?: boolean;
+  seoTitle?: boolean;
+  metaDescription?: boolean;
+  ogImage?: boolean;
+  updatedAt?: boolean;
+  createdAt?: boolean;
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema

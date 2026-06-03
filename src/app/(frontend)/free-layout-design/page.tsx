@@ -1,13 +1,16 @@
 import type { Metadata } from 'next'
+import { metadataForRoute } from '@/lib/page-seo'
 import Link from 'next/link'
 import { EnvoButton } from '@/components/ui/envo-button'
 import styles from './page.module.css'
 import { SketchForm } from './SketchForm'
 
-export const metadata: Metadata = {
-  title: 'Free Layout Design — ENVO',
-  description:
-    'Send us your sign sketch and dimensions. Our LED engineering team replies within 24 hours with a free module count, driver size and wiring layout.',
+export async function generateMetadata(): Promise<Metadata> {
+  return metadataForRoute('/free-layout-design', {
+    title: 'Free Layout Design — ENVO',
+    description:
+      'Send us your sign sketch and dimensions. Our LED engineering team replies within 24 hours with a free module count, driver size and wiring layout.',
+  })
 }
 
 export default function FreeLayoutDesignPage() {

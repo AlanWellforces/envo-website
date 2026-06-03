@@ -1,12 +1,15 @@
 import type { Metadata } from 'next'
+import { metadataForRoute } from '@/lib/page-seo'
 import Link from 'next/link'
 import { RESOURCES } from '@/data/resources'
 import styles from './page.module.css'
 
-export const metadata: Metadata = {
-  title: 'Downloads — ENVO',
-  description:
-    'ENVO technical library — product catalogue, specification sheets, IES photometric files and installation guides.',
+export async function generateMetadata(): Promise<Metadata> {
+  return metadataForRoute('/resources/downloads', {
+    title: 'Downloads — ENVO',
+    description:
+      'ENVO technical library — product catalogue, specification sheets, IES photometric files and installation guides.',
+  })
 }
 
 // Where each library item resolves today. Per-product datasheets already live

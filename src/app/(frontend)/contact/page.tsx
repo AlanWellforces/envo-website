@@ -1,12 +1,15 @@
 import type { Metadata } from 'next'
+import { metadataForRoute } from '@/lib/page-seo'
 import Link from 'next/link'
 import { ContactForm } from './ContactForm'
 import styles from './page.module.css'
 
-export const metadata: Metadata = {
-  title: 'Contact — ENVO',
-  description:
-    'Talk to the ENVO team about orders, product questions and custom requests. Phone, email and our US office — we usually reply within one business day.',
+export async function generateMetadata(): Promise<Metadata> {
+  return metadataForRoute('/contact', {
+    title: 'Contact — ENVO',
+    description:
+      'Talk to the ENVO team about orders, product questions and custom requests. Phone, email and our US office — we usually reply within one business day.',
+  })
 }
 
 const PHONES = [

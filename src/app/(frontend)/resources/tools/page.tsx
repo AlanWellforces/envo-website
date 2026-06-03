@@ -1,11 +1,14 @@
 import type { Metadata } from 'next'
+import { metadataForRoute } from '@/lib/page-seo'
 import Link from 'next/link'
 import styles from './page.module.css'
 
-export const metadata: Metadata = {
-  title: 'Tools — ENVO',
-  description:
-    'ENVO sizing and selection tools — find your match, filter the signage range by spec, or get a free layout design from a sketch.',
+export async function generateMetadata(): Promise<Metadata> {
+  return metadataForRoute('/resources/tools', {
+    title: 'Tools — ENVO',
+    description:
+      'ENVO sizing and selection tools — find your match, filter the signage range by spec, or get a free layout design from a sketch.',
+  })
 }
 
 const TOOLS = [
