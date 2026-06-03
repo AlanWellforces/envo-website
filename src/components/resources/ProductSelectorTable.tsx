@@ -3,8 +3,7 @@
 
 import { useMemo, useState } from 'react'
 import Link from 'next/link'
-import type { SelectorRow } from '@/lib/product-selector'
-import type { FamilySelectorConfig, SelectorFilter } from '@/data/selector-config'
+import type { SelectorRow, FamilySelectorConfig, SelectorFilter } from '@/data/selector-config'
 import styles from './ProductSelectorTable.module.css'
 
 const uniq = (xs: (string | null)[]) =>

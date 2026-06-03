@@ -58,3 +58,30 @@ export const SIGNAGE_SELECTOR: FamilySelectorConfig = {
 export const SELECTOR_CONFIGS: Record<string, FamilySelectorConfig> = {
   signage: SIGNAGE_SELECTOR,
 }
+
+// Flat row produced by getProductsForSelector() — defined here (not in the
+// server-only product-selector.ts) so client components can import the type
+// without pulling in the server module graph.
+export type SelectorRow = {
+  sku: string
+  name: string
+  seriesCode: string
+  seriesLabel: string
+  seriesType: 'backlit' | 'sidelit'
+  bestFor: string | null
+  detailHref: string | null
+  voltage: string | null
+  ledCount: string | null
+  power_w: number | null
+  brightness_lm: number | null
+  efficacy_lm_w: number | null
+  beam: string | null
+  cct: string | null
+  cri: number | null
+  ip: string | null
+  maxInSeries: number | null
+  heightMm: number | null
+  dims: { mm: string; in: string } | null
+  image: string
+  specSheetUrl: string | null
+}

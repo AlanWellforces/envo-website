@@ -4,7 +4,9 @@
 // Do NOT import from a client component.
 import { listProducts, resolveProductImage, type Product } from './products'
 import { formatDims } from './units'
-import { SELECTOR_CONFIGS, type SeriesMeta } from '@/data/selector-config'
+import { SELECTOR_CONFIGS, type SeriesMeta, type SelectorRow } from '@/data/selector-config'
+
+export type { SelectorRow } from '@/data/selector-config'
 
 const NUM_TO_WORD: Record<number, string> = { 1: 'Single', 2: 'Duo', 3: 'Triple', 4: 'Quad' }
 
@@ -15,30 +17,6 @@ export function parseLedCount(name: string): string | null {
   const num = name.match(/\b(\d+)\s*LED\b/i)
   if (num) return NUM_TO_WORD[Number(num[1])] ?? `${num[1]}-LED`
   return null
-}
-
-export type SelectorRow = {
-  sku: string
-  name: string
-  seriesCode: string
-  seriesLabel: string
-  seriesType: 'backlit' | 'sidelit'
-  bestFor: string | null
-  detailHref: string | null
-  voltage: string | null
-  ledCount: string | null
-  power_w: number | null
-  brightness_lm: number | null
-  efficacy_lm_w: number | null
-  beam: string | null
-  cct: string | null
-  cri: number | null
-  ip: string | null
-  maxInSeries: number | null
-  heightMm: number | null
-  dims: { mm: string; in: string } | null
-  image: string
-  specSheetUrl: string | null
 }
 
 function humanise(code: string): string {
