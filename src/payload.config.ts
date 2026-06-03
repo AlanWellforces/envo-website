@@ -27,6 +27,13 @@ export default buildConfig({
     components: {
       // Injects small global admin CSS (e.g. a taller rich-text editor).
       providers: ['/payload/components/AdminStyles#AdminStyles'],
+      afterNavLinks: ['/payload/components/PagesNavLink#PagesNavLink'],
+      views: {
+        pagesOverview: {
+          Component: '/payload/views/PagesOverview#PagesOverview',
+          path: '/pages-overview',
+        },
+      },
     },
     importMap: {
       baseDir: path.resolve(dirname),
