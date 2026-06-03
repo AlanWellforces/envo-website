@@ -2,10 +2,16 @@
 // Add a row when a new page ships. `source` drives the type badge; `editHref`
 // is where the ✎ link points: a Payload collection/global for CMS pages, or the
 // page-seo collection (filtered by route) for code pages.
+
+/** Section order for the overview. A row's `section` must be one of these — a
+ *  typo is then a compile error rather than a silently-dropped (ungrouped) row. */
+export const SITE_PAGE_SECTIONS = ['Home', 'Marketing', 'Solutions', 'Content collections', 'Resources'] as const
+export type SitePageSection = (typeof SITE_PAGE_SECTIONS)[number]
+
 export type SitePage = {
   label: string
   route: string
-  section: string
+  section: SitePageSection
   source: 'cms' | 'code'
   editHref?: string
 }
@@ -33,10 +39,7 @@ export const SITE_PAGES: SitePage[] = [
   { label: 'FAQ', route: '/resources/faq', section: 'Resources', source: 'cms', editHref: '/admin/collections/faqs' },
 ]
 
-/** Section order for the overview, and a stable grouping helper. */
-export const SITE_PAGE_SECTIONS = ['Home', 'Marketing', 'Solutions', 'Content collections', 'Resources'] as const
-
-export function groupedSitePages(): { section: string; pages: SitePage[] }[] {
+export function groupedSitePages(): { section: SitePageSection; pages: SitePage[] }[] {
   return SITE_PAGE_SECTIONS.map((section) => ({
     section,
     pages: SITE_PAGES.filter((p) => p.section === section),
