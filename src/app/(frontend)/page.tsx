@@ -1,34 +1,24 @@
 import { Hero } from '@/components/home/hero'
-import { Impact } from '@/components/home/impact'
-import { Trust } from '@/components/home/trust'
-import { ProductFamilies } from '@/components/home/product-families'
-import { Solutions } from '@/components/home/solutions'
-import { Projects } from '@/components/home/projects'
-import { Quote } from '@/components/home/quote'
-import { FeaturedDetail } from '@/components/home/featured-detail'
-import { Process } from '@/components/home/process'
-import { Resources } from '@/components/home/resources'
+import { Apps } from '@/components/home/apps'
+import { FreeLayout } from '@/components/home/free-layout'
+import { FeaturedProject } from '@/components/home/featured-project'
+import { ProductRange } from '@/components/home/product-range'
+import { TrustSlim } from '@/components/home/trust-slim'
+import { Guides } from '@/components/home/guides'
 import { FinalCta } from '@/components/home/final-cta'
-import { Newsletter } from '@/components/home/newsletter'
-import { getHomePage } from '@/lib/home-page'
+import '@/components/home/home-v6.css'
 
-export default async function HomePage() {
-  const hp = await getHomePage().catch(() => null)
-
+export default function HomePage() {
   return (
-    <>
-      <Hero       data={hp?.hero} />
-      <Impact     data={hp?.stats} />
-      <Trust />
-      <ProductFamilies />
-      <Solutions />
-      <Projects />
-      <Quote      data={hp?.quote} />
-      <FeaturedDetail />
-      <Process    data={hp?.process} />
-      <Resources />
-      <FinalCta   data={hp?.cta} />
-      <Newsletter />
-    </>
+    <main className="v4">
+      <Hero />
+      <Apps />
+      <FreeLayout />
+      <FeaturedProject />
+      <ProductRange />
+      <TrustSlim />
+      <Guides />
+      <FinalCta />
+    </main>
   )
 }

@@ -1,31 +1,35 @@
-import { EnvoButton } from '@/components/ui/envo-button'
-import type { HomeCtaData } from '@/lib/home-page'
+import Link from 'next/link'
+import { ArrowRight } from './icons'
 
-const DEFAULTS: HomeCtaData = {
-  heading: 'Ready to engineer your next project?',
-  body: 'Find your match in 60 seconds, or talk to an engineer.',
-  primary_label: 'Find your match',
-  primary_url: '/find-your-match',
-  secondary_label: 'Contact engineering',
-  secondary_url: '/contact',
-}
-
-export function FinalCta({ data }: { data?: HomeCtaData | null }) {
-  const d = data ?? DEFAULTS
+export function FinalCta() {
   return (
-    <section className="final-cta">
-      <div className="diamond-bg" aria-hidden="true" />
-      <div className="container reveal">
-        <h2>{d.heading}</h2>
-        <p>{d.body}</p>
-        <div className="final-cta-actions">
-          <EnvoButton href={d.primary_url} variant="primary" arrow>
-            {d.primary_label}
-          </EnvoButton>
-          <EnvoButton href={d.secondary_url} variant="ghost">
-            {d.secondary_label}
-          </EnvoButton>
+    <section className="v4-final">
+      <div className="v4-wrap">
+        <h2>Let&apos;s light your next project.</h2>
+        <p className="lead">
+          Find the right system in minutes, get a free layout, or talk to an ENVO engineer.
+        </p>
+        <div className="v4-cta-row">
+          <Link className="v4-btn v4-btn-primary" href="/find-your-match">
+            Find your match <ArrowRight />
+          </Link>
+          <Link className="v4-btn v4-btn-secondary" href="/free-layout-design">
+            Get free layout design
+          </Link>
+          <Link className="v4-btn v4-btn-text" href="/contact">
+            Talk to engineering <ArrowRight />
+          </Link>
         </div>
+        <p className="v4-buyline">
+          Already specced it? Buy through your regional distributor —{' '}
+          <a href="https://wellforces.co.nz" target="_blank" rel="noopener noreferrer">
+            Wellforces↗
+          </a>{' '}
+          <span>·</span>{' '}
+          <a href="https://powersupplymall.com" target="_blank" rel="noopener noreferrer">
+            PowerSupplyMall↗
+          </a>
+        </p>
       </div>
     </section>
   )
