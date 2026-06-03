@@ -21,7 +21,6 @@ export const PageSeo: CollectionConfig = {
       type: 'text',
       required: true,
       unique: true,
-      index: true,
       admin: { description: 'Exact route path, e.g. /about or /solutions/signage-lighting' },
     },
     { name: 'label', type: 'text', admin: { description: 'Optional friendly name shown in the admin list.' } },

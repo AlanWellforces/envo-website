@@ -33,7 +33,8 @@ export default buildConfig({
     },
   },
   // Order drives the admin nav group order: content first (Products,
-  // Editorial), then Settings (Users) last — so Users/Settings sits at the bottom.
+  // Editorial), then Website (Page SEO — per-route SEO overrides), then
+  // Settings (Users) last — so Users/Settings sits at the bottom.
   collections: [Products, Media, Posts, Projects, Faqs, PageSeo, Users],
   globals: [SiteSettings, HomePage],
   editor: lexicalEditor(),
