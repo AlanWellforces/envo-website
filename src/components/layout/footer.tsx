@@ -14,8 +14,8 @@ export function Footer() {
               height={22}
             />
             <p>Engineered illumination to elevate performance.</p>
-            <a href="mailto:contact@envo.com" className="footer-brand-email">
-              contact@envo.com
+            <a href="mailto:contact@envo-led.com" className="footer-brand-email">
+              contact@envo-led.com
             </a>
           </div>
 
