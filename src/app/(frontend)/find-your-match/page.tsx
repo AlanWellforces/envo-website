@@ -1,15 +1,37 @@
 import type { Metadata } from 'next'
-import { PageStub } from '@/components/ui/page-stub'
+import Link from 'next/link'
+import { Wizard } from './Wizard'
+import styles from './page.module.css'
 
-export const metadata: Metadata = { title: 'Find your match — ENVO' }
+export const metadata: Metadata = {
+  title: 'Find your match — ENVO',
+  description:
+    'Answer five quick questions and we suggest the right ENVO module, driver and control for your sign — a fast selection aid, no commitment.',
+}
 
 export default function FindYourMatchPage() {
   return (
-    <PageStub
-      eyebrow="Find your match · 60-sec wizard"
-      title="Spec your full ENVO setup in 60 seconds."
-      description="Answer a few quick questions about your sign type, dimensions and install environment — we spec the modules, driver, controller and accessories as a complete bundle."
-      breadcrumb={[{ label: 'Find your match' }]}
-    />
+    <div className="theme-light">
+      <div className="container">
+        <div className="breadcrumb">
+          <Link href="/">Home</Link>
+          <span className="sep">›</span>
+          <span>Find your match</span>
+        </div>
+
+        <section className={styles.hero}>
+          <span className={styles.eyebrow}>Find your match</span>
+          <h1 className={styles.title}>Spec your setup in about a minute.</h1>
+          <p className={styles.desc}>
+            Five quick questions about your sign — we suggest the right module, driver and control
+            from the ENVO range. A selection aid, not a quote.
+          </p>
+        </section>
+
+        <div className={styles.wrap}>
+          <Wizard />
+        </div>
+      </div>
+    </div>
   )
 }
