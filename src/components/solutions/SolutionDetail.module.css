@@ -1,0 +1,26 @@
+/* Shared solution detail layout — mirrors the about/resources design language.
+   Renders inside .theme-light; uses semantic --color-* tokens. */
+
+.hero { padding: 36px 0 40px; }
+.eyebrow { display: inline-flex; align-items: center; gap: 8px; font-size: 11px; font-weight: 600;
+  letter-spacing: .18em; text-transform: uppercase; color: var(--color-brand-blue); }
+.eyebrow::before { content: ''; width: 18px; height: 1.5px; background: var(--color-brand-lime); }
+.title { margin: 14px 0 0; font-size: clamp(32px, 4.6vw, 50px); line-height: 1.04; letter-spacing: -.03em;
+  font-weight: 700; color: var(--color-text-primary); max-width: 20ch; }
+.desc { margin: 18px 0 0; font-size: clamp(16px, 1.4vw, 19px); line-height: 1.6; color: var(--color-text-muted); max-width: 60ch; }
+
+.imageBand { margin: 8px 0 0; border-radius: 20px; overflow: hidden; border: 1px solid var(--color-line-strong); aspect-ratio: 21/9; position: relative; }
+.imageBand img { object-fit: cover; }
+
+.applies { padding: 52px 0; }
+.appliesTitle { font-size: clamp(22px, 2.4vw, 30px); font-weight: 700; letter-spacing: -.02em; color: var(--color-text-primary); margin: 0 0 8px; }
+.appliesLede { font-size: 16px; line-height: 1.6; color: var(--color-text-muted); max-width: 58ch; margin: 0 0 24px; }
+.famRow { display: flex; flex-wrap: wrap; gap: 10px; }
+.famChip { border: 1px solid var(--color-line-strong); border-radius: 999px; padding: 9px 16px; font-size: 13.5px; font-weight: 600;
+  color: var(--color-text-primary); text-decoration: none; background: var(--color-surface-card); }
+.famChip:hover { border-color: var(--color-brand-blue); color: var(--color-brand-blue); }
+
+.ctaBand { padding: 56px 0; text-align: center; background: linear-gradient(120deg, #003a66, #050b1a 70%); color: #fff; }
+.ctaTitle { font-size: clamp(24px, 3vw, 38px); font-weight: 700; letter-spacing: -.02em; margin: 0 auto; max-width: 20ch; }
+.ctaDesc { margin: 14px auto 26px; color: #c7d4e6; max-width: 50ch; }
+.ctaRow { display: flex; gap: 14px; justify-content: center; flex-wrap: wrap; }
