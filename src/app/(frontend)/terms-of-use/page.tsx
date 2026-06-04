@@ -59,7 +59,7 @@ export default function TermsOfUsePage() {
 
       <h2>Contact</h2>
       <p>
-        Questions about these terms? Email <a href="mailto:contact@envo-led.com">contact@envo-led.com</a> or
+        Questions about these terms? Email <a href="mailto:contact@envo.com">contact@envo.com</a> or
         call 888.228.9138.
       </p>
     </LegalPage>

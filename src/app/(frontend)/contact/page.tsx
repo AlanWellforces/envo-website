@@ -54,7 +54,7 @@ export default function ContactPage() {
             <div className={styles.detail}>
               <p className={styles.detailLabel}>Email</p>
               <p className={styles.detailVal}>
-                <a href="mailto:contact@envo-led.com">contact@envo-led.com</a>
+                <a href="mailto:contact@envo.com">contact@envo.com</a>
               </p>
             </div>
 
