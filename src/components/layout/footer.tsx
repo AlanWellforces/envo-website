@@ -17,6 +17,13 @@ export function Footer() {
             <a href="mailto:contact@envo-led.com" className="footer-brand-email">
               contact@envo-led.com
             </a>
+            <address className="footer-brand-contact">
+              <a href="tel:+18882289138">888.228.9138</a>
+              <br />
+              409 Canton Street, Unit 5
+              <br />
+              Stoughton, MA 02072 USA
+            </address>
           </div>
 
           <div className="footer-col">
@@ -40,6 +47,7 @@ export function Footer() {
           <div className="footer-col">
             <h5>Resources</h5>
             <ul>
+              <li><Link href="/find-your-match">Find Your Match</Link></li>
               <li><Link href="/free-layout-design">Free Layout Design</Link></li>
               <li><Link href="/resources/downloads">Resources &amp; Downloads</Link></li>
               <li><Link href="/resources/tools">Tools &amp; Guides</Link></li>
@@ -61,7 +69,6 @@ export function Footer() {
           <div className="footer-legal">
             <span aria-disabled="true">Privacy Policy</span>
             <span aria-disabled="true">Terms of Use</span>
-            <span aria-disabled="true">Sitemap</span>
           </div>
         </div>
       </div>
