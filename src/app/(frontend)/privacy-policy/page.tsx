@@ -80,7 +80,7 @@ export default function PrivacyPolicyPage() {
 
       <h2>Contact</h2>
       <p>
-        Questions about this policy? Email <a href="mailto:contact@envo-led.com">contact@envo-led.com</a>,
+        Questions about this policy? Email <a href="mailto:contact@envo.com">contact@envo.com</a>,
         call 888.228.9138, or write to 409 Canton Street, Unit 5, Stoughton, MA 02072, USA.
       </p>
     </LegalPage>
