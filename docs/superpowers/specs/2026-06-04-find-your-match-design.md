@@ -58,7 +58,7 @@ paragraph.
 
 1. **application**: `channel_letters` | `light_box` | `facade` | `other`
 2. **environment**: `indoor` | `outdoor`
-3. **colour**: `white_warm` | `white_neutral` | `white_cool` | `single` | `rgb`
+3. **colour**: `white_warm` | `white_neutral` | `white_cool` | `rgb` (no `single` — the catalogue has no single-colour-non-white modules)
 4. **size**: `small` | `medium` | `large` (representative module counts: 20 / 60 / 150)
 5. **control**: `onoff` | `dimmable` | `smart`
 6. **notes** (optional string) — passed to the AI rationale only; does not affect matching.
@@ -67,9 +67,9 @@ paragraph.
 
 **Module** — filter the catalogue to signage modules, then rank by fit:
 - `environment: outdoor` → require IP65+ (`waterproof` in ip65/ip67/ip68).
-- `colour: rgb` → prefer RGB modules (e.g. ChromaFlux / `led_chip_colour` rgb/rgbw);
-  `white_*` → prefer the matching CCT (`cct_k` band: warm ≤3500, neutral 3500–5000, cool ≥5000);
-  `single` → single-colour modules.
+- `colour: rgb` → prefer RGB modules (`led_chip_colour` rgb/rgbw);
+  `white_*` → prefer the matching `led_chip_colour` (warm_white / natural_white / cool_white),
+  tunable_white as second choice.
 - `application` → bias series/beam: channel_letters → standard backlit (MiniLux/EcoGlo);
   light_box → wide-beam backlit; facade → higher-output (UltraFlare/ProGlo); other → general.
 - Pick the best-scoring in-stock/enabled module; fall back to the closest if no exact match
