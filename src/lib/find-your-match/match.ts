@@ -67,8 +67,12 @@ function selectDriver(a: FymAnswers, module: Product | null, catalog: Product[],
 function selectControl(a: FymAnswers, catalog: Product[]): ControlPick {
   if (a.control === 'onoff') return null
   if (a.control === 'smart') {
-    const ctrl = catalog.find((p) => isController(p) && live(p) &&
-      (p.controller_type ?? []).some((c) => c === 'zigbee' || c === 'casambi'))
+    // controller_type is sparsely populated in the catalogue, so also match the
+    // smart controller families by series code (envo_zigbee / envo_casambi).
+    const ctrl = catalog.find((p) => isController(p) && live(p) && (
+      (p.controller_type ?? []).some((c) => c === 'zigbee' || c === 'casambi') ||
+      /zigbee|casambi/i.test(p.series ?? '')
+    ))
     return ctrl
       ? { kind: 'product', product: ctrl, reason: 'Smart controller for app / Zigbee control' }
       : { kind: 'note', reason: 'Add a Zigbee or Casambi controller for smart control — ask your distributor for the current model' }
@@ -80,10 +84,10 @@ function selectControl(a: FymAnswers, catalog: Product[]): ControlPick {
 }
 
 export function recommend(answers: FymAnswers, catalog: Product[]): Recommendation {
-  const module = selectModule(answers, catalog)
-  const perModuleW = module?.product.power_w ?? 1.3
+  const modulePick = selectModule(answers, catalog)
+  const perModuleW = modulePick?.product.power_w ?? 1.3
   const estimatedLoadW = SIZE_MODULE_COUNT[answers.size] * perModuleW * SAFETY
-  const driver = selectDriver(answers, module?.product ?? null, catalog, estimatedLoadW)
+  const driver = selectDriver(answers, modulePick?.product ?? null, catalog, estimatedLoadW)
   const control = selectControl(answers, catalog)
-  return { module, driver, control, estimatedLoadW }
+  return { module: modulePick, driver, control, estimatedLoadW }
 }
