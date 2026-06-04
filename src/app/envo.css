@@ -1730,7 +1730,9 @@
     }
 
     /* ========== FOOTER（spec 5.10：5 列 Brand + 4 link 列）========== */
-    footer { padding: 80px 0 32px; background: var(--bg); }
+    /* bottom padding clears the fixed back-to-top button (bottom:24 + 46px)
+       so it floats in the gap, not over the legal links */
+    footer { padding: 80px 0 84px; background: var(--bg); }
     .footer-grid {
       display: grid;
       grid-template-columns: 1.6fr 1fr 1fr 1fr 1fr;
