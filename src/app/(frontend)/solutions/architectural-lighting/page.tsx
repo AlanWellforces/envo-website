@@ -1,18 +1,12 @@
 import type { Metadata } from 'next'
-import { PageStub } from '@/components/ui/page-stub'
+import { SolutionDetail } from '@/components/solutions/SolutionDetail'
 
-export const metadata: Metadata = { title: 'Architectural Lighting — ENVO' }
+export const metadata: Metadata = {
+  title: 'Architectural Lighting — ENVO',
+  description:
+    'Architectural lighting for LED systems — accent, linear, facade, step and landscape, tuned for colour rendering, beam control and integration.',
+}
 
 export default function ArchitecturalLightingPage() {
-  return (
-    <PageStub
-      eyebrow="Solutions · Architectural Lighting"
-      title="Accent, linear, facade, step, landscape."
-      description="Architectural lighting solutions for LED systems — designed to complement modern facade and interior design."
-      breadcrumb={[
-        { href: '/solutions', label: 'Solutions' },
-        { label: 'Architectural Lighting' },
-      ]}
-    />
-  )
+  return <SolutionDetail slug="architectural-lighting" headline="Accent, linear, facade, step, landscape." />
 }

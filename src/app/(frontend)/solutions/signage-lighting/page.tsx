@@ -1,18 +1,12 @@
 import type { Metadata } from 'next'
-import { PageStub } from '@/components/ui/page-stub'
+import { SolutionDetail } from '@/components/solutions/SolutionDetail'
 
-export const metadata: Metadata = { title: 'Signage Lighting — ENVO' }
+export const metadata: Metadata = {
+  title: 'Signage Lighting — ENVO',
+  description:
+    'High-performance signage lighting — channel letters, light boxes and edge-lit signage, engineered for visibility, uniformity and long life.',
+}
 
 export default function SignageLightingPage() {
-  return (
-    <PageStub
-      eyebrow="Solutions · Signage Lighting"
-      title="Channel letters, light boxes, edge-lit signage."
-      description="High-performance signage lighting solutions engineered for visibility, uniformity and long life."
-      breadcrumb={[
-        { href: '/solutions', label: 'Solutions' },
-        { label: 'Signage Lighting' },
-      ]}
-    />
-  )
+  return <SolutionDetail slug="signage-lighting" headline="Channel letters, light boxes, edge-lit signage." />
 }

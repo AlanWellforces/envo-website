@@ -1,0 +1,313 @@
+/* Free Layout Design (/free-layout-design) — local styles only.
+   Global frame (.theme-light .container .breadcrumb .sig-hero .sig-cta-banner)
+   comes from envo.css; tokens flip to light under the .theme-light wrapper. */
+
+/* ============ HERO ============ */
+.heroSplit {
+  display: grid;
+  grid-template-columns: minmax(0, 1.1fr) minmax(0, 0.9fr);
+  gap: clamp(32px, 5vw, 64px);
+  align-items: center;
+  max-width: 1440px;
+  margin: 0 auto;
+  padding: 8px 40px;
+}
+.heroText { min-width: 0; }
+
+.heroBadges {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+  margin: 28px 0;
+}
+.badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  padding: 10px 16px;
+  border-radius: 12px;
+  background: #fff;
+  border: 1px solid var(--line);
+}
+.badgeIcon {
+  display: grid;
+  place-items: center;
+  width: 38px;
+  height: 38px;
+  border-radius: 9px;
+  background: rgba(0, 113, 188, 0.08);
+  color: var(--envo-blue);
+  flex-shrink: 0;
+}
+.badgeTitle {
+  font-size: 15px;
+  font-weight: 700;
+  color: var(--fg);
+  letter-spacing: -0.01em;
+  font-variant-numeric: tabular-nums;
+}
+.badgeSub {
+  font-size: 9.5px;
+  font-weight: 700;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--fg-soft);
+}
+.heroCtas {
+  display: inline-flex;
+  gap: 12px;
+  flex-wrap: wrap;
+  margin-top: 8px;
+}
+/* .btn-ghost is white-on-transparent (built for dark sections); on this light
+   hero the secondary CTA would be near-invisible. Make it readable. Scoped to
+   this page only — the dark CTA banner's ghost button keeps the white style. */
+.heroCtas :global(.btn-ghost) {
+  color: var(--fg);
+  border-color: var(--line-strong);
+}
+.heroCtas :global(.btn-ghost):hover {
+  background: rgba(0, 0, 0, 0.04);
+  border-color: var(--envo-blue);
+}
+
+/* ---- decorative sketch-paper visual ---- */
+.heroVisual {
+  display: grid;
+  place-items: center;
+}
+.paper {
+  position: relative;
+  width: 100%;
+  max-width: 420px;
+  aspect-ratio: 1 / 1;
+  background:
+    linear-gradient(rgba(0, 113, 188, 0.06) 1px, transparent 1px) 0 0 / 24px 24px,
+    linear-gradient(90deg, rgba(0, 113, 188, 0.06) 1px, transparent 1px) 0 0 / 24px 24px,
+    #fff;
+  border: 1px solid var(--line);
+  border-radius: 18px;
+  box-shadow: 0 24px 56px -24px rgba(15, 23, 42, 0.18);
+  overflow: hidden;
+}
+.paperLetter {
+  position: absolute;
+  inset: 0;
+  display: grid;
+  place-items: center;
+  font-size: 260px;
+  font-weight: 800;
+  line-height: 1;
+  color: rgba(15, 23, 42, 0.06);
+  user-select: none;
+}
+.paperDot {
+  position: absolute;
+  width: 14px;
+  height: 14px;
+  border-radius: 50%;
+  background: var(--envo-lime);
+  box-shadow: 0 0 14px 2px rgba(174, 201, 11, 0.55);
+}
+.paperDot1 { top: 22%; left: 30%; }
+.paperDot2 { top: 30%; left: 52%; }
+.paperDot3 { top: 48%; left: 40%; }
+.paperDot4 { top: 60%; left: 60%; }
+.paperDot5 { top: 70%; left: 36%; }
+.paperDim {
+  position: absolute;
+  left: 16px;
+  bottom: 16px;
+  padding: 6px 10px;
+  border-radius: 6px;
+  background: var(--envo-blue);
+  color: #fff;
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.01em;
+  font-variant-numeric: tabular-nums;
+}
+
+@media (max-width: 900px) {
+  .heroSplit { grid-template-columns: 1fr; padding: 8px 20px; }
+  .heroVisual { order: -1; }
+  .paperLetter { font-size: 180px; }
+}
+
+/* ============ shared section frame ============ */
+.section {
+  max-width: 1440px;
+  margin: 0 auto;
+  padding: clamp(48px, 7vw, 88px) 40px;
+}
+.sectionSoft { background: rgba(0, 113, 188, 0.03); }
+.sectionLabel {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--envo-blue);
+  margin-bottom: 14px;
+}
+.sectionLabel::before {
+  content: '';
+  width: 24px;
+  height: 2px;
+  background: var(--envo-lime);
+}
+.sectionH2 {
+  font-size: clamp(26px, 3.4vw, 38px);
+  font-weight: 700;
+  letter-spacing: -0.02em;
+  color: var(--fg);
+  margin: 0 0 40px;
+}
+
+/* ---- How It Works ---- */
+.stepsGrid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 20px;
+}
+.stepCard {
+  padding: 28px;
+  border-radius: 14px;
+  background: #fff;
+  border: 1px solid var(--line);
+}
+.stepNum {
+  font-size: 34px;
+  font-weight: 800;
+  line-height: 1;
+  background: linear-gradient(135deg, var(--envo-blue) 0%, var(--envo-lime) 100%);
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+  margin-bottom: 14px;
+}
+.stepCard h3 {
+  font-size: 17px;
+  font-weight: 700;
+  color: var(--fg);
+  margin: 0 0 8px;
+}
+.stepCard p {
+  font-size: 14px;
+  line-height: 1.55;
+  color: var(--fg-mute);
+  margin: 0;
+}
+
+/* ---- What You Get ---- */
+.featuresGrid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 20px;
+}
+.featureIcon {
+  color: var(--envo-blue);
+  margin-bottom: 14px;
+}
+.featureItem h4 {
+  font-size: 16px;
+  font-weight: 700;
+  color: var(--fg);
+  margin: 0 0 6px;
+}
+.featureItem p {
+  font-size: 13.5px;
+  line-height: 1.55;
+  color: var(--fg-mute);
+  margin: 0;
+}
+
+@media (max-width: 900px) {
+  .section { padding: 56px 20px; }
+  .stepsGrid { grid-template-columns: 1fr; }
+  .featuresGrid { grid-template-columns: repeat(2, 1fr); }
+}
+@media (max-width: 560px) {
+  .featuresGrid { grid-template-columns: 1fr; }
+}
+
+/* ============ Form ============ */
+.formCard {
+  max-width: 880px;
+  margin: 0 auto;
+  padding: clamp(28px, 4vw, 48px);
+  background: #fff;
+  border: 1px solid var(--line);
+  border-radius: 18px;
+  box-shadow: 0 24px 56px -28px rgba(15, 23, 42, 0.16);
+}
+.formLead {
+  font-size: 15px;
+  line-height: 1.6;
+  color: var(--fg-mute);
+  margin: -24px 0 28px;
+  max-width: 60ch;
+}
+.formGrid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 18px;
+}
+.field {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+.fieldWide { grid-column: 1 / -1; }
+.field > span {
+  font-size: 12.5px;
+  font-weight: 600;
+  color: var(--fg);
+}
+.field input,
+.field select,
+.field textarea {
+  font: inherit;
+  font-size: 14px;
+  padding: 11px 13px;
+  border-radius: 9px;
+  border: 1px solid var(--line);
+  background: #fff;
+  color: var(--fg);
+}
+.field input:focus,
+.field select:focus,
+.field textarea:focus {
+  outline: none;
+  border-color: var(--envo-blue);
+  box-shadow: 0 0 0 3px rgba(0, 113, 188, 0.12);
+}
+.field small {
+  font-size: 11.5px;
+  color: var(--fg-soft);
+}
+.formActions {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  flex-wrap: wrap;
+  margin-top: 24px;
+}
+.formActions small { font-size: 12.5px; color: var(--fg-mute); }
+.formActions a { color: var(--envo-blue); }
+.thanks {
+  margin-top: 20px;
+  padding: 14px 18px;
+  border-radius: 10px;
+  background: rgba(174, 201, 11, 0.1);
+  border: 1px solid rgba(174, 201, 11, 0.4);
+  font-size: 14px;
+  color: var(--fg);
+}
+.thanks a { color: var(--envo-blue); }
+
+@media (max-width: 640px) {
+  .formGrid { grid-template-columns: 1fr; }
+}

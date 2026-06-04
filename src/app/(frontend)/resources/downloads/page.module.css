@@ -1,0 +1,25 @@
+/* /resources/downloads — local styles, mirrors the tools/about design. */
+.hero { padding: 36px 0 28px; }
+.eyebrow { display: inline-flex; align-items: center; gap: 8px; font-size: 11px; font-weight: 600;
+  letter-spacing: .18em; text-transform: uppercase; color: var(--color-brand-blue); }
+.eyebrow::before { content: ''; width: 18px; height: 1.5px; background: var(--color-brand-lime); }
+.title { margin: 14px 0 0; font-size: clamp(30px, 4.4vw, 46px); line-height: 1.05; letter-spacing: -.03em; font-weight: 700; color: var(--color-text-primary); }
+.desc { margin: 14px 0 0; font-size: clamp(15px, 1.3vw, 18px); line-height: 1.55; color: var(--color-text-muted); max-width: 58ch; }
+
+.grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 16px; padding: 8px 0 28px; }
+.card { display: flex; gap: 16px; align-items: flex-start; border: 1px solid var(--color-line-strong); border-radius: 16px;
+  padding: 22px; background: var(--color-surface-card); text-decoration: none; transition: .16s; }
+.card:hover { border-color: var(--color-brand-blue); transform: translateY(-2px); }
+.icon { flex: none; width: 42px; height: 42px; border-radius: 10px; background: rgba(0,113,188,.08);
+  display: flex; align-items: center; justify-content: center; color: var(--color-brand-blue); }
+.icon svg { width: 22px; height: 22px; fill: none; stroke: currentColor; stroke-width: 1.7; stroke-linecap: round; stroke-linejoin: round; }
+.cardName { font-size: 16px; font-weight: 700; color: var(--color-text-primary); margin: 0; }
+.cardDesc { font-size: 13.5px; line-height: 1.5; color: var(--color-text-muted); margin: 6px 0 10px; }
+.cardCta { font-size: 13px; font-weight: 600; color: var(--color-brand-blue); }
+
+.note { padding: 0 0 64px; }
+.noteBox { border: 1px solid var(--color-line-strong); border-radius: 14px; padding: 18px 20px; background: var(--color-surface-base);
+  font-size: 14px; line-height: 1.6; color: var(--color-text-muted); }
+.noteBox a { color: var(--color-brand-blue); text-decoration: none; font-weight: 600; }
+
+@media (max-width: 760px) { .grid { grid-template-columns: 1fr; } }
