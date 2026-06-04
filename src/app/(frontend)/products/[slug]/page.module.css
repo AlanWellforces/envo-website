@@ -252,3 +252,11 @@ a.seriesCard:hover {
     grid-template-columns: 1fr;
   }
 }
+
+/* Family-page series sections (Backlit/Sidelit, CV/CC, …) */
+.seriesSection + .seriesSection { margin-top: 44px; }
+.seriesSectionHeading {
+  font-size: 13px; font-weight: 700; letter-spacing: .12em; text-transform: uppercase;
+  color: var(--color-brand-blue, #0071bc); margin: 0 0 18px; padding-bottom: 10px;
+  border-bottom: 1px solid var(--color-line-strong, #dde4ee);
+}

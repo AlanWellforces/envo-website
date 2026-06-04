@@ -5,7 +5,7 @@
 
 import { getPayload } from 'payload'
 import config from '@/payload.config'
-import { marketingFamilyToDbFamilies } from '@/data/family-map'
+import { marketingFamilyToDbFamilies, seriesSectionTitle, sectionOrderIndex } from '@/data/family-map'
 
 export type Product = {
   id: number
@@ -188,6 +188,24 @@ export function groupProductsBySeries(products: Product[]): SeriesGroup[] {
   }
   order.sort((a, b) => (a === null ? 1 : 0) - (b === null ? 1 : 0))
   return order.map((code) => ({ code, products: map.get(code)! }))
+}
+
+/** A titled section of series on a family page (e.g. "Backlit modules"). */
+export type SeriesSection = { title: string; series: SeriesGroup[] }
+
+/** Pure: bucket a family's series-groups into ordered sections for clearer
+    structure. Section = dominant attribute (signage backlit/sidelit, others by
+    DB family). A family that yields one section can be rendered flat. */
+export function groupSeriesIntoSections(marketingSlug: string, groups: SeriesGroup[]): SeriesSection[] {
+  const byTitle = new Map<string, SeriesGroup[]>()
+  const order: string[] = []
+  for (const g of groups) {
+    const title = seriesSectionTitle(marketingSlug, g.products)
+    if (!byTitle.has(title)) { byTitle.set(title, []); order.push(title) }
+    byTitle.get(title)!.push(g)
+  }
+  order.sort((a, b) => sectionOrderIndex(marketingSlug, a) - sectionOrderIndex(marketingSlug, b) || a.localeCompare(b))
+  return order.map((title) => ({ title, series: byTitle.get(title)! }))
 }
 
 /** All enabled/visible products across the DB families a marketing slug maps to. */
