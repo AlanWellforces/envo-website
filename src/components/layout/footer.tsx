@@ -67,8 +67,8 @@ export function Footer() {
         <div className="footer-bottom">
           <p>© {new Date().getFullYear()} ENVO — Engineered Illumination</p>
           <div className="footer-legal">
-            <span aria-disabled="true">Privacy Policy</span>
-            <span aria-disabled="true">Terms of Use</span>
+            <Link href="/privacy-policy">Privacy Policy</Link>
+            <Link href="/terms-of-use">Terms of Use</Link>
           </div>
         </div>
       </div>
