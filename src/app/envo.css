@@ -1761,6 +1761,12 @@
       background: var(--envo-lime);
       box-shadow: 0 0 6px var(--envo-lime);
     }
+    .footer-brand-contact {
+      margin-top: 16px; font-size: 13px; line-height: 1.7;
+      color: var(--fg-mute); font-style: normal;
+    }
+    .footer-brand-contact a { color: var(--fg-mute); transition: color .2s; }
+    .footer-brand-contact a:hover { color: #fff; }
     .footer-col h5 {
       font-size: 12px; letter-spacing: .15em; text-transform: uppercase;
       font-weight: 500; color: #fff;
