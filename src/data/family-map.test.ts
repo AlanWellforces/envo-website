@@ -1,7 +1,7 @@
 import { describe, it, expect } from 'vitest'
 import {
   dbFamilyToMarketing, marketingFamilyToDbFamilies,
-  seriesSlug, seriesCodeFromSlug, seriesLabel, seriesLineArt, MARKETING_FAMILIES,
+  seriesSlug, seriesCodeFromSlug, seriesLabel, seriesLineArt, seriesSectionTitle, MARKETING_FAMILIES,
 } from './family-map'
 
 describe('family mapping (7 DB → 4 marketing)', () => {
@@ -47,6 +47,18 @@ describe('series slug ↔ code', () => {
     expect(seriesLabel('envo_ultraflare')).toBe('UltraFlare')
     expect(seriesLabel('hydro_lume')).toBe('Hydro Lume')
     expect(seriesLabel(null)).toBe('Other')
+  })
+})
+
+describe('seriesSectionTitle', () => {
+  it('splits signage modules into backlit/sidelit by SKU prefix', () => {
+    expect(seriesSectionTitle('led-signage-modules', [{ sku: 'EV-BLML01' }, { sku: 'EV-BLML02' }])).toBe('Backlit modules')
+    expect(seriesSectionTitle('led-signage-modules', [{ sku: 'EV-SLEL01' }])).toBe('Sidelit modules')
+  })
+  it('splits other families by dominant DB family', () => {
+    expect(seriesSectionTitle('led-drivers', [{ family: 'psu_led_cv' }, { family: 'psu_led_cv' }, { family: 'psu_led_cc' }])).toBe('Constant-voltage drivers')
+    expect(seriesSectionTitle('led-drivers', [{ family: 'psu_led_cc' }])).toBe('Constant-current drivers')
+    expect(seriesSectionTitle('control-gear', [{ family: 'psu_led_controller' }])).toBe('Controllers')
   })
 })
 

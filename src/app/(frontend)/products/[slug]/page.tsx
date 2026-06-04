@@ -4,7 +4,7 @@ import Link from 'next/link'
 import { notFound } from 'next/navigation'
 import { PRODUCT_FAMILIES } from '@/data/product-families'
 import { TrustIcon } from '@/components/ui/trust-icon'
-import { getProductsByMarketingFamily, groupProductsBySeries } from '@/lib/products'
+import { getProductsByMarketingFamily, groupProductsBySeries, groupSeriesIntoSections } from '@/lib/products'
 import { seriesSlug, seriesLabel, seriesLineArt } from '@/data/family-map'
 import styles from './page.module.css'
 
@@ -31,9 +31,11 @@ export default async function ProductFamilyPage({ params }: { params: Params }) 
   const family = PRODUCT_FAMILIES.find((f) => f.slug === slug)
   if (!family) notFound()
 
-  // Series list is DB-driven: group this family's real products by series.
+  // Series list is DB-driven: group this family's real products by series,
+  // then bucket those series into sections (backlit/sidelit, CV/CC, …).
   const products = await getProductsByMarketingFamily(slug)
-  const groups = groupProductsBySeries(products)
+  const sections = groupSeriesIntoSections(slug, groupProductsBySeries(products))
+  const showHeaders = sections.length > 1
 
   // All four product families render a BOUNCE /signage/-style landing:
   // page header + a grid of series cards (image · name · short description
@@ -62,30 +64,44 @@ export default async function ProductFamilyPage({ params }: { params: Params }) 
       </section>
 
       <section className={styles.sectionWrap}>
-        <div className={styles.seriesGrid}>
-          {groups.map((g) => (
-              <Link
-                key={g.code ?? 'other'}
-                href={`/products/${slug}/${seriesSlug(g.code)}`}
-                className={styles.seriesCard}
-              >
-                <div className={`${styles.seriesCardThumb} ${styles.seriesCardThumbBrand}`}>
-                  <Image
-                    src={seriesLineArt(g.code, slug)}
-                    alt={seriesLabel(g.code)}
-                    width={400}
-                    height={250}
-                    sizes="(min-width: 1000px) 33vw, (min-width: 621px) 50vw, 100vw"
-                  />
-                </div>
-                <div className={styles.seriesCardBody}>
-                  <h3 className={styles.seriesCardName}>{seriesLabel(g.code)}</h3>
-                  <p className={styles.seriesCardDesc}>{g.products.length} products</p>
-                  <span className={styles.seriesCardCta}>View range <span>→</span></span>
-                </div>
-              </Link>
-          ))}
-        </div>
+        {sections.map((sec) => (
+          <div key={sec.title} className={styles.seriesSection}>
+            {showHeaders && (
+              <div className={styles.seriesSectionHead}>
+                <h2 className={styles.seriesSectionHeading}>{sec.title}</h2>
+                <span className={styles.seriesSectionCount}>
+                  {sec.series.reduce((n, g) => n + g.products.length, 0)} models
+                </span>
+              </div>
+            )}
+            <div className={styles.seriesGrid}>
+              {sec.series.map((g) => (
+                <Link
+                  key={g.code ?? 'other'}
+                  href={`/products/${slug}/${seriesSlug(g.code)}`}
+                  className={styles.seriesCard}
+                >
+                  <div className={`${styles.seriesCardThumb} ${styles.seriesCardThumbBrand}`}>
+                    <Image
+                      src={seriesLineArt(g.code, slug)}
+                      alt={seriesLabel(g.code)}
+                      width={400}
+                      height={250}
+                      sizes="(min-width: 1000px) 33vw, (min-width: 621px) 50vw, 100vw"
+                    />
+                  </div>
+                  <div className={styles.seriesCardBody}>
+                    <h3 className={styles.seriesCardName}>{seriesLabel(g.code)}</h3>
+                    <span className={styles.seriesCardCount}>
+                      {g.products.length} {g.products.length === 1 ? 'model' : 'models'}
+                    </span>
+                    <span className={styles.seriesCardCta}>View range <span>→</span></span>
+                  </div>
+                </Link>
+              ))}
+            </div>
+          </div>
+        ))}
       </section>
 
       {family.trustBadges && family.trustBadges.length > 0 && (

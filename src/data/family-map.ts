@@ -30,7 +30,8 @@ const SLUG_TO_CODE: Record<string, string> = Object.fromEntries(
 const SERIES_LABELS: Record<string, string> = {
   envo_minilux: 'MiniLux', envo_ecoglo: 'EcoGlo', envo_ultraflare: 'UltraFlare',
   envo_proglo: 'ProGlo', envo_optilume: 'OptiLume', envo_edgelume: 'EdgeLume',
-  envo_edgeflare: 'EdgeFlare', hydro_lume: 'Hydro Lume', envo_zigbee: 'Zigbee Smart',
+  envo_edgeflare: 'EdgeFlare', envo_edgeblade: 'EdgeBlade', edge_blade_2: 'EdgeBlade 2',
+  envo_chromaflux: 'ChromaFlux', hydro_lume: 'Hydro Lume', envo_zigbee: 'Zigbee Smart',
   envo_casambi: 'Casambi', envo_dali: 'DALI', sr_triac: 'Triac', sc_envo: 'Standard',
 }
 
@@ -64,6 +65,53 @@ const FAMILY_LINE_ART: Record<string, string> = {
 export function seriesLineArt(code: string | null | undefined, marketingSlug: string): string {
   if (code && SERIES_LINE_ART[code]) return SERIES_LINE_ART[code]
   return FAMILY_LINE_ART[marketingSlug] ?? '/assets/images/cat-modules.png'
+}
+
+// ── Family-page sections ─────────────────────────────────────────────────
+// A family's series are grouped into sections for clearer structure.
+type SeriesProductLite = { family?: string | null; sku?: string | null }
+
+const DB_FAMILY_SECTION: Record<string, string> = {
+  psu_led_cv: 'Constant-voltage drivers',
+  psu_led_cc: 'Constant-current drivers',
+  psu_led_controller: 'Controllers',
+  switch_switch_module: 'Switches',
+  sensor: 'Sensors',
+  accessory_general: 'Accessories',
+}
+
+// Preferred section order per marketing family; unlisted titles sort after.
+const SECTION_ORDER: Record<string, string[]> = {
+  'led-signage-modules': ['Backlit modules', 'Sidelit modules'],
+  'led-drivers': ['Constant-voltage drivers', 'Constant-current drivers'],
+  'control-gear': ['Controllers', 'Switches'],
+  'accessories': ['Sensors', 'Accessories'],
+}
+
+/** Section a series belongs to, by its products' dominant attribute. Signage
+    modules split backlit/sidelit (SKU prefix EV-BL/EV-SL); other families by
+    dominant DB family. Pure. */
+export function seriesSectionTitle(marketingSlug: string, products: SeriesProductLite[]): string {
+  if (marketingSlug === 'led-signage-modules') {
+    let bl = 0
+    let sl = 0
+    for (const p of products) {
+      const s = p.sku ?? ''
+      if (s.startsWith('EV-SL')) sl++
+      else if (s.startsWith('EV-BL')) bl++
+    }
+    return sl > bl ? 'Sidelit modules' : 'Backlit modules'
+  }
+  const count: Record<string, number> = {}
+  for (const p of products) { const f = p.family ?? ''; count[f] = (count[f] ?? 0) + 1 }
+  const dom = Object.entries(count).sort((a, b) => b[1] - a[1])[0]?.[0] ?? ''
+  return DB_FAMILY_SECTION[dom] ?? 'Other'
+}
+
+export function sectionOrderIndex(marketingSlug: string, title: string): number {
+  const order = SECTION_ORDER[marketingSlug] ?? []
+  const i = order.indexOf(title)
+  return i === -1 ? 999 : i
 }
 
 export function seriesLabel(code: string | null | undefined): string {
