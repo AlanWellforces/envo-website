@@ -66,7 +66,14 @@ export default async function ProductFamilyPage({ params }: { params: Params }) 
       <section className={styles.sectionWrap}>
         {sections.map((sec) => (
           <div key={sec.title} className={styles.seriesSection}>
-            {showHeaders && <h2 className={styles.seriesSectionHeading}>{sec.title}</h2>}
+            {showHeaders && (
+              <div className={styles.seriesSectionHead}>
+                <h2 className={styles.seriesSectionHeading}>{sec.title}</h2>
+                <span className={styles.seriesSectionCount}>
+                  {sec.series.reduce((n, g) => n + g.products.length, 0)} models
+                </span>
+              </div>
+            )}
             <div className={styles.seriesGrid}>
               {sec.series.map((g) => (
                 <Link
@@ -85,7 +92,9 @@ export default async function ProductFamilyPage({ params }: { params: Params }) 
                   </div>
                   <div className={styles.seriesCardBody}>
                     <h3 className={styles.seriesCardName}>{seriesLabel(g.code)}</h3>
-                    <p className={styles.seriesCardDesc}>{g.products.length} products</p>
+                    <span className={styles.seriesCardCount}>
+                      {g.products.length} {g.products.length === 1 ? 'model' : 'models'}
+                    </span>
                     <span className={styles.seriesCardCta}>View range <span>→</span></span>
                   </div>
                 </Link>

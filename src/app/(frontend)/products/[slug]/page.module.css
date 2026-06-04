@@ -61,54 +61,69 @@
   flex-direction: column;
   background: var(--bg-card);
   border: 1px solid var(--line);
-  border-radius: 16px;
+  border-radius: 18px;
   overflow: hidden;
   text-decoration: none;
   color: inherit;
-  transition: transform 0.2s ease, border-color 0.2s ease, box-shadow 0.2s ease;
+  box-shadow: 0 1px 2px rgba(26, 35, 50, 0.04), 0 8px 24px -18px rgba(26, 35, 50, 0.25);
+  transition: transform 0.22s ease, border-color 0.22s ease, box-shadow 0.22s ease;
 }
 a.seriesCard:hover {
-  transform: translateY(-4px);
-  border-color: var(--envo-blue);
-  box-shadow: 0 18px 40px -22px rgba(26, 35, 50, 0.45);
+  transform: translateY(-5px);
+  border-color: rgba(0, 113, 188, 0.55);
+  box-shadow: 0 24px 48px -24px rgba(0, 113, 188, 0.4);
 }
 .seriesCardThumb {
+  position: relative;
   aspect-ratio: 16 / 10;
-  background: linear-gradient(135deg, #f4f7fa 0%, #e8eef5 100%);
+  background: radial-gradient(120% 120% at 50% 0%, #ffffff 0%, #eef4fb 55%, #e4edf7 100%);
   display: flex;
   align-items: center;
   justify-content: center;
-  padding: 24px;
+  padding: 22px;
+  border-bottom: 1px solid var(--line);
 }
 .seriesCardThumb img {
-  max-width: 68%;
-  max-height: 84%;
+  max-width: 80%;
+  max-height: 88%;
   width: auto;
   height: auto;
   object-fit: contain;
+  mix-blend-mode: multiply;
+  transition: transform 0.3s ease;
 }
-/* Brand-tinted tile (blue → lime wash) behind line-art renders. */
+a.seriesCard:hover .seriesCardThumb img { transform: scale(1.05); }
+/* Brand-tinted tile: a soft blue glow with a lime kicker in the corner. */
 .seriesCardThumbBrand {
-  background: linear-gradient(135deg, #e8f1fb 0%, #eef3d6 100%);
+  background:
+    radial-gradient(70% 90% at 85% 110%, rgba(174, 201, 11, 0.16) 0%, transparent 60%),
+    radial-gradient(120% 120% at 50% -10%, #ffffff 0%, #e9f1fb 55%, #dfeaf6 100%);
 }
 .seriesCardBody {
   display: flex;
   flex-direction: column;
   flex: 1;
-  padding: 18px 22px 22px;
+  padding: 18px 22px 20px;
 }
 .seriesCardName {
-  font-size: 20px;
+  font-size: 19px;
   font-weight: 700;
   letter-spacing: -0.02em;
   color: var(--fg);
-  margin: 0 0 8px;
+  margin: 0 0 10px;
 }
-.seriesCardDesc {
-  font-size: 14px;
-  line-height: 1.55;
-  color: var(--fg-mute);
-  margin: 0 0 18px;
+.seriesCardCount {
+  align-self: flex-start;
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--envo-blue);
+  background: rgba(0, 113, 188, 0.08);
+  border: 1px solid rgba(0, 113, 188, 0.16);
+  border-radius: 999px;
+  padding: 4px 10px;
+  margin: 0 0 16px;
 }
 .seriesCardCta {
   margin-top: auto;
@@ -119,6 +134,8 @@ a.seriesCard:hover {
   align-items: center;
   gap: 6px;
 }
+.seriesCardCta span { transition: transform 0.2s ease; }
+a.seriesCard:hover .seriesCardCta span { transform: translateX(4px); }
 .seriesCardComing .seriesCardThumb img {
   filter: grayscale(0.3);
   opacity: 0.82;
@@ -254,9 +271,33 @@ a.seriesCard:hover {
 }
 
 /* Family-page series sections (Backlit/Sidelit, CV/CC, …) */
-.seriesSection + .seriesSection { margin-top: 44px; }
+.seriesSection + .seriesSection { margin-top: 48px; }
+.seriesSectionHead {
+  display: flex;
+  align-items: baseline;
+  gap: 14px;
+  margin: 0 0 22px;
+  padding-bottom: 12px;
+  border-bottom: 1px solid var(--line);
+}
+.seriesSectionHead::before {
+  content: '';
+  align-self: center;
+  width: 22px;
+  height: 3px;
+  border-radius: 2px;
+  background: var(--envo-lime);
+}
 .seriesSectionHeading {
-  font-size: 13px; font-weight: 700; letter-spacing: .12em; text-transform: uppercase;
-  color: var(--color-brand-blue, #0071bc); margin: 0 0 18px; padding-bottom: 10px;
-  border-bottom: 1px solid var(--color-line-strong, #dde4ee);
+  font-size: 16px;
+  font-weight: 700;
+  letter-spacing: 0.02em;
+  color: var(--fg);
+  margin: 0;
+}
+.seriesSectionCount {
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--fg-soft);
+  letter-spacing: 0.04em;
 }
