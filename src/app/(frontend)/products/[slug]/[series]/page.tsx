@@ -6,7 +6,9 @@ import { EnvoButton } from '@/components/ui/envo-button'
 import MiniSeriesPage from '@/components/products/mini-series/MiniSeriesPage'
 import { PRODUCT_FAMILIES, type SeriesLink } from '@/data/product-families'
 import { PURCHASE_CHANNELS } from '@/data/purchase-channels'
-import { getProduct, resolveProductImage, type Product } from '@/lib/products'
+import { getProduct, getProductsByMarketingFamily, resolveProductImage, type Product } from '@/lib/products'
+import { seriesSlug as toSeriesSlug, seriesLabel } from '@/data/family-map'
+import { ProductCardGrid } from '@/components/products/ProductCardGrid'
 import familyStyles from '../page.module.css'
 import styles from './page.module.css'
 
@@ -19,11 +21,12 @@ function isLive(s: SeriesLink): s is LiveSeries {
 }
 
 export async function generateStaticParams() {
+  // DB-driven: every series that has products, across all 4 marketing families.
   const params: { slug: string; series: string }[] = []
-  for (const family of PRODUCT_FAMILIES) {
-    for (const s of family.series) {
-      if (isLive(s)) params.push({ slug: family.slug, series: s.slug })
-    }
+  for (const f of ['led-signage-modules', 'led-drivers', 'control-gear', 'accessories']) {
+    const products = await getProductsByMarketingFamily(f)
+    const slugs = new Set(products.map((p) => toSeriesSlug(p.series)))
+    for (const s of slugs) params.push({ slug: f, series: s })
   }
   return params
 }
@@ -46,7 +49,32 @@ export default async function SeriesDetailPage({ params }: { params: Params }) {
   const family = PRODUCT_FAMILIES.find((f) => f.slug === slug)
   if (!family) notFound()
   const seriesObj = family.series.find((s): s is LiveSeries => isLive(s) && s.slug === series)
-  if (!seriesObj) notFound()
+  if (!seriesObj) {
+    // No curated config → DB-driven generic series view.
+    const all = await getProductsByMarketingFamily(slug)
+    const products = all.filter((p) => toSeriesSlug(p.series) === series)
+    if (products.length === 0) notFound()
+    return (
+      <div className="theme-light">
+        <div className="container">
+          <div className="breadcrumb">
+            <Link href="/">Home</Link><span className="sep">›</span>
+            <Link href="/products">Products</Link><span className="sep">›</span>
+            <Link href={`/products/${slug}`}>{family.name}</Link><span className="sep">›</span>
+            <span>{seriesLabel(products[0].series)}</span>
+          </div>
+        </div>
+        <section className="sig-hero"><div className="container"><div className="sig-hero-inner">
+          <span className="sig-eyebrow">{family.name}</span>
+          <h1>{seriesLabel(products[0].series)}</h1>
+          <p className="sig-hero-desc">{products.length} products in this series</p>
+        </div></div></section>
+        <section className={familyStyles.sectionWrap}>
+          <ProductCardGrid products={products} familySlug={slug} />
+        </section>
+      </div>
+    )
+  }
 
   // Mini Series uses a bespoke design (v3 mockup ported via Shadow DOM) —
   // the generic data-driven template below does not fit its tabbed layout.

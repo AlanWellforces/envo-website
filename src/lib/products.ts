@@ -5,6 +5,7 @@
 
 import { getPayload } from 'payload'
 import config from '@/payload.config'
+import { marketingFamilyToDbFamilies } from '@/data/family-map'
 
 export type Product = {
   id: number
@@ -171,6 +172,30 @@ export async function getProductsByFamily(
     depth: 1,
   })
   return result.docs as unknown as Product[]
+}
+
+/** A series group within a family: the DB series code (null = no series) + its products. */
+export type SeriesGroup = { code: string | null; products: Product[] }
+
+/** Pure: group products by `series`, null last, preserving first-seen order. */
+export function groupProductsBySeries(products: Product[]): SeriesGroup[] {
+  const order: (string | null)[] = []
+  const map = new Map<string | null, Product[]>()
+  for (const prod of products) {
+    const key = prod.series ?? null
+    if (!map.has(key)) { map.set(key, []); order.push(key) }
+    map.get(key)!.push(prod)
+  }
+  order.sort((a, b) => (a === null ? 1 : 0) - (b === null ? 1 : 0))
+  return order.map((code) => ({ code, products: map.get(code)! }))
+}
+
+/** All enabled/visible products across the DB families a marketing slug maps to. */
+export async function getProductsByMarketingFamily(marketingSlug: string): Promise<Product[]> {
+  const dbFamilies = marketingFamilyToDbFamilies(marketingSlug)
+  if (dbFamilies.length === 0) return []
+  const lists = await Promise.all(dbFamilies.map((f) => getProductsByFamily(f)))
+  return lists.flat()
 }
 
 export type ProductFilters = {
