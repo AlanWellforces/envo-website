@@ -3,7 +3,7 @@ import { Fragment } from 'react'
 import Image from 'next/image'
 import Link from 'next/link'
 import { resolveProductImage, type Product } from '@/lib/products'
-import { SPEC_GROUPS } from './spec-groups'
+import { SPEC_GROUPS, heroStats } from './spec-groups'
 import { dbFamilyToMarketing, seriesSlug, seriesLabel } from '@/data/family-map'
 import styles from './GenericProductDetail.module.css'
 
@@ -22,6 +22,7 @@ export function GenericProductDetail({
   const familyLabel = marketing?.label ?? 'Products'
   const sSlug = seriesSlug(product.series)
   const sLabel = seriesLabel(product.series)
+  const stats = heroStats(product)
 
   return (
     <div className="theme-light">
@@ -35,63 +36,76 @@ export function GenericProductDetail({
         </div>
       </div>
 
-      <section className="sig-hero">
-        <div className="container">
-          <div className={styles.layout}>
-            <div className={styles.imgCol}><ProductImg product={product} /></div>
-            <div>
-              <span className="sig-eyebrow">{sLabel}</span>
-              <h1>{product.name}</h1>
-              {product.subtitle && <p className="sig-hero-desc">{product.subtitle}</p>}
-              {product.short_description && <p>{product.short_description}</p>}
-              <p className={styles.sku}>SKU: {product.sku}</p>
-              {product.spec_sheet_url && (
-                <a className={styles.datasheetBtn} href={product.spec_sheet_url} target="_blank" rel="noopener noreferrer">
-                  Datasheet (PDF)
-                </a>
-              )}
-            </div>
+      <section className={styles.hero}>
+        <div className={styles.eyebrow}>{sLabel}</div>
+        <h1 className={styles.h1}>{product.name}</h1>
+        {product.subtitle && <p className={styles.tagline}>{product.subtitle}</p>}
+        {product.short_description && <p className={styles.lede}>{product.short_description}</p>}
+        {stats.length > 0 && (
+          <div className={styles.stats}>
+            {stats.map((s) => (
+              <div key={s.label} className={styles.stat}>
+                <span className={styles.statValue}>{s.value}</span>
+                <span className={styles.statLabel}>{s.label}</span>
+              </div>
+            ))}
           </div>
-        </div>
+        )}
+        {product.spec_sheet_url && (
+          <a className={styles.pill} href={product.spec_sheet_url} target="_blank" rel="noopener noreferrer">
+            Datasheet (PDF) →
+          </a>
+        )}
+        <p className={styles.sku}>SKU {product.sku}</p>
       </section>
 
-      <section className="container" style={{ padding: '32px 0 64px' }}>
-        {product.description && <p className={styles.lead}>{product.description}</p>}
-        <table className={styles.specTable}>
-          <tbody>
-            {SPEC_GROUPS.map((group) => {
-              const rows = group.rows
-                .map((r) => ({ label: r.label, value: r.value(product) }))
-                .filter((r) => r.value)
-              if (rows.length === 0) return null
-              return (
-                <Fragment key={group.title}>
-                  <tr><td className={styles.groupTitle} colSpan={2}>{group.title}</td></tr>
-                  {rows.map((r) => (
-                    <tr key={group.title + r.label}><th>{r.label}</th><td>{r.value}</td></tr>
-                  ))}
-                </Fragment>
-              )
-            })}
-          </tbody>
-        </table>
+      <section className={styles.imageBand}>
+        <ProductImg product={product} />
+      </section>
 
-        {related.length > 0 && (
-          <>
-            <h2 style={{ fontSize: 20, marginBottom: 10 }}>More in {sLabel}</h2>
-            <div className={styles.related}>
-              {related.map((r) => (
-                <Link
-                  key={r.sku}
-                  href={`/products/${familySlug}/${seriesSlug(r.series)}/${r.sku}`}
-                  className={styles.relatedCard}
-                >
-                  {r.name}
-                </Link>
-              ))}
+      <section className="container">
+        <div className={styles.body}>
+          {/* Description is HTML authored in Akeneo (trusted, server-synced PIM source). */}
+          {product.description && (
+            <div className={styles.desc} dangerouslySetInnerHTML={{ __html: product.description }} />
+          )}
+
+          <table className={styles.specTable}>
+            <tbody>
+              {SPEC_GROUPS.map((group) => {
+                const rows = group.rows
+                  .map((r) => ({ label: r.label, value: r.value(product) }))
+                  .filter((r) => r.value)
+                if (rows.length === 0) return null
+                return (
+                  <Fragment key={group.title}>
+                    <tr><td className={styles.groupTitle} colSpan={2}>{group.title}</td></tr>
+                    {rows.map((r) => (
+                      <tr key={group.title + r.label}><th>{r.label}</th><td>{r.value}</td></tr>
+                    ))}
+                  </Fragment>
+                )
+              })}
+            </tbody>
+          </table>
+
+          {related.length > 0 && (
+            <div className={styles.relatedWrap}>
+              <h2 className={styles.relatedHead}>More in {sLabel}</h2>
+              <div className={styles.related}>
+                {related.map((r) => (
+                  <Link
+                    key={r.sku}
+                    href={`/products/${familySlug}/${seriesSlug(r.series)}/${r.sku}`}
+                    className={styles.relatedCard}
+                  >
+                    {r.name}
+                  </Link>
+                ))}
+              </div>
             </div>
-          </>
-        )}
+          )}
+        </div>
       </section>
     </div>
   )

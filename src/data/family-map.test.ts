@@ -1,7 +1,7 @@
 import { describe, it, expect } from 'vitest'
 import {
   dbFamilyToMarketing, marketingFamilyToDbFamilies,
-  seriesSlug, seriesCodeFromSlug, seriesLabel, MARKETING_FAMILIES,
+  seriesSlug, seriesCodeFromSlug, seriesLabel, seriesLineArt, MARKETING_FAMILIES,
 } from './family-map'
 
 describe('family mapping (7 DB → 4 marketing)', () => {
@@ -47,5 +47,16 @@ describe('series slug ↔ code', () => {
     expect(seriesLabel('envo_ultraflare')).toBe('UltraFlare')
     expect(seriesLabel('hydro_lume')).toBe('Hydro Lume')
     expect(seriesLabel(null)).toBe('Other')
+  })
+})
+
+describe('seriesLineArt', () => {
+  it('uses per-series line-art when known', () => {
+    expect(seriesLineArt('envo_minilux', 'led-signage-modules')).toBe('/assets/images/mod-mini-line.png')
+  })
+  it('falls back to the family category line-art', () => {
+    expect(seriesLineArt('hydro_lume', 'led-signage-modules')).toBe('/assets/images/cat-modules.png')
+    expect(seriesLineArt(null, 'led-drivers')).toBe('/assets/images/cat-drivers-line.png')
+    expect(seriesLineArt('sr_triac', 'control-gear')).toBe('/assets/images/cat-controllers-line.png')
   })
 })

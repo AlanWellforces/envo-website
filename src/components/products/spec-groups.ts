@@ -13,6 +13,22 @@ const list = (v: string[] | null | undefined): string | null =>
   v && v.length ? v.join(', ') : null
 const OP_MODE: Record<string, string> = { cv: 'Constant voltage', cc: 'Constant current', cv_cc: 'CV / CC' }
 
+// Up to 4 headline spec chips for the hero, echoing the mini-series stat row.
+// Priority order; only populated fields appear, family-agnostic.
+export function heroStats(p: Product): { value: string; label: string }[] {
+  const candidates: { value: string | null; label: string }[] = [
+    { value: p.power_w != null ? `${p.power_w} W` : null, label: 'Power' },
+    { value: p.brightness_lm != null ? `${p.brightness_lm} lm` : null, label: 'Brightness' },
+    { value: p.output_voltage_v != null ? `${p.output_voltage_v} V` : null, label: 'Output' },
+    { value: p.cct_k != null ? `${p.cct_k} K` : null, label: 'Colour temp' },
+    { value: p.beam_angle_deg != null ? `${p.beam_angle_deg}°` : null, label: 'Beam angle' },
+    { value: p.rated_current_a != null ? `${p.rated_current_a} A` : null, label: 'Rated current' },
+    { value: p.waterproof ? p.waterproof.toUpperCase() : null, label: 'Ingress' },
+    { value: p.warranty_years != null ? `${p.warranty_years} yr` : null, label: 'Warranty' },
+  ]
+  return candidates.filter((c): c is { value: string; label: string } => c.value != null).slice(0, 4)
+}
+
 export const SPEC_GROUPS: SpecGroup[] = [
   {
     title: 'Electrical',

@@ -44,6 +44,28 @@ export function seriesCodeFromSlug(slug: string): string | null {
   return SLUG_TO_CODE[slug] ?? slug.replace(/-/g, '_')
 }
 
+// Brand line-art tile per series (matches the original BOUNCE family-card look).
+// Per-series art where it exists; otherwise the family's category line-art.
+const SERIES_LINE_ART: Record<string, string> = {
+  envo_minilux: '/assets/images/mod-mini-line.png',
+  envo_ecoglo: '/assets/images/mod-eco-line.png',
+  envo_ultraflare: '/assets/images/mod-pro-line.png',
+  envo_chromaflux: '/assets/images/mod-rgb-line.png',
+  envo_optilume: '/assets/images/mod-24v-line.png',
+  envo_edgelume: '/assets/images/mod-sidelit-line.png',
+}
+const FAMILY_LINE_ART: Record<string, string> = {
+  'led-signage-modules': '/assets/images/cat-modules.png',
+  'led-drivers': '/assets/images/cat-drivers-line.png',
+  'control-gear': '/assets/images/cat-controllers-line.png',
+  'accessories': '/assets/images/cat-sensors-line.png',
+}
+
+export function seriesLineArt(code: string | null | undefined, marketingSlug: string): string {
+  if (code && SERIES_LINE_ART[code]) return SERIES_LINE_ART[code]
+  return FAMILY_LINE_ART[marketingSlug] ?? '/assets/images/cat-modules.png'
+}
+
 export function seriesLabel(code: string | null | undefined): string {
   if (!code) return 'Other'
   if (SERIES_LABELS[code]) return SERIES_LABELS[code]

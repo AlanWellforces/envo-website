@@ -1,12 +1,11 @@
-/* eslint-disable @next/next/no-img-element */
 import type { Metadata } from 'next'
 import Image from 'next/image'
 import Link from 'next/link'
 import { notFound } from 'next/navigation'
 import { PRODUCT_FAMILIES } from '@/data/product-families'
 import { TrustIcon } from '@/components/ui/trust-icon'
-import { getProductsByMarketingFamily, groupProductsBySeries, resolveProductImage } from '@/lib/products'
-import { seriesSlug, seriesLabel } from '@/data/family-map'
+import { getProductsByMarketingFamily, groupProductsBySeries } from '@/lib/products'
+import { seriesSlug, seriesLabel, seriesLineArt } from '@/data/family-map'
 import styles from './page.module.css'
 
 type Params = Promise<{ slug: string }>
@@ -64,27 +63,20 @@ export default async function ProductFamilyPage({ params }: { params: Params }) 
 
       <section className={styles.sectionWrap}>
         <div className={styles.seriesGrid}>
-          {groups.map((g) => {
-            const rep = g.products[0]
-            const img = resolveProductImage(rep, '/assets/images/cat-modules.png')
-            return (
+          {groups.map((g) => (
               <Link
                 key={g.code ?? 'other'}
                 href={`/products/${slug}/${seriesSlug(g.code)}`}
                 className={styles.seriesCard}
               >
                 <div className={`${styles.seriesCardThumb} ${styles.seriesCardThumbBrand}`}>
-                  {img.isLocal ? (
-                    <Image
-                      src={img.src}
-                      alt={img.alt}
-                      width={400}
-                      height={250}
-                      sizes="(min-width: 1000px) 33vw, (min-width: 621px) 50vw, 100vw"
-                    />
-                  ) : (
-                    <img src={img.src} alt={img.alt} />
-                  )}
+                  <Image
+                    src={seriesLineArt(g.code, slug)}
+                    alt={seriesLabel(g.code)}
+                    width={400}
+                    height={250}
+                    sizes="(min-width: 1000px) 33vw, (min-width: 621px) 50vw, 100vw"
+                  />
                 </div>
                 <div className={styles.seriesCardBody}>
                   <h3 className={styles.seriesCardName}>{seriesLabel(g.code)}</h3>
@@ -92,8 +84,7 @@ export default async function ProductFamilyPage({ params }: { params: Params }) 
                   <span className={styles.seriesCardCta}>View range <span>→</span></span>
                 </div>
               </Link>
-            )
-          })}
+          ))}
         </div>
       </section>
 
