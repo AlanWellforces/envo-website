@@ -69,7 +69,6 @@ export function Footer() {
           <div className="footer-legal">
             <span aria-disabled="true">Privacy Policy</span>
             <span aria-disabled="true">Terms of Use</span>
-            <span aria-disabled="true">Sitemap</span>
           </div>
         </div>
       </div>
