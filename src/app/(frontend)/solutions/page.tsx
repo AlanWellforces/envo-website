@@ -3,11 +3,14 @@ import Image from 'next/image'
 import Link from 'next/link'
 import { EnvoButton } from '@/components/ui/envo-button'
 import { SOLUTIONS } from '@/data/solutions'
+import { metadataForRoute } from '@/lib/page-seo'
 
-export const metadata: Metadata = {
-  title: 'Solutions — ENVO',
-  description:
-    'Channel letters, light boxes, edge-lit signage, and architectural lighting — solutions engineered for outdoor durability and warranty-grade longevity.',
+export async function generateMetadata(): Promise<Metadata> {
+  return metadataForRoute('/solutions', {
+    title: 'Solutions — ENVO',
+    description:
+      'Channel letters, light boxes, edge-lit signage, and architectural lighting — solutions engineered for outdoor durability and warranty-grade longevity.',
+  })
 }
 
 const STATS = [

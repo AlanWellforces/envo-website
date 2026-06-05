@@ -4,11 +4,14 @@ import { EnvoButton } from '@/components/ui/envo-button'
 import { RESOURCES } from '@/data/resources'
 import { PURCHASE_CHANNELS } from '@/data/purchase-channels'
 import styles from './page.module.css'
+import { metadataForRoute } from '@/lib/page-seo'
 
-export const metadata: Metadata = {
-  title: 'Resources — ENVO',
-  description:
-    'Downloads, answers and the right contact for your region. Product catalogues, spec sheets, IES files, an FAQ, and a direct line to ENVO engineering.',
+export async function generateMetadata(): Promise<Metadata> {
+  return metadataForRoute('/resources', {
+    title: 'Resources — ENVO',
+    description:
+      'Downloads, answers and the right contact for your region. Product catalogues, spec sheets, IES files, an FAQ, and a direct line to ENVO engineering.',
+  })
 }
 
 /** Region "where to buy" one-liners — lead-gen framing, no pricing. */

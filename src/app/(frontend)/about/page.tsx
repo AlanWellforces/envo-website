@@ -1,12 +1,15 @@
 import type { Metadata } from 'next'
+import { metadataForRoute } from '@/lib/page-seo'
 import Link from 'next/link'
 import { EnvoButton } from '@/components/ui/envo-button'
 import styles from './page.module.css'
 
-export const metadata: Metadata = {
-  title: 'About ENVO',
-  description:
-    'ENVO designs and manufactures professional-grade LED modules, drivers, controllers and accessories for signage and architectural illumination worldwide.',
+export async function generateMetadata(): Promise<Metadata> {
+  return metadataForRoute('/about', {
+    title: 'About ENVO',
+    description:
+      'ENVO designs and manufactures professional-grade LED modules, drivers, controllers and accessories for signage and architectural illumination worldwide.',
+  })
 }
 
 const FAMILIES = [

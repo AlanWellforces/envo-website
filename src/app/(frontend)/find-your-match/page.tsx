@@ -1,12 +1,15 @@
 import type { Metadata } from 'next'
+import { metadataForRoute } from '@/lib/page-seo'
 import Link from 'next/link'
 import { Wizard } from './Wizard'
 import styles from './page.module.css'
 
-export const metadata: Metadata = {
-  title: 'Find your match — ENVO',
-  description:
-    'Answer five quick questions and we suggest the right ENVO module, driver and control for your sign — a fast selection aid, no commitment.',
+export async function generateMetadata(): Promise<Metadata> {
+  return metadataForRoute('/find-your-match', {
+    title: 'Find your match — ENVO',
+    description:
+      'Answer five quick questions and we suggest the right ENVO module, driver and control for your sign — a fast selection aid, no commitment.',
+  })
 }
 
 export default function FindYourMatchPage() {
