@@ -19,10 +19,6 @@ export function Footer() {
             </a>
             <address className="footer-brand-contact">
               <a href="tel:+18882289138">888.228.9138</a>
-              <br />
-              409 Canton Street, Unit 5
-              <br />
-              Stoughton, MA 02072 USA
             </address>
           </div>
 

@@ -8,7 +8,7 @@ export async function generateMetadata(): Promise<Metadata> {
   return metadataForRoute('/contact', {
     title: 'Contact — ENVO',
     description:
-      'Talk to the ENVO team about orders, product questions and custom requests. Phone, email and our US office — we usually reply within one business day.',
+      'Talk to the ENVO team about orders, product questions and custom requests by phone or email — we usually reply within one business day.',
   })
 }
 
@@ -59,19 +59,6 @@ export default function ContactPage() {
               <p className={styles.detailVal}>
                 <a href="mailto:contact@envo.com">contact@envo.com</a>
               </p>
-            </div>
-
-            <div className={styles.detail}>
-              <p className={styles.detailLabel}>Office</p>
-              <p className={styles.detailVal}>
-                409 Canton Street, Unit 5<br />
-                Stoughton, MA 02072 USA
-              </p>
-            </div>
-
-            <div className={styles.detail}>
-              <p className={styles.detailLabel}>Hours</p>
-              <p className={styles.detailVal}>Mon–Fri · 9:00am – 5:30pm EST</p>
             </div>
           </aside>
         </div>
