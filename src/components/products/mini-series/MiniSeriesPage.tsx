@@ -1542,7 +1542,7 @@ const MOCKUP_BODY = `
     </div>
     <div class="subnav-tabs">
       <a data-tab class="active" href="#overview">Overview</a>
-      <a data-tab href="#compare">Spec</a>
+      <a data-tab href="#compare">Specs</a>
       <a data-tab href="#solutions">Solutions</a>
       <a class="buy-pill" href="#compare">Buy</a>
     </div>
