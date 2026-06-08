@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { getPayload } from 'payload'
 import config from '@/payload.config'
+import { CERT_CODES } from '@/lib/cert-codes'
 
 const AKENEO_URL    = process.env.AKENEO_URL!
 const CLIENT_ID     = process.env.AKENEO_CLIENT_ID!
@@ -83,13 +84,18 @@ function normalise(p: any) {
   }
   const dimming_control = dimmingArr.map(d => dimmingMap[String(d).toLowerCase()] ?? null).filter(Boolean) as string[]
 
+  // Akeneo emits canonical cert codes (e.g. 'c_ce', 'c_cul') that match our
+  // Payload select values 1:1 — keep the known ones, log unknowns (don't drop
+  // silently; that masked the long-standing 0/224 cert gap).
   const stdRaw: any = getVal(v, 'standards_met')
   const stdArr: string[] = Array.isArray(stdRaw) ? stdRaw : stdRaw ? [stdRaw] : []
-  const stdMap: Record<string, string> = {
-    ce: 'c_ce', saa: 'c_saa', tuv: 'c_tuv', ul: 'c_ul', rcm: 'c_rcm',
-    fcc: 'c_fcc', rohs: 'c_rohs', enec: 'c_enec',
-  }
-  const standards_met = stdArr.map(s => stdMap[String(s).toLowerCase()] ?? null).filter(Boolean) as string[]
+  const standards_met = stdArr
+    .map(s => String(s).toLowerCase())
+    .filter(c => {
+      if (CERT_CODES.has(c)) return true
+      console.warn(`[akeneo-sync] ${p.identifier}: unknown cert code '${c}' — add it to src/lib/cert-codes.ts`)
+      return false
+    })
 
   const ipRaw = getString(v, 'waterproof') ?? ''
   const ipMap: Record<string, string> = {
