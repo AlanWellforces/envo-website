@@ -10,6 +10,7 @@ import * as path from 'path'
 import * as fs from 'fs'
 import { getPayload } from 'payload'
 import config from '../src/payload.config.ts'
+import { CERT_CODES } from '../src/lib/cert-codes.ts'
 
 // Load .env.local then .env
 const root = path.resolve(__dirname, '..')
@@ -115,14 +116,18 @@ function normalise(p: any) {
   }
   const dimming_control = dimmingArr.map(d => dimmingMap[String(d).toLowerCase()] ?? null).filter(Boolean) as string[]
 
-  // Standards
+  // Standards — Akeneo emits canonical cert codes ('c_ce', 'c_cul', …) matching
+  // our Payload select values 1:1. Keep known codes, log unknowns (don't drop
+  // silently; the old re-prefix map dropped every cert → 0/224).
   const stdRaw: any = getVal(v, 'standards_met')
   const stdArr: string[] = Array.isArray(stdRaw) ? stdRaw : stdRaw ? [stdRaw] : []
-  const stdMap: Record<string, string> = {
-    ce: 'c_ce', saa: 'c_saa', tuv: 'c_tuv', ul: 'c_ul', rcm: 'c_rcm',
-    fcc: 'c_fcc', rohs: 'c_rohs', enec: 'c_enec',
-  }
-  const standards_met = stdArr.map(s => stdMap[String(s).toLowerCase()] ?? null).filter(Boolean) as string[]
+  const standards_met = stdArr
+    .map(s => String(s).toLowerCase())
+    .filter(c => {
+      if (CERT_CODES.has(c)) return true
+      console.warn(`[akeneo-sync] ${p.identifier}: unknown cert code '${c}' — add it to src/lib/cert-codes.ts`)
+      return false
+    })
 
   // IP rating
   const ipRaw = getString(v, 'waterproof') ?? ''

@@ -6,6 +6,7 @@
 //   - sync_locked = true: sync skips this product entirely — editor owns it fully
 
 import type { CollectionConfig } from 'payload'
+import { CERT_OPTIONS } from '@/lib/cert-codes'
 
 export const Products: CollectionConfig = {
   slug: 'products',
@@ -409,19 +410,9 @@ export const Products: CollectionConfig = {
                   type: 'select',
                   hasMany: true,
                   label: 'Certifications',
-                  options: [
-                    { label: 'CE',       value: 'c_ce'   },
-                    { label: 'SAA',      value: 'c_saa'  },
-                    { label: 'TUV',      value: 'c_tuv'  },
-                    { label: 'UL',       value: 'c_ul'   },
-                    { label: 'RCM',      value: 'c_rcm'  },
-                    { label: 'FCC',      value: 'c_fcc'  },
-                    { label: 'RoHS',     value: 'c_rohs' },
-                    { label: 'ENEC',     value: 'c_enec' },
-                    { label: 'BIS',      value: 'c_bis'  },
-                    { label: 'CB',       value: 'c_cb'   },
-                    { label: 'LM-80',    value: 'c_lm80' },
-                  ],
+                  // Shared with the Akeneo sync (src/lib/cert-codes.ts) so the
+                  // option set can't drift from what the sync keeps.
+                  options: CERT_OPTIONS.map((o) => ({ ...o })),
                 },
                 {
                   name: 'warranty_years',
