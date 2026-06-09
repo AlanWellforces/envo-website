@@ -21,7 +21,6 @@ export const CERT_OPTIONS = [
   { value: 'c_bis', label: 'BIS' },
   { value: 'c_rcm', label: 'RCM' },
   { value: 'c_fcc', label: 'FCC' },
-  { value: 'c_fc', label: 'FC' },
   { value: 'c_selv', label: 'SELV' },
   { value: 'c_enec', label: 'ENEC' },
   { value: 'c_lm80', label: 'LM-80' },
