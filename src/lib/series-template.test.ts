@@ -3,7 +3,10 @@ import { describe, it, expect } from 'vitest'
 import { groupSeriesModels } from './series-template'
 import type { Product } from './products'
 
-const p = (over: Partial<Product>): Product => ({
+// `productName` is a live Payload field that the canonical `Product` type
+// doesn't declare (groupSeriesModels reads it via `(rep as any).productName`);
+// allow extra runtime keys here so fixtures can set it.
+const p = (over: Partial<Product> & Record<string, unknown>): Product => ({
   sku: 'X', name: 'n', productName: null, slug: null, family: 'led_module',
   series: 'envo_ultraflare', brand: 'ENVO', subtitle: null, short_description: null,
   description: null, enabled: true, hidden: false, image_url_fallback: null,
