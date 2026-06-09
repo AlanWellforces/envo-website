@@ -47,3 +47,35 @@ describe('groupSeriesModels', () => {
     expect(rows[0].dimsMm).toBe('27.8 × 15.4 × 10.4')
   })
 })
+
+import { buildStats, buildFeatures, type SeriesSpecs } from './series-template'
+
+const specs: SeriesSpecs = {
+  beamDeg: 170, ip: 'IP67', voltsDc: 12, lifetimeHrs: 50000,
+  cctOptions: ['WW=3000K', 'NW=4000K', 'CW=6500K'], certs: ['UL', 'CE', 'TÜV'],
+}
+
+describe('buildStats', () => {
+  it('produces up to 4 hero stats from specs + max lumens', () => {
+    const stats = buildStats(specs, 180)
+    expect(stats).toEqual([
+      { value: '180 lm', label: 'max / module' },
+      { value: '170°', label: 'beam angle' },
+      { value: 'IP67', label: 'ingress' },
+      { value: '3 CCT', label: 'colour temps' },
+    ])
+  })
+})
+
+describe('buildFeatures', () => {
+  it('keeps strengths then appends spec-derived bullets, capped at 6', () => {
+    const features = buildFeatures(
+      [{ title: 'Osram emitters', note: 'Premium binned chips.' }],
+      specs,
+      4,
+    )
+    expect(features[0]).toEqual({ title: 'Osram emitters', note: 'Premium binned chips.' })
+    expect(features.length).toBeLessThanOrEqual(6)
+    expect(features.some((f) => f.title === '12 V DC')).toBe(true)
+  })
+})
