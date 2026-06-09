@@ -1,36 +1,23 @@
 /**
  * generate-series-editorial.mts
  * ------------------------------------------------------------------
- * Deterministic, re-runnable generator for signage series-page editorial.
+ * Deterministic, re-runnable generator for signage series-page editorial COPY.
  *
- * For each signage (`led_module`) series it:
- *   1. groups Akeneo/Payload products by SUFFIX-LESS model code (collapses the
- *      -WW / -NW / -CW CCT variants into one model — CCT is a shared option,
- *      not a product; see memory project_series-template-product-grain),
- *   2. aggregates the shared specs,
- *   3. assembles PLACEHOLDER Overview + Solutions copy from a hand-written
- *      per-series POSITIONING map (the only judgement input) + the live specs.
+ * Emits ONLY editorial copy (label, headline, lede, strengths, solutions) from
+ * the hand-written per-series POSITIONING map.  Product specs (models, CCT
+ * options, sharedSpecs, stats) are intentionally ABSENT — they are fetched live
+ * from Payload at render time (three-source rule: Akeneo owns product data).
  *
  * No Anthropic API / no key needed — copy is intentionally placeholder-grade
- * ("先占位，之后改"). Re-run any time the PIM data changes:
+ * ("先占位，之后改"). Re-run any time the POSITIONING map changes:
  *     npx tsx --tsconfig tsconfig.json scripts/generate-series-editorial.mts
  * Output (overwritten wholesale): src/data/series-editorial.generated.ts
  */
 import fs from 'node:fs'
 import path from 'node:path'
-import { createRequire } from 'node:module'
 import { fileURLToPath } from 'node:url'
 
 const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..')
-for (const line of fs.readFileSync(path.join(root, '.env.local'), 'utf8').split('\n')) {
-  const m = line.match(/^\s*([A-Z0-9_]+)\s*=\s*(.*?)\s*$/)
-  if (m && !(m[1] in process.env)) process.env[m[1]] = m[2].replace(/^["']|["']$/g, '')
-}
-const _r = createRequire(path.join(root, 'node_modules/payload/dist/bin/dummy.js'))
-const ne = _r('@next/env'); if (!ne.default) ne.default = ne
-const cfg = await (await import('../src/payload.config.ts')).default
-const { getPayload } = await import('payload')
-const payload = await getPayload({ config: cfg })
 
 // ---- per-series positioning (the hand-written judgement input) -------------
 // Mini (envo_minilux) is intentionally absent — it keeps its hand-built page.
@@ -38,10 +25,8 @@ type Pos = {
   label: string            // display name
   headline: string         // Overview hero H1 (placeholder)
   lede: string             // Overview hero sub-copy
-  // three custom feature bullets {title, note}; three more are auto-added from specs
-  strengths: { title: string; note: string }[]
-  // solution cards {title, pick}; specs (IP/CCT/LED count) are appended automatically
-  solutions: { title: string; pick: string }[]
+  strengths: { title: string; note: string }[]   // 3 hand-written feature bullets
+  solutions: { title: string; pick: string }[]   // solution cards
 }
 const POSITIONING: Record<string, Pos> = {
   envo_ultraflare: {
@@ -206,102 +191,18 @@ const POSITIONING: Record<string, Pos> = {
   },
 }
 
-// ---- helpers ---------------------------------------------------------------
-const stripCct = (sku: string) => sku.replace(/-(WW|NW|CW)$/, '')
-const cctCode = (sku: string) => sku.match(/-(WW|NW|CW)$/)?.[1] ?? null
-const LED_BY_DIGIT: Record<string, string> = { '1': 'Single', '2': 'Double', '3': 'Triple', '4': 'Quad' }
-const ledCount = (modelCode: string, name?: string) => {
-  const d = modelCode.match(/0(\d)[A-Z]+$/)?.[1]
-  if (d && LED_BY_DIGIT[d]) return LED_BY_DIGIT[d]
-  const n = name?.match(/\b(Single|Double|Triple|Quad)\b/i)?.[1]
-  return n ? n[0].toUpperCase() + n.slice(1).toLowerCase() : '—'
-}
-const certName: Record<string, string> = {
-  c_ul: 'UL', c_cul: 'cUL', c_ce: 'CE', c_tuv: 'TÜV', c_rohs: 'RoHS',
-  c_cb: 'CB', c_bis: 'BIS', c_ccc: 'CCC', c_fcc: 'FCC', c_fc: 'FCC', c_selv: 'SELV', c_lm80: 'LM-80',
-}
-const uniq = <T,>(a: T[]) => [...new Set(a)]
-const num = (n: unknown): number | null => (typeof n === 'number' && !Number.isNaN(n) ? n : null)
-
 // ---- build -----------------------------------------------------------------
 const out: Record<string, unknown> = {}
 for (const [series, pos] of Object.entries(POSITIONING)) {
-  const res = await payload.find({
-    collection: 'products',
-    where: { and: [{ enabled: { equals: true } }, { series: { equals: series } }] },
-    limit: 200, depth: 0,
-  })
-  const docs = res.docs as Record<string, any>[]
-  if (!docs.length) { console.warn(`  ! no products for ${series} — skipped`); continue }
-
-  // group by suffix-less model
-  const models: Record<string, Record<string, any>[]> = {}
-  for (const d of docs) (models[stripCct(d.sku)] ??= []).push(d)
-
-  const modelRows = Object.entries(models).map(([code, skus]) => {
-    const d = skus[0]
-    const lwh = [num(d.length_mm), num(d.width_mm), num(d.height_mm)]
-    return {
-      code,
-      leds: ledCount(code, d.productName),
-      powerW: num(d.power_w),
-      lumens: num(d.brightness_lm),
-      dimsMm: lwh.every((x) => x != null) ? lwh.join(' × ') : null,
-    }
-  }).sort((a, b) => (a.powerW ?? 0) - (b.powerW ?? 0))
-
-  const cctOptions = uniq(
-    docs.map((d) => ({ code: cctCode(d.sku), k: num(d.cct_k) }))
-      .filter((c) => c.code && c.k)
-      .map((c) => `${c.code}=${c.k}K`),
-  )
-  const beams = uniq(docs.map((d) => num(d.beam_angle_deg)).filter(Boolean))
-  // IP: the `waterproof` enum (ip65/ip67/non_waterproof…), else parse the subtitle.
-  const ipFromField = docs.map((d) => (d.waterproof as string | null))
-    .find((w) => w && /^ip\d+$/i.test(w))
-  const ipFromSub = docs.map((d) => (d.subtitle as string | null)?.match(/IP\s?(\d{2})/i)?.[1])
-    .find(Boolean)
-  const ip = ipFromField ? ipFromField.toUpperCase() : ipFromSub ? `IP${ipFromSub}` : null
-  // Volts: numeric fields are null for passive modules — read the nominal "12V"/"24V" off the subtitle.
-  const volts = uniq(
-    docs.map((d) => num(d.input_voltage_min_v) ?? num(d.output_voltage_v)
-      ?? (Number((d.subtitle as string | null)?.match(/(\d+)\s*V\b/i)?.[1]) || null))
-      .filter(Boolean),
-  )
-  const maxLm = Math.max(0, ...docs.map((d) => num(d.brightness_lm) ?? 0)) || null
-  const life = docs.find((d) => num(d.lifetime_hrs))?.lifetime_hrs ?? null
-  const certs = uniq(docs.flatMap((d) => (d.standards_met as string[] | null) ?? []))
-    .map((c) => certName[c] ?? c).filter(Boolean)
-
-  // 4 hero stats from live specs
-  const stats = [
-    maxLm ? { value: `${maxLm} lm`, label: 'max / module' } : null,
-    beams.length ? { value: `${beams[0]}°`, label: 'beam angle' } : null,
-    ip ? { value: String(ip), label: 'ingress' } : null,
-    cctOptions.length ? { value: `${cctOptions.length} CCT`, label: 'colour temps' } : null,
-  ].filter(Boolean)
-
-  // 6 features = 3 positioning strengths + up to 3 auto from specs
-  const autoFeatures = [
-    volts.length ? { title: `${volts[0]} V DC`, note: `${modelRows.length} models, one platform.` } : null,
-    life ? { title: `${Number(life).toLocaleString()} h`, note: 'Rated lifetime.' } : null,
-    certs.length ? { title: `${certs.length} marks`, note: certs.slice(0, 6).join(' · ') } : null,
-  ].filter(Boolean)
-  const features = [...pos.strengths, ...autoFeatures].slice(0, 6)
-
   out[series] = {
     aiDraft: true,
     label: pos.label,
-    overview: { headline: pos.headline, lede: pos.lede, stats, features },
-    solutions: { cards: pos.solutions },
-    models: modelRows,
-    cctOptions,
-    sharedSpecs: {
-      beamDeg: beams[0] ?? null, ip, voltsDc: volts[0] ?? null,
-      lifetimeHrs: num(life), certs,
-    },
+    headline: pos.headline,
+    lede: pos.lede,
+    strengths: pos.strengths,   // 3 {title, note}
+    solutions: pos.solutions,   // N {title, pick}
   }
-  console.log(`  ✓ ${series.padEnd(18)} ${modelRows.length} models · ${cctOptions.length} CCT · ${features.length} features`)
+  console.log(`  ✓ ${series}`)
 }
 
 // ---- write -----------------------------------------------------------------
