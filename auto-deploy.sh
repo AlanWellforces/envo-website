@@ -64,7 +64,7 @@ if [ -n "$INODE" ]; then
 fi
 
 # ── 9. Start server ───────────────────────────────────────────────────────────
-nohup node .next/standalone/server.js >> /tmp/envo-app.log 2>&1 &
+HOSTNAME=0.0.0.0 nohup node .next/standalone/server.js >> /tmp/envo-app.log 2>&1 &
 NEW_PID=$!
 echo "$NEW_PID" > /tmp/envo-app.pid
 sleep 5
