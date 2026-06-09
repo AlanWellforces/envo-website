@@ -6,11 +6,11 @@ import { getAkeneoToken, fetchEnvoProducts, normalise, upsertProduct, disablePro
 
 const WEBHOOK_SECRET = process.env.AKENEO_WEBHOOK_SECRET
 
-// Akeneo signs webhooks with HMAC-SHA256(secret, rawBody).
-// We also check the timestamp header to reject replayed requests older than 5 min.
+// Akeneo signs with HMAC-SHA256(secret, timestamp + rawBody) — timestamp first, no separator.
+// We also check the timestamp to reject replayed requests older than 5 min.
 function verifySignature(rawBody: string, timestamp: string, signature: string): boolean {
   if (!WEBHOOK_SECRET) return false
-  const expected = createHmac('sha256', WEBHOOK_SECRET).update(rawBody).digest('hex')
+  const expected = createHmac('sha256', WEBHOOK_SECRET).update(timestamp + rawBody).digest('hex')
   try {
     return timingSafeEqual(Buffer.from(signature, 'hex'), Buffer.from(expected, 'hex'))
   } catch {
