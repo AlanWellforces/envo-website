@@ -9,6 +9,8 @@ import { PURCHASE_CHANNELS } from '@/data/purchase-channels'
 import { getProduct, getProductsByMarketingFamily, resolveProductImage, type Product } from '@/lib/products'
 import { seriesSlug as toSeriesSlug, seriesLabel } from '@/data/family-map'
 import { ProductCardGrid } from '@/components/products/ProductCardGrid'
+import SeriesTemplate from '@/components/products/series/SeriesTemplate'
+import { getSeriesTemplateProps } from '@/lib/series-template'
 import familyStyles from '../page.module.css'
 import styles from './page.module.css'
 
@@ -54,6 +56,11 @@ export default async function SeriesDetailPage({ params }: { params: Params }) {
     const all = await getProductsByMarketingFamily(slug)
     const products = all.filter((p) => toSeriesSlug(p.series) === series)
     if (products.length === 0) notFound()
+    // Signage series with AI-draft editorial render the unified data-driven
+    // template (Overview / Specs selector / Solutions). Falls through to the
+    // generic card grid for series without editorial.
+    const tplProps = await getSeriesTemplateProps(products[0].series ?? '', products)
+    if (tplProps) return <SeriesTemplate {...tplProps} />
     return (
       <div className="theme-light">
         <div className="container">
