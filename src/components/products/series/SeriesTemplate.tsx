@@ -66,7 +66,18 @@ export default function SeriesTemplate(props: SeriesTemplateProps) {
             <tbody>
               {models.map((m) => (
                 <tr key={m.code}>
-                  <td className={styles.modelCode}>{m.code}</td>
+                  <td>
+                    <div className={styles.modelCell}>
+                      <span className={styles.modelThumb}>
+                        {m.image.src
+                          ? m.image.isLocal
+                            ? <Image src={m.image.src} alt={m.image.alt} width={64} height={64} />
+                            : <img src={m.image.src} alt={m.image.alt} />
+                          : null}
+                      </span>
+                      <span className={styles.modelCode}>{m.code}</span>
+                    </div>
+                  </td>
                   <td>{m.leds}</td>
                   <td>{m.powerW != null ? `${m.powerW} W` : '—'}</td>
                   <td>{m.lumens != null ? `${m.lumens} lm` : '—'}</td>

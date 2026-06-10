@@ -27,6 +27,13 @@
 .table { width:100%; border-collapse:collapse; background:#fff; border:1px solid var(--line); border-radius:12px; overflow:hidden; font-size:14px; }
 .table th { background:#f5f7f9; text-align:left; padding:12px 16px; font:600 11px ui-monospace,Menlo,monospace; letter-spacing:.05em; color:var(--muted); }
 .table td { padding:14px 16px; border-top:1px solid #eef1f4; }
+.modelCell { display:flex; align-items:center; gap:14px; }
+/* The only product image in Akeneo is a 2000×2000 marketing composite (ENVO
+   logo + cert row + SKU caption around a centred product). Zoom-crop into the
+   middle so the thumbnail shows just the product, clean — no new asset, still
+   the live S3 image (product images stay Akeneo-owned per the three-source rule). */
+.modelThumb { flex:none; width:64px; height:64px; border-radius:10px; border:1px solid var(--line); background:#fff; overflow:hidden; }
+.modelThumb img { width:100%; height:100%; object-fit:cover; object-position:center; transform:scale(1.75); }
 .modelCode { font-weight:700; color:var(--blue); }
 .table a { color:var(--blue); font-weight:600; text-decoration:none; }
 .specFoot { margin-top:14px; font-size:13px; color:var(--muted); line-height:1.6; }
