@@ -24,7 +24,10 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     const { docs } = await listProducts({ limit: 1000 })
     for (const p of docs) {
       const m = dbFamilyToMarketing(p.family ?? '')
-      if (m) urls.add(`/products/${m.slug}/${seriesSlug(p.series)}/${p.sku}`)
+      if (!m) continue
+      const base = `/products/${m.slug}/${seriesSlug(p.series)}`
+      // Signage has no per-SKU page — emit the series URL (Set dedupes repeats).
+      urls.add(p.family === 'led_module' ? base : `${base}/${p.sku}`)
     }
   } catch { /* keep static + family URLs */ }
 

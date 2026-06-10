@@ -12,7 +12,9 @@ import styles from './page.module.css'
 function productHref(p: Product): string {
   const m = dbFamilyToMarketing(p.family ?? '')
   if (!m) return '/products'
-  return `/products/${m.slug}/${seriesSlug(p.series)}/${p.sku}`
+  const base = `/products/${m.slug}/${seriesSlug(p.series)}`
+  // Signage has no per-SKU page — link to the series template instead.
+  return p.family === 'led_module' ? base : `${base}/${p.sku}`
 }
 
 function ResultCard({ role, name, reason, href }: { role: string; name: string; reason: string; href?: string }) {
