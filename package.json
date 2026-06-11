@@ -12,7 +12,8 @@
     "test:watch": "vitest",
     "payload": "payload",
     "generate:types": "tsx --tsconfig tsconfig.json scripts/generate-types.mts",
-    "generate:importmap": "tsx --tsconfig tsconfig.json scripts/generate-importmap.mts"
+    "generate:importmap": "tsx --tsconfig tsconfig.json scripts/generate-importmap.mts",
+    "postinstall": "patch-package"
   },
   "dependencies": {
     "@anthropic-ai/sdk": "^0.100.1",
@@ -41,6 +42,7 @@
     "@vitest/coverage-v8": "^4.1.7",
     "eslint": "^9",
     "eslint-config-next": "16.2.6",
+    "patch-package": "^8.0.1",
     "typescript": "^5",
     "vitest": "^4.1.7"
   }

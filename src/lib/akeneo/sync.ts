@@ -1,4 +1,4 @@
-import { CERT_CODES } from '@/lib/cert-codes'
+import { CERT_CODES } from '../cert-codes'
 import type { getPayload } from 'payload'
 
 const AKENEO_URL    = process.env.AKENEO_URL!

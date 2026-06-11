@@ -202,8 +202,8 @@ function normalise(p: any) {
     price_nzd:               priceNzd != null ? parseFloat(priceNzd) : null,
     inventory_type:          getString(v, 'inventory_type'),
     pack_qty:                getVal(v, 'pack_qty') as number | null,
-    shipping_lead_days:      getVal(v, 'shipping_lead_time') as number | null,
-    manufacturing_lead_days: getVal(v, 'manufacturing_lead_time') as number | null,
+    shipping_lead_days:      getAmount(v, 'shipping_lead_time'),
+    manufacturing_lead_days: getAmount(v, 'manufacturing_lead_time'),
 
     seo_title:               getString(v, 'seo_title'),
     seo_description:         getString(v, 'seo_meta_description'),
