@@ -21,7 +21,7 @@ export function LegalPage({ title, updated, children }: Props) {
           <p className={styles.notice}>
             <strong>Draft — pending review.</strong> This page is a working draft tailored to how
             this site operates (enquiry forms only; product purchases are handled by our regional
-            distributors). It has not yet been reviewed or approved by ENVO / Wellforces Ltd and is
+            distributors). It has not yet been reviewed or approved by ENVO and is
             not yet legal advice. Final wording and the operating legal entity are to be confirmed.
           </p>
         </section>

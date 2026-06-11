@@ -4,8 +4,8 @@ import { ArrowRight } from './icons'
 
 const BADGES = ['Commissioned on schedule', 'Uniform brightness, full facade', 'No hot spots']
 const USED = [
-  { label: 'Pro Series modules', href: '/products' },
-  { label: '24V Series', href: '/products' },
+  { label: 'UltraFlare modules', href: '/products' },
+  { label: 'OptiLume 24V modules', href: '/products' },
   { label: 'Outdoor IP67 driver', href: '/products' },
   { label: 'Zigbee controller', href: '/products' },
 ]
