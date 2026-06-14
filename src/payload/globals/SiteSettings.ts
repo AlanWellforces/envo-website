@@ -90,7 +90,7 @@ export const SiteSettings: GlobalConfig = {
             },
           ],
         },
-        { name: 'legal_text', type: 'text', label: 'Legal / copyright line', admin: { description: 'e.g. "© 2026 Wellforces Ltd. All rights reserved."' } },
+        { name: 'legal_text', type: 'text', label: 'Legal / copyright line', admin: { description: 'e.g. "© 2026 ENVO. All rights reserved."' } },
         {
           name: 'social_links',
           type: 'array',

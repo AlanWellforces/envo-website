@@ -23,11 +23,11 @@ export function FinalCta() {
         <p className="v4-buyline">
           Already specced it? Buy through your regional distributor —{' '}
           <a href="https://wellforces.co.nz" target="_blank" rel="noopener noreferrer">
-            Wellforces↗
+            wellforces.co.nz↗
           </a>{' '}
           <span>·</span>{' '}
           <a href="https://powersupplymall.com" target="_blank" rel="noopener noreferrer">
-            PowerSupplyMall↗
+            powersupplymall.com↗
           </a>
         </p>
       </div>
