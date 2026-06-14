@@ -5,6 +5,10 @@ import { usePathname } from 'next/navigation'
 import { useEffect } from 'react'
 import { PRODUCT_FAMILIES } from '@/data/product-families'
 import { cn } from '@/lib/utils'
+import { SERIES_EDITORIAL } from '@/data/series-editorial.generated'
+import { seriesSlug } from '@/data/family-map'
+
+const EDITORIAL_SERIES_SLUGS = new Set(Object.keys(SERIES_EDITORIAL).map((k) => seriesSlug(k)))
 
 /**
  * Section-aware top bar.
@@ -21,14 +25,16 @@ export function TopSubnav() {
   // paints during SSR / hydration; it would otherwise sit on top of the
   // mockup's own sub-nav as a thin black strip.
   const isMiniSeries = /^\/products\/[^/]+\/mini-series(\/|$)/.test(pathname)
-  const visible = pathname.startsWith('/products') && !isMiniSeries
+  const seriesSeg = pathname.match(/^\/products\/[^/]+\/([^/]+)/)?.[1]
+  const isEditorialSeries = !!seriesSeg && EDITORIAL_SERIES_SLUGS.has(seriesSeg)
+  const visible = pathname.startsWith('/products') && !isMiniSeries && !isEditorialSeries
 
   useEffect(() => {
     document.body.classList.toggle('has-topsubnav', visible)
     return () => document.body.classList.remove('has-topsubnav')
   }, [visible])
 
-  if (isMiniSeries) return null
+  if (isMiniSeries || isEditorialSeries) return null
 
   return (
     <div className={cn('top-subnav', !visible && 'hidden')} aria-hidden={!visible}>

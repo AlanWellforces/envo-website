@@ -16,6 +16,9 @@ export async function generateStaticParams() {
     .map((p) => {
       const m = dbFamilyToMarketing(p.family ?? '')
       if (!m) return null
+      // Signage (led_module): CCT variants (-WW/-NW/-CW) collapse into one model
+      // shown via the series template's spec selector — no per-SKU page.
+      if (p.family === 'led_module') return null
       return { slug: m.slug, series: seriesSlug(p.series), sku: p.sku }
     })
     .filter((x): x is { slug: string; series: string; sku: string } => x !== null)
@@ -35,6 +38,9 @@ export default async function ProductDetailPage({ params }: { params: Params }) 
   const { slug, sku } = await params
   const product = await getProduct(sku)
   if (!product || product.hidden) notFound()
+  // Signage uses the series template (spec selector + CCT switch); it has no
+  // per-SKU page, so a signage SKU URL must 404 here.
+  if (product.family === 'led_module') notFound()
   // Guard: the family in the URL must match the product's actual family.
   const m = dbFamilyToMarketing(product.family ?? '')
   if (!m || m.slug !== slug) notFound()
