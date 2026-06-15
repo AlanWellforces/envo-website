@@ -202,6 +202,12 @@ gh auth login                  # interactive; pick HTTPS, login via browser
 
 The `gh`-stored token also acts as your `git push` credential over HTTPS, so this one step covers both.
 
+> **2026-06-15 — Token updated.** If you get `Authentication failed` when pushing or pulling, the shared PAT expired. Ask Alan for the new token and update your remote URL:
+> ```bash
+> git remote set-url origin https://<your-github-username>:<NEW_TOKEN>@github.com/AlanWellforces/envo-website.git
+> ```
+> Alternatively, use your own personal PAT (recommended — GitHub Settings → Developer settings → Personal access tokens → Tokens (classic), scopes: `repo`).
+
 ---
 
 ## Never do
