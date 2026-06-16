@@ -9,12 +9,12 @@ export const SERIES_EDITORIAL = {
   "envo_ultraflare": {
     "aiDraft": true,
     "label": "UltraFlare Series",
-    "headline": "Osram inside. Sealed to IP67.",
-    "lede": "The premium backlit module for signage that has to look right and survive the weather — genuine Osram emitters in a fully potted IP67 body.",
+    "headline": "Premium emitters. Sealed to IP67.",
+    "lede": "The premium backlit module for signage that has to look right and survive the weather — premium binned emitters in a fully potted IP67 body.",
     "strengths": [
       {
-        "title": "Osram emitters",
-        "note": "Premium binned chips, lot to lot."
+        "title": "Premium emitters",
+        "note": "Binned chips, consistent lot to lot."
       },
       {
         "title": "Fully potted",
@@ -36,7 +36,7 @@ export const SERIES_EDITORIAL = {
       },
       {
         "title": "Brand-critical retail facades",
-        "pick": "Osram colour fidelity"
+        "pick": "high colour fidelity"
       },
       {
         "title": "Large illuminated cabinets",
@@ -47,12 +47,12 @@ export const SERIES_EDITORIAL = {
   "envo_proglo": {
     "aiDraft": true,
     "label": "ProGlo Series",
-    "headline": "Philips light. Professional finish.",
-    "lede": "A professional-grade backlit module built on genuine Philips emitters for signage shops that need consistent colour and a dependable supply.",
+    "headline": "Professional finish. Consistent colour.",
+    "lede": "A professional-grade backlit module built on premium emitters for signage shops that need consistent colour and a dependable supply.",
     "strengths": [
       {
-        "title": "Philips emitters",
-        "note": "Trusted brand, stable colour."
+        "title": "Premium emitters",
+        "note": "Stable, consistent colour."
       },
       {
         "title": "Even fill",
@@ -70,7 +70,7 @@ export const SERIES_EDITORIAL = {
       },
       {
         "title": "Corporate facades",
-        "pick": "consistent Philips colour"
+        "pick": "consistent colour"
       },
       {
         "title": "Lightbox cabinets",
@@ -161,15 +161,15 @@ export const SERIES_EDITORIAL = {
   "hydro_lume": {
     "aiDraft": true,
     "label": "HydroLume Series",
-    "headline": "Built for water. Lit by Philips.",
-    "lede": "An IP67 24 V backlit module on Philips emitters — engineered for wet, humid and washdown environments where ordinary modules fail.",
+    "headline": "Built for water. Sealed to IP67.",
+    "lede": "An IP67 24 V backlit module on premium emitters — engineered for wet, humid and washdown environments where ordinary modules fail.",
     "strengths": [
       {
         "title": "IP67 sealed",
         "note": "Wet & washdown rated."
       },
       {
-        "title": "Philips emitters",
+        "title": "Premium emitters",
         "note": "Stable colour, long life."
       },
       {

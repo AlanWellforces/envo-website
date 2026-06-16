@@ -33,6 +33,12 @@ const SERIES_LABELS: Record<string, string> = {
   envo_edgeflare: 'EdgeFlare', envo_edgeblade: 'EdgeBlade', edge_blade_2: 'EdgeBlade 2',
   envo_chromaflux: 'ChromaFlux', hydro_lume: 'Hydro Lume', envo_zigbee: 'Zigbee Smart',
   envo_casambi: 'Casambi', envo_dali: 'DALI', sr_triac: 'Triac', sc_envo: 'Standard',
+  // Driver model lines carry no curated name in Akeneo (product `title` is null);
+  // surface the real SKU-prefix model code cleanly rather than the garbled
+  // title-cased fallback ("Se Us" → "SE"). `_us` is a US-variant region tag.
+  envo_se_us: 'SE', envo_sl_us: 'SL', envo_sng: 'SNG', envo_snpv_us: 'SNPV', envo_sp_us: 'SP',
+  // Drop the off-brand "Archilight" prefix — site is envo-only; keep the line name.
+  archilight_pure_lume: 'Pure Lume',
 }
 
 export function seriesSlug(code: string | null | undefined): string {
