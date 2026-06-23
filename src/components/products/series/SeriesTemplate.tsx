@@ -24,7 +24,9 @@ export default function SeriesTemplate(props: SeriesTemplateProps) {
 
       {tab === 'overview' && (
         <section className={styles.pane}>
-          {props.aiDraft && <div className={styles.draftFlag}>🟡 AI draft — pending review</div>}
+          {props.aiDraft && process.env.NODE_ENV !== 'production' && (
+            <div className={styles.draftFlag}>🟡 AI draft — pending review (dev only)</div>
+          )}
           <h1 className={styles.h1}>{headline}</h1>
           <p className={styles.lede}>{lede}</p>
           <div className={styles.stats}>
@@ -99,7 +101,6 @@ export default function SeriesTemplate(props: SeriesTemplateProps) {
           <div className={styles.solGrid}>
             {solutions.map((s) => (
               <div key={s.title} className={styles.solCard}>
-                <div className={styles.solImg}>SCENE PHOTO — TBD</div>
                 <h3>{s.title}</h3>
                 <p>{s.pick}</p>
               </div>
