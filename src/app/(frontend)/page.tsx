@@ -1,24 +1,22 @@
 import { Hero } from '@/components/home/hero'
-import { Apps } from '@/components/home/apps'
-import { FreeLayout } from '@/components/home/free-layout'
-import { FeaturedProject } from '@/components/home/featured-project'
-import { ProductRange } from '@/components/home/product-range'
-import { TrustSlim } from '@/components/home/trust-slim'
-import { Guides } from '@/components/home/guides'
-import { FinalCta } from '@/components/home/final-cta'
+import { ValueProps } from '@/components/home/value-props'
+import { ShopByCategory } from '@/components/home/shop-by-category'
+import { SignageRange } from '@/components/home/signage-range'
+import { Projects } from '@/components/home/projects'
+import { WhyEnvo } from '@/components/home/why-envo'
+import { FreeLayoutCta } from '@/components/home/free-layout-cta'
 import '@/components/home/home-v6.css'
 
 export default function HomePage() {
   return (
     <main className="v4">
       <Hero />
-      <Apps />
-      <FreeLayout />
-      <FeaturedProject />
-      <ProductRange />
-      <TrustSlim />
-      <Guides />
-      <FinalCta />
+      <ValueProps />
+      <ShopByCategory />
+      <SignageRange />
+      <Projects />
+      <WhyEnvo />
+      <FreeLayoutCta />
     </main>
   )
 }
