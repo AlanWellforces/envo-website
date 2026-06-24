@@ -11,5 +11,5 @@ export async function generateMetadata(): Promise<Metadata> {
 }
 
 export default function ArchitecturalLightingPage() {
-  return <SolutionDetail slug="architectural-lighting" headline="Accent, linear, facade, step, landscape." />
+  return <SolutionDetail slug="architectural-lighting" />
 }
