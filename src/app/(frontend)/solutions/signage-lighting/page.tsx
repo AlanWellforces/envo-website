@@ -11,5 +11,5 @@ export async function generateMetadata(): Promise<Metadata> {
 }
 
 export default function SignageLightingPage() {
-  return <SolutionDetail slug="signage-lighting" headline="Channel letters, light boxes, edge-lit signage." />
+  return <SolutionDetail slug="signage-lighting" />
 }

@@ -4,25 +4,19 @@ import Link from 'next/link'
 import { EnvoButton } from '@/components/ui/envo-button'
 import { SOLUTIONS } from '@/data/solutions'
 import { metadataForRoute } from '@/lib/page-seo'
+import '@/components/solutions/solutions-dark.css'
 
 export async function generateMetadata(): Promise<Metadata> {
   return metadataForRoute('/solutions', {
     title: 'Solutions — ENVO',
     description:
-      'Channel letters, light boxes, edge-lit signage, and architectural lighting — solutions engineered for outdoor durability and warranty-grade longevity.',
+      'Signage and architectural lighting solutions — channel letters, light boxes, edge-lit signage and facade lighting, with a matched module/driver kit for every build.',
   })
 }
 
-const STATS = [
-  { label: 'Solution areas', value: '2' },
-  { label: 'Application types', value: '8+' },
-  { label: 'Output range', value: '10–80k lm' },
-  { label: 'Warranty', value: '5 years' },
-]
-
 export default function SolutionsPage() {
   return (
-    <div className="theme-light">
+    <div className="sd-wrap">
       <div className="container">
         <div className="breadcrumb">
           <Link href="/">Home</Link>
@@ -31,73 +25,39 @@ export default function SolutionsPage() {
         </div>
       </div>
 
-      <section className="sig-hero">
+      <section className="sd-hero">
         <div className="container">
-          <div className="sig-hero-inner">
-            <span className="sig-eyebrow">Solutions · Overview</span>
-            <h1>
-              Lighting solutions for <em>signage and architecture.</em>
-            </h1>
-            <p className="sig-hero-desc">
-              From channel letters to facade illumination — modular LED systems engineered to
-              deliver consistent colour, uniform brightness, and warranty-grade durability across
-              every application.
-            </p>
-          </div>
-        </div>
-      </section>
-
-      <div className="sig-stats">
-        {STATS.map((s) => (
-          <div key={s.label} className="sig-stat">
-            <div className="sig-stat-label">{s.label}</div>
-            <div className="sig-stat-value">{s.value}</div>
-          </div>
-        ))}
-      </div>
-
-      <section className="sol-section">
-        <div className="sol-grid">
-          {SOLUTIONS.map((s) => (
-            <Link key={s.slug} href={s.href} className="sol-card">
-              <div className="sol-card-img">
-                <Image
-                  src={s.img}
-                  alt={s.name}
-                  fill
-                  sizes="(min-width: 700px) 50vw, 100vw"
-                />
-              </div>
-              <div className="sol-card-body">
-                <div className="sol-name">{s.name}</div>
-                <div className="sol-desc">{s.longDesc}</div>
-                <div className="sol-cta">
-                  Explore {s.name.toLowerCase()} <span>→</span>
-                </div>
-              </div>
-            </Link>
-          ))}
-        </div>
-      </section>
-
-      <section className="sig-cta-banner">
-        <div className="sig-cta-inner">
-          <span className="sig-cta-eyebrow">Find your match · 60-sec wizard</span>
-          <h2>
-            Not sure which solution fits? <em>We will spec the full system.</em>
-          </h2>
-          <p>
-            Tell us your project type, dimensions and install environment — our engineers spec the
-            modules, drivers, controllers and accessories as a complete bundle.
+          <span className="sd-eyebrow">Solutions · By application</span>
+          <h1>Built for where light has to perform.</h1>
+          <p className="sd-hero-desc">
+            From storefront signage to full media facades — matched systems, engineered for the
+            environment they live in.
           </p>
-          <div className="sig-cta-actions">
-            <EnvoButton href="/find-your-match" variant="primary" arrow>
-              Try Find your match
-            </EnvoButton>
-            <EnvoButton href="/contact" variant="ghost">
-              Contact engineering
-            </EnvoButton>
-          </div>
+        </div>
+      </section>
+
+      <section className="sd-rows">
+        <div className="container">
+          {SOLUTIONS.map((s) => (
+            <article key={s.slug} className="sd-row">
+              <div className="sd-media">
+                <Image src={s.img} alt={s.name} fill sizes="(min-width: 900px) 40vw, 100vw" />
+              </div>
+              <div className="sd-body">
+                <span className="sd-tag">{s.eyebrow}</span>
+                <h2>{s.heroTitle}</h2>
+                <p>{s.heroDesc}</p>
+                <ul className="sd-checks">
+                  {s.checklist.map((c) => (
+                    <li key={c}>{c}</li>
+                  ))}
+                </ul>
+                <EnvoButton href={s.href} variant="primary" arrow className="sd-btn">
+                  View solution &amp; kit
+                </EnvoButton>
+              </div>
+            </article>
+          ))}
         </div>
       </section>
     </div>
