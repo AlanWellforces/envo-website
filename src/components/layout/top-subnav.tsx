@@ -27,14 +27,19 @@ export function TopSubnav() {
   const isMiniSeries = /^\/products\/[^/]+\/mini-series(\/|$)/.test(pathname)
   const seriesSeg = pathname.match(/^\/products\/[^/]+\/([^/]+)/)?.[1]
   const isEditorialSeries = !!seriesSeg && EDITORIAL_SERIES_SLUGS.has(seriesSeg)
-  const visible = pathname.startsWith('/products') && !isMiniSeries && !isEditorialSeries
+  // Catalogue listing pages (/products and /products/<family>) render their own
+  // category pills WITH counts + an "All" tab, so the dark category bar would be
+  // a redundant second row. Detail pages (/products/<family>/<series>) keep it.
+  const isCatalogueListing = /^\/products(\/[^/]+)?\/?$/.test(pathname)
+  const visible =
+    pathname.startsWith('/products') && !isMiniSeries && !isEditorialSeries && !isCatalogueListing
 
   useEffect(() => {
     document.body.classList.toggle('has-topsubnav', visible)
     return () => document.body.classList.remove('has-topsubnav')
   }, [visible])
 
-  if (isMiniSeries || isEditorialSeries) return null
+  if (isMiniSeries || isEditorialSeries || isCatalogueListing) return null
 
   return (
     <div className={cn('top-subnav', !visible && 'hidden')} aria-hidden={!visible}>

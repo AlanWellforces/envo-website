@@ -2,7 +2,7 @@ import type { Metadata } from 'next'
 import Link from 'next/link'
 import { notFound } from 'next/navigation'
 import { PRODUCT_FAMILIES } from '@/data/product-families'
-import { getProductsByMarketingFamily } from '@/lib/products'
+import { getProductsByMarketingFamily, countProductsByMarketingFamily } from '@/lib/products'
 import { buildCards, buildGroups } from '@/components/products/catalogue-data'
 import { CatalogueFilter } from '@/components/products/CatalogueFilter'
 import '@/components/products/products-catalogue.css'
@@ -27,14 +27,18 @@ export default async function ProductFamilyPage({ params }: { params: Params }) 
   const family = PRODUCT_FAMILIES.find((f) => f.slug === slug)
   if (!family) notFound()
 
-  // Same unified catalogue, scoped to one family. Fetch every family once for
-  // the per-family pill counts; build cards from this family's products.
-  const allProducts = await Promise.all(
-    PRODUCT_FAMILIES.map((f) => getProductsByMarketingFamily(f.slug)),
+  // Same unified catalogue, scoped to one family. Fetch only THIS family's
+  // products fully (depth 0 — images come from URL columns); the other families
+  // contribute only a cheap count for their pill badge.
+  const products = await getProductsByMarketingFamily(slug, { depth: 0 })
+  const countEntries = await Promise.all(
+    PRODUCT_FAMILIES.map(
+      async (f) =>
+        [f.slug, f.slug === slug ? products.length : await countProductsByMarketingFamily(f.slug)] as const,
+    ),
   )
-  const countBySlug = new Map(PRODUCT_FAMILIES.map((f, i) => [f.slug, allProducts[i].length]))
+  const countBySlug = new Map(countEntries)
   const total = [...countBySlug.values()].reduce((a, b) => a + b, 0)
-  const products = allProducts[PRODUCT_FAMILIES.findIndex((f) => f.slug === slug)]
 
   const cards = buildCards(family, products)
   const groups = buildGroups(cards)

@@ -16,7 +16,7 @@ export default async function ProductsPage() {
   // One catalogue across all families. Each family's series become cards; the
   // category pills navigate to the per-family view (/products/[slug]).
   const allProducts = await Promise.all(
-    PRODUCT_FAMILIES.map((f) => getProductsByMarketingFamily(f.slug)),
+    PRODUCT_FAMILIES.map((f) => getProductsByMarketingFamily(f.slug, { depth: 0 })),
   )
   const countBySlug = new Map(PRODUCT_FAMILIES.map((f, i) => [f.slug, allProducts[i].length]))
   const total = [...countBySlug.values()].reduce((a, b) => a + b, 0)
