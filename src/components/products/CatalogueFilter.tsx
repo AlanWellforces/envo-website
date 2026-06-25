@@ -40,6 +40,17 @@ export function CatalogueFilter({ cards, groups, unit }: Props) {
   }
   const activeCount = Object.values(selected).reduce((n, s) => n + s.size, 0) + (query ? 1 : 0)
 
+  // `${groupKey}:${value}` -> human label, for the active-filter chips.
+  const labelOf = useMemo(() => {
+    const m = new Map<string, string>()
+    for (const g of groups) for (const o of g.options) m.set(`${g.key}:${o.value}`, o.label)
+    return m
+  }, [groups])
+
+  const activeChips = Object.entries(selected).flatMap(([gk, set]) =>
+    [...set].map((v) => ({ gk, v, label: labelOf.get(`${gk}:${v}`) ?? v })),
+  )
+
   const visible = useMemo(() => {
     const q = query.trim().toLowerCase()
     return cards.filter((card) => {
@@ -65,42 +76,65 @@ export function CatalogueFilter({ cards, groups, unit }: Props) {
           />
         </div>
 
-        <div className="pcat-ftitle">
-          Filters
-          {activeCount > 0 && (
-            <button type="button" className="reset" onClick={reset}>
-              Reset all
-            </button>
-          )}
-        </div>
+        <div className="pcat-ftitle">Filters</div>
 
-        {groups.map((g) => (
-          <div key={g.key} className="pcat-fgroup">
-            <h4>{g.label}</h4>
-            <div className="pcat-fopts">
-              {g.options.map((o) => {
-                const on = selected[g.key]?.has(o.value) ?? false
-                return (
-                  <button
-                    key={o.value}
-                    type="button"
-                    className={`pcat-fopt${on ? ' on' : ''}`}
-                    aria-pressed={on}
-                    onClick={() => toggle(g.key, o.value)}
-                  >
-                    {o.label} <span className="ct">{o.count}</span>
-                  </button>
-                )
-              })}
+        {groups.map((g) => {
+          const picked = selected[g.key]?.size ?? 0
+          return (
+            <div key={g.key} className="pcat-fgroup">
+              <h4>
+                {g.label}
+                {picked > 0 && <span className="picked">{picked}</span>}
+              </h4>
+              <div className="pcat-fopts">
+                {g.options.map((o) => {
+                  const on = selected[g.key]?.has(o.value) ?? false
+                  return (
+                    <label key={o.value} className={`pcat-check${on ? ' on' : ''}`}>
+                      <input
+                        type="checkbox"
+                        checked={on}
+                        onChange={() => toggle(g.key, o.value)}
+                      />
+                      <span className="box" aria-hidden />
+                      <span className="lab">{o.label}</span>
+                      <span className="ct">{o.count}</span>
+                    </label>
+                  )
+                })}
+              </div>
             </div>
-          </div>
-        ))}
+          )
+        })}
       </aside>
 
       <section className="pcat-results">
         <p className="pcat-count">
           {visible.length} <em>series · {visible.reduce((n, c) => n + c.modelCount, 0)} {unit}</em>
         </p>
+
+        {activeCount > 0 && (
+          <div className="pcat-active">
+            {query && (
+              <button type="button" className="pcat-chip" onClick={() => setQuery('')}>
+                “{query.trim()}” <span aria-hidden>×</span>
+              </button>
+            )}
+            {activeChips.map(({ gk, v, label }) => (
+              <button
+                key={`${gk}:${v}`}
+                type="button"
+                className="pcat-chip"
+                onClick={() => toggle(gk, v)}
+              >
+                {label} <span aria-hidden>×</span>
+              </button>
+            ))}
+            <button type="button" className="pcat-clear" onClick={reset}>
+              Clear all
+            </button>
+          </div>
+        )}
 
         {visible.length === 0 ? (
           <p className="pcat-empty">

@@ -8,8 +8,7 @@ import {
   type Product,
 } from '@/lib/products'
 import { seriesSlug, seriesLabel, seriesLineArt } from '@/data/family-map'
-import { SERIES_APPLICATIONS, APPLICATION_OPTIONS, SERIES_BLURBS, LED_CONFIG_OPTIONS } from '@/data/series-applications'
-import { CERT_OPTIONS } from '@/lib/cert-codes'
+import { SERIES_BLURBS, LED_CONFIG_OPTIONS } from '@/data/series-applications'
 
 export type FacetOption = { value: string; label: string; count: number }
 export type FacetGroup = { key: string; label: string; options: FacetOption[] }
@@ -51,12 +50,76 @@ function beadsFromLedConfig(s?: string): number | undefined {
   return found.length ? Math.max(...found) : undefined
 }
 
-const CERT_LABEL = new Map<string, string>(CERT_OPTIONS.map((o) => [o.value, o.label]))
-const APP_LABEL = new Map<string, string>(APPLICATION_OPTIONS.map((o) => [o.value, o.label]))
-const APP_ORDER = new Map<string, number>(APPLICATION_OPTIONS.map((o, i) => [o.value, i]))
-const CERT_ORDER = new Map<string, number>(CERT_OPTIONS.map((o, i) => [o.value, i]))
-const LED_LABEL = new Map<string, string>(LED_CONFIG_OPTIONS.map((o) => [o.value, o.label]))
-const LED_ORDER = new Map<string, number>(LED_CONFIG_OPTIONS.map((o, i) => [o.value, i]))
+// ── Facet vocabularies ──────────────────────────────────────────────────────
+// Size/brightness/voltage are SKU-level specs that vary within a series, so the
+// catalogue buckets them into bands and a series carries a band if ANY of its
+// SKUs falls in it. Bands tuned to the live data (2026-06-26 audit). Each facet
+// is adaptive: it only renders when the visible cards hold ≥2 of its values, so
+// module facets (brightness/CCT) and driver facets (voltage/CC-CV) never clash.
+const SIZE_OPTIONS = [
+  { value: 'compact', label: 'Compact · under 30 mm' },
+  { value: 'standard', label: 'Standard · 30–60 mm' },
+  { value: 'large', label: 'Large · 60 mm +' },
+] as const
+const BRIGHTNESS_OPTIONS = [
+  { value: 'lm-std', label: 'Up to 100 lm' },
+  { value: 'lm-high', label: '100–200 lm' },
+  { value: 'lm-ultra', label: '200 lm +' },
+] as const
+const VOLTAGE_OPTIONS = [
+  { value: '12', label: '12 V' },
+  { value: '24', label: '24 V' },
+  { value: '48', label: '48 V' },
+  { value: 'mains', label: 'Mains · 110–240 V' },
+] as const
+const OPMODE_OPTIONS = [
+  { value: 'cv', label: 'Constant voltage (CV)' },
+  { value: 'cc', label: 'Constant current (CC)' },
+] as const
+
+function sizeBand(mm: number | null): string | undefined {
+  if (mm == null) return undefined
+  if (mm < 30) return 'compact'
+  if (mm < 60) return 'standard'
+  return 'large'
+}
+function brightnessBand(lm: number | null): string | undefined {
+  if (lm == null) return undefined
+  if (lm < 100) return 'lm-std'
+  if (lm < 200) return 'lm-high'
+  return 'lm-ultra'
+}
+function voltageBand(v: number | null): string | undefined {
+  if (v == null) return undefined
+  if (v === 12 || v === 24 || v === 48) return String(v)
+  if (v >= 100) return 'mains'
+  return undefined // odd DC values (3/5/16/40 V…) don't earn their own option
+}
+function opmodeValues(m: Product['operation_mode']): string[] {
+  if (m === 'cv') return ['cv']
+  if (m === 'cc') return ['cc']
+  if (m === 'cv_cc') return ['cv', 'cc']
+  return []
+}
+
+/** value → label / sort-order accessors for an options list. */
+function maps(opts: readonly { value: string; label: string }[]) {
+  return {
+    label: (v: string) => opts.find((o) => o.value === v)?.label ?? v,
+    order: (v: string) => {
+      const i = opts.findIndex((o) => o.value === v)
+      return i < 0 ? 99 : i
+    },
+  }
+}
+const LED = maps(LED_CONFIG_OPTIONS)
+const SIZE = maps(SIZE_OPTIONS)
+const BRIGHTNESS = maps(BRIGHTNESS_OPTIONS)
+const VOLTAGE = maps(VOLTAGE_OPTIONS)
+const OPMODE = maps(OPMODE_OPTIONS)
+
+/** Distinct, defined facet values from a list of maybe-undefined band results. */
+const uniq = (xs: (string | undefined)[]): string[] => [...new Set(xs.filter((x): x is string => !!x))]
 
 const BEAD_LABEL: Record<string, string> = { '01': 'single', '02': 'duo', '03': 'triple', '04': 'quad' }
 /** LED config values for a series, from its SKUs' variant codes (EV-BLML0**3**…). */
@@ -114,10 +177,12 @@ export function buildCards(family: ProductFamily, products: Product[]): Catalogu
         beads: beadsFromLedConfig(spec?.ledConfig),
         certified: certs.length > 0,
         facets: {
-          application: g.code ? SERIES_APPLICATIONS[g.code] ?? [] : [],
+          size: uniq(g.products.map((p) => sizeBand(p.length_mm))),
           ledconfig: ledConfigFromSkus(g.products.map((p) => p.sku)),
+          brightness: uniq(g.products.map((p) => brightnessBand(p.brightness_lm))),
           cct: ccts,
-          cert: certs,
+          voltage: uniq(g.products.map((p) => voltageBand(p.output_voltage_v))),
+          opmode: uniq(g.products.flatMap((p) => opmodeValues(p.operation_mode))),
         },
       })
     }
@@ -144,9 +209,11 @@ function group(
 /** Facet groups computed from the visible cards (only facets with ≥2 values). */
 export function buildGroups(cards: CatalogueCard[]): FacetGroup[] {
   return [
-    group('application', 'Application', cards, (v) => APP_LABEL.get(v) ?? v, (v) => APP_ORDER.get(v) ?? 99),
-    group('ledconfig', 'LED configuration', cards, (v) => LED_LABEL.get(v) ?? v, (v) => LED_ORDER.get(v) ?? 99),
+    group('size', 'Size', cards, SIZE.label, SIZE.order),
+    group('ledconfig', 'LED configuration', cards, LED.label, LED.order),
+    group('brightness', 'Brightness', cards, BRIGHTNESS.label, BRIGHTNESS.order),
     group('cct', 'Colour temp (CCT)', cards, (v) => `${v} K`, (v) => Number(v)),
-    group('cert', 'Certification', cards, (v) => CERT_LABEL.get(v) ?? v, (v) => CERT_ORDER.get(v) ?? 99),
+    group('voltage', 'Voltage', cards, VOLTAGE.label, VOLTAGE.order),
+    group('opmode', 'Driver type', cards, OPMODE.label, OPMODE.order),
   ].filter((g): g is FacetGroup => g !== null)
 }
