@@ -3,6 +3,7 @@ import { Fragment } from 'react'
 import Image from 'next/image'
 import Link from 'next/link'
 import { resolveProductImage, type Product } from '@/lib/products'
+import { datasheetHref } from '@/lib/asset-url'
 import { SPEC_GROUPS, heroStats } from './spec-groups'
 import { dbFamilyToMarketing, seriesSlug, seriesLabel } from '@/data/family-map'
 import styles from './GenericProductDetail.module.css'
@@ -52,7 +53,12 @@ export function GenericProductDetail({
           </div>
         )}
         {product.spec_sheet_url && (
-          <a className={styles.pill} href={product.spec_sheet_url} target="_blank" rel="noopener noreferrer">
+          <a
+            className={styles.pill}
+            href={datasheetHref(product.sku)!}
+            target="_blank"
+            rel="noopener noreferrer"
+          >
             Datasheet (PDF) →
           </a>
         )}

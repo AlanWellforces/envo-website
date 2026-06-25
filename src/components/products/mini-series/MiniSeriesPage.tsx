@@ -3,6 +3,7 @@
 import { useEffect, useRef } from 'react'
 
 import type { Product } from '@/lib/products'
+import { datasheetHref } from '@/lib/asset-url'
 
 /**
  * Mini Series · MiniLux Backlit detail page.
@@ -2361,7 +2362,10 @@ const FORMATTERS: Record<string, (p: Product) => { text?: string; href?: string 
     const n = num(p.max_in_series)
     return n == null ? null : { text: String(n) }
   },
-  datasheet: (p) => p.spec_sheet_url ? { href: p.spec_sheet_url } : null,
+  datasheet: (p) => {
+    const href = p.spec_sheet_url ? datasheetHref(p.sku) : null
+    return href ? { href } : null
+  },
 }
 
 function applyAkeneo(shadow: ShadowRoot, variants: Product[]) {

@@ -1,5 +1,6 @@
 import type { Product } from './products'
 import { resolveProductImage } from './products'
+import { datasheetHref } from './asset-url'
 import { parseLedCount } from './product-selector'
 import { SERIES_EDITORIAL } from '@/data/series-editorial.generated'
 
@@ -40,7 +41,7 @@ export function groupSeriesModels(products: Product[]): SeriesModel[] {
       lumens: num(rep.brightness_lm),
       dimsMm: lwh.every((x) => x != null) ? lwh.join(' × ') : null,
       image: resolveProductImage(rep, ''),
-      datasheetUrl: rep.spec_sheet_url ?? null,
+      datasheetUrl: rep.spec_sheet_url ? datasheetHref(rep.sku) : null,
     })
   }
   return rows.sort((a, b) => (a.powerW ?? 0) - (b.powerW ?? 0))
