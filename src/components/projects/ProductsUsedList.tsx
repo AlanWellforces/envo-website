@@ -3,6 +3,7 @@
 
 import Image from 'next/image'
 import { getProduct, resolveProductImage } from '@/lib/products'
+import { datasheetHref } from '@/lib/asset-url'
 
 type Props = { skus: string[] }
 
@@ -43,7 +44,7 @@ export async function ProductsUsedList({ skus }: Props) {
                 <div className="products-used-sku">{product.sku}</div>
                 {product.spec_sheet_url && (
                   <a
-                    href={product.spec_sheet_url}
+                    href={datasheetHref(product.sku)!}
                     target="_blank"
                     rel="noopener noreferrer"
                     className="products-used-link"

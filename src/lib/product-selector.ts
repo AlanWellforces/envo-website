@@ -3,6 +3,7 @@
 // collection and flattens them into rows for the <ProductSelectorTable>.
 // Do NOT import from a client component.
 import { listProducts, resolveProductImage, type Product } from './products'
+import { datasheetHref } from './asset-url'
 import { formatDims } from './units'
 import { SELECTOR_CONFIGS, type SeriesMeta, type SelectorRow } from '@/data/selector-config'
 
@@ -59,7 +60,7 @@ export async function getProductsForSelector(family: string): Promise<SelectorRo
       heightMm: p.height_mm,
       dims: formatDims(p.length_mm, p.width_mm, p.height_mm),
       image: resolveProductImage(p, '/assets/images/cat-modules.png').src,
-      specSheetUrl: p.spec_sheet_url,
+      specSheetUrl: p.spec_sheet_url ? datasheetHref(p.sku) : null,
     }
   })
 
