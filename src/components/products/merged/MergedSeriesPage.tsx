@@ -21,7 +21,7 @@ export type MergedVariant = {
 }
 
 export type MergedSharedRow = { label: string; value: ReactNode }
-export type MergedSolution = { title: string; pick: string }
+export type MergedSolution = { title: string; pick: string; image?: Img }
 export type MergedDownload = { name: string; meta?: string; href?: string }
 export type MergedRelated = { kicker: string; name: string; href: string; image: Img }
 
@@ -315,11 +315,18 @@ export default function MergedSeriesPage(p: MergedSeriesProps) {
               <div className="eyebrow">Where it works</div>
               <h2>Built for the job.</h2>
             </div>
-            <div className="sol-grid">
+            <div className={`sol-grid${p.solutions.some((s) => s.image) ? ' has-img' : ''}`}>
               {p.solutions.map((s) => (
-                <div key={s.title} className="sol-card">
-                  <h3>{s.title}</h3>
-                  <p>{s.pick}</p>
+                <div key={s.title} className={`sol-card${s.image ? ' img' : ''}`}>
+                  {s.image && (
+                    <div className="sol-img">
+                      <Picture img={s.image} sizes="280px" />
+                    </div>
+                  )}
+                  <div className="sol-bd">
+                    <h3>{s.title}</h3>
+                    <p>{s.pick}</p>
+                  </div>
                 </div>
               ))}
             </div>

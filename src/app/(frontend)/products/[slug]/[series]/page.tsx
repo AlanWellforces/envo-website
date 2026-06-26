@@ -142,10 +142,10 @@ export default async function SeriesDetailPage({ params }: { params: Params }) {
           body: 'The MiniLux range is one to three binned SMD LEDs behind a Diamondback lens that throws a 180° × 140° beam — so light reaches the face evenly with no scalloping, even on shallow returns and tight radii. Every module is silicone-potted to IP66 and rated for −25 °C to +60 °C, so the same part number performs across climates. Run up to ~40 modules per power-injection point on a 12 V constant-voltage feed.',
         }}
         solutions={[
-          { title: 'Channel letters', pick: 'small & intricate faces' },
-          { title: 'Light boxes', pick: 'even backlight, no hotspots' },
-          { title: 'Shallow returns', pick: 'wide 180°×140° spread' },
-          { title: 'Outdoor signage', pick: 'IP66 · −25 to +60 °C' },
+          { title: 'Channel letters', pick: 'small & intricate faces', image: img('app-mini-channel-letters.jpg', 'Channel letters', true) },
+          { title: 'Light boxes', pick: 'even backlight, no hotspots', image: img('app-mini-thin-lightbox.jpg', 'Thin light box', true) },
+          { title: 'Outline & trim', pick: 'wide 180°×140° spread', image: img('app-mini-outline-trim.jpg', 'Outline trim', true) },
+          { title: 'Outdoor signage', pick: 'IP66 · −25 to +60 °C', image: img('app-mini-hospitality-facade.jpg', 'Hospitality facade', true) },
         ]}
         downloads={[{ name: 'MiniLux datasheet', meta: 'PDF', href: datasheetUrl }]}
         related={[

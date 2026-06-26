@@ -65,8 +65,13 @@
 .pdetail .compare .lead h2 { font-size: 23px; letter-spacing: -0.025em; margin: 6px 0 0; font-weight: 700; }
 .pdetail .cmp-tablewrap { overflow-x: auto; border: 1px solid var(--line); border-radius: 16px; background: var(--bg-card); }
 .pdetail .cmp-table { width: 100%; border-collapse: collapse; font-size: 13.5px; min-width: 640px; }
+/* column mode: fixed layout so the variant columns are always equal width
+   regardless of count (2 cols don't bunch up left, 4 spread evenly). */
+.pdetail .cmp-table:not(.rows) { table-layout: fixed; }
+.pdetail .cmp-table:not(.rows) .rowhead,
+.pdetail .cmp-table:not(.rows) tbody th { width: 200px; }
 .pdetail .cmp-table tbody th, .pdetail .cmp-table .rowhead { text-align: left; color: var(--text-subtle); font-weight: 500; padding: 13px 20px; white-space: nowrap; }
-.pdetail .cmp-table .vcol { text-align: center; padding: 18px 18px 16px; border-left: 1px solid var(--line); vertical-align: bottom; position: relative; width: 26%; }
+.pdetail .cmp-table .vcol { text-align: center; padding: 18px 18px 16px; border-left: 1px solid var(--line); vertical-align: bottom; position: relative; }
 .pdetail .cmp-table .c-star { background: rgba(0, 113, 188, 0.04); }
 .pdetail .cmp-table .vcol .star { position: absolute; top: 9px; left: 0; right: 0; font-family: var(--mono); font-size: 8.5px; letter-spacing: 0.08em; text-transform: uppercase; color: var(--blue); font-weight: 700; }
 .pdetail .cmp-table .vcol .dots { display: flex; gap: 5px; justify-content: center; margin-bottom: 9px; }
@@ -102,9 +107,14 @@
 .pdetail .solutions .sol-head { margin-bottom: 18px; }
 .pdetail .solutions h2 { font-size: 23px; letter-spacing: -0.025em; margin: 6px 0 0; font-weight: 700; }
 .pdetail .sol-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(230px, 1fr)); gap: 12px; }
-.pdetail .sol-card { padding: 16px 18px; border: 1px solid var(--line); border-radius: 12px; background: var(--bg-card); }
+.pdetail .sol-card { border: 1px solid var(--line); border-radius: 12px; background: var(--bg-card); overflow: hidden; }
+.pdetail .sol-card .sol-bd { padding: 14px 16px; }
 .pdetail .sol-card h3 { font-size: 14.5px; font-weight: 700; margin: 0 0 4px; }
 .pdetail .sol-card p { font-size: 12.5px; color: var(--text-muted); margin: 0; line-height: 1.45; }
+/* photo-backed solution cards */
+.pdetail .sol-grid.has-img { grid-template-columns: repeat(auto-fill, minmax(250px, 1fr)); }
+.pdetail .sol-card.img .sol-img { aspect-ratio: 16 / 10; overflow: hidden; background: var(--bg-soft); }
+.pdetail .sol-card.img .sol-img img { width: 100%; height: 100%; object-fit: cover; display: block; }
 
 /* ===== overview ===== */
 .pdetail .overview { padding: 40px 0; border-top: 1px solid var(--line); max-width: 76ch; }
