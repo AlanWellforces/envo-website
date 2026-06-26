@@ -3,9 +3,10 @@ import Image from 'next/image'
 import Link from 'next/link'
 import { notFound } from 'next/navigation'
 import { EnvoButton } from '@/components/ui/envo-button'
-import MiniSeriesPage from '@/components/products/mini-series/MiniSeriesPage'
+import MergedSeriesPage from '@/components/products/merged/MergedSeriesPage'
 import { PRODUCT_FAMILIES, type SeriesLink } from '@/data/product-families'
 import { PURCHASE_CHANNELS } from '@/data/purchase-channels'
+import { datasheetHref } from '@/lib/asset-url'
 import { getProduct, getProductsByMarketingFamily, resolveProductImage, type Product } from '@/lib/products'
 import { seriesSlug as toSeriesSlug, seriesLabel } from '@/data/family-map'
 import { ProductCardGrid } from '@/components/products/ProductCardGrid'
@@ -90,21 +91,104 @@ export default async function SeriesDetailPage({ params }: { params: Params }) {
   // max-per-string, datasheet URL); the client component substitutes them
   // into the mockup HTML via [data-akeneo] markers after the shadow attaches.
   if (series === 'mini-series') {
+    // Merged single-page detail (one page = the whole MiniLux series). Per-variant
+    // table cells prefer live Akeneo values (SKU/lumens/power/dimensions); shared
+    // rows + editorial copy are curated real specs (the clean DB nulls these —
+    // see memory project_envo-minilux-real-specs / mini-compare-shared-rows-wiring).
     const variantSkus = ['EV-BLML01LBY-NW', 'EV-BLML02LBY-NW', 'EV-BLML03LBY-NW']
-    const variants = await Promise.all(variantSkus.map((s) => getProduct(s)))
-    // Sibling-series list powers the in-subnav dropdown switcher. Each entry
-    // carries enough metadata to render the row and (for live ones) navigate.
-    const siblings = family.series.map((s) => ({
-      label: s.label,
-      productName: s.productName,
-      href: s.href,
-      live: isLive(s),
-      current: isLive(s) && s.slug === series,
-    }))
+    const live = await Promise.all(variantSkus.map((s) => getProduct(s)))
+    const dims = (pr: Product | null) =>
+      pr?.length_mm && pr?.width_mm && pr?.height_mm
+        ? `${pr.length_mm} × ${pr.width_mm} × ${pr.height_mm} mm`
+        : undefined
+
+    const META = [
+      { name: 'Single', beads: 1, img: 'mod-mini-single.png', output: '~ 29 lm', power: '0.24 W', size: '14 × 9 × 9 mm', bestFor: 'Small letters, outline trim, tight detail' },
+      { name: 'Duo', beads: 2, img: 'mod-mini-duo.png', output: '~ 55 lm', power: '0.48 W', size: '25.9 × 9 × 9 mm', bestFor: 'Standard small-to-mid returns' },
+      { name: 'Triple', beads: 3, star: true, img: 'mod-mini-triple.png', output: '~ 85 lm', power: '0.72 W', size: '38.1 × 9 × 9 mm', bestFor: 'Larger faces, brighter fills, fewer modules' },
+    ] as const
+    const variants = META.map((m, i) => {
+      const pr = live[i]
+      return {
+        name: m.name,
+        beads: m.beads,
+        star: 'star' in m ? m.star : undefined,
+        image: { src: `/assets/images/${m.img}`, local: true, alt: `MiniLux ${m.name}` },
+        modelCode: (pr?.sku ?? `EV-BLML0${m.beads}LBY-NW`).replace(/-NW$/i, ''),
+        ledBeads: String(m.beads),
+        output: pr?.brightness_lm != null ? `~ ${pr.brightness_lm} lm` : m.output,
+        power: pr?.power_w != null ? `${pr.power_w} W` : m.power,
+        size: dims(pr) ?? m.size,
+        bestFor: m.bestFor,
+      }
+    })
+    const datasheetUrl = datasheetHref(live.find((v) => v?.spec_sheet_url)?.sku ?? variantSkus[2]) ?? undefined
+    const img = (src: string, alt: string, cover = false) => ({ src: `/assets/images/${src}`, local: true, alt, cover })
+
     return (
-      <MiniSeriesPage
-        variants={variants.filter((v): v is Product => v !== null)}
-        siblings={siblings}
+      <MergedSeriesPage
+        breadcrumb={{ familyName: family.name, familyHref: family.href, seriesLabel: 'MiniLux Series' }}
+        eyebrow="Signage modules · Backlit"
+        title="MiniLux Series"
+        intro="The compact backlit module for small letters and intricate detail. A 180° × 140° Diamondback lens spreads light evenly with no hotspots, even on shallow returns — silicone-potted to IP66."
+        beadtag="MiniLux range · 1–3 LED beads"
+        checklist={[
+          'Even spread, no hotspots — Diamondback 180° × 140° optic',
+          'Silicone-potted IP66 — built for outdoor channel letters',
+          'Up to ~40 modules per power-injection feed',
+          '50,000-hour L70 rated life',
+        ]}
+        datasheetUrl={datasheetUrl}
+        thumbs={[
+          img('mod-mini.png', 'MiniLux module'),
+          img('mod-mini-line.png', 'MiniLux line drawing'),
+          img('app-mini-channel-letters.jpg', 'MiniLux in channel letters', true),
+          img('app-mini-halo-letters.jpg', 'MiniLux halo-lit letters', true),
+        ]}
+        variants={variants}
+        sharedRows={[
+          { label: 'Colour temperature', value: '3000 K · 4000 K · 7000 K' },
+          { label: 'Input voltage', value: '12 V DC · constant voltage' },
+          { label: 'Beam angle', value: '180° × 140° · Diamondback optic' },
+          { label: 'Efficacy', value: '~ 125 lm / W' },
+          { label: 'Ingress protection', value: 'IP66 · silicone-potted' },
+          {
+            label: 'Operating temp',
+            value: (
+              <>
+                −25 to +60 °C <em className="dim-imp">(−13 to 140 °F)</em>
+              </>
+            ),
+          },
+          { label: 'Lifetime', value: '50,000 h · L70' },
+          {
+            label: 'Certifications',
+            value: (
+              <span className="certs">
+                {['UL', 'cUL', 'CE', 'TÜV', 'RoHS', 'CB', 'LM-80'].map((c) => (
+                  <span key={c} className="c">
+                    {c}
+                  </span>
+                ))}
+              </span>
+            ),
+          },
+        ]}
+        overview={{
+          heading: 'Engineered to specify with confidence.',
+          body: 'The MiniLux range is one to three binned SMD LEDs behind a Diamondback lens that throws a 180° × 140° beam — so light reaches the face evenly with no scalloping, even on shallow returns and tight radii. Every module is silicone-potted to IP66 and rated for −25 °C to +60 °C, so the same part number performs across climates. Run up to ~40 modules per power-injection point on a 12 V constant-voltage feed.',
+        }}
+        downloads={[
+          { name: 'MiniLux datasheet', meta: 'PDF', href: datasheetUrl },
+          { name: 'Installation guide' },
+          { name: 'Declaration of Conformity' },
+          { name: '2D drawing (DXF)' },
+        ]}
+        related={[
+          { kicker: 'Driver · constant voltage', name: 'EV-SL Linear Driver', href: '/products/led-drivers/envo-sl-us', image: img('mod-eco-line.png', 'EV-SL Linear Driver') },
+          { kicker: 'Control gear', name: 'ZigBee Controller', href: '/products/control-gear/envo-zigbee', image: img('cat-controllers-line.png', 'ZigBee Controller') },
+          { kicker: 'Step up · larger faces', name: 'EcoGlo Series', href: '/products/led-signage-modules/envo-ecoglo', image: img('series/envo_ecoglo.jpg', 'EcoGlo Series') },
+        ]}
       />
     )
   }
