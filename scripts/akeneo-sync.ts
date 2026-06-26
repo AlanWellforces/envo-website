@@ -177,7 +177,10 @@ function normalise(p: any) {
 
     image_url_fallback,
     clean_image_url_fallback,
-    spec_sheet_url:          getString(v, 'spec_sheet') ?? getString(v, 'datasheet_url'),
+    // Datasheets: read the absolute `.aws` URL (with the Akeneo download href as
+    // fallback) exactly like images above — NOT the raw relative key, which
+    // 404s as an href. Mirrors src/lib/akeneo/sync.ts. See src/lib/asset-url.ts.
+    spec_sheet_url:          (v.spec_sheet?.[0]?.aws ?? v.spec_sheet?.[0]?._links?.download?.href) ?? getString(v, 'datasheet_url'),
 
     power_w:                 getAmount(v, 'power_rating'),
     output_voltage_v:        getAmount(v, 'output_voltage'),
