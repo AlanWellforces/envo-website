@@ -34,6 +34,9 @@ export type MergedSeriesProps = {
   datasheetUrl?: string
   thumbs?: (Img & { cover?: boolean })[]
   variants: MergedVariant[]
+  /** 'columns' (default) shows variants as compare columns; 'rows' lists them
+   *  as table rows — for series with too many models for a column table. */
+  variantLayout?: 'columns' | 'rows'
   sharedRows?: MergedSharedRow[]
   overview?: { heading: string; body: string }
   downloads?: MergedDownload[]
@@ -99,11 +102,13 @@ export default function MergedSeriesPage(p: MergedSeriesProps) {
           <div className="gallery">
             <div className="gstage">
               {p.beadtag && <span className="beadtag">{p.beadtag}</span>}
+              {/* Many-model series show one representative image, not a row of
+                  squished figures. ≤4 variants show the full collection set. */}
               <div className="collset">
-                {p.variants.map((v) => (
+                {(p.variantLayout === 'rows' ? p.variants.slice(0, 1) : p.variants.slice(0, 4)).map((v) => (
                   <figure key={v.name}>
                     <Picture img={v.image} sizes="120px" />
-                    <figcaption>{v.name}</figcaption>
+                    {p.variantLayout !== 'rows' && <figcaption>{v.name}</figcaption>}
                   </figure>
                 ))}
               </div>
@@ -170,59 +175,107 @@ export default function MergedSeriesPage(p: MergedSeriesProps) {
         )}
 
         {/* ===== COMPARE + SPEC TABLE ===== */}
-        {(activeVariantRows.length > 0 || (p.sharedRows && p.sharedRows.length > 0)) && (
-          <div className="compare">
-            <div className="lead">
-              <div className="eyebrow">Specifications</div>
-              <h2>Compare the range — and every shared spec.</h2>
-            </div>
-            <div className="cmp-tablewrap">
-              <table className="cmp-table">
-                <thead>
-                  <tr>
-                    <th className="rowhead" />
-                    {p.variants.map((v) => (
-                      <th key={v.name} className={`vcol${v.star ? ' c-star' : ''}`}>
-                        {v.star && <span className="star">★ most specified</span>}
-                        <div className="vimg">
-                          <Picture img={v.image} sizes="110px" />
-                        </div>
-                        {maxBeads > 0 && (
-                          <div className="dots">
-                            {Array.from({ length: maxBeads }).map((_, i) => (
-                              <i key={i} className={i < (v.beads ?? 0) ? '' : 'off'} />
+        {(activeVariantRows.length > 0 || (p.sharedRows && p.sharedRows.length > 0)) &&
+          (p.variantLayout === 'rows' ? (
+            // Many models → variants as rows + shared specs as a definition list.
+            <div className="compare">
+              <div className="lead">
+                <div className="eyebrow">Specifications</div>
+                <h2>{p.variants.length} models — full spec reference.</h2>
+              </div>
+              {(() => {
+                const cols = activeVariantRows.filter((r) => r.key !== 'modelCode' && r.key !== 'bestFor')
+                return (
+                  <div className="cmp-tablewrap">
+                    <table className="cmp-table rows">
+                      <thead>
+                        <tr>
+                          <th className="rowhead">Model</th>
+                          {cols.map((r) => (
+                            <th key={r.key}>{r.label}</th>
+                          ))}
+                        </tr>
+                      </thead>
+                      <tbody>
+                        {p.variants.map((v) => (
+                          <tr key={v.name}>
+                            <th className="mono">{v.modelCode ?? v.name}</th>
+                            {cols.map((r) => (
+                              <td key={r.key} className={r.cls}>
+                                {(v[r.key] as string) ?? '—'}
+                              </td>
                             ))}
-                          </div>
-                        )}
-                        <div className="nm">{v.name}</div>
-                      </th>
-                    ))}
-                  </tr>
-                </thead>
-                <tbody>
-                  {activeVariantRows.map((row) => (
-                    <tr key={row.key}>
-                      <th>{row.label}</th>
+                          </tr>
+                        ))}
+                      </tbody>
+                    </table>
+                  </div>
+                )
+              })()}
+              {p.sharedRows && p.sharedRows.length > 0 && (
+                <dl className="shared-specs">
+                  {p.sharedRows.map((row) => (
+                    <div key={row.label}>
+                      <dt>{row.label}</dt>
+                      <dd>{row.value}</dd>
+                    </div>
+                  ))}
+                </dl>
+              )}
+            </div>
+          ) : (
+            <div className="compare">
+              <div className="lead">
+                <div className="eyebrow">Specifications</div>
+                <h2>Compare the range — and every shared spec.</h2>
+              </div>
+              <div className="cmp-tablewrap">
+                <table className="cmp-table">
+                  <thead>
+                    <tr>
+                      <th className="rowhead" />
                       {p.variants.map((v) => (
-                        <td key={v.name} className={row.cls}>
-                          {(v[row.key] as string) ?? '—'}
-                        </td>
+                        <th key={v.name} className={`vcol${v.star ? ' c-star' : ''}`}>
+                          {v.star && <span className="star">★ most specified</span>}
+                          <div className="vimg">
+                            <Picture img={v.image} sizes="110px" />
+                          </div>
+                          {maxBeads > 0 && (
+                            <div className="dots">
+                              {Array.from({ length: maxBeads }).map((_, i) => (
+                                <i key={i} className={i < (v.beads ?? 0) ? '' : 'off'} />
+                              ))}
+                            </div>
+                          )}
+                          <div className="nm">{v.name}</div>
+                        </th>
                       ))}
                     </tr>
-                  ))}
-                  {p.sharedRows?.map((row) => (
-                    <tr key={row.label}>
-                      <th>{row.label}</th>
-                      <td className="shared" colSpan={p.variants.length}>
-                        {row.value}
-                      </td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
+                  </thead>
+                  <tbody>
+                    {activeVariantRows.map((row) => (
+                      <tr key={row.key}>
+                        <th>{row.label}</th>
+                        {p.variants.map((v) => (
+                          <td key={v.name} className={row.cls}>
+                            {(v[row.key] as string) ?? '—'}
+                          </td>
+                        ))}
+                      </tr>
+                    ))}
+                    {p.sharedRows?.map((row) => (
+                      <tr key={row.label}>
+                        <th>{row.label}</th>
+                        <td className="shared" colSpan={p.variants.length}>
+                          {row.value}
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
             </div>
-          </div>
-        )}
+          ))}
 
         {/* ===== DOWNLOADS — only files we actually host; the rest is a request link ===== */}
         {(() => {
