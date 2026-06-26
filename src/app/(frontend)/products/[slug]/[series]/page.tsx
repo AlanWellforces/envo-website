@@ -178,12 +178,7 @@ export default async function SeriesDetailPage({ params }: { params: Params }) {
           heading: 'Engineered to specify with confidence.',
           body: 'The MiniLux range is one to three binned SMD LEDs behind a Diamondback lens that throws a 180° × 140° beam — so light reaches the face evenly with no scalloping, even on shallow returns and tight radii. Every module is silicone-potted to IP66 and rated for −25 °C to +60 °C, so the same part number performs across climates. Run up to ~40 modules per power-injection point on a 12 V constant-voltage feed.',
         }}
-        downloads={[
-          { name: 'MiniLux datasheet', meta: 'PDF', href: datasheetUrl },
-          { name: 'Installation guide' },
-          { name: 'Declaration of Conformity' },
-          { name: '2D drawing (DXF)' },
-        ]}
+        downloads={[{ name: 'MiniLux datasheet', meta: 'PDF', href: datasheetUrl }]}
         related={[
           { kicker: 'Driver · constant voltage', name: 'EV-SL Linear Driver', href: '/products/led-drivers/envo-sl-us', image: img('mod-eco-line.png', 'EV-SL Linear Driver') },
           { kicker: 'Control gear', name: 'ZigBee Controller', href: '/products/control-gear/envo-zigbee', image: img('cat-controllers-line.png', 'ZigBee Controller') },

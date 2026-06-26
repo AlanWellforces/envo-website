@@ -224,17 +224,19 @@ export default function MergedSeriesPage(p: MergedSeriesProps) {
           </div>
         )}
 
-        {/* ===== DOWNLOADS ===== */}
-        {p.downloads && p.downloads.length > 0 && (
-          <div className="downloads">
-            <div className="dl-head">
-              <div className="eyebrow">Downloads</div>
-              <h2>Specs, drawings and compliance — one click away.</h2>
-            </div>
-            <div className="dl-grid">
-              {p.downloads.map((d) => {
-                const inner = (
-                  <>
+        {/* ===== DOWNLOADS — only files we actually host; the rest is a request link ===== */}
+        {(() => {
+          const files = (p.downloads ?? []).filter((d) => d.href)
+          if (files.length === 0) return null
+          return (
+            <div className="downloads">
+              <div className="dl-head">
+                <div className="eyebrow">Downloads</div>
+                <h2>Specs, drawings and compliance — one click away.</h2>
+              </div>
+              <div className="dl-grid">
+                {files.map((d) => (
+                  <a key={d.name} className="dl-card" href={d.href} target="_blank" rel="noopener noreferrer">
                     <span className="dl-ico">
                       <FileIcon />
                     </span>
@@ -243,21 +245,16 @@ export default function MergedSeriesPage(p: MergedSeriesProps) {
                       {d.meta && <span className="dl-meta">{d.meta}</span>}
                     </span>
                     <span className="dl-arrow">↓</span>
-                  </>
-                )
-                return d.href ? (
-                  <a key={d.name} className="dl-card" href={d.href} target="_blank" rel="noopener noreferrer">
-                    {inner}
                   </a>
-                ) : (
-                  <Link key={d.name} className="dl-card" href="/contact">
-                    {inner}
-                  </Link>
-                )
-              })}
+                ))}
+              </div>
+              <p className="dl-contact">
+                Need installation guides, drawings or compliance certificates?{' '}
+                <Link href="/contact">Request files →</Link>
+              </p>
             </div>
-          </div>
-        )}
+          )
+        })()}
 
         {/* ===== RELATED ===== */}
         {p.related && p.related.length > 0 && (

@@ -102,6 +102,9 @@
 .pdetail .dl-meta { font-family: var(--mono); font-size: 10.5px; color: var(--text-subtle); margin-top: 2px; }
 .pdetail .dl-arrow { color: var(--text-subtle); font-size: 16px; }
 .pdetail .dl-card:hover .dl-arrow { color: var(--blue); }
+.pdetail .dl-contact { margin: 14px 0 0; font-size: 13px; color: var(--text-subtle); }
+.pdetail .dl-contact a { color: var(--blue); font-weight: 600; text-decoration: none; }
+.pdetail .dl-contact a:hover { text-decoration: underline; }
 
 /* ===== related ===== */
 .pdetail .rel { padding: 40px 0 60px; border-top: 1px solid var(--line); }
