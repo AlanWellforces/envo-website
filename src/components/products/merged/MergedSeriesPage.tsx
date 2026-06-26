@@ -21,6 +21,7 @@ export type MergedVariant = {
 }
 
 export type MergedSharedRow = { label: string; value: ReactNode }
+export type MergedSolution = { title: string; pick: string }
 export type MergedDownload = { name: string; meta?: string; href?: string }
 export type MergedRelated = { kicker: string; name: string; href: string; image: Img }
 
@@ -39,6 +40,7 @@ export type MergedSeriesProps = {
   variantLayout?: 'columns' | 'rows'
   sharedRows?: MergedSharedRow[]
   overview?: { heading: string; body: string }
+  solutions?: MergedSolution[]
   downloads?: MergedDownload[]
   related?: MergedRelated[]
 }
@@ -83,6 +85,7 @@ const FileIcon = () => (
 export default function MergedSeriesPage(p: MergedSeriesProps) {
   const maxBeads = Math.max(0, ...p.variants.map((v) => v.beads ?? 0))
   const activeVariantRows = VARIANT_ROWS.filter((r) => p.variants.some((v) => v[r.key]))
+  const single = p.variants.length === 1
 
   return (
     <div className="theme-light pdetail">
@@ -174,8 +177,36 @@ export default function MergedSeriesPage(p: MergedSeriesProps) {
           </div>
         )}
 
-        {/* ===== COMPARE + SPEC TABLE ===== */}
-        {(activeVariantRows.length > 0 || (p.sharedRows && p.sharedRows.length > 0)) &&
+        {/* ===== SPEC — single model: one combined definition list ===== */}
+        {single && (activeVariantRows.length > 0 || (p.sharedRows && p.sharedRows.length > 0)) && (
+          <div className="compare">
+            <div className="lead">
+              <div className="eyebrow">Specifications</div>
+              <h2>Full specification.</h2>
+            </div>
+            <dl className="shared-specs">
+              {activeVariantRows
+                .filter((r) => r.key !== 'bestFor')
+                .map((r) => (
+                  <div key={r.key}>
+                    <dt>{r.label}</dt>
+                    <dd className={r.cls}>{(p.variants[0][r.key] as string) ?? '—'}</dd>
+                  </div>
+                ))}
+              {p.sharedRows?.map((row) => (
+                <div key={row.label}>
+                  <dt>{row.label}</dt>
+                  <dd>{row.value}</dd>
+                </div>
+              ))}
+            </dl>
+            {p.variants[0].bestFor && <p className="spec-bestfor">Best for {p.variants[0].bestFor}.</p>}
+          </div>
+        )}
+
+        {/* ===== COMPARE + SPEC TABLE (multi-model) ===== */}
+        {!single &&
+          (activeVariantRows.length > 0 || (p.sharedRows && p.sharedRows.length > 0)) &&
           (p.variantLayout === 'rows' ? (
             // Many models → variants as rows + shared specs as a definition list.
             <div className="compare">
@@ -276,6 +307,24 @@ export default function MergedSeriesPage(p: MergedSeriesProps) {
               </div>
             </div>
           ))}
+
+        {/* ===== SOLUTIONS — where this series fits ===== */}
+        {p.solutions && p.solutions.length > 0 && (
+          <div className="solutions">
+            <div className="sol-head">
+              <div className="eyebrow">Where it works</div>
+              <h2>Built for the job.</h2>
+            </div>
+            <div className="sol-grid">
+              {p.solutions.map((s) => (
+                <div key={s.title} className="sol-card">
+                  <h3>{s.title}</h3>
+                  <p>{s.pick}</p>
+                </div>
+              ))}
+            </div>
+          </div>
+        )}
 
         {/* ===== DOWNLOADS — only files we actually host; the rest is a request link ===== */}
         {(() => {

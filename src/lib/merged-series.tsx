@@ -93,16 +93,28 @@ export function buildMergedSeriesProps(
     ?.map((s: any) => (s.note ? `${s.title} — ${s.note}` : s.title))
     .slice(0, 5)
 
+  // Intro falls back to the product's own Akeneo copy (short_description /
+  // subtitle) before the generic count — fills driver/accessory series that
+  // have no editorial. Richer per-series copy still needs authoring in admin.
+  const rep = products[0]
+  const intro =
+    copy?.lede ??
+    SERIES_BLURBS[series] ??
+    rep?.short_description?.trim() ??
+    rep?.subtitle?.trim() ??
+    `${models.length} model${models.length === 1 ? '' : 's'} in the ${label} range.`
+
   return {
     breadcrumb: { familyName: family.name, familyHref: family.href, seriesLabel: label },
     eyebrow: family.tag,
     title: label,
-    intro: copy?.lede ?? SERIES_BLURBS[series] ?? `${models.length} model${models.length === 1 ? '' : 's'} in the ${label} range.`,
+    intro,
     checklist: checklist?.length ? checklist : undefined,
     datasheetUrl,
     variants,
     variantLayout: variants.length > COLUMN_CAP ? 'rows' : 'columns',
     sharedRows,
+    solutions: copy?.solutions,
     downloads: datasheetUrl ? [{ name: `${label} datasheet`, meta: 'PDF', href: datasheetUrl }] : [],
   }
 }
