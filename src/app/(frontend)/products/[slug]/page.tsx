@@ -1,12 +1,11 @@
 import type { Metadata } from 'next'
-import Image from 'next/image'
 import Link from 'next/link'
 import { notFound } from 'next/navigation'
 import { PRODUCT_FAMILIES } from '@/data/product-families'
-import { TrustIcon } from '@/components/ui/trust-icon'
-import { getProductsByMarketingFamily, groupProductsBySeries, groupSeriesIntoSections } from '@/lib/products'
-import { seriesSlug, seriesLabel, seriesLineArt } from '@/data/family-map'
-import styles from './page.module.css'
+import { getProductsByMarketingFamily, countProductsByMarketingFamily } from '@/lib/products'
+import { buildCards, buildGroups } from '@/components/products/catalogue-data'
+import { CatalogueFilter } from '@/components/products/CatalogueFilter'
+import '@/components/products/products-catalogue.css'
 
 type Params = Promise<{ slug: string }>
 
@@ -20,10 +19,7 @@ export async function generateMetadata({ params }: { params: Params }): Promise<
   const { slug } = await params
   const family = PRODUCT_FAMILIES.find((f) => f.slug === slug)
   if (!family) return {}
-  return {
-    title: `${family.name} — ENVO`,
-    description: family.longDesc,
-  }
+  return { title: `${family.name} — ENVO`, description: family.longDesc }
 }
 
 export default async function ProductFamilyPage({ params }: { params: Params }) {
@@ -31,18 +27,25 @@ export default async function ProductFamilyPage({ params }: { params: Params }) 
   const family = PRODUCT_FAMILIES.find((f) => f.slug === slug)
   if (!family) notFound()
 
-  // Series list is DB-driven: group this family's real products by series,
-  // then bucket those series into sections (backlit/sidelit, CV/CC, …).
-  const products = await getProductsByMarketingFamily(slug)
-  const sections = groupSeriesIntoSections(slug, groupProductsBySeries(products))
-  const showHeaders = sections.length > 1
+  // Same unified catalogue, scoped to one family. Fetch only THIS family's
+  // products fully (depth 0 — images come from URL columns); the other families
+  // contribute only a cheap count for their pill badge.
+  const products = await getProductsByMarketingFamily(slug, { depth: 0 })
+  const countEntries = await Promise.all(
+    PRODUCT_FAMILIES.map(
+      async (f) =>
+        [f.slug, f.slug === slug ? products.length : await countProductsByMarketingFamily(f.slug)] as const,
+    ),
+  )
+  const countBySlug = new Map(countEntries)
+  const total = [...countBySlug.values()].reduce((a, b) => a + b, 0)
 
-  // All four product families render a BOUNCE /signage/-style landing:
-  // page header + a grid of series cards (image · name · short description
-  // · View Range), followed by the trust strip. Live series link to their
-  // detail page; unpublished series show a muted "Coming soon".
+  const cards = buildCards(family, products)
+  const groups = buildGroups(cards)
+  const unit = slug === 'led-signage-modules' ? 'modules' : 'models'
+
   return (
-    <div className="theme-light">
+    <div className="theme-light pcat">
       <div className="container">
         <div className="breadcrumb">
           <Link href="/">Home</Link>
@@ -51,82 +54,31 @@ export default async function ProductFamilyPage({ params }: { params: Params }) 
           <span className="sep">›</span>
           <span>{family.name}</span>
         </div>
-      </div>
 
-      <section className="sig-hero">
-        <div className="container">
-          <div className="sig-hero-inner">
-            <span className="sig-eyebrow">{family.tag}</span>
-            <h1>{family.name}</h1>
-            <p className="sig-hero-desc">{family.longDesc}</p>
+        <div className="pcat-head">
+          <span className="pcat-eyebrow">{family.tag}</span>
+          <h1>{family.name}</h1>
+          <p className="pcat-lede">{family.longDesc}</p>
+          <div className="pcat-pills">
+            <Link href="/products" className="pcat-pill">
+              All <span className="n">{total}</span>
+            </Link>
+            {PRODUCT_FAMILIES.map((f) =>
+              f.slug === slug ? (
+                <span key={f.slug} className="pcat-pill on">
+                  {f.name} <span className="n">{countBySlug.get(f.slug)}</span>
+                </span>
+              ) : (
+                <Link key={f.slug} href={f.href} className="pcat-pill">
+                  {f.name} <span className="n">{countBySlug.get(f.slug)}</span>
+                </Link>
+              ),
+            )}
           </div>
         </div>
-      </section>
 
-      <section className={styles.sectionWrap}>
-        {sections.map((sec) => (
-          <div key={sec.title} className={styles.seriesSection}>
-            {showHeaders && (
-              <div className={styles.seriesSectionHead}>
-                <h2 className={styles.seriesSectionHeading}>{sec.title}</h2>
-                <span className={styles.seriesSectionCount}>
-                  {sec.series.reduce((n, g) => n + g.products.length, 0)} models
-                </span>
-              </div>
-            )}
-            <div className={styles.seriesGrid}>
-              {sec.series.map((g) => (
-                <Link
-                  key={g.code ?? 'other'}
-                  href={`/products/${slug}/${seriesSlug(g.code)}`}
-                  className={styles.seriesCard}
-                >
-                  <div className={`${styles.seriesCardThumb} ${styles.seriesCardThumbBrand}`}>
-                    <Image
-                      src={seriesLineArt(g.code, slug)}
-                      alt={seriesLabel(g.code)}
-                      width={400}
-                      height={250}
-                      sizes="(min-width: 1000px) 33vw, (min-width: 621px) 50vw, 100vw"
-                    />
-                  </div>
-                  <div className={styles.seriesCardBody}>
-                    <h3 className={styles.seriesCardName}>{seriesLabel(g.code)}</h3>
-                    <span className={styles.seriesCardCount}>
-                      {g.products.length} {g.products.length === 1 ? 'model' : 'models'}
-                    </span>
-                    <span className={styles.seriesCardCta}>View range <span>→</span></span>
-                  </div>
-                </Link>
-              ))}
-            </div>
-          </div>
-        ))}
-      </section>
-
-      {family.trustBadges && family.trustBadges.length > 0 && (
-        <section className={styles.sectionTinted}>
-          <div className={styles.sectionWrap}>
-            <div className={styles.sectionHead}>
-              <span className={styles.sectionEyebrow}>Why ENVO</span>
-              <h2 className={styles.sectionHeading}>
-                Built for {family.name.toLowerCase()} that ship and last
-              </h2>
-            </div>
-            <div className={styles.badgesGrid}>
-              {family.trustBadges.map((b) => (
-                <div key={b.title} className={styles.badge}>
-                  <span className={styles.badgeIcon}>
-                    <TrustIcon name={b.icon} />
-                  </span>
-                  <h3 className={styles.badgeTitle}>{b.title}</h3>
-                  <p className={styles.badgeDesc}>{b.description}</p>
-                </div>
-              ))}
-            </div>
-          </div>
-        </section>
-      )}
+        <CatalogueFilter cards={cards} groups={groups} unit={unit} />
+      </div>
     </div>
   )
 }

@@ -158,10 +158,12 @@ export async function getProduct(sku: string): Promise<Product | null> {
   return (result.docs[0] as unknown as Product) ?? null
 }
 
-/** All products in a family, sorted by name. */
+/** All products in a family, sorted by name. `depth` defaults to 1; pass
+    `depth: 0` to skip relationship hydration (e.g. the catalogue, which reads
+    images from the `*_url_fallback` columns and needs no joined uploads). */
 export async function getProductsByFamily(
   family: string,
-  opts: { limit?: number } = {},
+  opts: { limit?: number; depth?: number } = {},
 ): Promise<Product[]> {
   const p = await payload()
   const result = await p.find({
@@ -169,7 +171,7 @@ export async function getProductsByFamily(
     where: { and: [{ family: { equals: family } }, { enabled: { equals: true } }, { hidden: { equals: false } }] },
     sort: 'name',
     limit: opts.limit ?? 200,
-    depth: 1,
+    depth: opts.depth ?? 1,
   })
   return result.docs as unknown as Product[]
 }
@@ -209,11 +211,35 @@ export function groupSeriesIntoSections(marketingSlug: string, groups: SeriesGro
 }
 
 /** All enabled/visible products across the DB families a marketing slug maps to. */
-export async function getProductsByMarketingFamily(marketingSlug: string): Promise<Product[]> {
+export async function getProductsByMarketingFamily(
+  marketingSlug: string,
+  opts: { depth?: number } = {},
+): Promise<Product[]> {
   const dbFamilies = marketingFamilyToDbFamilies(marketingSlug)
   if (dbFamilies.length === 0) return []
-  const lists = await Promise.all(dbFamilies.map((f) => getProductsByFamily(f)))
+  const lists = await Promise.all(dbFamilies.map((f) => getProductsByFamily(f, { depth: opts.depth })))
   return lists.flat()
+}
+
+/** Cheap count of enabled/visible products in a marketing family — no doc
+    hydration (depth 0, limit 1, read totalDocs). Used for the catalogue's
+    per-family pill badges without fetching every other family's products. */
+export async function countProductsByMarketingFamily(marketingSlug: string): Promise<number> {
+  const dbFamilies = marketingFamilyToDbFamilies(marketingSlug)
+  if (dbFamilies.length === 0) return 0
+  const p = await payload()
+  const counts = await Promise.all(
+    dbFamilies.map(async (f) => {
+      const r = await p.find({
+        collection: 'products',
+        where: { and: [{ family: { equals: f } }, { enabled: { equals: true } }, { hidden: { equals: false } }] },
+        limit: 1,
+        depth: 0,
+      })
+      return r.totalDocs
+    }),
+  )
+  return counts.reduce((a, b) => a + b, 0)
 }
 
 export type ProductFilters = {
