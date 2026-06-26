@@ -34,10 +34,22 @@ export function buildMergedSeriesProps(
   const label = copy?.label ?? seriesLabel(series)
   const lineArt = seriesLineArt(series, family.slug)
 
+  // Column name = the LED count when it actually distinguishes the variants
+  // (Single/Double/Triple). When counts collide — e.g. ChromaFlux's two "Triple
+  // LED" models that really differ by RGB vs RGBW — label by chip colour instead
+  // of repeating "Triple". Falls back to the model code (drivers, etc.).
+  const stripCct = (sku: string) => sku.replace(/-(WW|NW|CW)$/i, '')
+  const repByCode = new Map<string, Product>()
+  for (const p of products) if (!repByCode.has(stripCct(p.sku))) repByCode.set(stripCct(p.sku), p)
+  const ledsList = models.map((m) => m.leds)
+  const ledsDistinguish = !ledsList.includes('—') && new Set(ledsList).size === ledsList.length
+
   const variants: MergedVariant[] = models.map((m) => {
     const beads = LED_BEADS[m.leds]
+    const colour = repByCode.get(m.code)?.led_chip_colour
+    const name = ledsDistinguish && m.leds !== '—' ? m.leds : colour ? colour.toUpperCase() : m.code
     return {
-      name: m.leds !== '—' ? m.leds : m.code,
+      name,
       beads,
       image: {
         src: m.image.src || lineArt,
