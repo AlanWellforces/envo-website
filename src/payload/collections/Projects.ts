@@ -169,6 +169,22 @@ export const Projects: CollectionConfig = {
     },
 
     {
+      name: 'specs',
+      type: 'array',
+      labels: { singular: 'Spec', plural: 'Specs' },
+      maxRows: 4,
+      admin: {
+        description:
+          'Headline stats shown on the featured card and the detail hero (e.g. 1,920 / Modules). Up to 4. Use real ENVO product params; leave empty to hide the spec row.',
+        initCollapsed: true,
+      },
+      fields: [
+        { name: 'value', type: 'text', required: true, admin: { placeholder: '1,920' } },
+        { name: 'label', type: 'text', required: true, admin: { placeholder: 'Modules' } },
+      ],
+    },
+
+    {
       name: 'testimonial',
       type: 'textarea',
       admin: {
