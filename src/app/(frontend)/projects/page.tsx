@@ -7,7 +7,7 @@ import '@/components/projects/projects-redesign.css'
 export const metadata: Metadata = {
   title: 'Projects — ENVO',
   description:
-    'Signage, facades and storefronts running ENVO LED modules and drivers — a selection of recent installs.',
+    'Signage and architectural installs running ENVO LED modules and drivers.',
 }
 
 export default async function ProjectsPage() {
@@ -22,13 +22,9 @@ export default async function ProjectsPage() {
           <span>Projects</span>
         </div>
 
-        <div className="pj-crumb">PROJECTS</div>
-        <h1>
-          Lit, installed, <em>performing.</em>
-        </h1>
+        <h1>Our work</h1>
         <p className="pj-lead">
-          Signage, facades and storefronts running ENVO modules and drivers — a selection of
-          recent installs.
+          Signage and architectural installs running ENVO LED modules and drivers.
         </p>
 
         <ProjectsCatalogue projects={projects} />
