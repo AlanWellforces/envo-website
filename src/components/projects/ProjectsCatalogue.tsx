@@ -68,9 +68,6 @@ export function ProjectsCatalogue({ projects }: { projects: Project[] }) {
             {t.label}
           </button>
         ))}
-        <span className="pj-count">
-          {count} project{count === 1 ? '' : 's'}
-        </span>
       </div>
 
       {showFeatured && featured && (
