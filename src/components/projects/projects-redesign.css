@@ -74,7 +74,7 @@
 .pj-detail{ --d-blue:#0071bc; --d-lime:#aec90b; padding-bottom:0; }
 .pj-detail .pj-back{ display:inline-flex; align-items:center; gap:6px; font-size:12px; color:#465468; margin:22px 0 14px; }
 
-.pj-hero{ position:relative; height:clamp(320px,38vw,440px); border-radius:16px; overflow:hidden;
+.pj-hero{ position:relative; height:clamp(300px,32vw,380px); border-radius:16px; overflow:hidden;
   background-size:cover; background-position:center; display:flex; align-items:flex-end;
   box-shadow:0 18px 50px rgba(20,32,46,.25); }
 .pj-hero::after{ content:""; position:absolute; inset:0;
