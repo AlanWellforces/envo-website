@@ -27,6 +27,8 @@ export type ProjectGalleryItem = {
   caption?: string
 }
 
+export type ProjectSpec = { value: string; label: string }
+
 export type Project = {
   id: string | number
   slug: string
@@ -39,6 +41,7 @@ export type Project = {
   completedYear?: number
   gallery?: ProjectGalleryItem[]
   productsUsed?: string[]      // flattened from [{sku}] to string[]
+  specs?: ProjectSpec[]
   testimonial?: string
   industry: ProjectIndustry[]
   tags: string[]
@@ -69,6 +72,7 @@ type RawProject = {
   completedYear?: number | null
   gallery?: Array<{ image: unknown; caption?: string | null }> | null
   productsUsed?: Array<{ sku: string }> | null
+  specs?: Array<{ value: string; label: string }> | null
   testimonial?: string | null
   industry: ProjectIndustry[]
   tags?: Array<{ tag: string }> | null
@@ -95,6 +99,7 @@ function shape(p: RawProject): Project {
       caption: g.caption ?? undefined,
     })),
     productsUsed: p.productsUsed?.map((r) => r.sku).filter(Boolean),
+    specs: p.specs?.map((s) => ({ value: s.value, label: s.label })).filter((s) => s.value && s.label),
     testimonial: p.testimonial ?? undefined,
     industry: p.industry,
     tags: p.tags?.map((t) => t.tag).filter(Boolean) ?? [],
