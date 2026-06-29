@@ -57,7 +57,7 @@ const DEMOS: Demo[] = [
     slug: 'marina-bay-facade', title: 'Marina Bay Facade', file: 'project-marina-bay-facade.jpg',
     client: 'Waterfront Developments', location: 'Singapore', completedYear: 2026,
     industry: ['architectural'], tags: ['Media facade'], featured: true,
-    excerpt: 'A full-media façade wrapping twelve storeys of a Marina Bay tower, driven entirely by ENVO ChromaFlux RGBW modules.',
+    excerpt: 'A full-media facade wrapping twelve storeys of a Marina Bay tower, driven entirely by ENVO ChromaFlux RGBW modules.',
     specs: [
       { value: '1,920', label: 'Modules' }, { value: 'DMX512', label: 'Control' },
       { value: '96 m', label: 'Run length' }, { value: 'IP67', label: 'Rating' },
@@ -67,7 +67,7 @@ const DEMOS: Demo[] = [
       'ENVO ChromaFlux modules were specified for their pixel pitch and IP67 sealing, driven over DMX512 from a central controller. A single addressable run lets the building behave as one canvas rather than independent panels.',
       'Commissioning was handled with the local integrator; ENVO supplied modules, drivers and the control mapping reference.',
     ],
-    testimonial: 'The façade reads as a single seamless surface from across the bay — exactly the effect we were after, and it has shrugged off two monsoon seasons without a dropped pixel.',
+    testimonial: 'The facade reads as a single seamless surface from across the bay — exactly the effect we were after, and it has shrugged off two monsoon seasons without a dropped pixel.',
     gallery: ['project-westpark-arena.jpg', 'project-harbour-bridge.jpg', 'project-fifth-ave-flagship.jpg', 'project-aurora-hotel-lobby.jpg'],
   },
   {
