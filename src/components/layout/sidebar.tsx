@@ -164,9 +164,12 @@ export function Sidebar() {
   const [open, setOpen] = useState(false)
   const [region, setRegion] = useState<PurchaseChannel['id']>(REGION_DEFAULT)
   const [regionOpen, setRegionOpen] = useState(false)
-  // Track which parent groups are user-expanded. Auto-expand when the active
-  // route is inside a group; users can still manually toggle from there.
-  const [openGroups, setOpenGroups] = useState<Set<string>>(() => new Set())
+  // Track which parent groups are user-expanded. Parent groups start expanded
+  // so their sub-categories are always surfaced in the sidebar; the active
+  // route still auto-expands its group, and users can manually toggle any.
+  const [openGroups, setOpenGroups] = useState<Set<string>>(
+    () => new Set(NAVIGATE.filter((i) => i.children).map((i) => i.section)),
+  )
   const sidebarRef = useRef<HTMLElement>(null)
   const toggleRef = useRef<HTMLButtonElement>(null)
   const regionRef = useRef<HTMLDivElement>(null)
