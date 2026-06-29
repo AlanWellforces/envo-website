@@ -210,7 +210,7 @@ export default async function ProjectDetailPage({ params }: { params: Params }) 
 
           <div className="pj-ctaband">
             <div>
-              <h3>Planning a façade or signage install?</h3>
+              <h3>Planning a facade or signage install?</h3>
               <p>We&apos;ll route you to the right ENVO distributor for your region.</p>
             </div>
             <Link href="/contact" className="pj-btn primary">Find your distributor →</Link>
