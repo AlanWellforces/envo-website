@@ -67,14 +67,14 @@ export function SketchForm() {
           <span className="btn-arrow">→</span>
         </button>
         <small>
-          Or email <a href="mailto:contact@envo.com">contact@envo.com</a> directly.
+          Or email <a href="mailto:contact@envo-led.com">contact@envo-led.com</a> directly.
         </small>
       </div>
 
       {sent && (
         <div className={`${styles.fieldWide} ${styles.thanks}`} role="status">
           <strong>✓ Got it.</strong> We&apos;ll review your project and reply within 24 hours.
-          For anything urgent, email <a href="mailto:contact@envo.com">contact@envo.com</a>.
+          For anything urgent, email <a href="mailto:contact@envo-led.com">contact@envo-led.com</a>.
         </div>
       )}
     </form>
