@@ -10,7 +10,9 @@ const BASE = (process.env.NEXT_PUBLIC_SITE_URL || 'http://localhost:3000').repla
 const STATIC_PATHS = [
   '', '/about', '/contact', '/products', '/solutions', '/blog',
   '/resources', '/resources/downloads', '/resources/tools', '/resources/tools/signage-selector',
-  '/find-your-match', '/free-layout-design', '/privacy-policy', '/terms-of-use',
+  '/find-your-match', '/free-layout-design',
+  '/terms-of-service', '/shipping-policy', '/cancellation-policy', '/return-policy',
+  '/privacy-policy', '/cookie-policy', '/acceptable-use-policy',
 ]
 
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
