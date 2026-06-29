@@ -10,15 +10,15 @@ export default function ReturnPolicyPage() {
   return (
     <LegalPage title="Return Policy" updated="30 June 2026">
       <p>
-        Purchases are completed through ENVO’s regional distributors, and returns are processed under
+        Purchases are completed through Envo’s regional distributors, and returns are processed under
         a Return Merchandise Authorisation (RMA). Start any return with the distributor you bought
-        from; the conditions below reflect ENVO’s standard RMA terms.
+        from; the conditions below reflect Envo’s standard RMA terms.
       </p>
 
       <h2>Returns for credit</h2>
       <p>
-        Approval for a credit return must be requested on an ENVO Return Authorisation (RMA) request
-        and is at ENVO’s discretion, subject to the following conditions:
+        Approval for a credit return must be requested on an Envo Return Authorisation (RMA) request
+        and is at Envo’s discretion, subject to the following conditions:
       </p>
       <ul>
         <li>returned within 30 days of RMA approval and within 30 days of the invoice date;</li>
@@ -33,7 +33,7 @@ export default function ReturnPolicyPage() {
       </p>
       <p>
         Returns are not typically accepted beyond 30 days from invoice. Outside this window, a
-        minimum 15% restocking and administration fee may apply at ENVO’s discretion.
+        minimum 15% restocking and administration fee may apply at Envo’s discretion.
       </p>
 
       <h2>Returns for warranty / repair</h2>

@@ -11,7 +11,7 @@ export default function TermsOfServicePage() {
     <LegalPage title="Terms of Service" updated="30 June 2026">
       <p>
         These Terms of Service govern your use of this website and any related services provided by
-        ENVO. By accessing the site you agree to abide by these terms and to comply with all
+        Envo. By accessing the site you agree to abide by these terms and to comply with all
         applicable laws and regulations. If you do not agree, you must not use the site. This is an
         informational brand site; it does not sell products or process payments. Any purchase you
         make is governed by the separate terms of the regional distributor you buy from.
@@ -33,7 +33,7 @@ export default function TermsOfServicePage() {
 
       <h2>Intellectual property</h2>
       <p>
-        The content, branding, images and materials on this site are owned by or licensed to ENVO.
+        The content, branding, images and materials on this site are owned by or licensed to Envo.
         You are granted a limited, personal, non-commercial licence to view them; all other rights
         are reserved.
       </p>
@@ -49,7 +49,7 @@ export default function TermsOfServicePage() {
       <h2>Disclaimer &amp; liability</h2>
       <p>
         The site and its materials are provided “as is”, without warranties of any kind. To the
-        extent permitted by law, ENVO is not liable for any loss or damage arising from your use of,
+        extent permitted by law, Envo is not liable for any loss or damage arising from your use of,
         or inability to use, the site.
       </p>
 

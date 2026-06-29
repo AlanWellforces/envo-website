@@ -11,7 +11,7 @@ export default function PrivacyPolicyPage() {
   return (
     <LegalPage title="Privacy Policy" updated="4 June 2026">
       <p>
-        This Privacy Policy explains how ENVO (“we”, “us”) handles information you provide through
+        This Privacy Policy explains how Envo (“we”, “us”) handles information you provide through
         this website. This is a brand and product-information site — it does not sell products or
         process payments. Purchases are completed through our regional distributors, who operate
         their own websites and privacy practices.
@@ -71,7 +71,7 @@ export default function PrivacyPolicyPage() {
 
       <h2>International transfers</h2>
       <p>
-        ENVO operates across multiple regions. Where information is transferred internationally, we
+        Envo operates across multiple regions. Where information is transferred internationally, we
         use appropriate safeguards.
       </p>
 

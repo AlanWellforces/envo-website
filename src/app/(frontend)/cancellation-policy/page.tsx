@@ -10,7 +10,7 @@ export default function CancellationPolicyPage() {
   return (
     <LegalPage title="Cancellation Policy" updated="30 June 2026">
       <p>
-        This site does not take orders — purchases are placed and fulfilled by ENVO’s regional
+        This site does not take orders — purchases are placed and fulfilled by Envo’s regional
         distributors, and cancellations are handled by the distributor you ordered from. This page
         explains how cancellation generally works; your distributor’s terms govern your specific
         order.

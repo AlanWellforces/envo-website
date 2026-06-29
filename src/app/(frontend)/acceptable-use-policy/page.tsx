@@ -11,7 +11,7 @@ export default function AcceptableUsePolicyPage() {
     <LegalPage title="Acceptable Use Policy" updated="30 June 2026">
       <p>
         This Acceptable Use Policy covers the website, products, services and technologies
-        (collectively, the “Products”) provided by ENVO. Its purpose is to protect ENVO, our
+        (collectively, the “Products”) provided by Envo. Its purpose is to protect Envo, our
         customers and the wider internet community from unethical, irresponsible or illegal activity.
         Violations may result in suspension or termination of access and, where appropriate, referral
         to the authorities.
@@ -42,9 +42,9 @@ export default function AcceptableUsePolicyPage() {
         <li>illegal gambling, terrorism, weapons trafficking or narcotics.</li>
       </ul>
 
-      <h2>Unauthorised use of ENVO property</h2>
+      <h2>Unauthorised use of Envo property</h2>
       <p>
-        You must not impersonate ENVO or fraudulently represent a business relationship with ENVO.
+        You must not impersonate Envo or fraudulently represent a business relationship with Envo.
       </p>
 
       <h2>Contact</h2>

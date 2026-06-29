@@ -11,7 +11,7 @@ export default function ShippingPolicyPage() {
     <LegalPage title="Shipping Policy" updated="30 June 2026">
       <p>
         This is a brand and product-information site — it does not take orders or process payments.
-        Purchases are completed through ENVO’s regional distributors, who pick, pack and ship your
+        Purchases are completed through Envo’s regional distributors, who pick, pack and ship your
         order and set their own shipping rates and delivery terms. This page explains, in general
         terms, how shipping typically works; your distributor’s confirmation is the authoritative
         source for your specific order.
