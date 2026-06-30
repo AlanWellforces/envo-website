@@ -73,6 +73,7 @@ export interface Config {
     projects: Project;
     faqs: Faq;
     'page-seo': PageSeo;
+    pages: Page;
     users: User;
     'payload-kv': PayloadKv;
     'payload-locked-documents': PayloadLockedDocument;
@@ -87,6 +88,7 @@ export interface Config {
     projects: ProjectsSelect;
     faqs: FaqsSelect;
     'page-seo': PageSeoSelect;
+    pages: PagesSelect;
     users: UsersSelect;
     'payload-kv': PayloadKvSelect;
     'payload-locked-documents': PayloadLockedDocumentsSelect;
@@ -275,7 +277,21 @@ export interface Product {
   maximum_detection_range?: string | null;
   multiway?: boolean | null;
   standards_met?:
-    | ('c_ce' | 'c_saa' | 'c_tuv' | 'c_ul' | 'c_rcm' | 'c_fcc' | 'c_rohs' | 'c_enec' | 'c_bis' | 'c_cb' | 'c_lm80')[]
+    | (
+        | 'c_ce'
+        | 'c_tuv'
+        | 'c_rohs'
+        | 'c_saa'
+        | 'c_ul'
+        | 'c_cul'
+        | 'c_cb'
+        | 'c_bis'
+        | 'c_rcm'
+        | 'c_fcc'
+        | 'c_selv'
+        | 'c_enec'
+        | 'c_lm80'
+      )[]
     | null;
   warranty_years?: number | null;
   /**
@@ -565,6 +581,16 @@ export interface Project {
       }[]
     | null;
   /**
+   * Headline stats shown on the featured card and the detail hero (e.g. 1,920 / Modules). Up to 4. Use real ENVO product params; leave empty to hide the spec row.
+   */
+  specs?:
+    | {
+        value: string;
+        label: string;
+        id?: string | null;
+      }[]
+    | null;
+  /**
    * Leave blank to hide the testimonial block.
    */
   testimonial?: string | null;
@@ -677,6 +703,54 @@ export interface PageSeo {
   createdAt: string;
 }
 /**
+ * Standalone rich-text pages. Publish to make a page Visible on the website.
+ *
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "pages".
+ */
+export interface Page {
+  id: number;
+  title: string;
+  content: {
+    root: {
+      type: string;
+      children: {
+        type: any;
+        version: number;
+        [k: string]: unknown;
+      }[];
+      direction: ('ltr' | 'rtl') | null;
+      format: 'left' | 'start' | 'center' | 'right' | 'end' | 'justify' | '';
+      indent: number;
+      version: number;
+    };
+    [k: string]: unknown;
+  };
+  /**
+   * URL slug. Policy pages render at /<slug>; other pages at /pages/<slug>.
+   */
+  slug?: string | null;
+  /**
+   * Show this page in the footer legal links.
+   */
+  showInFooter?: boolean | null;
+  /**
+   * Optional. Falls back to the page title.
+   */
+  seoTitle?: string | null;
+  /**
+   * Meta description (aim ≤ 155 chars).
+   */
+  metaDescription?: string | null;
+  /**
+   * Optional social share image.
+   */
+  ogImage?: (number | null) | Media;
+  updatedAt: string;
+  createdAt: string;
+  _status?: ('draft' | 'published') | null;
+}
+/**
  * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "users".
  */
@@ -753,6 +827,10 @@ export interface PayloadLockedDocument {
     | ({
         relationTo: 'page-seo';
         value: number | PageSeo;
+      } | null)
+    | ({
+        relationTo: 'pages';
+        value: number | Page;
       } | null)
     | ({
         relationTo: 'users';
@@ -1010,6 +1088,13 @@ export interface ProjectsSelect {
         sku?: boolean;
         id?: boolean;
       };
+  specs?:
+    | boolean
+    | {
+        value?: boolean;
+        label?: boolean;
+        id?: boolean;
+      };
   testimonial?: boolean;
   seoTitle?: boolean;
   seoDescription?: boolean;
@@ -1053,6 +1138,22 @@ export interface PageSeoSelect {
   ogImage?: boolean;
   updatedAt?: boolean;
   createdAt?: boolean;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "pages_select".
+ */
+export interface PagesSelect {
+  title?: boolean;
+  content?: boolean;
+  slug?: boolean;
+  showInFooter?: boolean;
+  seoTitle?: boolean;
+  metaDescription?: boolean;
+  ogImage?: boolean;
+  updatedAt?: boolean;
+  createdAt?: boolean;
+  _status?: boolean;
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
@@ -1171,7 +1272,7 @@ export interface SiteSetting {
         }[]
       | null;
     /**
-     * e.g. "© 2026 Wellforces Ltd. All rights reserved."
+     * e.g. "© 2026 Envo. All rights reserved."
      */
     legal_text?: string | null;
     social_links?:
