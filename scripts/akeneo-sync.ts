@@ -1,19 +1,32 @@
 #!/usr/bin/env npx tsx
 /**
  * Akeneo → Payload sync script (uses Payload local API — no auth needed)
- * Usage:  npx tsx scripts/akeneo-sync.ts          (full sync)
- *         npx tsx scripts/akeneo-sync.ts --limit 5 (test: first N products)
+ * Usage:  npx tsx --tsconfig tsconfig.json scripts/akeneo-sync.ts          (full sync)
+ *         npx tsx --tsconfig tsconfig.json scripts/akeneo-sync.ts --limit 5 (test: first N)
+ *
+ * Schema must be in sync first. If a Payload Collection was added/changed but
+ * the DB schema wasn't pushed, EVERY upsert fails with an opaque
+ * "Failed query … payload_locked_documents". Push additive schema once with:
+ *   PAYLOAD_DB_PUSH=true npx tsx --tsconfig tsconfig.json scripts/akeneo-sync.ts --limit 1
+ * (No migrations dir exists — push is gated by PAYLOAD_DB_PUSH, payload.config.ts.)
  */
 
 import * as dotenv from 'dotenv'
 import * as path from 'path'
 import * as fs from 'fs'
-import { getPayload } from 'payload'
-import config from '../src/payload.config.ts'
+import { createRequire } from 'node:module'
 import { CERT_CODES } from '../src/lib/cert-codes.ts'
 
-// Load .env.local then .env
+// Env MUST be loaded before `payload`/payload.config are imported: payload.config
+// reads process.env.PAYLOAD_SECRET at module-eval time, and importing `payload`
+// triggers its nested @next/env, which trips a tsx CJS-interop bug (see
+// scripts/generate-types.mts). So we (1) prime @next/env's default export,
+// (2) load env here, and (3) import payload + config DYNAMICALLY in main() —
+// never as static top-level imports (those would hoist ahead of this).
 const root = path.resolve(__dirname, '..')
+const nextEnvReq = createRequire(path.join(root, 'node_modules/payload/dist/bin/dummy.js'))
+const nextEnv = nextEnvReq('@next/env') as { default?: unknown }
+if (!nextEnv.default) nextEnv.default = nextEnv
 for (const f of ['.env.local', '.env']) {
   const p = path.join(root, f)
   if (fs.existsSync(p)) dotenv.config({ path: p })
@@ -220,6 +233,9 @@ function normalise(p: any) {
 async function main() {
   console.log(`\nAkeneo sync — ${LIMIT ? `test mode (${LIMIT} products)` : 'full sync'}\n`)
 
+  // Dynamic import AFTER env is loaded (see top-of-file note).
+  const { getPayload } = await import('payload')
+  const { default: config } = await import('../src/payload.config.ts')
   const payload = await getPayload({ config })
 
   console.log('Authenticating with Akeneo...')
