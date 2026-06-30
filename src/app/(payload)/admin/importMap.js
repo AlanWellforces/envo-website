@@ -1,3 +1,4 @@
+import { ProductImageCell as ProductImageCell_69771ce73b8551e8656557efb0177efc } from '../../../payload/components/ProductImageCell'
 import { MediaThumbnailCell as MediaThumbnailCell_bbf30dfb62b443d2b784c99b6ce2588d } from '../../../payload/components/MediaThumbnailCell'
 import { MediaFileSizeCell as MediaFileSizeCell_ca95d1010c71823510510c471475fd57 } from '../../../payload/components/MediaFileSizeCell'
 import { LinkedTextCell as LinkedTextCell_e2ccc56e9abb956222572efe6077f295 } from '../../../payload/components/LinkedTextCell'
@@ -34,6 +35,7 @@ import { CollectionCards as CollectionCards_f9c02e79a4aed9a3924487c0cd4cafb1 } f
 
 /** @type import('payload').ImportMap */
 export const importMap = {
+  "/payload/components/ProductImageCell#ProductImageCell": ProductImageCell_69771ce73b8551e8656557efb0177efc,
   "/payload/components/MediaThumbnailCell#MediaThumbnailCell": MediaThumbnailCell_bbf30dfb62b443d2b784c99b6ce2588d,
   "/payload/components/MediaFileSizeCell#MediaFileSizeCell": MediaFileSizeCell_ca95d1010c71823510510c471475fd57,
   "/payload/components/LinkedTextCell#LinkedTextCell": LinkedTextCell_e2ccc56e9abb956222572efe6077f295,
