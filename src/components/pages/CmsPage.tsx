@@ -1,5 +1,5 @@
 import { LegalPage } from '@/components/legal/LegalPage'
-import { RichTextRenderer } from '@/components/blog/RichTextRenderer'
+import { RichTextRenderer, collectHeadings } from '@/components/blog/RichTextRenderer'
 import type { CmsPage } from '@/lib/cms-pages'
 
 function formatUpdated(iso?: string): string {
@@ -9,8 +9,9 @@ function formatUpdated(iso?: string): string {
 }
 
 export function CmsPageView({ page }: { page: CmsPage }) {
+  const toc = collectHeadings(page.content)
   return (
-    <LegalPage title={page.title} updated={formatUpdated(page.lastUpdated ?? page.updatedAt)}>
+    <LegalPage title={page.title} updated={formatUpdated(page.lastUpdated ?? page.updatedAt)} toc={toc}>
       <RichTextRenderer doc={page.content} />
     </LegalPage>
   )
