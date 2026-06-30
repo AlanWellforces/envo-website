@@ -1,7 +1,9 @@
 import Image from 'next/image'
 import Link from 'next/link'
+import { getFooterLegalPages } from '@/lib/cms-pages'
 
-export function Footer() {
+export async function Footer() {
+  const legal = await getFooterLegalPages()
   return (
     <footer>
       <div className="container">
@@ -63,10 +65,9 @@ export function Footer() {
         <div className="footer-bottom">
           <p>© {new Date().getFullYear()} Envo — Engineered Illumination</p>
           <div className="footer-legal">
-            <Link href="/terms-of-service">Terms of Service</Link>
-            <Link href="/privacy-policy">Privacy Policy</Link>
-            <Link href="/cookie-policy">Cookie Policy</Link>
-            <Link href="/acceptable-use-policy">Acceptable Use Policy</Link>
+            {legal.map((l) => (
+              <Link key={l.href} href={l.href}>{l.label}</Link>
+            ))}
           </div>
         </div>
       </div>

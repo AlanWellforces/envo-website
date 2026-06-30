@@ -4,6 +4,7 @@ import { getAllSlugs as getAllPostSlugs } from '@/lib/posts'
 // import { getAllProjectSlugs } from '@/lib/projects' // projects hidden — see below
 import { dbFamilyToMarketing, seriesSlug, MARKETING_FAMILIES } from '@/data/family-map'
 import { SOLUTIONS } from '@/data/solutions'
+import { getAllCmsPageSlugs, pageHref } from '@/lib/cms-pages'
 
 const BASE = (process.env.NEXT_PUBLIC_SITE_URL || 'http://localhost:3000').replace(/\/$/, '')
 
@@ -11,7 +12,6 @@ const STATIC_PATHS = [
   '', '/about', '/contact', '/products', '/solutions', '/blog',
   '/resources', '/resources/downloads', '/resources/tools', '/resources/tools/signage-selector',
   '/find-your-match', '/free-layout-design',
-  '/terms-of-service', '/privacy-policy', '/cookie-policy', '/acceptable-use-policy',
 ]
 
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
@@ -35,6 +35,10 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   try {
     for (const slug of await getAllPostSlugs()) urls.add(`/blog/${slug}`)
   } catch { /* skip posts */ }
+
+  try {
+    for (const slug of await getAllCmsPageSlugs()) urls.add(pageHref(slug))
+  } catch { /* skip cms pages */ }
 
   // Projects hidden from nav + sitemap until real installs exist (only seeded demos).
   // Restore the /projects entry above and this loop to re-expose.
