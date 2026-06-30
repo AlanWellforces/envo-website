@@ -19,7 +19,6 @@ export function LegalPage({ title, updated, toc, children }: Props) {
         </div>
 
         <section className={styles.hero}>
-          <span className={styles.eyebrow}>Legal</span>
           <h1 className={styles.title}>{title}</h1>
           {updated && <p className={styles.updated}>Last updated: {updated}</p>}
         </section>
