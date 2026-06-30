@@ -12,7 +12,7 @@ export const Products: CollectionConfig = {
   slug: 'products',
   admin: {
     useAsTitle: 'name',
-    defaultColumns: ['sku', 'name', 'family', 'price_nzd', 'enabled', 'featured'],
+    defaultColumns: ['thumbnail', 'sku', 'name', 'family', 'price_nzd', 'enabled', 'featured'],
     description: 'ENVO product catalogue. Synced from Akeneo — edit freely. Enable sync_locked to prevent Akeneo from overwriting your changes.',
     group: 'Products',
   },
@@ -20,6 +20,16 @@ export const Products: CollectionConfig = {
     read: () => true,
   },
   fields: [
+    {
+      name: 'thumbnail',
+      type: 'ui',
+      label: 'Photo',
+      admin: {
+        components: {
+          Cell: '/payload/components/ProductImageCell#ProductImageCell',
+        },
+      },
+    },
     // -------------------------------------------------------------------------
     // TABS
     // -------------------------------------------------------------------------
