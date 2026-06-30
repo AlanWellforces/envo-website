@@ -61,7 +61,7 @@ export function Footer() {
         </div>
 
         <div className="footer-bottom">
-          <p>© {new Date().getFullYear()} ENVO — Engineered Illumination</p>
+          <p>© {new Date().getFullYear()} Envo — Engineered Illumination</p>
           <div className="footer-legal">
             <Link href="/terms-of-service">Terms of Service</Link>
             <Link href="/shipping-policy">Shipping Policy</Link>
