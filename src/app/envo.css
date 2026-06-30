@@ -1809,7 +1809,7 @@
       padding-top: 32px; flex-wrap: wrap; gap: 16px;
     }
     .footer-bottom p { font-size: 12px; color: var(--fg-soft); }
-    .footer-legal { display: flex; gap: 24px; }
+    .footer-legal { display: flex; flex-wrap: wrap; gap: 8px 20px; justify-content: flex-end; }
     .footer-legal a { font-size: 12px; color: var(--fg-soft); }
     .footer-legal a:hover { color: var(--envo-lime); }
     .footer-legal span[aria-disabled="true"] {

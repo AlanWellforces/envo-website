@@ -3,6 +3,7 @@
 // node types as they appear in real content.
 
 import React from 'react'
+import { slugify } from '@/lib/slugify'
 
 type LexicalNode = {
   type?: string
@@ -41,6 +42,32 @@ function renderChildren(children: LexicalNode[] | undefined): React.ReactNode {
   return children.map((child, i) => <Node key={i} node={child} />)
 }
 
+/** Flatten a node's nested text (handles bold/link children) into a plain string. */
+function nodeText(node: LexicalNode): string {
+  if (typeof node.text === 'string') return node.text
+  if (!node.children) return ''
+  return node.children.map(nodeText).join('')
+}
+
+/**
+ * Section headings (h2/h3) in a Lexical doc, for building an in-page TOC.
+ * The id is `slugify(headingText)` — identical to the id the renderer sets on
+ * the heading element, so anchor links line up.
+ */
+export function collectHeadings(doc: LexicalDoc | unknown): { id: string; text: string; level: number }[] {
+  const root = (doc as LexicalDoc | undefined)?.root
+  if (!root?.children) return []
+  const out: { id: string; text: string; level: number }[] = []
+  for (const n of root.children) {
+    if (n.type === 'heading' && (n.tag === 'h2' || n.tag === 'h3')) {
+      const text = nodeText(n)
+      const id = slugify(text)
+      if (id) out.push({ id, text, level: n.tag === 'h3' ? 3 : 2 })
+    }
+  }
+  return out
+}
+
 function Node({ node }: { node: LexicalNode }): React.ReactNode {
   if (!node) return null
 
@@ -54,7 +81,8 @@ function Node({ node }: { node: LexicalNode }): React.ReactNode {
       return <p>{renderChildren(node.children)}</p>
     case 'heading': {
       const Tag = (node.tag || 'h2') as keyof React.JSX.IntrinsicElements
-      return <Tag>{renderChildren(node.children)}</Tag>
+      const id = slugify(nodeText(node)) || undefined
+      return <Tag id={id}>{renderChildren(node.children)}</Tag>
     }
     case 'quote':
       return <blockquote>{renderChildren(node.children)}</blockquote>

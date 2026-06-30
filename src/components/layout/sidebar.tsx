@@ -86,17 +86,19 @@ const NAVIGATE: NavItem[] = [
       </svg>
     ),
   },
-  {
-    section: 'projects',
-    href: '/projects',
-    label: 'Projects',
-    icon: (
-      <svg className="sidebar-icon" viewBox="0 0 24 24" aria-hidden="true">
-        <rect x="3" y="7" width="18" height="14" rx="2" />
-        <path d="M8 7V5a2 2 0 012-2h4a2 2 0 012 2v2" />
-      </svg>
-    ),
-  },
+  // Projects hidden until we have real installs to show (only seeded demos exist).
+  // Route + data + Payload collection remain intact — restore this entry to re-expose.
+  // {
+  //   section: 'projects',
+  //   href: '/projects',
+  //   label: 'Projects',
+  //   icon: (
+  //     <svg className="sidebar-icon" viewBox="0 0 24 24" aria-hidden="true">
+  //       <rect x="3" y="7" width="18" height="14" rx="2" />
+  //       <path d="M8 7V5a2 2 0 012-2h4a2 2 0 012 2v2" />
+  //     </svg>
+  //   ),
+  // },
   {
     section: 'resources',
     href: '/resources',
@@ -162,9 +164,12 @@ export function Sidebar() {
   const [open, setOpen] = useState(false)
   const [region, setRegion] = useState<PurchaseChannel['id']>(REGION_DEFAULT)
   const [regionOpen, setRegionOpen] = useState(false)
-  // Track which parent groups are user-expanded. Auto-expand when the active
-  // route is inside a group; users can still manually toggle from there.
-  const [openGroups, setOpenGroups] = useState<Set<string>>(() => new Set())
+  // Track which parent groups are user-expanded. Parent groups start expanded
+  // so their sub-categories are always surfaced in the sidebar; the active
+  // route still auto-expands its group, and users can manually toggle any.
+  const [openGroups, setOpenGroups] = useState<Set<string>>(
+    () => new Set(NAVIGATE.filter((i) => i.children).map((i) => i.section)),
+  )
   const sidebarRef = useRef<HTMLElement>(null)
   const toggleRef = useRef<HTMLButtonElement>(null)
   const regionRef = useRef<HTMLDivElement>(null)

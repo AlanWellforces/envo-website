@@ -3,19 +3,17 @@ import { notFound } from 'next/navigation'
 import { getPageBySlug } from '@/lib/cms-pages'
 import { CmsPageView } from '@/components/pages/CmsPage'
 
-const SLUG = 'privacy-policy'
+const SLUG = 'cookie-policy'
 
 export async function generateMetadata(): Promise<Metadata> {
   const page = await getPageBySlug(SLUG)
   return {
-    title: page?.seoTitle ?? 'Privacy Policy — ENVO',
-    description:
-      page?.metaDescription ??
-      'How ENVO collects, uses and protects the information you share through this website.',
+    title: page?.seoTitle ?? 'Cookie Policy — ENVO',
+    description: page?.metaDescription ?? 'How and why ENVO uses cookies on this website.',
   }
 }
 
-export default async function PrivacyPolicyPage() {
+export default async function CookiePolicyPage() {
   const page = await getPageBySlug(SLUG)
   if (!page) notFound()
   return <CmsPageView page={page} />

@@ -1,7 +1,9 @@
 import Image from 'next/image'
 import Link from 'next/link'
+import { getFooterLegalPages } from '@/lib/cms-pages'
 
-export function Footer() {
+export async function Footer() {
+  const legal = await getFooterLegalPages()
   return (
     <footer>
       <div className="container">
@@ -14,8 +16,8 @@ export function Footer() {
               height={22}
             />
             <p>Engineered illumination to elevate performance.</p>
-            <a href="mailto:contact@envo.com" className="footer-brand-email">
-              contact@envo.com
+            <a href="mailto:contact@envo-led.com" className="footer-brand-email">
+              contact@envo-led.com
             </a>
             <address className="footer-brand-contact">
               <a href="tel:+18882289138">888.228.9138</a>
@@ -61,10 +63,11 @@ export function Footer() {
         </div>
 
         <div className="footer-bottom">
-          <p>© {new Date().getFullYear()} ENVO — Engineered Illumination</p>
+          <p>© {new Date().getFullYear()} Envo — Engineered Illumination</p>
           <div className="footer-legal">
-            <Link href="/privacy-policy">Privacy Policy</Link>
-            <Link href="/terms-of-use">Terms of Use</Link>
+            {legal.map((l) => (
+              <Link key={l.href} href={l.href}>{l.label}</Link>
+            ))}
           </div>
         </div>
       </div>

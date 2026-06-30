@@ -13,7 +13,7 @@ export function ContactForm() {
     return (
       <div className={styles.sent}>
         Thanks — your message is noted. (This form is a demo; for now please reach us directly at{' '}
-        <a href="mailto:contact@envo.com">contact@envo.com</a> or 888.228.9138.)
+        <a href="mailto:contact@envo-led.com">contact@envo-led.com</a> or 888.228.9138.)
       </div>
     )
   }
