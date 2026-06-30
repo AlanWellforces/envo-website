@@ -81,6 +81,15 @@ export const Pages: CollectionConfig = {
       admin: { position: 'sidebar', description: 'Meta description (aim ≤ 155 chars).' },
     },
     {
+      name: 'lastUpdated',
+      type: 'date',
+      admin: {
+        position: 'sidebar',
+        description: 'The "Last updated" date shown on the page. Set this manually; it does NOT auto-change on save.',
+        date: { pickerAppearance: 'dayOnly', displayFormat: 'd MMM yyyy' },
+      },
+    },
+    {
       name: 'ogImage',
       type: 'upload',
       relationTo: 'media',

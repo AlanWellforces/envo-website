@@ -10,7 +10,7 @@ function formatUpdated(iso?: string): string {
 
 export function CmsPageView({ page }: { page: CmsPage }) {
   return (
-    <LegalPage title={page.title} updated={formatUpdated(page.updatedAt)}>
+    <LegalPage title={page.title} updated={formatUpdated(page.lastUpdated ?? page.updatedAt)}>
       <RichTextRenderer doc={page.content} />
     </LegalPage>
   )

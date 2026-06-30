@@ -743,6 +743,10 @@ export interface Page {
    */
   metaDescription?: string | null;
   /**
+   * The "Last updated" date shown on the page. Set this manually; it does NOT auto-change on save.
+   */
+  lastUpdated?: string | null;
+  /**
    * Optional social share image.
    */
   ogImage?: (number | null) | Media;
@@ -1150,6 +1154,7 @@ export interface PagesSelect {
   showInFooter?: boolean;
   seoTitle?: boolean;
   metaDescription?: boolean;
+  lastUpdated?: boolean;
   ogImage?: boolean;
   updatedAt?: boolean;
   createdAt?: boolean;

@@ -19,6 +19,7 @@ export type CmsPage = {
   seoTitle?: string
   metaDescription?: string
   updatedAt?: string
+  lastUpdated?: string
 }
 
 export async function getPageBySlug(slug: string): Promise<CmsPage | null> {
@@ -33,6 +34,7 @@ export async function getPageBySlug(slug: string): Promise<CmsPage | null> {
     seoTitle: d.seoTitle || undefined,
     metaDescription: d.metaDescription || undefined,
     updatedAt: d.updatedAt ?? undefined,
+    lastUpdated: d.lastUpdated ?? undefined,
   }
 }
 
