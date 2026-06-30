@@ -12,7 +12,7 @@ export const Products: CollectionConfig = {
   slug: 'products',
   admin: {
     useAsTitle: 'name',
-    defaultColumns: ['thumbnail', 'sku', 'name', 'family', 'price_nzd', 'enabled', 'featured'],
+    defaultColumns: ['thumbnail', 'sku', 'name', 'family', 'enabled', 'featured'],
     description: 'ENVO product catalogue. Synced from Akeneo — edit freely. Enable sync_locked to prevent Akeneo from overwriting your changes.',
     group: 'Products',
   },
