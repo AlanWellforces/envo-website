@@ -5,7 +5,7 @@
 
 /** Section order for the overview. A row's `section` must be one of these — a
  *  typo is then a compile error rather than a silently-dropped (ungrouped) row. */
-export const SITE_PAGE_SECTIONS = ['Home', 'Marketing', 'Solutions', 'Content collections', 'Resources'] as const
+export const SITE_PAGE_SECTIONS = ['Home', 'Marketing', 'Solutions', 'Content collections', 'Resources', 'Legal'] as const
 export type SitePageSection = (typeof SITE_PAGE_SECTIONS)[number]
 
 export type SitePage = {
@@ -37,6 +37,11 @@ export const SITE_PAGES: SitePage[] = [
   { label: 'Tools', route: '/resources/tools', section: 'Resources', source: 'code', editHref: '/admin/collections/page-seo?where[route][equals]=/resources/tools' },
   { label: 'Signage Selector', route: '/resources/tools/signage-selector', section: 'Resources', source: 'code', editHref: '/admin/collections/page-seo?where[route][equals]=/resources/tools/signage-selector' },
   { label: 'FAQ', route: '/resources/faq', section: 'Resources', source: 'cms', editHref: '/admin/collections/faqs' },
+
+  { label: 'Terms of Service', route: '/terms-of-service', section: 'Legal', source: 'cms', editHref: '/admin/collections/pages' },
+  { label: 'Privacy Policy', route: '/privacy-policy', section: 'Legal', source: 'cms', editHref: '/admin/collections/pages' },
+  { label: 'Cookie Policy', route: '/cookie-policy', section: 'Legal', source: 'cms', editHref: '/admin/collections/pages' },
+  { label: 'Acceptable Use Policy', route: '/acceptable-use-policy', section: 'Legal', source: 'cms', editHref: '/admin/collections/pages' },
 ]
 
 export function groupedSitePages(): { section: SitePageSection; pages: SitePage[] }[] {
