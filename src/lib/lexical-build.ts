@@ -8,14 +8,14 @@ export type LexicalNode = {
   text?: string
   format?: number | string
   listType?: 'bullet' | 'number'
-  fields?: { url?: string; newTab?: boolean }
+  fields?: { url?: string; newTab?: boolean; linkType?: string }
   children?: LexicalNode[]
   version?: number
   [k: string]: unknown
 }
 export type LexicalLeaf = LexicalNode
 
-const leaf = (extra: Partial<LexicalNode>): LexicalNode => ({ version: 1, ...extra })
+const leaf = (extra: Partial<LexicalNode> & { type: string }): LexicalNode => ({ version: 1, ...extra })
 
 export const text = (s: string, format = 0): LexicalLeaf =>
   leaf({ type: 'text', text: s, format, detail: 0, mode: 'normal', style: '' })
