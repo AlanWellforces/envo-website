@@ -29,6 +29,7 @@ import { HorizontalRuleFeatureClient as HorizontalRuleFeatureClient_e70f5e05f09f
 import { InlineToolbarFeatureClient as InlineToolbarFeatureClient_e70f5e05f09f93e00b997edb1ef0c864 } from '@payloadcms/richtext-lexical/client'
 import { PostCoverCell as PostCoverCell_43b84654e8dc9bd683f062b98c3ff9cc } from '../../../payload/components/PostCoverCell'
 import { PagesNavLink as PagesNavLink_71301e389f6f82a741cd5854bd63fc95 } from '../../../payload/components/PagesNavLink'
+import { NavBrand as NavBrand_a45be23d1892af4f119f31f9e8736c16 } from '../../../payload/components/NavBrand'
 import { AdminStyles as AdminStyles_d2e9dd3decb9ad98a30b241aa0ec226d } from '../../../payload/components/AdminStyles'
 import { Dashboard as Dashboard_daa791a99564503ddd0da5ef10265bae } from '../../../payload/views/Dashboard'
 import { PagesOverview as PagesOverview_a7f2c921f84e2b57b1450686cd2d68ca } from '../../../payload/views/PagesOverview'
@@ -67,6 +68,7 @@ export const importMap = {
   "@payloadcms/richtext-lexical/client#InlineToolbarFeatureClient": InlineToolbarFeatureClient_e70f5e05f09f93e00b997edb1ef0c864,
   "/payload/components/PostCoverCell#PostCoverCell": PostCoverCell_43b84654e8dc9bd683f062b98c3ff9cc,
   "/payload/components/PagesNavLink#PagesNavLink": PagesNavLink_71301e389f6f82a741cd5854bd63fc95,
+  "/payload/components/NavBrand#NavBrand": NavBrand_a45be23d1892af4f119f31f9e8736c16,
   "/payload/components/AdminStyles#AdminStyles": AdminStyles_d2e9dd3decb9ad98a30b241aa0ec226d,
   "/payload/views/Dashboard#Dashboard": Dashboard_daa791a99564503ddd0da5ef10265bae,
   "/payload/views/PagesOverview#PagesOverview": PagesOverview_a7f2c921f84e2b57b1450686cd2d68ca,

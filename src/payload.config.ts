@@ -31,6 +31,7 @@ export default buildConfig({
     components: {
       // Injects small global admin CSS (e.g. a taller rich-text editor).
       providers: ['/payload/components/AdminStyles#AdminStyles'],
+      beforeNavLinks: ['/payload/components/NavBrand#NavBrand'],
       afterNavLinks: ['/payload/components/PagesNavLink#PagesNavLink'],
       views: {
         dashboard: {
