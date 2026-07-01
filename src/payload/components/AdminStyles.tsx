@@ -71,7 +71,11 @@ aside.nav {
 }
 .nav__scroll { padding: 8px 16px 12px; }
 
-.nav-brand { display: block; padding: 14px 10px 10px; }
+/* No horizontal padding on the wrapper — the logo carries its own 10px and
+   the Dashboard link uses the standard .nav__link padding, so both share the
+   items' left edge (wrapper padding would double-indent the link). */
+.nav-brand { display: block; padding: 14px 0 0; }
+.nav-brand__logo { display: block; padding: 0 10px; }
 .nav-brand__logo img { height: 26px; width: auto; display: block; }
 .nav-brand a.nav__link { margin-top: 22px; }
 
