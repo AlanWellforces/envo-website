@@ -40,7 +40,7 @@ export function SketchForm() {
       </label>
       <label className={`${styles.field} ${styles.fieldWide}`}>
         <span>Sign type *</span>
-        <select name="type" required defaultValue="">
+        <select name="signType" required defaultValue="">
           <option value="" disabled>
             Choose...
           </option>
