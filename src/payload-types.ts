@@ -72,6 +72,7 @@ export interface Config {
     posts: Post;
     projects: Project;
     submissions: Submission;
+    events: Event;
     faqs: Faq;
     'page-seo': PageSeo;
     pages: Page;
@@ -88,6 +89,7 @@ export interface Config {
     posts: PostsSelect;
     projects: ProjectsSelect;
     submissions: SubmissionsSelect;
+    events: EventsSelect;
     faqs: FaqsSelect;
     'page-seo': PageSeoSelect;
     pages: PagesSelect;
@@ -675,6 +677,28 @@ export interface Submission {
   createdAt: string;
 }
 /**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "events".
+ */
+export interface Event {
+  id: number;
+  kind: 'pageview' | 'find-your-match';
+  path?: string | null;
+  referrer?: string | null;
+  sessionHash?: string | null;
+  data?:
+    | {
+        [k: string]: unknown;
+      }
+    | unknown[]
+    | string
+    | number
+    | boolean
+    | null;
+  updatedAt: string;
+  createdAt: string;
+}
+/**
  * Questions answered on /resources/faq. Publish to make one visible.
  *
  * This interface was referenced by `Config`'s JSON-Schema
@@ -866,6 +890,10 @@ export interface PayloadLockedDocument {
     | ({
         relationTo: 'submissions';
         value: number | Submission;
+      } | null)
+    | ({
+        relationTo: 'events';
+        value: number | Event;
       } | null)
     | ({
         relationTo: 'faqs';
@@ -1173,6 +1201,19 @@ export interface SubmissionsSelect {
   phone?: boolean;
   sourcePath?: boolean;
   sketch?: boolean;
+  data?: boolean;
+  updatedAt?: boolean;
+  createdAt?: boolean;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "events_select".
+ */
+export interface EventsSelect {
+  kind?: boolean;
+  path?: boolean;
+  referrer?: boolean;
+  sessionHash?: boolean;
   data?: boolean;
   updatedAt?: boolean;
   createdAt?: boolean;
