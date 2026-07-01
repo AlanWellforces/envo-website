@@ -1,5 +1,6 @@
 // src/app/(frontend)/resources/tools/signage-selector/page.tsx
 import type { Metadata } from 'next'
+import { notFound } from 'next/navigation'
 import Link from 'next/link'
 import { getProductsForSelector } from '@/lib/product-selector'
 import { SIGNAGE_SELECTOR } from '@/data/selector-config'
@@ -18,6 +19,11 @@ export async function generateMetadata(): Promise<Metadata> {
 export const revalidate = 3600
 
 export default async function SignageSelectorPage() {
+  // Hidden — later-stage feature, not usable yet. 404s direct URLs while the
+  // selector table / mobile layout are finished. Re-enable by removing this line
+  // and restoring the entry points (sidebar, /resources/tools, sitemap, site-pages).
+  notFound()
+
   const rows = await getProductsForSelector('signage')
 
   return (
