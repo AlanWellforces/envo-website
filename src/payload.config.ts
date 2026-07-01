@@ -33,6 +33,9 @@ export default buildConfig({
       providers: ['/payload/components/AdminStyles#AdminStyles'],
       afterNavLinks: ['/payload/components/PagesNavLink#PagesNavLink'],
       views: {
+        dashboard: {
+          Component: '/payload/views/Dashboard#Dashboard',
+        },
         pagesOverview: {
           Component: '/payload/views/PagesOverview#PagesOverview',
           path: '/pages-overview',
