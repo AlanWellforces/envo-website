@@ -12,6 +12,8 @@
 
 import React from 'react'
 
+const BLUE_HEX = '#0071bc'
+
 // Stroke icon → data-URI for a CSS mask (only the alpha channel matters).
 const icon = (paths: string): string => {
   const svg =
@@ -120,6 +122,66 @@ ${iconRules}
 .nav__controls { border-top: 1px solid #e6e9ee; margin-top: 12px; padding-top: 10px; }
 .nav__controls a { color: #4a5568; }
 .nav__controls a:hover { color: #141d2b; }
+
+/* ---- Editorial Bold sub-pages ----------------------------------------
+   Same design language as the Dashboard for every list/edit view: light
+   grey canvas, white rounded cards, brand-blue primary actions, Inter
+   Tight. Uses Payload's own hooks (--font-body, --style-radius-*, the
+   .btn custom properties) wherever they exist. */
+:root {
+  --font-body: 'Inter Tight', -apple-system, BlinkMacSystemFont, sans-serif;
+  --style-radius-s: 8px;
+  --style-radius-m: 10px;
+  --style-radius-l: 14px;
+}
+
+/* Canvas + header */
+.template-default__wrap { background: #f6f7f9; }
+.app-header { border-bottom: 1px solid #e6e9ee; }
+.app-header__bg { background: #fff; opacity: 1; }
+
+/* Buttons — Payload exposes per-style custom properties */
+.btn--style-primary { --bg-color: ${BLUE_HEX}; --hover-bg: #005a98; --color: #fff; }
+.btn--style-secondary { --hover-color: ${BLUE_HEX}; --hover-btn-border: 1px solid ${BLUE_HEX}; }
+.btn__label { font-weight: 600; }
+
+/* List views — table becomes a white card */
+.list-header__title { font-weight: 800; letter-spacing: -.02em; color: #141d2b; }
+.collection-list .table-wrap {
+  background: #fff;
+  border: 1px solid #e6e9ee;
+  border-radius: 14px;
+  padding: 6px 18px 12px;
+}
+.table table thead th {
+  font-size: 11px;
+  text-transform: uppercase;
+  letter-spacing: .06em;
+  color: #76828f;
+  font-weight: 700;
+}
+.table table tbody td { border-bottom: 1px solid #f0f2f5; }
+.table table tbody tr:last-child td { border-bottom: 0; }
+.table table tbody tr:hover td { background: #f9fafb; }
+.table tbody tr:nth-child(odd) { background: transparent; }
+.search-filter__input { background: #fff; }
+.pill { font-weight: 600; }
+
+/* "Create New" on list headers — brand-blue pill (stock is a grey pill) */
+.list-create-new-doc__create-new-button {
+  --bg-color: ${BLUE_HEX};
+  --color: #fff;
+  --hover-bg: #005a98;
+  --hover-color: #fff;
+}
+
+/* Edit views */
+.doc-header__title { font-weight: 800; letter-spacing: -.02em; }
+.doc-tab--active { box-shadow: inset 0 -2px 0 ${BLUE_HEX}; }
+.document-fields__sidebar-wrap { background: #fff; border-left: 1px solid #e6e9ee; }
+
+/* Focus ring → brand blue (stock rule reads this var for its shadow) */
+input:focus, textarea:focus, select:focus { --theme-success-400: rgba(0, 113, 188, .35); }
 `
 
 export const AdminStyles: React.FC<{ children?: React.ReactNode }> = ({ children }) => (
