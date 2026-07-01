@@ -4,16 +4,24 @@ import { useState } from 'react'
 import styles from './page.module.css'
 
 export function SketchForm() {
-  const [sent, setSent] = useState(false)
+  const [state, setState] = useState<'idle' | 'sending' | 'sent' | 'error'>('idle')
+
+  async function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
+    e.preventDefault()
+    setState('sending')
+    const form = new FormData(e.currentTarget)
+    form.set('type', 'free-layout')
+    form.set('sourcePath', '/free-layout-design')
+    try {
+      const res = await fetch('/api/submissions', { method: 'POST', body: form })
+      setState(res.ok ? 'sent' : 'error')
+    } catch {
+      setState('error')
+    }
+  }
 
   return (
-    <form
-      className={styles.formGrid}
-      onSubmit={(e) => {
-        e.preventDefault()
-        setSent(true)
-      }}
-    >
+    <form className={styles.formGrid} onSubmit={handleSubmit}>
       <label className={styles.field}>
         <span>Your name *</span>
         <input type="text" name="name" required placeholder="Jane Smith" />
@@ -62,8 +70,8 @@ export function SketchForm() {
       </label>
 
       <div className={`${styles.fieldWide} ${styles.formActions}`}>
-        <button type="submit" className="btn btn-primary" disabled={sent}>
-          Submit My Project
+        <button type="submit" className="btn btn-primary" disabled={state === 'sending' || state === 'sent'}>
+          {state === 'sending' ? 'Sending…' : 'Submit My Project'}
           <span className="btn-arrow">→</span>
         </button>
         <small>
@@ -71,10 +79,16 @@ export function SketchForm() {
         </small>
       </div>
 
-      {sent && (
+      {state === 'sent' && (
         <div className={`${styles.fieldWide} ${styles.thanks}`} role="status">
           <strong>✓ Got it.</strong> We&apos;ll review your project and reply within 24 hours.
           For anything urgent, email <a href="mailto:contact@envo-led.com">contact@envo-led.com</a>.
+        </div>
+      )}
+      {state === 'error' && (
+        <div className={`${styles.fieldWide} ${styles.thanks}`} role="alert">
+          <strong>Something went wrong.</strong> Please try again, or email{' '}
+          <a href="mailto:contact@envo-led.com">contact@envo-led.com</a>.
         </div>
       )}
     </form>
