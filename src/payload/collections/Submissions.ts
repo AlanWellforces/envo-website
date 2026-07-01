@@ -10,7 +10,7 @@ export const Submissions: CollectionConfig = {
   admin: {
     useAsTitle: 'email',
     defaultColumns: ['email', 'type', 'company', 'status', 'createdAt'],
-    group: 'Leads',
+    group: 'Sales',
     description: 'Enquiries captured from the website. Newest first.',
     pagination: { defaultLimit: 50 },
   },

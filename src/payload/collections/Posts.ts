@@ -21,7 +21,7 @@ export const Posts: CollectionConfig = {
     // to the edit view when it's the linked column. Title is not clickable here.
     defaultColumns: ['coverPreview', 'title', '_status', 'category', 'updatedAt', 'publishedAt'],
     description: 'ENVO editorial content. Publish to make a post visible on the website.',
-    group: 'Editorial',
+    group: 'Content',
   },
   access: {
     read: () => true,

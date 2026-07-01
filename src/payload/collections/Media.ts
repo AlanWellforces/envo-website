@@ -7,7 +7,7 @@ export const Media: CollectionConfig = {
   slug: 'media',
   admin: {
     useAsTitle: 'alt',
-    group: 'Products',
+    group: 'Catalogue',
     // Thumbnail leads (Shopify-style). Payload only links the FIRST column, and
     // a custom ui Cell isn't auto-wrapped — so MediaThumbnailCell renders its
     // own link to the edit view when it's the linked column.

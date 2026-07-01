@@ -50,7 +50,7 @@ export default buildConfig({
   // Order drives the admin nav group order: content first (Products,
   // Editorial), then Website (Page SEO — per-route SEO overrides), then
   // Settings (Users) last — so Users/Settings sits at the bottom.
-  collections: [Products, Media, Posts, Projects, Submissions, Events, Faqs, PageSeo, Pages, Users],
+  collections: [Products, Media, Posts, Projects, Pages, Faqs, Submissions, Events, PageSeo, Users],
   globals: [SiteSettings, HomePage],
   plugins: [
     // File binaries → Supabase Storage when configured; falls back to local disk

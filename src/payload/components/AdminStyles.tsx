@@ -42,6 +42,7 @@ const ICONS: Record<string, string> = {
     "<path d='M4 21v-7M4 10V3M12 21v-9M12 8V3M20 21v-5M20 12V3'/><path d='M1 14h6M9 8h6M17 16h6'/>",
   ),
   'nav-global-home-page': icon("<path d='M3 9l9-6 9 6v10a1 1 0 01-1 1H4a1 1 0 01-1-1z'/>"),
+  'nav-pages-overview': icon("<rect x='3' y='3' width='18' height='18' rx='2'/><path d='M3 9h18M9 21V9'/>"),
 }
 
 const iconRules = Object.entries(ICONS)
@@ -70,7 +71,7 @@ aside.nav {
 }
 .nav__scroll { padding: 8px 16px 12px; }
 
-.nav-brand { display: block; padding: 14px 8px 10px; }
+.nav-brand { display: block; padding: 14px 10px 10px; }
 .nav-brand__logo img { height: 26px; width: auto; display: block; }
 .nav-brand a.nav__link { margin-top: 22px; }
 
@@ -81,7 +82,7 @@ aside.nav {
   color: #76828f;
   font-weight: 700;
   margin: 16px 0 6px;
-  padding: 0 8px;
+  padding: 0 10px;
 }
 .nav-group__toggle .nav-group__label { color: #76828f; }
 .nav-group__indicator { opacity: 0; transition: opacity .15s; }
