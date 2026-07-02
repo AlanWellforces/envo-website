@@ -11,27 +11,8 @@
  * Spec values use real ENVO params (RGBW / DMX512 / real IP + CCT); project-scale
  * figures (module counts, run length) are illustrative.
  */
-import { createRequire } from 'node:module'
-import fs from 'node:fs'
 import path from 'node:path'
-import { fileURLToPath } from 'node:url'
-
-const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..')
-
-// Load .env.local BEFORE importing the payload config (buildConfig reads
-// PAYLOAD_SECRET / DATABASE_URL at import time), then shim @next/env so
-// payload's loadEnv doesn't choke under tsx. Mirrors seed-blog-posts.mts.
-for (const line of fs.readFileSync(path.join(root, '.env.local'), 'utf8').split('\n')) {
-  const m = line.match(/^\s*([A-Z0-9_]+)\s*=\s*(.*?)\s*$/)
-  if (m && !(m[1] in process.env)) process.env[m[1]] = m[2].replace(/^["']|["']$/g, '')
-}
-const _requireFromPayload = createRequire(path.join(root, 'node_modules/payload/dist/bin/dummy.js'))
-const nextEnvExports = _requireFromPayload('@next/env')
-if (!nextEnvExports.default) nextEnvExports.default = nextEnvExports
-
-const configMod = await import('../src/payload.config.ts')
-const config = await (configMod.default ?? configMod)
-const { getPayload } = await import('payload')
+import { initPayload, root } from './lib/bootstrap.mts'
 
 const IMG_DIR = path.resolve(root, 'public/assets/images/projects')
 
@@ -129,7 +110,7 @@ const DEMOS: Demo[] = [
 ]
 
 async function main() {
-  const payload = await getPayload({ config })
+  const payload = await initPayload()
 
   // 1) upload images (idempotent by filename)
   const mediaId: Record<string, number | string> = {}
