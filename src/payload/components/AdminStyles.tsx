@@ -45,6 +45,7 @@ const ICONS: Record<string, string> = {
   ),
   'nav-global-home-page': icon("<path d='M3 9l9-6 9 6v10a1 1 0 01-1 1H4a1 1 0 01-1-1z'/>"),
   'nav-pages-overview': icon("<rect x='3' y='3' width='18' height='18' rx='2'/><path d='M3 9h18M9 21V9'/>"),
+  'nav-solutions': icon("<path d='M9 18h6M10 21h4M12 3a6 6 0 00-4 10.5c.7.6 1 1.6 1 2.5h6c0-.9.3-1.9 1-2.5A6 6 0 0012 3z'/>"),
 }
 
 const iconRules = Object.entries(ICONS)
