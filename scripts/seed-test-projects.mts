@@ -1,31 +1,9 @@
 // One-off: seed a few published test Projects via Payload local API.
 // Run with: tsx --tsconfig tsconfig.json scripts/seed-test-projects.mts
-// (Same @next/env CJS interop patch as generate-importmap.mts — must run
-// before any payload import.)
 
-import { createRequire } from 'node:module'
-import fs from 'node:fs'
-import path from 'node:path'
-import { fileURLToPath } from 'node:url'
+import { initPayload } from './lib/bootstrap.mts'
 
-const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..')
-
-// Load .env.local into process.env BEFORE importing the payload config
-// (buildConfig reads PAYLOAD_SECRET / DATABASE_URL at import time).
-for (const line of fs.readFileSync(path.join(root, '.env.local'), 'utf8').split('\n')) {
-  const m = line.match(/^\s*([A-Z0-9_]+)\s*=\s*(.*?)\s*$/)
-  if (m && !(m[1] in process.env)) process.env[m[1]] = m[2].replace(/^["']|["']$/g, '')
-}
-const payloadLoadEnvDir = path.join(root, 'node_modules/payload/dist/bin')
-const _requireFromPayload = createRequire(path.join(payloadLoadEnvDir, 'dummy.js'))
-const nextEnvExports = _requireFromPayload('@next/env')
-if (!nextEnvExports.default) nextEnvExports.default = nextEnvExports
-
-const configMod = await import('../src/payload.config.ts')
-const config = await (configMod.default ?? configMod)
-const { getPayload } = await import('payload')
-
-const payload = await getPayload({ config })
+const payload = await initPayload()
 
 // Minimal valid lexical richText value for the required `body` field.
 const lexicalBody = (text: string) => ({

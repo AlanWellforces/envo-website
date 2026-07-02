@@ -7,9 +7,10 @@
 import { getPayload } from 'payload'
 import config from '@payload-config'
 import { analyticsSummary } from '@/lib/analytics/aggregate'
+import { ADMIN_COLORS, ADMIN_FONT_FAMILY, ICON_GEOMETRY } from '../admin-theme'
 
-const BLUE = '#0071bc'
-const LIME = '#aec90b'
+const BLUE = ADMIN_COLORS.blue
+const LIME = ADMIN_COLORS.lime
 // The team works from NZ; the server (Vercel) runs in UTC. Every human-facing
 // clock label on this page is pinned to Pacific/Auckland.
 const TZ = 'Pacific/Auckland'
@@ -204,11 +205,13 @@ function TrendChart({ data }: { data: { date: string; count: number }[] }) {
   )
 }
 
+// Shared geometry with the admin nav (admin-theme.ts) — "Manage pages" and
+// "View products" render the same icons as their nav entries.
 const ICONS = {
-  plus: <path d="M12 5v14M5 12h14" />,
-  home: <path d="M3 9l9-6 9 6v10a1 1 0 01-1 1H4a1 1 0 01-1-1z" />,
-  file: <path d="M4 4h11l5 5v11H4z" />,
-  box: <path d="M3 7l9-4 9 4-9 4-9-4z" />,
+  plus: ICON_GEOMETRY.plus,
+  home: ICON_GEOMETRY.home,
+  file: ICON_GEOMETRY.page,
+  box: ICON_GEOMETRY.box,
 }
 
 const QUICK_ACTIONS: { label: string; desc: string; href: string; lime?: boolean; icon: keyof typeof ICONS }[] = [
@@ -235,8 +238,7 @@ export async function Dashboard(props: DashboardProps) {
   return (
     <div className="ed-root">
       <style>{`
-        @import url('https://fonts.googleapis.com/css2?family=Inter+Tight:wght@400;500;600;700;800;900&display=swap');
-        .ed-root { --blue: ${BLUE}; --blue-d: #005a98; --blue-soft: #e8f2fb; --lime: ${LIME}; --lime-d: #5b6a08; --lime-soft: #f3f7d9; --ink: #141d2b; --muted: #4a5568; --subtle: #76828f; --line: #e6e9ee; background: #f6f7f9; padding: 30px 40px 60px; font-family: 'Inter Tight', -apple-system, BlinkMacSystemFont, sans-serif; color: var(--ink); -webkit-font-smoothing: antialiased; }
+        .ed-root { --blue: ${BLUE}; --blue-d: ${ADMIN_COLORS.blueDark}; --blue-soft: ${ADMIN_COLORS.blueSoft}; --lime: ${LIME}; --lime-d: ${ADMIN_COLORS.limeDark}; --lime-soft: ${ADMIN_COLORS.limeSoft}; --ink: ${ADMIN_COLORS.ink}; --muted: ${ADMIN_COLORS.muted}; --subtle: ${ADMIN_COLORS.subtle}; --line: ${ADMIN_COLORS.line}; background: ${ADMIN_COLORS.canvas}; padding: 30px 40px 60px; font-family: ${ADMIN_FONT_FAMILY}; color: var(--ink); -webkit-font-smoothing: antialiased; }
         .ed-root a { text-decoration: none; color: inherit; }
         .ed-wrap { max-width: 1200px; margin: 0 auto; }
 
@@ -358,9 +360,12 @@ export async function Dashboard(props: DashboardProps) {
           {QUICK_ACTIONS.map((a) => (
             <a key={a.href} href={a.href} className={a.lime ? 'ed-acard lime' : 'ed-acard'}>
               <div className="ic">
-                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor">
-                  {ICONS[a.icon]}
-                </svg>
+                <svg
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  dangerouslySetInnerHTML={{ __html: ICONS[a.icon] }}
+                />
               </div>
               <div className="t">{a.label}</div>
               <div className="d">{a.desc}</div>
