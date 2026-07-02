@@ -8,6 +8,7 @@
 // work on every machine today; uploads become fully portable once Supabase
 // Storage creds land.
 import type { CollectionConfig } from 'payload'
+import { slugify } from '../../lib/slugify.ts'
 
 export const Solutions: CollectionConfig = {
   slug: 'solutions',
@@ -24,6 +25,16 @@ export const Solutions: CollectionConfig = {
   },
   versions: {
     drafts: true,
+  },
+  hooks: {
+    beforeChange: [
+      ({ data, operation }) => {
+        // Keep /solutions/<slug> URLs safe — same normalization as Pages/Posts.
+        if (data.slug) data.slug = slugify(data.slug)
+        else if (operation === 'create' && data.name) data.slug = slugify(data.name)
+        return data
+      },
+    ],
   },
   fields: [
     // ===== Main column =====

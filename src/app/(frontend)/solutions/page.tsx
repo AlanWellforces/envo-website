@@ -6,6 +6,9 @@ import { getSolutions } from '@/lib/solutions'
 import { metadataForRoute } from '@/lib/page-seo'
 import '@/components/solutions/solutions-dark.css'
 
+// ISR — CMS edits/publishes appear without a redeploy (same policy as blog).
+export const revalidate = 3600
+
 export async function generateMetadata(): Promise<Metadata> {
   return metadataForRoute('/solutions', {
     title: 'Solutions — ENVO',

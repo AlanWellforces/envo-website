@@ -1,6 +1,7 @@
 // Payload accessors for the Solutions collection. Maps docs to the same
 // `Solution` shape the /solutions pages have always consumed (previously the
 // hardcoded src/data/solutions.ts, which is now only the seed source).
+import { cache } from 'react'
 import { getPayload } from 'payload'
 import config from '@payload-config'
 import type { Solution as SolutionDoc, Media } from '@/payload-types'
@@ -45,8 +46,8 @@ function mapDoc(doc: SolutionDoc): Solution {
   }
 }
 
-/** All published solutions, in `order`. */
-export async function getSolutions(): Promise<Solution[]> {
+/** All published solutions, in `order`. cache() dedupes the metadata+page double render. */
+export const getSolutions = cache(async (): Promise<Solution[]> => {
   const payload = await getPayload({ config })
   const res = await payload.find({
     collection: 'solutions',
@@ -56,10 +57,10 @@ export async function getSolutions(): Promise<Solution[]> {
     limit: 50,
   })
   return res.docs.map(mapDoc)
-}
+})
 
 /** One published solution by slug, or null. */
-export async function getSolutionBySlug(slug: string): Promise<Solution | null> {
+export const getSolutionBySlug = cache(async (slug: string): Promise<Solution | null> => {
   const payload = await getPayload({ config })
   const res = await payload.find({
     collection: 'solutions',
@@ -68,4 +69,4 @@ export async function getSolutionBySlug(slug: string): Promise<Solution | null> 
     limit: 1,
   })
   return res.docs[0] ? mapDoc(res.docs[0]) : null
-}
+})
