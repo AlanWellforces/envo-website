@@ -1,6 +1,6 @@
 export type LeadType = 'free-layout' | 'find-your-match' | 'contact'
 const TYPES: LeadType[] = ['free-layout', 'find-your-match', 'contact']
-const KNOWN = new Set(['type', 'name', 'email', 'company', 'phone', 'sourcePath'])
+const KNOWN = new Set(['type', 'name', 'email', 'company', 'phone', 'sourcePath', 'message', 'notes'])
 
 export type NormalizedLead = {
   type: LeadType
@@ -9,6 +9,8 @@ export type NormalizedLead = {
   company?: string
   phone?: string
   sourcePath?: string
+  /** Customer's free-text message (contact `message` / free-layout `notes`). */
+  message?: string
   data: Record<string, unknown>
 }
 
@@ -36,14 +38,27 @@ export function normalizeSubmission(
   const company = str(obj.company)
   const phone = str(obj.phone)
   const sourcePath = str(obj.sourcePath)
+  const message = str(obj.message) || str(obj.notes)
   if (company) value.company = company
   if (phone) value.phone = phone
   if (sourcePath) value.sourcePath = sourcePath
+  if (message) value.message = message
   return { ok: true, value }
+}
+
+/** Plain-language summary of the leftover form fields ("signType" → "Sign type"). */
+export function buildLeadDetails(data: Record<string, unknown>): string {
+  return Object.entries(data)
+    .map(([k, v]) => {
+      const label = k.replace(/([A-Z])/g, ' $1').replace(/^./, (c) => c.toUpperCase())
+      return `${label}: ${typeof v === 'string' ? v : JSON.stringify(v)}`
+    })
+    .join('\n')
 }
 
 export function buildLeadEmail(lead: NormalizedLead): { subject: string; text: string } {
   const subject = `New ${lead.type} lead — ${lead.name}`
+  const details = buildLeadDetails(lead.data)
   const lines = [
     `Type: ${lead.type}`,
     `Name: ${lead.name}`,
@@ -51,9 +66,8 @@ export function buildLeadEmail(lead: NormalizedLead): { subject: string; text: s
     lead.company ? `Company: ${lead.company}` : null,
     lead.phone ? `Phone: ${lead.phone}` : null,
     lead.sourcePath ? `Source: ${lead.sourcePath}` : null,
-    '',
-    'Details:',
-    ...Object.entries(lead.data).map(([k, v]) => `  ${k}: ${typeof v === 'string' ? v : JSON.stringify(v)}`),
+    lead.message ? `\nMessage:\n${lead.message}` : null,
+    details ? `\nDetails:\n${details}` : null,
   ].filter((l): l is string => l !== null)
   return { subject, text: lines.join('\n') }
 }
