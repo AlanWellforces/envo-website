@@ -1,9 +1,10 @@
 import Image from 'next/image'
 import Link from 'next/link'
 import { getFooterLegalPages } from '@/lib/cms-pages'
+import { getSolutions } from '@/lib/solutions'
 
 export async function Footer() {
-  const legal = await getFooterLegalPages()
+  const [legal, solutions] = await Promise.all([getFooterLegalPages(), getSolutions()])
   return (
     <footer>
       <div className="container">
@@ -31,13 +32,16 @@ export async function Footer() {
             </ul>
           </div>
 
-          <div className="footer-col">
-            <h5>Solutions</h5>
-            <ul>
-              <li><Link href="/solutions/signage-lighting">Signage Lighting</Link></li>
-              <li><Link href="/solutions/architectural-lighting">Architectural Lighting</Link></li>
-            </ul>
-          </div>
+          {solutions.length > 0 && (
+            <div className="footer-col">
+              <h5>Solutions</h5>
+              <ul>
+                {solutions.map((s) => (
+                  <li key={s.slug}><Link href={s.href}>{s.name}</Link></li>
+                ))}
+              </ul>
+            </div>
+          )}
 
           <div className="footer-col">
             <h5>Resources</h5>
