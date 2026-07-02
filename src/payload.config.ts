@@ -74,6 +74,27 @@ export default buildConfig({
           }),
         ]
       : []),
+    // Lead attachments go to a separate PRIVATE bucket — they're customer PII
+    // and must never be readable via the public object endpoint. Payload still
+    // proxies them through /api/lead-files/file/* behind the collection's
+    // signed-in-staff read access.
+    ...(process.env.S3_LEAD_FILES_BUCKET
+      ? [
+          s3Storage({
+            collections: { 'lead-files': true },
+            bucket: process.env.S3_LEAD_FILES_BUCKET,
+            config: {
+              endpoint: process.env.S3_ENDPOINT,
+              region: process.env.S3_REGION || 'us-west-2',
+              forcePathStyle: true,
+              credentials: {
+                accessKeyId: process.env.S3_ACCESS_KEY_ID || '',
+                secretAccessKey: process.env.S3_SECRET_ACCESS_KEY || '',
+              },
+            },
+          }),
+        ]
+      : []),
   ],
   editor: lexicalEditor(),
   secret: process.env.PAYLOAD_SECRET || '',
