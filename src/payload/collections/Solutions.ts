@@ -15,7 +15,8 @@ export const Solutions: CollectionConfig = {
   labels: { singular: 'Solution', plural: 'Solutions' },
   admin: {
     useAsTitle: 'name',
-    defaultColumns: ['name', 'slug', '_status', 'updatedAt'],
+    // Thumbnail leads the list (same convention as Posts/Projects).
+    defaultColumns: ['thumb', 'name', '_status', 'updatedAt'],
     description:
       'Application solutions shown at /solutions — hero copy, gallery and the recommended kit. Publish to make one visible.',
     group: 'Content',
@@ -37,8 +38,16 @@ export const Solutions: CollectionConfig = {
     ],
   },
   fields: [
-    // ===== Main column =====
-    { name: 'name', type: 'text', required: true, admin: { placeholder: 'e.g. Signage Lighting' } },
+    // ===== Main column — the writing surface (name → hero → media → kit) =====
+    {
+      name: 'name',
+      type: 'text',
+      required: true,
+      admin: {
+        placeholder: 'e.g. Signage Lighting',
+        components: { Cell: '/payload/components/LinkedTextCell#LinkedTextCell' },
+      },
+    },
     {
       name: 'eyebrow',
       type: 'text',
@@ -49,16 +58,6 @@ export const Solutions: CollectionConfig = {
       name: 'heroDesc',
       type: 'textarea',
       admin: { description: 'One–two sentences under the title, on the list row and the detail hero.' },
-    },
-    {
-      name: 'shortDesc',
-      type: 'textarea',
-      admin: { description: 'Short card blurb (used by other pages linking here).' },
-    },
-    {
-      name: 'longDesc',
-      type: 'textarea',
-      admin: { description: 'Longer summary — also the default meta description.' },
     },
     {
       type: 'row',
@@ -162,6 +161,39 @@ export const Solutions: CollectionConfig = {
           ],
         },
       ],
+    },
+
+    // SEO & summaries — collapsed out of the writing flow (these do NOT
+    // render on the page; they only feed the meta description and off-page
+    // card blurbs).
+    {
+      type: 'collapsible',
+      label: 'SEO & summaries',
+      admin: { initCollapsed: true },
+      fields: [
+        {
+          name: 'longDesc',
+          type: 'textarea',
+          label: 'Meta description',
+          admin: { description: 'Used as <meta name="description">. Falls back to the short blurb, then the hero description. Aim ≤ 155 characters.' },
+        },
+        {
+          name: 'shortDesc',
+          type: 'textarea',
+          label: 'Short blurb',
+          admin: { description: 'Fallback summary for other pages linking here. Not shown on /solutions itself.' },
+        },
+      ],
+    },
+
+    // List-only thumbnail (no stored data; shows upload or imagePath).
+    {
+      name: 'thumb',
+      type: 'ui',
+      label: 'Image',
+      admin: {
+        components: { Cell: '/payload/components/SolutionThumbCell#SolutionThumbCell' },
+      },
     },
 
     // ===== Sidebar =====
