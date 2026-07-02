@@ -6,6 +6,7 @@ import styles from './page.module.css'
 export function SketchForm() {
   const [state, setState] = useState<'idle' | 'sending' | 'sent' | 'error'>('idle')
   const [serverError, setServerError] = useState<string | null>(null)
+  const [sketchName, setSketchName] = useState<string | null>(null)
 
   async function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault()
@@ -48,7 +49,7 @@ export function SketchForm() {
         <span>Phone</span>
         <input type="tel" name="phone" placeholder="+64 21 123 4567" />
       </label>
-      <label className={`${styles.field} ${styles.fieldWide}`}>
+      <label className={styles.field}>
         <span>Sign type *</span>
         <select name="signType" required defaultValue="">
           <option value="" disabled>
@@ -62,21 +63,38 @@ export function SketchForm() {
         </select>
       </label>
       <label className={styles.field}>
-        <span>Sign dimensions (mm) *</span>
-        <input type="text" name="dimensions" required placeholder="H × W × Depth, e.g. 600 × 1800 × 100" />
+        <span>Sign dimensions *</span>
+        <input type="text" name="dimensions" required placeholder="e.g. 4.0 m × 0.8 m, 150 mm deep" />
+      </label>
+      <label className={styles.field}>
+        <span>Viewing distance</span>
+        <input type="text" name="viewingDistance" placeholder="e.g. street level, 30 m" />
       </label>
       <label className={styles.field}>
         <span>Install location</span>
         <input type="text" name="location" placeholder="Indoor / Outdoor / Coastal / Tropical" />
       </label>
       <label className={`${styles.field} ${styles.fieldWide}`}>
-        <span>Notes</span>
-        <textarea name="notes" rows={3} placeholder="Brand colours, viewing distance, control / dimming requirements, deadline..." />
+        <span>Upload sketch / drawing (optional)</span>
+        <span className={styles.dropZone}>
+          <input
+            type="file"
+            name="sketch"
+            accept="image/*,.pdf,.dwg,.svg"
+            aria-describedby="sketch-hint"
+            className={styles.dropInput}
+            onChange={(e) => setSketchName(e.currentTarget.files?.[0]?.name ?? null)}
+          />
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" /><polyline points="17 8 12 3 7 8" /><line x1="12" y1="3" x2="12" y2="15" /></svg>
+          <span className={styles.dropText}>
+            {sketchName ?? 'Drop a photo, drawing or vector file'}
+          </span>
+          <small id="sketch-hint">JPG · PNG · PDF · DWG · SVG · up to 20 MB</small>
+        </span>
       </label>
       <label className={`${styles.field} ${styles.fieldWide}`}>
-        <span>Upload sketch / drawing (optional)</span>
-        <input type="file" name="sketch" accept="image/*,.pdf,.dwg,.svg" aria-describedby="sketch-hint" />
-        <small id="sketch-hint">JPG · PNG · PDF · DWG · SVG up to 20 MB</small>
+        <span>Notes</span>
+        <textarea name="notes" rows={3} placeholder="Brand colours, control / dimming requirements, deadline..." />
       </label>
 
       <div className={`${styles.fieldWide} ${styles.formActions}`}>

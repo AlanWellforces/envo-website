@@ -2,6 +2,7 @@ import type { Metadata } from 'next'
 import { metadataForRoute } from '@/lib/page-seo'
 import Link from 'next/link'
 import { EnvoButton } from '@/components/ui/envo-button'
+import { getSiteSettings } from '@/lib/site-settings'
 import styles from './page.module.css'
 import { SketchForm } from './SketchForm'
 
@@ -13,7 +14,26 @@ export async function generateMetadata(): Promise<Metadata> {
   })
 }
 
-export default function FreeLayoutDesignPage() {
+// Same fallback as /contact — overridden by Site Settings → Contact Details.
+const DEFAULT_PHONE = { display: '888.228.9138', href: 'tel:+18882289138' }
+const telHref = (display: string) => `tel:${display.replace(/[^\d+]/g, '')}`
+
+const HERO_CHECKS = ['100% free of charge', 'Drawn by LED engineers', 'CE · UL certified parts']
+
+const WHAT_TO_SEND = [
+  'Face dimensions & depth',
+  'Face & return colour',
+  'A sketch, vector file or photo',
+  'Viewing distance & location',
+]
+
+export default async function FreeLayoutDesignPage() {
+  const { contact } = await getSiteSettings()
+  const email = contact?.email || 'contact@envo-led.com'
+  const phone = contact?.phones?.length
+    ? { display: contact.phones[0].number, href: telHref(contact.phones[0].number) }
+    : DEFAULT_PHONE
+
   return (
     <div className="theme-light">
       <div className="container">
@@ -28,127 +48,128 @@ export default function FreeLayoutDesignPage() {
       <section className="sig-hero">
         <div className={styles.heroSplit}>
           <div className={styles.heroText}>
-            <span className="sig-eyebrow">Free Service</span>
+            <span className="sig-eyebrow">Free Service · Fast Turnaround</span>
             <h1>
-              Free Layout Design
+              Send a sketch.
               <br />
-              <em>Send a Sketch, Get a Spec</em>
+              <em>Get a spec.</em>
             </h1>
             <p className="sig-hero-desc">
-              Tell us the sign size, viewing distance and install location. Our LED engineering
-              team replies with a free module count, driver sizing and wiring
-              layout — ready for you to quote and install.
+              Tell us the sign size, viewing distance and install location. Our LED
+              engineering team replies quickly with a module count, driver sizing and
+              wiring layout — ready to quote and install. No cost, no obligation.
             </p>
 
-            <div className={styles.heroBadges}>
-              <div className={styles.badge}>
-                <span className={styles.badgeIcon} aria-hidden="true">
-                  <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><polyline points="20 6 9 17 4 12" /></svg>
+            <div className={styles.heroChips}>
+              {HERO_CHECKS.map((c) => (
+                <span key={c} className={styles.chip}>
+                  <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true"><polyline points="20 6 9 17 4 12" /></svg>
+                  {c}
                 </span>
-                <span>
-                  <span className={styles.badgeTitle}>100%</span>
-                  <br />
-                  <span className={styles.badgeSub}>Free of charge</span>
-                </span>
-              </div>
-              <div className={styles.badge}>
-                <span className={styles.badgeIcon} aria-hidden="true">
-                  <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8Z" /><polyline points="14 2 14 8 20 8" /><line x1="8" y1="13" x2="16" y2="13" /><line x1="8" y1="17" x2="16" y2="17" /></svg>
-                </span>
-                <span>
-                  <span className={styles.badgeTitle}>Full BOM</span>
-                  <br />
-                  <span className={styles.badgeSub}>Included</span>
-                </span>
-              </div>
-              <div className={styles.badge}>
-                <span className={styles.badgeIcon} aria-hidden="true">
-                  <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10Z" /></svg>
-                </span>
-                <span>
-                  <span className={styles.badgeTitle}>CE·UL·TÜV</span>
-                  <br />
-                  <span className={styles.badgeSub}>Certified parts</span>
-                </span>
-              </div>
+              ))}
             </div>
 
             <div className={styles.heroCtas}>
               <EnvoButton href="#start" variant="primary" arrow>
                 Send My Sketch
               </EnvoButton>
-              <EnvoButton href="#how" variant="ghost">
-                How It Works
+              <EnvoButton href="/products" variant="ghost">
+                Browse Catalogue
               </EnvoButton>
             </div>
           </div>
 
+          {/* Mock deliverable — what a returned layout looks like */}
           <div className={styles.heroVisual} aria-hidden="true">
-            <div className={styles.paper}>
-              <div className={styles.paperLetter}>A</div>
-              <span className={`${styles.paperDot} ${styles.paperDot1}`} />
-              <span className={`${styles.paperDot} ${styles.paperDot2}`} />
-              <span className={`${styles.paperDot} ${styles.paperDot3}`} />
-              <span className={`${styles.paperDot} ${styles.paperDot4}`} />
-              <span className={`${styles.paperDot} ${styles.paperDot5}`} />
-              <span className={styles.paperDim}>Ø 800 mm · 32 modules · EV-SL-100-12</span>
+            <div className={styles.specCard}>
+              <div className={styles.specHead}>
+                <span className={styles.specFile}>
+                  <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8Z" /><polyline points="14 2 14 8 20 8" /></svg>
+                  ENVO-LAYOUT-0426.pdf
+                </span>
+                <span className={styles.specStatus}>Ready to build</span>
+              </div>
+              <div className={styles.specCanvas}>
+                <span className={styles.specCaption}>Marked-up layout — 4.0 m × 0.8 m</span>
+              </div>
+              <div className={styles.specStats}>
+                <div className={styles.specStat}>
+                  <span className={styles.specStatLabel}>Modules</span>
+                  <span className={styles.specStatValue}>84 pcs</span>
+                  <span className={styles.specStatSub}>Mini Series</span>
+                </div>
+                <div className={styles.specStat}>
+                  <span className={styles.specStatLabel}>Drivers</span>
+                  <span className={styles.specStatValue}>2 × 60 W</span>
+                  <span className={styles.specStatSub}>Super slim</span>
+                </div>
+                <div className={styles.specStat}>
+                  <span className={styles.specStatLabel}>Total load</span>
+                  <span className={styles.specStatValue}>52.4 W</span>
+                  <span className={styles.specStatSub}>56% headroom</span>
+                </div>
+              </div>
             </div>
           </div>
         </div>
       </section>
 
       {/* ============ HOW IT WORKS ============ */}
-      <section className={`${styles.section} ${styles.sectionSoft}`} id="how">
-        <div className={styles.sectionLabel}>How It Works</div>
-        <h2 className={styles.sectionH2}>Three steps from sketch to spec</h2>
-        <div className={styles.stepsGrid}>
-          <div className={styles.stepCard}>
-            <div className={styles.stepNum}>01</div>
-            <h3>Send your sketch</h3>
-            <p>Upload a photo, drawing or vector file. Tell us the height, width, depth, viewing distance and install location.</p>
+      <section className={styles.stepsBand} id="how">
+        <div className={styles.stepsInner}>
+          <div className={styles.step}>
+            <span className={styles.stepNum}>1</span>
+            <div>
+              <h3>Send dimensions</h3>
+              <p>Share your sign or facade size, depth and face colour — a sketch or photo is enough.</p>
+            </div>
           </div>
-          <div className={styles.stepCard}>
-            <div className={styles.stepNum}>02</div>
-            <h3>We engineer the layout</h3>
-            <p>Our team marks up your file with module positions, driver placement, wiring runs and connector specs.</p>
+          <div className={styles.step}>
+            <span className={styles.stepNum}>2</span>
+            <div>
+              <h3>We design it</h3>
+              <p>Our team returns a wired module layout, full parts list and a wattage budget.</p>
+            </div>
           </div>
-          <div className={styles.stepCard}>
-            <div className={styles.stepNum}>03</div>
-            <h3>You quote &amp; build</h3>
-            <p>You&apos;ll get a complete bill of materials — ENVO modules, drivers, connectors and cable lengths.</p>
+          <div className={styles.step}>
+            <span className={styles.stepNum}>3</span>
+            <div>
+              <h3>You install</h3>
+              <p>Order the exact kit, mount to plan, and clear inspection first time.</p>
+            </div>
           </div>
         </div>
       </section>
 
       {/* ============ WHAT YOU GET ============ */}
-      <section className={styles.section}>
+      <section className={`${styles.section} ${styles.sectionSoft}`}>
         <div className={styles.sectionLabel}>What You Get</div>
         <h2 className={styles.sectionH2}>A complete, buildable spec</h2>
         <div className={styles.featuresGrid}>
-          <div className={styles.featureItem}>
+          <div className={styles.featureCard}>
             <div className={styles.featureIcon} aria-hidden="true">
-              <svg width="44" height="44" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"><rect x="3" y="3" width="18" height="18" rx="2" /><line x1="9" y1="3" x2="9" y2="21" /><line x1="15" y1="3" x2="15" y2="21" /><line x1="3" y1="9" x2="21" y2="9" /><line x1="3" y1="15" x2="21" y2="15" /></svg>
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round"><rect x="3" y="3" width="18" height="18" rx="2" /><line x1="9" y1="3" x2="9" y2="21" /><line x1="15" y1="3" x2="15" y2="21" /><line x1="3" y1="9" x2="21" y2="9" /><line x1="3" y1="15" x2="21" y2="15" /></svg>
             </div>
             <h4>Module Layout</h4>
             <p>Marked-up drawing showing exactly where each LED module mounts.</p>
           </div>
-          <div className={styles.featureItem}>
+          <div className={styles.featureCard}>
             <div className={styles.featureIcon} aria-hidden="true">
-              <svg width="44" height="44" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12" /></svg>
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12" /></svg>
             </div>
             <h4>Driver Sizing</h4>
             <p>Recommended ENVO driver model with safe headroom for the load.</p>
           </div>
-          <div className={styles.featureItem}>
+          <div className={styles.featureCard}>
             <div className={styles.featureIcon} aria-hidden="true">
-              <svg width="44" height="44" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"><path d="M3 12h2l3-9 4 18 3-9h6" /></svg>
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round"><path d="M3 12h2l3-9 4 18 3-9h6" /></svg>
             </div>
             <h4>Wiring Diagram</h4>
             <p>Cable runs, voltage drop calculation and re-injection points if needed.</p>
           </div>
-          <div className={styles.featureItem}>
+          <div className={styles.featureCard}>
             <div className={styles.featureIcon} aria-hidden="true">
-              <svg width="44" height="44" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8Z" /><polyline points="14 2 14 8 20 8" /><line x1="8" y1="13" x2="16" y2="13" /><line x1="8" y1="17" x2="16" y2="17" /></svg>
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8Z" /><polyline points="14 2 14 8 20 8" /><line x1="8" y1="13" x2="16" y2="13" /><line x1="8" y1="17" x2="16" y2="17" /></svg>
             </div>
             <h4>Bill of Materials</h4>
             <p>Itemised list of every part with quantities — ready to quote.</p>
@@ -157,15 +178,38 @@ export default function FreeLayoutDesignPage() {
       </section>
 
       {/* ============ FORM ============ */}
-      <section className={`${styles.section} ${styles.sectionSoft}`} id="start">
-        <div className={styles.formCard}>
-          <div className={styles.sectionLabel}>Get Started</div>
-          <h2 className={styles.sectionH2}>Tell us about your sign</h2>
-          <p className={styles.formLead}>
-            We&apos;ll reply with a complete layout. No fees, no commitment — just
-            a faster way to spec your project.
-          </p>
-          <SketchForm />
+      <section className={styles.section} id="start">
+        <div className={styles.formLayout}>
+          <div className={styles.formCard}>
+            <div className={styles.sectionLabel}>Get Started</div>
+            <h2 className={`${styles.sectionH2} ${styles.formTitle}`}>Tell us about your sign</h2>
+            <SketchForm />
+          </div>
+
+          <aside className={styles.sidePanel}>
+            <div className={styles.sideLabel}>What to send</div>
+            <ul className={styles.sideList}>
+              {WHAT_TO_SEND.map((item) => (
+                <li key={item}>
+                  <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true"><polyline points="20 6 9 17 4 12" /></svg>
+                  {item}
+                </li>
+              ))}
+            </ul>
+            <p className={styles.sideNote}>
+              <span className={styles.sideDot} aria-hidden="true" />
+              Fast turnaround from our engineering team.
+            </p>
+            <div className={styles.sideDivider} />
+            <div className={styles.sideLabel}>Prefer to talk?</div>
+            <div className={styles.sideContacts}>
+              <a href={phone.href}>{phone.display}</a>
+              <a href={`mailto:${email}`}>{email}</a>
+            </div>
+            <Link href="/contact" className={styles.sideLink}>
+              Contact &amp; support <span aria-hidden="true">→</span>
+            </Link>
+          </aside>
         </div>
       </section>
 
