@@ -1,103 +1,80 @@
 import { getPayload } from 'payload'
 import config from '@/payload.config'
 
+// Editable homepage copy from the `home-page` global. Every field is optional:
+// empty/unset means "use the built-in copy" — the fallbacks live next to the
+// markup in src/components/home/* so the design never depends on DB state.
+
 export type HomeHeroData = {
-  eyebrow: string
-  headline: string
-  subheading: string
-  video_url: string
-  features: { label: string; desc: string }[]
+  eyebrow?: string
+  headline?: string
+  lead?: string
+  primary_label?: string
+  primary_url?: string
+  ghost_label?: string
+  ghost_url?: string
 }
 
-export type HomeStatsData = {
-  heading: string
-  description: string
-  cta_label: string
-  cta_url: string
-  items: { label: string; desc: string }[]
+export type HomeWhyData = {
+  eyebrow?: string
+  heading?: string
+  pillars: { title: string; desc: string }[]
+  stats: { value: string; label: string; lime?: boolean }[]
 }
 
-export type HomeQuoteData = {
-  text: string
-  author_role: string
-  author_location: string
-}
-
-export type HomeProcessData = {
-  heading: string
-  cta_label: string
-  cta_url: string
-  steps: { name: string; desc: string }[]
-}
-
-export type HomeCtaData = {
-  heading: string
-  body: string
-  primary_label: string
-  primary_url: string
-  secondary_label: string
-  secondary_url: string
+export type HomeFlCtaData = {
+  eyebrow?: string
+  heading?: string
+  body?: string
+  primary_label?: string
+  primary_url?: string
+  ghost_label?: string
+  ghost_url?: string
 }
 
 export type HomePageData = {
   hero: HomeHeroData
-  stats: HomeStatsData
-  quote: HomeQuoteData
-  process: HomeProcessData
-  cta: HomeCtaData
+  why: HomeWhyData
+  flCta: HomeFlCtaData
 }
 
-let cache: { data: HomePageData; ts: number } | null = null
-const TTL = 300_000 // 5 min — homepage changes less often than nav
+const str = (v: unknown): string | undefined => (typeof v === 'string' && v.trim() ? v : undefined)
 
 function mapRaw(raw: Record<string, unknown>): HomePageData {
   return {
     hero: {
-      eyebrow:    (raw.hero_eyebrow    as string) || '',
-      headline:   (raw.hero_headline   as string) || '',
-      subheading: (raw.hero_subheading as string) || '',
-      video_url:  (raw.hero_video_url  as string) || '',
-      features:   (raw.hero_features   as { label: string; desc: string }[]) || [],
+      eyebrow:       str(raw.hero_eyebrow),
+      headline:      str(raw.hero_headline),
+      lead:          str(raw.hero_lead),
+      primary_label: str(raw.hero_primary_label),
+      primary_url:   str(raw.hero_primary_url),
+      ghost_label:   str(raw.hero_ghost_label),
+      ghost_url:     str(raw.hero_ghost_url),
     },
-    stats: {
-      heading:     (raw.stats_heading     as string) || '',
-      description: (raw.stats_description as string) || '',
-      cta_label:   (raw.stats_cta_label   as string) || '',
-      cta_url:     (raw.stats_cta_url     as string) || '',
-      items:       (raw.stats_items       as { label: string; desc: string }[]) || [],
+    why: {
+      eyebrow: str(raw.why_eyebrow),
+      heading: str(raw.why_heading),
+      pillars: (raw.why_pillars as { title: string; desc: string }[]) || [],
+      stats:   (raw.why_stats   as { value: string; label: string; lime?: boolean }[]) || [],
     },
-    quote: {
-      text:             (raw.quote_text            as string) || '',
-      author_role:      (raw.quote_author_role     as string) || '',
-      author_location:  (raw.quote_author_location as string) || '',
-    },
-    process: {
-      heading:   (raw.process_heading   as string) || '',
-      cta_label: (raw.process_cta_label as string) || '',
-      cta_url:   (raw.process_cta_url   as string) || '',
-      steps:     (raw.process_steps     as { name: string; desc: string }[]) || [],
-    },
-    cta: {
-      heading:         (raw.cta_heading         as string) || '',
-      body:            (raw.cta_body            as string) || '',
-      primary_label:   (raw.cta_primary_label   as string) || '',
-      primary_url:     (raw.cta_primary_url     as string) || '',
-      secondary_label: (raw.cta_secondary_label as string) || '',
-      secondary_url:   (raw.cta_secondary_url   as string) || '',
+    flCta: {
+      eyebrow:       str(raw.fl_eyebrow),
+      heading:       str(raw.fl_heading),
+      body:          str(raw.fl_body),
+      primary_label: str(raw.fl_primary_label),
+      primary_url:   str(raw.fl_primary_url),
+      ghost_label:   str(raw.fl_ghost_label),
+      ghost_url:     str(raw.fl_ghost_url),
     },
   }
 }
 
+// No in-memory cache here on purpose: Next.js dev/prod give each route entry
+// its own module instance, so a cache cleared from the revalidate route never
+// clears the page's copy. Caching is the page cache's job — the global's
+// afterChange hook revalidates '/', and a render costs one cheap local query.
 export async function getHomePage(): Promise<HomePageData> {
-  if (cache && Date.now() - cache.ts < TTL) return cache.data
-
   const p = await getPayload({ config })
   const raw = await p.findGlobal({ slug: 'home-page', depth: 0 }) as unknown as Record<string, unknown>
-  const data = mapRaw(raw)
-  cache = { data, ts: Date.now() }
-  return data
-}
-
-export function clearHomePageCache() {
-  cache = null
+  return mapRaw(raw)
 }

@@ -37,8 +37,8 @@ export async function generateMetadata({ params }: { params: Params }): Promise<
 
 export default async function ProductDetailPage({ params }: { params: Params }) {
   const { slug, sku } = await params
-  const product = await getProduct(sku)
-  if (!product || product.hidden) notFound()
+  const product = await getProduct(sku) // getProduct only returns visible (enabled + not hidden) products
+  if (!product) notFound()
   // Signage uses the series template (spec selector + CCT switch); it has no
   // per-SKU page, so a signage SKU URL must 404 here.
   if (product.family === 'led_module') notFound()

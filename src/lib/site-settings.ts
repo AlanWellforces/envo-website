@@ -9,22 +9,16 @@ export type SiteSettings = {
     link_url?: string
     style: 'info' | 'success' | 'warning' | 'promo'
   }
-  nav: {
-    primary_links: { label: string; url: string; icon?: string; open_in_new_tab: boolean }[]
-    cta_label: string
-    cta_url: string
-  }
   footer: {
     tagline?: string
-    link_columns: { heading: string; links: { label: string; url: string }[] }[]
     legal_text?: string
-    social_links: { platform: string; url: string }[]
+    social_links?: { platform: string; url: string }[]
+    link_columns?: { heading: string; links: { label: string; url: string }[] }[]
   }
   contact: {
     email?: string
-    phone?: string
+    phones?: { label: string; number: string }[]
     address?: string
-    hours?: string
   }
   seo: {
     site_name: string
@@ -36,19 +30,12 @@ export type SiteSettings = {
   }
 }
 
-let cache: { data: SiteSettings; ts: number } | null = null
-const TTL = 60_000 // 1 min in-memory cache — revalidate clears this
-
+// No in-memory cache here on purpose: Next.js gives each route entry its own
+// module instance, so a cache cleared from the revalidate route never clears
+// the page's copy (stale-footer bug). The layout revalidation in
+// /api/revalidate is the cache layer; a render costs one cheap local query.
 export async function getSiteSettings(): Promise<SiteSettings> {
-  if (cache && Date.now() - cache.ts < TTL) return cache.data
-
   const p = await getPayload({ config })
   const raw = await p.findGlobal({ slug: 'site-settings', depth: 1 })
-  const data = raw as unknown as SiteSettings
-  cache = { data, ts: Date.now() }
-  return data
-}
-
-export function clearSiteSettingsCache() {
-  cache = null
+  return raw as unknown as SiteSettings
 }

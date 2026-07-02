@@ -146,12 +146,19 @@ export function resolveProductImage(
   return { src: seriesFallback, isLocal: true, alt: product.name }
 }
 
-/** Single product by SKU. Returns null if not found. */
+/** The single definition of "publicly visible product". Every public query —
+    lists, counts, single lookups (detail page, datasheets, project product
+    references) — must spread this in, so hiding a product hides it everywhere. */
+export function visibleProductConditions(): import('payload').Where[] {
+  return [{ enabled: { equals: true } }, { hidden: { equals: false } }]
+}
+
+/** Single visible product by SKU. Returns null if not found or hidden. */
 export async function getProduct(sku: string): Promise<Product | null> {
   const p = await payload()
   const result = await p.find({
     collection: 'products',
-    where: { and: [{ sku: { equals: sku } }, { enabled: { equals: true } }] },
+    where: { and: [{ sku: { equals: sku } }, ...visibleProductConditions()] },
     limit: 1,
     depth: 1,
   })
@@ -168,7 +175,7 @@ export async function getProductsByFamily(
   const p = await payload()
   const result = await p.find({
     collection: 'products',
-    where: { and: [{ family: { equals: family } }, { enabled: { equals: true } }, { hidden: { equals: false } }] },
+    where: { and: [{ family: { equals: family } }, ...visibleProductConditions()] },
     sort: 'name',
     limit: opts.limit ?? 200,
     depth: opts.depth ?? 1,
@@ -232,7 +239,7 @@ export async function countProductsByMarketingFamily(marketingSlug: string): Pro
     dbFamilies.map(async (f) => {
       const r = await p.find({
         collection: 'products',
-        where: { and: [{ family: { equals: f } }, { enabled: { equals: true } }, { hidden: { equals: false } }] },
+        where: { and: [{ family: { equals: f } }, ...visibleProductConditions()] },
         limit: 1,
         depth: 0,
       })
@@ -284,10 +291,7 @@ export async function listProducts(
 ): Promise<{ docs: Product[]; totalDocs: number; totalPages: number }> {
   const p = await payload()
 
-  const conditions: import('payload').Where[] = [
-    { enabled: { equals: true } },
-    { hidden: { equals: false } },
-  ]
+  const conditions: import('payload').Where[] = visibleProductConditions()
 
   // Catalog
   if (opts.family) conditions.push({ family: { equals: opts.family } })

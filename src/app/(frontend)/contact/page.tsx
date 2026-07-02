@@ -1,7 +1,9 @@
 import type { Metadata } from 'next'
 import { metadataForRoute } from '@/lib/page-seo'
 import Link from 'next/link'
+import { Fragment } from 'react'
 import { ContactForm } from './ContactForm'
+import { getSiteSettings } from '@/lib/site-settings'
 import styles from './page.module.css'
 
 export async function generateMetadata(): Promise<Metadata> {
@@ -12,13 +14,23 @@ export async function generateMetadata(): Promise<Metadata> {
   })
 }
 
-const PHONES = [
+// Built-in contact details — overridden by Site Settings → Contact Details when set.
+const DEFAULT_PHONES = [
   { region: 'US', display: '888.228.9138', href: 'tel:+18882289138' },
   { region: 'UK', display: '+44 20 3398 6515', href: 'tel:+442033986515' },
   { region: 'AU', display: '+61 2 7254 5288', href: 'tel:+61272545288' },
 ]
+const DEFAULT_ADDRESS = '409 Canton Street, Unit 5\nStoughton, MA 02072 · USA'
 
-export default function ContactPage() {
+const telHref = (display: string) => `tel:${display.replace(/[^\d+]/g, '')}`
+
+export default async function ContactPage() {
+  const { contact } = await getSiteSettings()
+  const email = contact?.email || 'contact@envo-led.com'
+  const phones = contact?.phones?.length
+    ? contact.phones.map((p) => ({ region: p.label, display: p.number, href: telHref(p.number) }))
+    : DEFAULT_PHONES
+  const addressLines = (contact?.address?.trim() || DEFAULT_ADDRESS).split('\n')
   return (
     <div className="theme-light">
       <div className="container">
@@ -49,14 +61,14 @@ export default function ContactPage() {
             <div className={styles.detail}>
               <p className={styles.detailLabel}>Email</p>
               <p className={styles.detailVal}>
-                <a href="mailto:contact@envo-led.com">contact@envo-led.com</a>
+                <a href={`mailto:${email}`}>{email}</a>
               </p>
             </div>
 
             <div className={styles.detail}>
               <p className={styles.detailLabel}>Phone</p>
               <p className={styles.detailVal}>
-                {PHONES.map((p) => (
+                {phones.map((p) => (
                   <a key={p.region} href={p.href}>
                     {p.region} · {p.display}
                   </a>
@@ -67,9 +79,12 @@ export default function ContactPage() {
             <div className={styles.detail}>
               <p className={styles.detailLabel}>Address</p>
               <p className={styles.detailVal}>
-                409 Canton Street, Unit 5
-                <br />
-                Stoughton, MA 02072 · USA
+                {addressLines.map((line, i) => (
+                  <Fragment key={i}>
+                    {i > 0 && <br />}
+                    {line}
+                  </Fragment>
+                ))}
               </p>
             </div>
           </aside>

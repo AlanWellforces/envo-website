@@ -2,9 +2,24 @@ import Image from 'next/image'
 import Link from 'next/link'
 import { getFooterLegalPages } from '@/lib/cms-pages'
 import { getSolutions } from '@/lib/solutions'
+import { getSiteSettings } from '@/lib/site-settings'
+
+const SOCIAL_LABELS: Record<string, string> = {
+  linkedin: 'LinkedIn',
+  instagram: 'Instagram',
+  facebook: 'Facebook',
+  youtube: 'YouTube',
+  twitter: 'X',
+}
 
 export async function Footer() {
-  const [legal, solutions] = await Promise.all([getFooterLegalPages(), getSolutions()])
+  const [legal, solutions, settings] = await Promise.all([
+    getFooterLegalPages(),
+    getSolutions(),
+    getSiteSettings(),
+  ])
+  const email = settings.contact?.email || 'contact@envo-led.com'
+  const social = settings.footer?.social_links ?? []
   return (
     <footer>
       <div className="container">
@@ -16,9 +31,9 @@ export async function Footer() {
               width={120}
               height={22}
             />
-            <p>Engineered illumination to elevate performance.</p>
-            <a href="mailto:contact@envo-led.com" className="footer-brand-email">
-              contact@envo-led.com
+            <p>{settings.footer?.tagline || 'Engineered illumination to elevate performance.'}</p>
+            <a href={`mailto:${email}`} className="footer-brand-email">
+              {email}
             </a>
           </div>
 
@@ -63,8 +78,13 @@ export async function Footer() {
         </div>
 
         <div className="footer-bottom">
-          <p>© {new Date().getFullYear()} Envo — Engineered Illumination</p>
+          <p>{settings.footer?.legal_text || `© ${new Date().getFullYear()} Envo — Engineered Illumination`}</p>
           <div className="footer-legal">
+            {social.map((s) => (
+              <a key={s.url} href={s.url} target="_blank" rel="noopener noreferrer">
+                {SOCIAL_LABELS[s.platform] ?? s.platform}
+              </a>
+            ))}
             {legal.map((l) => (
               <Link key={l.href} href={l.href}>{l.label}</Link>
             ))}
