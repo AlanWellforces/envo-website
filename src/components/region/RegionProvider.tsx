@@ -4,9 +4,8 @@
 // localStorage key the sidebar switcher has always written ('envo-region'),
 // so existing visitors keep their saved choice. Consumers read via
 // useRegion(); setRegion broadcasts an in-tab event so every consumer
-// (hero chip, footer contact, purchase cards) updates together. The sidebar
-// still owns the switcher UI — it migrates to this hook in a follow-up
-// (the file is mid-edit elsewhere right now).
+// (sidebar switcher, hero chip, footer contact, purchase cards) updates
+// together.
 
 import { createContext, useCallback, useContext, useEffect, useState } from 'react'
 import type { PurchaseChannel } from '@/data/purchase-channels'

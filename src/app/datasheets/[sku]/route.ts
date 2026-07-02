@@ -37,6 +37,8 @@ export async function GET(_req: NextRequest, { params }: { params: Promise<{ sku
       'Content-Type': upstream.headers.get('content-type') ?? 'application/pdf',
       'Content-Disposition': `inline; filename="${cleanFilename(product.name)}"`,
       'Cache-Control': 'public, max-age=3600, s-maxage=86400',
+      // Proxied PDFs shouldn't compete with product pages in search results.
+      'X-Robots-Tag': 'noindex',
     },
   })
 }

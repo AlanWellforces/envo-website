@@ -6,10 +6,9 @@ import { usePathname } from 'next/navigation'
 import { useCallback, useEffect, useRef, useState, useSyncExternalStore } from 'react'
 import { cn } from '@/lib/utils'
 import { PURCHASE_CHANNELS, type PurchaseChannel } from '@/data/purchase-channels'
+import { useRegion } from '@/components/region/RegionProvider'
 
 const STORAGE_KEY = 'envo-c-sidebar-collapsed'
-const REGION_STORAGE_KEY = 'envo-region'
-const REGION_DEFAULT: PurchaseChannel['id'] = 'nz-ap'
 
 // Short display labels for the sidebar foot — purchase-channels.ts holds long
 // regionLabel strings that don't fit the narrow row.
@@ -160,7 +159,9 @@ export function Sidebar() {
     getCollapsedServerSnapshot,
   )
   const [open, setOpen] = useState(false)
-  const [region, setRegion] = useState<PurchaseChannel['id']>(REGION_DEFAULT)
+  // Shared region state (localStorage-backed, broadcasts in-tab) — the hero
+  // chip, footer contact and purchase cards all update with this switcher.
+  const { region, setRegion } = useRegion()
   const [regionOpen, setRegionOpen] = useState(false)
   // Track which parent groups are user-expanded. Parent groups start expanded
   // so their sub-categories are always surfaced in the sidebar; the active
@@ -192,16 +193,6 @@ export function Sidebar() {
     })
   }, [pathname])
 
-  // Hydrate region from localStorage after mount (avoids SSR mismatch).
-  useEffect(() => {
-    try {
-      const saved = window.localStorage.getItem(REGION_STORAGE_KEY)
-      if (saved === 'nz-ap' || saved === 'us-global') {
-        setRegion(saved)
-      }
-    } catch {}
-  }, [])
-
   // Close the region dropdown when clicking outside it.
   useEffect(() => {
     if (!regionOpen) return
@@ -214,13 +205,13 @@ export function Sidebar() {
     return () => document.removeEventListener('click', onDocClick)
   }, [regionOpen])
 
-  const pickRegion = useCallback((id: PurchaseChannel['id']) => {
-    setRegion(id)
-    setRegionOpen(false)
-    try {
-      window.localStorage.setItem(REGION_STORAGE_KEY, id)
-    } catch {}
-  }, [])
+  const pickRegion = useCallback(
+    (id: PurchaseChannel['id']) => {
+      setRegion(id)
+      setRegionOpen(false)
+    },
+    [setRegion],
+  )
 
   useEffect(() => {
     if (!open) return
