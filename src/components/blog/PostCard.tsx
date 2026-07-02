@@ -1,3 +1,4 @@
+import Image from 'next/image'
 import Link from 'next/link'
 import type { Post } from '@/lib/posts'
 
@@ -15,9 +16,9 @@ const CATEGORY_BORDER: Record<string, string> = {
   industry: '#6a7a8a',
 }
 
-function coverUrl(cover: Post['cover']): string | null {
-  if (typeof cover === 'number') return null
-  return cover?.url ?? null
+function coverData(cover: Post['cover']): { url: string; alt?: string } | null {
+  if (typeof cover === 'number' || !cover?.url) return null
+  return { url: cover.url, alt: cover.alt }
 }
 
 function formatDate(iso: string): string {
@@ -29,7 +30,7 @@ function formatDate(iso: string): string {
 }
 
 export function PostCard({ post }: { post: Post }) {
-  const img = coverUrl(post.cover)
+  const img = coverData(post.cover)
   const categoryLabel = CATEGORY_LABEL[post.category] ?? post.category
   return (
     <Link
@@ -56,11 +57,12 @@ export function PostCard({ post }: { post: Post }) {
         }}
       >
         {img && (
-          /* eslint-disable-next-line @next/next/no-img-element */
-          <img
-            src={img}
-            alt=""
-            style={{ position: 'absolute', inset: 0, width: '100%', height: '100%', objectFit: 'cover' }}
+          <Image
+            src={img.url}
+            alt={img.alt || post.title}
+            fill
+            sizes="(min-width: 900px) 33vw, 100vw"
+            style={{ objectFit: 'cover' }}
           />
         )}
         <div

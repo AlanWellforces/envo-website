@@ -38,7 +38,7 @@ export default function SeriesTemplate(props: SeriesTemplateProps) {
             <div className={styles.heroImg}>
               {heroImage.isLocal
                 ? <Image src={heroImage.src} alt={heroImage.alt} width={520} height={360} />
-                : <img src={heroImage.src} alt={heroImage.alt} />}
+                : <Image src={heroImage.src} alt={heroImage.alt} width={600} height={600} sizes="300px" />}
             </div>
           )}
           <div className={styles.featureGrid}>
@@ -74,7 +74,7 @@ export default function SeriesTemplate(props: SeriesTemplateProps) {
                         {m.image.src
                           ? m.image.isLocal
                             ? <Image src={m.image.src} alt={m.image.alt} width={64} height={64} />
-                            : <img src={m.image.src} alt={m.image.alt} />
+                            : <Image src={m.image.src} alt={m.image.alt} width={128} height={128} sizes="64px" />
                           : null}
                       </span>
                       <span className={styles.modelCode}>{m.code}</span>

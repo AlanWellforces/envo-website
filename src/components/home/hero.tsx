@@ -1,4 +1,4 @@
-/* eslint-disable @next/next/no-img-element */
+import Image from 'next/image'
 import Link from 'next/link'
 import { ArrowRight } from './icons'
 
@@ -44,10 +44,10 @@ export function Hero() {
               Ships fast, US-stocked
             </span>
             <span className="v4-chip cert-chip">
-              <img src="/assets/images/certs/ce.png" alt="CE" />
-              <img src="/assets/images/certs/ul.png" alt="UL" />
-              <img src="/assets/images/certs/rohs.png" alt="RoHS" />
-              <img src="/assets/images/certs/tuv.png" alt="TÜV" />
+              <Image src="/assets/images/certs/ce.png" alt="CE" width={25} height={20} priority />
+              <Image src="/assets/images/certs/ul.png" alt="UL" width={20} height={20} priority />
+              <Image src="/assets/images/certs/rohs.png" alt="RoHS" width={35} height={20} priority />
+              <Image src="/assets/images/certs/tuv.png" alt="TÜV" width={20} height={20} priority />
             </span>
           </div>
           <div className="v4-cta-row">

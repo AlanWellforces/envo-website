@@ -3,6 +3,7 @@
 // node types as they appear in real content.
 
 import React from 'react'
+import Image from 'next/image'
 import { slugify } from '@/lib/slugify'
 
 type LexicalNode = {
@@ -14,6 +15,8 @@ type LexicalNode = {
   newTab?: boolean
   fields?: { url?: string; newTab?: boolean; blockType?: string; html?: string }
   listType?: 'bullet' | 'number'
+  // Payload upload node — populated media doc (number if unpopulated)
+  value?: number | { url?: string; alt?: string; width?: number; height?: number }
   children?: LexicalNode[]
 }
 
@@ -103,6 +106,27 @@ function Node({ node }: { node: LexicalNode }): React.ReactNode {
     }
     case 'linebreak':
       return <br />
+    case 'upload': {
+      // Inline media from Payload's UploadFeature. Previously not rendered.
+      const media = node.value
+      if (typeof media !== 'object' || !media?.url) return null
+      // Article body is max-width 820px with 56px side padding → 708px content.
+      if (media.width && media.height) {
+        return (
+          <Image
+            src={media.url}
+            alt={media.alt || ''}
+            width={media.width}
+            height={media.height}
+            sizes="(min-width: 900px) 708px, 100vw"
+            style={{ maxWidth: '100%', height: 'auto' }}
+          />
+        )
+      }
+      // No intrinsic dimensions on the node — fall back to a lazy raw <img>.
+      // eslint-disable-next-line @next/next/no-img-element
+      return <img src={media.url} alt={media.alt || ''} loading="lazy" decoding="async" style={{ maxWidth: '100%', height: 'auto' }} />
+    }
     case 'block': {
       // Custom blocks from BlocksFeature. The "html" block renders its raw
       // HTML verbatim — authored by trusted editors, used for special layouts.

@@ -1569,7 +1569,7 @@ const MOCKUP_BODY = `
     <!-- Scene banner: look inside an opened channel letter -->
     <div class="scene-banner tall">
       <div class="frame">
-        <img src="/assets/images/app-mini-cabinet-detail.jpg" alt="Top-down view of an opened channel letter showing the MiniLux modules mounted to the back panel">
+        <img decoding="async" src="/assets/images/app-mini-cabinet-detail.jpg" alt="Top-down view of an opened channel letter showing the MiniLux modules mounted to the back panel">
         <div class="caption">
           <span class="eyebrow">// Inside an opened channel letter</span>
           <span class="line">One row of modules. The whole face glows.</span>
@@ -1717,7 +1717,7 @@ const MOCKUP_BODY = `
       </div>
       <div class="mini-variant-grid">
         <div class="mini-variant">
-          <div class="img-slot"><img src="/assets/images/mod-mini-single.png" alt="MiniLux Single LED module"></div>
+          <div class="img-slot"><img loading="lazy" decoding="async" src="/assets/images/mod-mini-single.png" alt="MiniLux Single LED module"></div>
           <h3 class="name">Single</h3>
           <span class="sku">EV-BLML01LBY · 0.24 W</span>
           <dl class="specs">
@@ -1727,7 +1727,7 @@ const MOCKUP_BODY = `
           </dl>
         </div>
         <div class="mini-variant">
-          <div class="img-slot"><img src="/assets/images/mod-mini-duo.png" alt="MiniLux Duo LED module"></div>
+          <div class="img-slot"><img loading="lazy" decoding="async" src="/assets/images/mod-mini-duo.png" alt="MiniLux Duo LED module"></div>
           <h3 class="name">Duo</h3>
           <span class="sku">EV-BLML02LBY · 0.48 W</span>
           <dl class="specs">
@@ -1741,7 +1741,7 @@ const MOCKUP_BODY = `
             <svg width="11" height="11" viewBox="0 0 24 24" fill="currentColor" stroke="none"><polygon points="12 2 15 9 22 9.5 16.5 14 18 21 12 17.5 6 21 7.5 14 2 9.5 9 9"/></svg>
             Most popular
           </span>
-          <div class="img-slot"><img src="/assets/images/mod-mini-triple.png" alt="MiniLux Triple LED module"></div>
+          <div class="img-slot"><img loading="lazy" decoding="async" src="/assets/images/mod-mini-triple.png" alt="MiniLux Triple LED module"></div>
           <h3 class="name">Triple</h3>
           <span class="sku">EV-BLML03LBY · 0.72 W</span>
           <dl class="specs">
@@ -1759,11 +1759,11 @@ const MOCKUP_BODY = `
       <h2 class="section-h2">Six marks. 5-year warranty.</h2>
       <div class="assurance-strip">
         <div class="certs">
-          <img class="cert-logo" src="/assets/images/certs/ul.png" alt="UL" title="UL listed (USA)">
+          <img loading="lazy" decoding="async" class="cert-logo" src="/assets/images/certs/ul.png" alt="UL" title="UL listed (USA)">
           <span class="cert-text" title="cUL — UL listed for Canada">cUL</span>
-          <img class="cert-logo" src="/assets/images/certs/ce.png" alt="CE" title="CE marking (EU)">
-          <img class="cert-logo" src="/assets/images/certs/tuv.png" alt="TÜV" title="TÜV SÜD tested">
-          <img class="cert-logo" src="/assets/images/certs/rohs.png" alt="RoHS" title="RoHS compliant">
+          <img loading="lazy" decoding="async" class="cert-logo" src="/assets/images/certs/ce.png" alt="CE" title="CE marking (EU)">
+          <img loading="lazy" decoding="async" class="cert-logo" src="/assets/images/certs/tuv.png" alt="TÜV" title="TÜV SÜD tested">
+          <img loading="lazy" decoding="async" class="cert-logo" src="/assets/images/certs/rohs.png" alt="RoHS" title="RoHS compliant">
           <span class="cert-text" title="IEC CB Scheme — international product safety">CB</span>
         </div>
         <div class="promises">
@@ -1783,9 +1783,9 @@ const MOCKUP_BODY = `
       <!-- Product image row — top of table, real per-variant photos from envo-led.com -->
       <div class="compare-row compare-head">
         <div class="compare-cell-label"></div>
-        <div class="compare-cell"><img src="/assets/images/mod-mini-single.png" alt="MiniLux Single LED module"></div>
-        <div class="compare-cell"><img src="/assets/images/mod-mini-duo.png" alt="MiniLux Duo LED module"></div>
-        <div class="compare-cell"><img src="/assets/images/mod-mini-triple.png" alt="MiniLux Triple LED module"></div>
+        <div class="compare-cell"><img loading="lazy" decoding="async" src="/assets/images/mod-mini-single.png" alt="MiniLux Single LED module"></div>
+        <div class="compare-cell"><img loading="lazy" decoding="async" src="/assets/images/mod-mini-duo.png" alt="MiniLux Duo LED module"></div>
+        <div class="compare-cell"><img loading="lazy" decoding="async" src="/assets/images/mod-mini-triple.png" alt="MiniLux Triple LED module"></div>
       </div>
 
       <!-- Model row — variant name (big) + SKU (small under) -->
@@ -2003,10 +2003,10 @@ const MOCKUP_BODY = `
         </div>
         <div class="compare-cell compare-cell-span3-center">
           <div class="cert-row">
-            <img class="cert-logo" src="/assets/images/certs/ul.png" alt="UL" title="UL listed">
-            <img class="cert-logo" src="/assets/images/certs/ce.png" alt="CE" title="CE marking">
-            <img class="cert-logo" src="/assets/images/certs/tuv.png" alt="TÜV" title="TÜV SÜD tested">
-            <img class="cert-logo" src="/assets/images/certs/rohs.png" alt="RoHS" title="RoHS compliant">
+            <img loading="lazy" decoding="async" class="cert-logo" src="/assets/images/certs/ul.png" alt="UL" title="UL listed">
+            <img loading="lazy" decoding="async" class="cert-logo" src="/assets/images/certs/ce.png" alt="CE" title="CE marking">
+            <img loading="lazy" decoding="async" class="cert-logo" src="/assets/images/certs/tuv.png" alt="TÜV" title="TÜV SÜD tested">
+            <img loading="lazy" decoding="async" class="cert-logo" src="/assets/images/certs/rohs.png" alt="RoHS" title="RoHS compliant">
             <span class="cert-text" title="cUL — UL listed for Canada">cUL</span>
             <span class="cert-text" title="IEC CB Scheme — international product safety">CB</span>
           </div>
@@ -2023,7 +2023,7 @@ const MOCKUP_BODY = `
         </div>
         <div class="compare-cell">
           <div class="app-mini">
-            <img src="/assets/images/app-mini-outline-trim.jpg" alt="Border & outline accents">
+            <img loading="lazy" decoding="async" src="/assets/images/app-mini-outline-trim.jpg" alt="Border & outline accents">
             <strong>Border &amp; edge accents</strong>
             <span>Tight curves, decorative outline, low-density fill</span>
             <span class="fit-meta">Cabinet depth 30–80 mm (1.2–3.1 in) · fine LED pitch on tight geometry</span>
@@ -2031,7 +2031,7 @@ const MOCKUP_BODY = `
         </div>
         <div class="compare-cell">
           <div class="app-mini">
-            <img src="/assets/images/app-mini-channel-letters.jpg" alt="Slim channel letters">
+            <img loading="lazy" decoding="async" src="/assets/images/app-mini-channel-letters.jpg" alt="Slim channel letters">
             <strong>Standard channel letters</strong>
             <span>Wordmarks · architectural signage · medium density</span>
             <span class="fit-meta">Cabinet depth 30–80 mm (1.2–3.1 in) · balanced brightness vs. cost</span>
@@ -2039,7 +2039,7 @@ const MOCKUP_BODY = `
         </div>
         <div class="compare-cell popular">
           <div class="app-mini">
-            <img src="/assets/images/app-mini-thin-lightbox.jpg" alt="Mid-narrow channel letters and thin lightboxes">
+            <img loading="lazy" decoding="async" src="/assets/images/app-mini-thin-lightbox.jpg" alt="Mid-narrow channel letters and thin lightboxes">
             <strong>High-brightness lightboxes</strong>
             <span>Long straight runs · thick translucent faces · bright signs</span>
             <span class="fit-meta">Cabinet depth 30–80 mm (1.2–3.1 in) · highest LED density per unit length</span>
@@ -2076,7 +2076,7 @@ const MOCKUP_BODY = `
         </div>
         <div class="compare-cell compare-cell-span3">
           <div class="row-thumb">
-            <img src="/assets/images/cat-drivers.png" alt="">
+            <img loading="lazy" decoding="async" src="/assets/images/cat-drivers.png" alt="">
             <div class="body">
               <a href="/files/products-v3.html#drivers"><strong>EV-SL Linear 12 V</strong></a> — slim 60–100 W variants drive any Mini run. Max 40 modules per string on a constant-voltage feed; parallel multiple strings for longer letters.
             </div>
@@ -2090,7 +2090,7 @@ const MOCKUP_BODY = `
         </div>
         <div class="compare-cell compare-cell-span3">
           <div class="row-thumb">
-            <img src="/assets/images/cat-drivers.png" alt="" style="filter: hue-rotate(-15deg) brightness(1.05);">
+            <img loading="lazy" decoding="async" src="/assets/images/cat-drivers.png" alt="" style="filter: hue-rotate(-15deg) brightness(1.05);">
             <div class="body">
               <a href="/files/products-v3.html#drivers"><strong>EV-SP-TDM</strong></a> triac-dimmable driver — phase-cut from a wall plate, no controller required.
             </div>
@@ -2104,7 +2104,7 @@ const MOCKUP_BODY = `
         </div>
         <div class="compare-cell compare-cell-span3">
           <div class="row-thumb">
-            <img src="/assets/images/cat-sensors.png" alt="">
+            <img loading="lazy" decoding="async" src="/assets/images/cat-sensors.png" alt="">
             <div class="body">
               <a href="/files/products-v3.html#accessories"><strong>IP67 push-fit connectors</strong></a> · 16 AWG pre-tinned cable — weather-tight cable runs.
             </div>
@@ -2149,7 +2149,7 @@ const MOCKUP_BODY = `
     <!-- Scene banner: cinematic twilight street -->
     <div class="scene-banner">
       <div class="frame">
-        <img src="/assets/images/app-mini-hero-twilight.jpg" alt="Twilight pedestrian street lined with illuminated boutique signs">
+        <img decoding="async" src="/assets/images/app-mini-hero-twilight.jpg" alt="Twilight pedestrian street lined with illuminated boutique signs">
         <div class="caption">
           <span class="eyebrow">// Built for the blue hour</span>
           <span class="line">From quiet boutiques to airport halls.</span>
@@ -2165,7 +2165,7 @@ const MOCKUP_BODY = `
 
         <!-- 1. Retail channel letters -->
         <div class="sol-card">
-          <div class="img-slot"><img src="/assets/images/app-mini-channel-letters.jpg" alt="Retail storefront channel letters"></div>
+          <div class="img-slot"><img loading="lazy" decoding="async" src="/assets/images/app-mini-channel-letters.jpg" alt="Retail storefront channel letters"></div>
           <div class="body">
             <h3>Retail channel letters</h3>
             <p class="pick-line"><strong>Duo</strong> · 40–60 mm · 4000 K</p>
@@ -2174,7 +2174,7 @@ const MOCKUP_BODY = `
 
         <!-- 2. Slim lightboxes -->
         <div class="sol-card">
-          <div class="img-slot"><img src="/assets/images/app-mini-thin-lightbox.jpg" alt="Slim wall-mounted lightbox"></div>
+          <div class="img-slot"><img loading="lazy" decoding="async" src="/assets/images/app-mini-thin-lightbox.jpg" alt="Slim wall-mounted lightbox"></div>
           <div class="body">
             <h3>Slim lightboxes</h3>
             <p class="pick-line"><strong>Triple</strong> · 30–50 mm · 7000 K</p>
@@ -2183,7 +2183,7 @@ const MOCKUP_BODY = `
 
         <!-- 3. Outline trim -->
         <div class="sol-card">
-          <div class="img-slot"><img src="/assets/images/app-mini-outline-trim.jpg" alt="Decorative outline trim accent"></div>
+          <div class="img-slot"><img loading="lazy" decoding="async" src="/assets/images/app-mini-outline-trim.jpg" alt="Decorative outline trim accent"></div>
           <div class="body">
             <h3>Outline &amp; trim</h3>
             <p class="pick-line"><strong>Single</strong> · 30–50 mm · 3000 K</p>
@@ -2192,7 +2192,7 @@ const MOCKUP_BODY = `
 
         <!-- 4. Hospitality / architectural facade -->
         <div class="sol-card">
-          <div class="img-slot"><img src="/assets/images/app-mini-hospitality-facade.jpg" alt="Hotel facade with backlit name sign at dusk"></div>
+          <div class="img-slot"><img loading="lazy" decoding="async" src="/assets/images/app-mini-hospitality-facade.jpg" alt="Hotel facade with backlit name sign at dusk"></div>
           <div class="body">
             <h3>Hospitality facades</h3>
             <p class="pick-line"><strong>Triple</strong> · 50–80 mm · 3000 K</p>
@@ -2201,7 +2201,7 @@ const MOCKUP_BODY = `
 
         <!-- 5. Pylon / monument signs -->
         <div class="sol-card">
-          <div class="img-slot"><img src="/assets/images/app-mini-pylon-monument.jpg" alt="Freestanding pylon monument sign at corporate park entrance"></div>
+          <div class="img-slot"><img loading="lazy" decoding="async" src="/assets/images/app-mini-pylon-monument.jpg" alt="Freestanding pylon monument sign at corporate park entrance"></div>
           <div class="body">
             <h3>Pylon &amp; monument</h3>
             <p class="pick-line"><strong>Triple</strong> · 60–80 mm · 7000 K</p>
@@ -2210,7 +2210,7 @@ const MOCKUP_BODY = `
 
         <!-- 6. Interior wayfinding -->
         <div class="sol-card">
-          <div class="img-slot"><img src="/assets/images/app-mini-wayfinding.jpg" alt="Modern interior wayfinding sign in airport terminal or museum"></div>
+          <div class="img-slot"><img loading="lazy" decoding="async" src="/assets/images/app-mini-wayfinding.jpg" alt="Modern interior wayfinding sign in airport terminal or museum"></div>
           <div class="body">
             <h3>Interior wayfinding</h3>
             <p class="pick-line"><strong>Single</strong> · 30–50 mm · 4000 K</p>
@@ -2244,7 +2244,7 @@ const MOCKUP_BODY = `
     <!-- Scene banner: halo-lit letters showcase -->
     <div class="scene-banner tall">
       <div class="frame">
-        <img src="/assets/images/app-mini-halo-letters.jpg" alt="Halo-lit stainless-steel letters on a dark concrete wall, glowing warm white from behind">
+        <img loading="lazy" decoding="async" src="/assets/images/app-mini-halo-letters.jpg" alt="Halo-lit stainless-steel letters on a dark concrete wall, glowing warm white from behind">
         <div class="caption">
           <span class="eyebrow">// Halo reverse-lit</span>
           <span class="line">Premium signage. Same module.</span>

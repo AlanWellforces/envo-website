@@ -31,13 +31,9 @@ export async function ProductsUsedList({ skus }: Props) {
           return (
             <li key={sku} className="products-used-item">
               <div className="products-used-thumb">
-                {img.src &&
-                  (img.isLocal ? (
-                    <Image src={img.src} alt={img.alt} width={200} height={200} />
-                  ) : (
-                    // eslint-disable-next-line @next/next/no-img-element
-                    <img src={img.src} alt={img.alt} loading="lazy" />
-                  ))}
+                {img.src && (
+                  <Image src={img.src} alt={img.alt} width={128} height={128} sizes="64px" />
+                )}
               </div>
               <div className="products-used-body">
                 <div className="products-used-name">{product.name ?? product.sku}</div>

@@ -56,12 +56,7 @@ const VARIANT_ROWS: { label: string; key: keyof MergedVariant; cls?: string }[] 
 ]
 
 function Picture({ img, sizes }: { img: Img; sizes: string }) {
-  return img.local ? (
-    <Image src={img.src} alt={img.alt} width={300} height={220} sizes={sizes} />
-  ) : (
-    // eslint-disable-next-line @next/next/no-img-element
-    <img src={img.src} alt={img.alt} loading="lazy" />
-  )
+  return <Image src={img.src} alt={img.alt} width={300} height={220} sizes={sizes} />
 }
 
 const CheckIcon = () => (

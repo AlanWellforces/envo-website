@@ -156,18 +156,13 @@ export function CatalogueFilter({ cards, groups, unit }: Props) {
                     </span>
                   ) : null}
                   <div className="pcat-row-img">
-                    {c.imgLocal ? (
-                      <Image
-                        src={c.imgSrc}
-                        alt={c.imgAlt}
-                        width={300}
-                        height={200}
-                        sizes="160px"
-                      />
-                    ) : (
-                      // eslint-disable-next-line @next/next/no-img-element
-                      <img src={c.imgSrc} alt={c.imgAlt} loading="lazy" />
-                    )}
+                    <Image
+                      src={c.imgSrc}
+                      alt={c.imgAlt}
+                      width={300}
+                      height={200}
+                      sizes="160px"
+                    />
                   </div>
                 </div>
 
