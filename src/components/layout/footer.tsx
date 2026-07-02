@@ -1,7 +1,6 @@
 import Image from 'next/image'
 import Link from 'next/link'
 import { getFooterLegalPages } from '@/lib/cms-pages'
-import { RegionContact } from '@/components/region/RegionContact'
 
 export async function Footer() {
   const legal = await getFooterLegalPages()
@@ -20,7 +19,6 @@ export async function Footer() {
             <a href="mailto:contact@envo-led.com" className="footer-brand-email">
               contact@envo-led.com
             </a>
-            <RegionContact />
           </div>
 
           <div className="footer-col">
@@ -47,7 +45,6 @@ export async function Footer() {
               <li><Link href="/find-your-match">Find Your Match</Link></li>
               <li><Link href="/free-layout-design">Free Layout Design</Link></li>
               <li><Link href="/resources/downloads">Resources &amp; Downloads</Link></li>
-              <li><Link href="/resources/tools">Tools &amp; Guides</Link></li>
               <li><Link href="/contact">Contact Us</Link></li>
             </ul>
           </div>
