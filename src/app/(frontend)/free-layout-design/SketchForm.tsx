@@ -91,7 +91,7 @@ export function SketchForm() {
 
       {state === 'sent' && (
         <div className={`${styles.fieldWide} ${styles.thanks}`} role="status">
-          <strong>✓ Got it.</strong> We&apos;ll review your project and reply within 24 hours.
+          <strong>✓ Got it.</strong> We&apos;ll review your project and get back to you.
           For anything urgent, email <a href="mailto:contact@envo-led.com">contact@envo-led.com</a>.
         </div>
       )}

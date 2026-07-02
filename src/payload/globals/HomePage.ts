@@ -104,7 +104,7 @@ export const HomePage: GlobalConfig = {
               maxRows: 4,
               admin: {
                 description:
-                  'Proof numbers. IMPORTANT: the built-in defaults (10+ years, 60+ countries, 5yr warranty, 48h layout) are UNVERIFIED placeholders — replace them with real figures here.',
+                  'Proof numbers. Built-in defaults (200+ SKUs, 50,000h module lifetime, 4 families, CE·UL·TÜV) were verified against the product data on 2026-07-03. Keep any replacement verifiable — no response-time promises.',
               },
               fields: [
                 { name: 'value', type: 'text', required: true, admin: { description: 'e.g. "10+"' } },
@@ -122,7 +122,7 @@ export const HomePage: GlobalConfig = {
             {
               name: 'fl_eyebrow',
               type: 'text',
-              admin: { description: 'Default: "Free service · 24h".' },
+              admin: { description: 'Default: "Free service". No response-time promises.' },
             },
             {
               name: 'fl_heading',

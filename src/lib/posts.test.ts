@@ -21,14 +21,19 @@ function findCall() {
   return mockFind.mock.calls[0][0]
 }
 
+/** The composite public filter ({ and: [_status, publishedAt] }) nested in a conditions array. */
+function publicFilterIn(conditions: object[]) {
+  return conditions.find((c: any) => Array.isArray(c.and)) as any
+}
+
 describe('posts accessor — publish/date filter', () => {
-  it('getPosts filters by publishedAt <= now', async () => {
+  it('getPosts filters by published status AND publishedAt <= now', async () => {
     await getPosts({})
     const call = findCall()
     expect(call.collection).toBe('posts')
-    const conditions: object[] = call.where.and
-    const dateCond = conditions.find((c: any) => 'publishedAt' in c) as any
-    expect(dateCond.publishedAt.less_than_equal).toBeDefined()
+    const pub = publicFilterIn(call.where.and)
+    expect(pub.and.some((c: any) => c._status?.equals === 'published')).toBe(true)
+    expect(pub.and.some((c: any) => c.publishedAt?.less_than_equal)).toBe(true)
   })
 
   it('getPostBySlug filters by slug AND publishedAt', async () => {
@@ -37,7 +42,7 @@ describe('posts accessor — publish/date filter', () => {
     const call = findCall()
     const conditions: object[] = call.where.and
     expect(conditions.some((c: any) => c.slug?.equals === 'hello')).toBe(true)
-    expect(conditions.some((c: any) => c.publishedAt?.less_than_equal)).toBe(true)
+    expect(publicFilterIn(conditions).and.some((c: any) => c.publishedAt?.less_than_equal)).toBe(true)
   })
 
   it('getPostBySlug returns null when not found', async () => {
@@ -108,11 +113,10 @@ describe('getAllSlugs', () => {
     expect(findCall().limit).toBe(500)
   })
 
-  it('passes the publishedAt filter directly (no redundant and-wrap)', async () => {
+  it('passes the public filter (published + publishedAt) directly', async () => {
     await getAllSlugs()
     const where = findCall().where
-    // Should be { publishedAt: { less_than_equal: ... } } directly, not { and: [...] }
-    expect(where.publishedAt?.less_than_equal).toBeDefined()
-    expect(where.and).toBeUndefined()
+    expect(where.and.some((c: any) => c._status?.equals === 'published')).toBe(true)
+    expect(where.and.some((c: any) => c.publishedAt?.less_than_equal)).toBe(true)
   })
 })

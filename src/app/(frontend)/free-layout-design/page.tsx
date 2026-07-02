@@ -9,7 +9,7 @@ export async function generateMetadata(): Promise<Metadata> {
   return metadataForRoute('/free-layout-design', {
     title: 'Free Layout Design — ENVO',
     description:
-      'Send us your sign sketch and dimensions. Our LED engineering team replies within 24 hours with a free module count, driver size and wiring layout.',
+      'Send us your sign sketch and dimensions. Our LED engineering team replies with a free module count, driver size and wiring layout.',
   })
 }
 
@@ -28,7 +28,7 @@ export default function FreeLayoutDesignPage() {
       <section className="sig-hero">
         <div className={styles.heroSplit}>
           <div className={styles.heroText}>
-            <span className="sig-eyebrow">Free Service · 24h Turnaround</span>
+            <span className="sig-eyebrow">Free Service</span>
             <h1>
               Free Layout Design
               <br />
@@ -36,7 +36,7 @@ export default function FreeLayoutDesignPage() {
             </h1>
             <p className="sig-hero-desc">
               Tell us the sign size, viewing distance and install location. Our LED engineering
-              team replies within 24 hours with a free module count, driver sizing and wiring
+              team replies with a free module count, driver sizing and wiring
               layout — ready for you to quote and install.
             </p>
 
@@ -53,12 +53,12 @@ export default function FreeLayoutDesignPage() {
               </div>
               <div className={styles.badge}>
                 <span className={styles.badgeIcon} aria-hidden="true">
-                  <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="10" /><polyline points="12 6 12 12 16 14" /></svg>
+                  <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8Z" /><polyline points="14 2 14 8 20 8" /><line x1="8" y1="13" x2="16" y2="13" /><line x1="8" y1="17" x2="16" y2="17" /></svg>
                 </span>
                 <span>
-                  <span className={styles.badgeTitle}>24-Hour</span>
+                  <span className={styles.badgeTitle}>Full BOM</span>
                   <br />
-                  <span className={styles.badgeSub}>Reply</span>
+                  <span className={styles.badgeSub}>Included</span>
                 </span>
               </div>
               <div className={styles.badge}>
@@ -66,9 +66,9 @@ export default function FreeLayoutDesignPage() {
                   <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10Z" /></svg>
                 </span>
                 <span>
-                  <span className={styles.badgeTitle}>15+ Years</span>
+                  <span className={styles.badgeTitle}>CE·UL·TÜV</span>
                   <br />
-                  <span className={styles.badgeSub}>Experience</span>
+                  <span className={styles.badgeSub}>Certified parts</span>
                 </span>
               </div>
             </div>
@@ -115,7 +115,7 @@ export default function FreeLayoutDesignPage() {
           <div className={styles.stepCard}>
             <div className={styles.stepNum}>03</div>
             <h3>You quote &amp; build</h3>
-            <p>Within 24 hours you&apos;ll have a complete bill of materials — ENVO modules, drivers, connectors and cable lengths.</p>
+            <p>You&apos;ll get a complete bill of materials — ENVO modules, drivers, connectors and cable lengths.</p>
           </div>
         </div>
       </section>
@@ -162,7 +162,7 @@ export default function FreeLayoutDesignPage() {
           <div className={styles.sectionLabel}>Get Started</div>
           <h2 className={styles.sectionH2}>Tell us about your sign</h2>
           <p className={styles.formLead}>
-            We&apos;ll reply within 24 hours with a complete layout. No fees, no commitment — just
+            We&apos;ll reply with a complete layout. No fees, no commitment — just
             a faster way to spec your project.
           </p>
           <SketchForm />

@@ -1756,7 +1756,7 @@ const MOCKUP_BODY = `
     <!-- Assurance: certs + warranty + lifetime -->
     <section class="section">
       <span class="section-eyebrow">// Certified worldwide</span>
-      <h2 class="section-h2">Six marks. 5-year warranty.</h2>
+      <h2 class="section-h2">Six marks. 50,000-hour rated life.</h2>
       <div class="assurance-strip">
         <div class="certs">
           <img loading="lazy" decoding="async" class="cert-logo" src="/assets/images/certs/ul.png" alt="UL" title="UL listed (USA)">
@@ -1767,7 +1767,7 @@ const MOCKUP_BODY = `
           <span class="cert-text" title="IEC CB Scheme — international product safety">CB</span>
         </div>
         <div class="promises">
-          <div><strong>5 yr</strong> warranty</div>
+          <div><strong>50,000 h</strong> rated life</div>
           <div><strong>−25 → +60 °C</strong> rated</div>
           <div><strong>100 %</strong> factory tested</div>
         </div>
