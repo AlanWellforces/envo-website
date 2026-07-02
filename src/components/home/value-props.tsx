@@ -1,17 +1,21 @@
+// Brand capability band under the home hero. Copy rules: verified facts only —
+// no invented stats, no response-time promises (see the 2026-07-02 content
+// audit). Certifications and family counts must stay true to the live range.
 const PROPS = [
   {
-    t: 'Customized Solutions',
-    d: 'We transform your ideas into tailored LED layouts, designed to meet your specific needs.',
+    t: 'Engineered Product System',
+    d: 'Modules, drivers and control gear designed to work as one system — matched voltages, dimming and mounting across four product families.',
     icon: (
       <>
-        <path d="M12 20h9" />
-        <path d="M16.5 3.5a2.1 2.1 0 0 1 3 3L7 19l-4 1 1-4Z" />
+        <polygon points="12,2 22,8 12,14 2,8" />
+        <polyline points="2,12 12,18 22,12" />
+        <polyline points="2,16 12,22 22,16" />
       </>
     ),
   },
   {
-    t: 'Trusted Partnerships',
-    d: 'Collaborating with sign-makers and integrators to deliver reliable lighting on every project.',
+    t: 'Certified Range',
+    d: 'Certified to international standards — CE, UL and TÜV among them — with the datasheet for every model a click away.',
     icon: (
       <>
         <path d="M12 3l7.5 2.8v5.4c0 4.6-3.2 7.4-7.5 8.3-4.3-.9-7.5-3.7-7.5-8.3V5.8z" />
@@ -20,23 +24,22 @@ const PROPS = [
     ),
   },
   {
-    t: 'Free LED Layout Design',
-    d: 'Submit your requirements and receive a complimentary LED layout from our engineering team.',
+    t: 'Application Support',
+    d: 'From product matching to LED layout design, our engineers help you spec the right light for signage and architectural work.',
     icon: (
       <>
-        <rect x="3" y="3" width="18" height="18" rx="2" />
-        <path d="M3 9h18M9 21V9" />
+        <circle cx="12" cy="12" r="9" />
+        <polygon points="14.8,9.2 13,13 9.2,14.8 11,11" />
       </>
     ),
   },
   {
-    t: 'Efficient Delivery',
-    d: 'We prioritise quick processing and shipping to keep your projects on schedule.',
+    t: 'Distributor-backed Availability',
+    d: 'Stock held with our distribution partners in New Zealand and the United States, so projects source locally in each region.',
     icon: (
       <>
-        <path d="M3 7h11v8H3zM14 10h4l3 3v2h-7z" />
-        <circle cx="7" cy="17" r="2" />
-        <circle cx="17" cy="17" r="2" />
+        <circle cx="12" cy="12" r="9" />
+        <path d="M3 12h18M12 3c2.6 2.8 2.6 15.2 0 18M12 3c-2.6 2.8-2.6 15.2 0 18" />
       </>
     ),
   },
