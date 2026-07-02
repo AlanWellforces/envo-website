@@ -19,3 +19,6 @@ media/
 .DS_Store
 *.log
 .superpowers/
+
+# Lead attachments (customer PII) — local uploads, same policy as media/
+lead-files

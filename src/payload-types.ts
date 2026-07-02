@@ -72,6 +72,7 @@ export interface Config {
     posts: Post;
     projects: Project;
     pages: Page;
+    solutions: Solution;
     faqs: Faq;
     submissions: Submission;
     'lead-files': LeadFile;
@@ -90,6 +91,7 @@ export interface Config {
     posts: PostsSelect;
     projects: ProjectsSelect;
     pages: PagesSelect;
+    solutions: SolutionsSelect;
     faqs: FaqsSelect;
     submissions: SubmissionsSelect;
     'lead-files': LeadFilesSelect;
@@ -694,6 +696,117 @@ export interface Page {
   _status?: ('draft' | 'published') | null;
 }
 /**
+ * Application solutions shown at /solutions — hero copy, gallery and the recommended kit. Publish to make one visible.
+ *
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "solutions".
+ */
+export interface Solution {
+  id: number;
+  name: string;
+  /**
+   * Small tag above the title.
+   */
+  eyebrow?: string | null;
+  heroTitle: string;
+  /**
+   * One–two sentences under the title, on the list row and the detail hero.
+   */
+  heroDesc?: string | null;
+  /**
+   * Short card blurb (used by other pages linking here).
+   */
+  shortDesc?: string | null;
+  /**
+   * Longer summary — also the default meta description.
+   */
+  longDesc?: string | null;
+  /**
+   * Card/hero image. Overrides the path below.
+   */
+  image?: (number | null) | Media;
+  /**
+   * Fallback repo asset path, e.g. /assets/images/app-mini-channel-letters.jpg
+   */
+  imagePath?: string | null;
+  /**
+   * Three short selling points shown as ticks.
+   */
+  checklist?:
+    | {
+        text: string;
+        id?: string | null;
+      }[]
+    | null;
+  /**
+   * Detail-page gallery (first image leads).
+   */
+  gallery?:
+    | {
+        image?: (number | null) | Media;
+        /**
+         * Fallback asset path.
+         */
+        imagePath?: string | null;
+        alt: string;
+        id?: string | null;
+      }[]
+    | null;
+  /**
+   * Kit section heading.
+   */
+  kitHeading?: string | null;
+  /**
+   * Kit section intro sentence.
+   */
+  kitLede?: string | null;
+  /**
+   * The matched parts for this build. Non-ENVO items render as "compatible" (dashed card, no product link).
+   */
+  kit?:
+    | {
+        /**
+         * ENVO-branded product (links to a product page).
+         */
+        envo?: boolean | null;
+        role: string;
+        /**
+         * Product page link — ENVO items only.
+         */
+        href?: string | null;
+        name: string;
+        desc?: string | null;
+        image?: (number | null) | Media;
+        /**
+         * Fallback asset path.
+         */
+        imagePath?: string | null;
+        /**
+         * Three short spec rows on the card.
+         */
+        specs?:
+          | {
+              label: string;
+              value: string;
+              id?: string | null;
+            }[]
+          | null;
+        id?: string | null;
+      }[]
+    | null;
+  /**
+   * URL: /solutions/<slug>
+   */
+  slug: string;
+  /**
+   * List position — lower shows first.
+   */
+  order?: number | null;
+  updatedAt: string;
+  createdAt: string;
+  _status?: ('draft' | 'published') | null;
+}
+/**
  * Questions answered on /resources/faq. Publish to make one visible.
  *
  * This interface was referenced by `Config`'s JSON-Schema
@@ -911,6 +1024,10 @@ export interface PayloadLockedDocument {
     | ({
         relationTo: 'pages';
         value: number | Page;
+      } | null)
+    | ({
+        relationTo: 'solutions';
+        value: number | Solution;
       } | null)
     | ({
         relationTo: 'faqs';
@@ -1226,6 +1343,60 @@ export interface PagesSelect {
   metaDescription?: boolean;
   lastUpdated?: boolean;
   ogImage?: boolean;
+  updatedAt?: boolean;
+  createdAt?: boolean;
+  _status?: boolean;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "solutions_select".
+ */
+export interface SolutionsSelect {
+  name?: boolean;
+  eyebrow?: boolean;
+  heroTitle?: boolean;
+  heroDesc?: boolean;
+  shortDesc?: boolean;
+  longDesc?: boolean;
+  image?: boolean;
+  imagePath?: boolean;
+  checklist?:
+    | boolean
+    | {
+        text?: boolean;
+        id?: boolean;
+      };
+  gallery?:
+    | boolean
+    | {
+        image?: boolean;
+        imagePath?: boolean;
+        alt?: boolean;
+        id?: boolean;
+      };
+  kitHeading?: boolean;
+  kitLede?: boolean;
+  kit?:
+    | boolean
+    | {
+        envo?: boolean;
+        role?: boolean;
+        href?: boolean;
+        name?: boolean;
+        desc?: boolean;
+        image?: boolean;
+        imagePath?: boolean;
+        specs?:
+          | boolean
+          | {
+              label?: boolean;
+              value?: boolean;
+              id?: boolean;
+            };
+        id?: boolean;
+      };
+  slug?: boolean;
+  order?: boolean;
   updatedAt?: boolean;
   createdAt?: boolean;
   _status?: boolean;
