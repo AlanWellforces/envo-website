@@ -4,6 +4,7 @@ import '../globals.css'
 import { PageViewBeacon } from '@/components/analytics/PageViewBeacon'
 import { Sidebar } from '@/components/layout/sidebar'
 import { RegionProvider } from '@/components/region/RegionProvider'
+import { RegionBanner } from '@/components/region/RegionBanner'
 import { TopSubnav } from '@/components/layout/top-subnav'
 import { Footer } from '@/components/layout/footer'
 import { CursorGlow } from '@/components/layout/cursor-glow'
@@ -38,6 +39,7 @@ export default function RootLayout({
       <body>
         <PageViewBeacon />
         <RegionProvider>
+          <RegionBanner />
           <Sidebar />
           <TopSubnav />
           <CursorGlow />
