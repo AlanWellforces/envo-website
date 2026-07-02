@@ -1,11 +1,7 @@
-// Canonical solution data. Consumers:
-//   - /solutions catalog page        card per solution (dark redesign 2026-06-24)
-//   - /solutions/[slug] detail        hero + recommended kit (dark redesign)
-//   - sitemap.ts                      slug → /solutions/<slug>
-// Once Payload editorial is wired (per the three-source rule in CLAUDE.md),
-// the editorial fields below (eyebrow/heroDesc/checklist/kit copy) become the
-// seed payload, not the runtime source. Kit product links + specs are seeded
-// here pending real Akeneo/Payload wiring.
+// SEED-ONLY solution data + the shared Solution/KitItem/GalleryImage types.
+// Runtime pages read the Payload `solutions` collection via src/lib/solutions.ts;
+// this file is consumed only by scripts/seed-solutions.mts (re-run it to reset
+// the collection to these values) and as the type source for the mapper.
 
 export type GalleryImage = { src: string; alt: string }
 

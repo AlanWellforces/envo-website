@@ -17,6 +17,7 @@ import { LeadFiles } from './payload/collections/LeadFiles.ts'
 import { Faqs } from './payload/collections/Faqs.ts'
 import { PageSeo } from './payload/collections/PageSeo.ts'
 import { Pages } from './payload/collections/Pages.ts'
+import { Solutions } from './payload/collections/Solutions.ts'
 import { SiteSettings } from './payload/globals/SiteSettings.ts'
 import { HomePage } from './payload/globals/HomePage.ts'
 
@@ -51,7 +52,7 @@ export default buildConfig({
   // Order drives the admin nav group order: content first (Products,
   // Editorial), then Website (Page SEO — per-route SEO overrides), then
   // Settings (Users) last — so Users/Settings sits at the bottom.
-  collections: [Products, Media, Posts, Projects, Pages, Faqs, Submissions, LeadFiles, Events, PageSeo, Users],
+  collections: [Products, Media, Posts, Projects, Pages, Solutions, Faqs, Submissions, LeadFiles, Events, PageSeo, Users],
   globals: [SiteSettings, HomePage],
   plugins: [
     // File binaries → Supabase Storage when configured; falls back to local disk
@@ -61,6 +62,27 @@ export default buildConfig({
           s3Storage({
             collections: { media: true },
             bucket: process.env.S3_BUCKET,
+            config: {
+              endpoint: process.env.S3_ENDPOINT,
+              region: process.env.S3_REGION || 'us-west-2',
+              forcePathStyle: true,
+              credentials: {
+                accessKeyId: process.env.S3_ACCESS_KEY_ID || '',
+                secretAccessKey: process.env.S3_SECRET_ACCESS_KEY || '',
+              },
+            },
+          }),
+        ]
+      : []),
+    // Lead attachments go to a separate PRIVATE bucket — they're customer PII
+    // and must never be readable via the public object endpoint. Payload still
+    // proxies them through /api/lead-files/file/* behind the collection's
+    // signed-in-staff read access.
+    ...(process.env.S3_LEAD_FILES_BUCKET
+      ? [
+          s3Storage({
+            collections: { 'lead-files': true },
+            bucket: process.env.S3_LEAD_FILES_BUCKET,
             config: {
               endpoint: process.env.S3_ENDPOINT,
               region: process.env.S3_REGION || 'us-west-2',
