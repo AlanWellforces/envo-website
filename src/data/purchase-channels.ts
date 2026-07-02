@@ -25,9 +25,6 @@ export type PurchaseChannel = {
   /** Home-hero fulfillment chip — region-true and attributed to the
    *  distributor (ENVO itself stocks and ships nothing). */
   fulfillmentChip: string
-  /** Distributor hotline shown in the footer; null = no public phone for the
-   *  region (footer falls back to the distributor site link). */
-  phone: { tel: string; display: string; note: string } | null
 }
 
 export const PURCHASE_CHANNELS: PurchaseChannel[] = [
@@ -40,7 +37,6 @@ export const PURCHASE_CHANNELS: PurchaseChannel[] = [
     url: 'https://wellforces.co.nz',
     urlLabel: 'wellforces.co.nz',
     fulfillmentChip: 'NZ-stocked · ships via our distributor',
-    phone: null, // Wellforces NZ hotline TBC — site link shown until then
   },
   {
     id: 'us-global',
@@ -51,6 +47,5 @@ export const PURCHASE_CHANNELS: PurchaseChannel[] = [
     url: 'https://powersupplymall.com',
     urlLabel: 'powersupplymall.com',
     fulfillmentChip: 'US-stocked · ships via our distributor',
-    phone: { tel: '+18882289138', display: '888.228.9138', note: 'Power Supply Mall · US & Global orders' },
   },
 ]
