@@ -8,7 +8,7 @@ export async function generateMetadata(): Promise<Metadata> {
   return metadataForRoute('/contact', {
     title: 'Contact — ENVO',
     description:
-      'Talk to the ENVO team about orders, product questions and custom requests by phone or email — we usually reply within one business day.',
+      'Talk to the ENVO team about orders, product questions and project support by phone or email.',
   })
 }
 
@@ -32,16 +32,26 @@ export default function ContactPage() {
           <span className={styles.heroEyebrow}>Contact</span>
           <h1 className={styles.heroTitle}>Talk to an engineer.</h1>
           <p className={styles.heroDesc}>
-            Our customer care team is ready to help with orders, product-related questions and
-            custom requests — we usually reply within one business day.
+            Product questions, project support, orders — send it through and the right person
+            picks it up.
           </p>
         </section>
 
         <div className={styles.layout}>
-          <ContactForm />
+          <div className={styles.card}>
+            <h2 className={styles.cardTitle}>Send a message</h2>
+            <ContactForm />
+          </div>
 
           <aside className={styles.panel}>
             <p className={styles.panelTitle}>Reach us directly</p>
+
+            <div className={styles.detail}>
+              <p className={styles.detailLabel}>Email</p>
+              <p className={styles.detailVal}>
+                <a href="mailto:contact@envo-led.com">contact@envo-led.com</a>
+              </p>
+            </div>
 
             <div className={styles.detail}>
               <p className={styles.detailLabel}>Phone</p>
@@ -55,13 +65,18 @@ export default function ContactPage() {
             </div>
 
             <div className={styles.detail}>
-              <p className={styles.detailLabel}>Email</p>
+              <p className={styles.detailLabel}>Address</p>
               <p className={styles.detailVal}>
-                <a href="mailto:contact@envo-led.com">contact@envo-led.com</a>
+                409 Canton Street, Unit 5
+                <br />
+                Stoughton, MA 02072 · USA
               </p>
             </div>
           </aside>
         </div>
+
+        {/* FAQ-by-topic card (mockup contact-9-final.html) intentionally not shipped yet —
+            hidden pending content sign-off. Re-add as a client component with topic tabs. */}
       </div>
     </div>
   )

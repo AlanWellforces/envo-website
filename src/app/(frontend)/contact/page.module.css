@@ -8,13 +8,17 @@
 .heroTitle { margin: 14px 0 0; font-size: clamp(34px, 5vw, 52px); line-height: 1.04; letter-spacing: -.03em; font-weight: 700; color: var(--color-text-primary); }
 .heroDesc { margin: 14px 0 0; font-size: clamp(16px, 1.4vw, 18px); line-height: 1.55; color: var(--color-text-muted); max-width: 56ch; }
 
-.layout { display: grid; grid-template-columns: 1.1fr 0.9fr; gap: 48px; padding: 8px 0 72px; align-items: start; }
+.layout { display: grid; grid-template-columns: 1fr 300px; gap: 32px; padding: 8px 0 72px; align-items: start; }
+
+/* white card wrapping the form — same surface as the panel cards */
+.card { background: var(--color-surface-card); border: 1px solid var(--color-line-strong); border-radius: 18px; padding: 26px; }
+.cardTitle { font-size: 13px; font-weight: 700; text-transform: uppercase; letter-spacing: .1em; color: var(--color-brand-blue); margin: 0 0 18px; }
 
 /* form */
 .form { display: grid; gap: 16px; }
 .row2 { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
 .field { display: flex; flex-direction: column; gap: 6px; }
-.label { font-size: 12px; font-weight: 600; color: var(--color-text-primary); letter-spacing: .02em; }
+.label { font-size: 14px; font-weight: 600; color: var(--color-text-primary); letter-spacing: .02em; }
 .input, .textarea { border: 1px solid var(--color-line-strong); border-radius: 10px; padding: 12px 14px; font: inherit; font-size: 15px; color: var(--color-text-primary); background: var(--color-surface-card); }
 .input:focus, .textarea:focus { outline: none; border-color: var(--color-brand-blue); box-shadow: 0 0 0 3px rgba(0,113,188,.12); }
 .textarea { resize: vertical; min-height: 120px; }
@@ -29,7 +33,7 @@
 .detail { padding: 16px 0; border-top: 1px solid var(--color-line-light); }
 .detail:first-of-type { border-top: none; }
 .detailLabel { font-size: 11px; text-transform: uppercase; letter-spacing: .12em; color: var(--color-text-subtle); margin: 0 0 6px; }
-.detailVal { font-size: 15px; font-weight: 600; color: var(--color-text-primary); margin: 0; line-height: 1.5; }
+.detailVal { font-size: 14px; font-weight: 600; color: var(--color-text-primary); margin: 0; line-height: 1.5; }
 .detailVal a { color: var(--color-text-primary); text-decoration: none; display: block; }
 .detailVal a:hover { color: var(--color-brand-blue); }
 
