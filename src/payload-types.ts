@@ -1541,7 +1541,7 @@ export interface PayloadMigrationsSelect {
   createdAt?: boolean;
 }
 /**
- * Global site configuration — nav, footer, contact, SEO, and announcement banner.
+ * Global site configuration — footer text, contact details, SEO defaults.
  *
  * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "site-settings".
@@ -1549,7 +1549,7 @@ export interface PayloadMigrationsSelect {
 export interface SiteSetting {
   id: number;
   /**
-   * Shown at the very top of every page. Leave message blank to hide.
+   * Designed for the top of every page but not rendered by the site yet — editing has no effect until the banner component ships.
    */
   banner?: {
     enabled?: boolean | null;
@@ -1558,27 +1558,28 @@ export interface SiteSetting {
     link_url?: string | null;
     style?: ('info' | 'success' | 'warning' | 'promo') | null;
   };
-  nav?: {
+  footer?: {
     /**
-     * Main links shown in the sidebar / top nav.
+     * Default: "Engineered illumination to elevate performance."
      */
-    primary_links?:
+    tagline?: string | null;
+    /**
+     * Default: "© <year> Envo — Engineered Illumination". The year updates automatically in the default.
+     */
+    legal_text?: string | null;
+    /**
+     * Shown in the footer bottom row next to the legal links.
+     */
+    social_links?:
       | {
-          label: string;
+          platform?: ('linkedin' | 'instagram' | 'facebook' | 'youtube' | 'twitter') | null;
           url: string;
-          /**
-           * e.g. "Zap", "Package", "BookOpen"
-           */
-          icon?: string | null;
-          open_in_new_tab?: boolean | null;
           id?: string | null;
         }[]
       | null;
-    cta_label?: string | null;
-    cta_url?: string | null;
-  };
-  footer?: {
-    tagline?: string | null;
+    /**
+     * Not rendered — the footer columns are code-owned; the Solutions column follows the Solutions collection automatically.
+     */
     link_columns?:
       | {
           heading: string;
@@ -1592,27 +1593,39 @@ export interface SiteSetting {
           id?: string | null;
         }[]
       | null;
+  };
+  /**
+   * Shown on /contact ("Reach us directly" rail) and in the footer. ENVO's own contact only — never distributor phone numbers.
+   */
+  contact?: {
     /**
-     * e.g. "© 2026 Envo. All rights reserved."
+     * Default: contact@envo-led.com.
      */
-    legal_text?: string | null;
-    social_links?:
+    email?: string | null;
+    /**
+     * ENVO's own numbers, one per region. Label = short region tag shown before the number, e.g. "US".
+     */
+    phones?:
       | {
-          platform?: ('linkedin' | 'instagram' | 'facebook' | 'youtube' | 'twitter') | null;
-          url: string;
+          /**
+           * e.g. "US"
+           */
+          label: string;
+          /**
+           * Display format, e.g. "888.228.9138" or "+44 20 3398 6515"
+           */
+          number: string;
           id?: string | null;
         }[]
       | null;
-  };
-  contact?: {
-    email?: string | null;
-    phone?: string | null;
-    address?: string | null;
     /**
-     * e.g. "Mon–Fri 8am–5pm NZST"
+     * Line breaks respected. Default: 409 Canton Street, Unit 5 / Stoughton, MA 02072 · USA.
      */
-    hours?: string | null;
+    address?: string | null;
   };
+  /**
+   * Not rendered yet — per-page SEO lives in the Page SEO collection. These site-wide defaults and the analytics IDs hook up in a later pass.
+   */
   seo?: {
     /**
      * Used in title tags: "Product Name | ENVO"
@@ -1640,7 +1653,7 @@ export interface SiteSetting {
   createdAt?: string | null;
 }
 /**
- * Content for each homepage section. Changes take effect on next publish.
+ * Text for the homepage Hero, Why ENVO and Free Layout Design sections. Leave a field empty to keep the built-in copy. Saving publishes immediately.
  *
  * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "home-page".
@@ -1648,67 +1661,87 @@ export interface SiteSetting {
 export interface HomePage {
   id: number;
   /**
-   * Small label above the headline.
+   * Small label above the headline. Default: "High-Quality LED Signage Components".
    */
   hero_eyebrow?: string | null;
   /**
-   * Main H1. Use a period at the end.
+   * Main H1. A line break here becomes a line break on the page. Default: "Innovative signage / for the digital age."
    */
   hero_headline?: string | null;
-  hero_subheading?: string | null;
   /**
-   * Path to background video. Leave as-is unless you upload a new one.
+   * Paragraph under the headline. Plain text — the built-in default keeps its bold styling until you override it.
    */
-  hero_video_url?: string | null;
+  hero_lead?: string | null;
   /**
-   * 3 feature bullets shown under the headline. Leave empty to use defaults.
+   * Primary button. Default: "Explore signage modules" → /products.
    */
-  hero_features?:
+  hero_primary_label?: string | null;
+  hero_primary_url?: string | null;
+  /**
+   * Secondary button. Default: "Get free layout design" → /free-layout-design.
+   */
+  hero_ghost_label?: string | null;
+  hero_ghost_url?: string | null;
+  /**
+   * Default: "Why ENVO".
+   */
+  why_eyebrow?: string | null;
+  /**
+   * Section heading; line breaks respected. Default: "Engineered, certified, / supported."
+   */
+  why_heading?: string | null;
+  /**
+   * 3 pillar cards. Icons are fixed in code — only text is editable. Leave empty for defaults.
+   */
+  why_pillars?:
     | {
+        title: string;
+        desc: string;
+        id?: string | null;
+      }[]
+    | null;
+  /**
+   * Proof numbers. IMPORTANT: the built-in defaults (10+ years, 60+ countries, 5yr warranty, 48h layout) are UNVERIFIED placeholders — replace them with real figures here.
+   */
+  why_stats?:
+    | {
+        /**
+         * e.g. "10+"
+         */
+        value: string;
+        /**
+         * e.g. "years manufacturing"
+         */
         label: string;
-        desc: string;
-        id?: string | null;
-      }[]
-    | null;
-  stats_heading?: string | null;
-  stats_description?: string | null;
-  stats_cta_label?: string | null;
-  stats_cta_url?: string | null;
-  /**
-   * 4 stat cards. Icons are fixed — only text is editable here.
-   */
-  stats_items?:
-    | {
-        label: string;
-        desc: string;
+        /**
+         * Highlight this number in brand lime.
+         */
+        lime?: boolean | null;
         id?: string | null;
       }[]
     | null;
   /**
-   * Testimonial quote. No quotation marks needed — they are added automatically.
+   * Default: "Free service · 24h".
    */
-  quote_text?: string | null;
-  quote_author_role?: string | null;
-  quote_author_location?: string | null;
-  process_heading?: string | null;
-  process_cta_label?: string | null;
-  process_cta_url?: string | null;
+  fl_eyebrow?: string | null;
   /**
-   * 4 process steps. Step numbers and icons are fixed.
+   * Default: "Get a free layout design for your next project."
    */
-  process_steps?:
-    | {
-        name: string;
-        desc: string;
-        id?: string | null;
-      }[]
-    | null;
-  cta_heading?: string | null;
-  cta_body?: string | null;
-  cta_primary_label?: string | null;
-  cta_primary_url?: string | null;
-  cta_secondary_label?: string | null;
-  cta_secondary_url?: string | null;
+  fl_heading?: string | null;
+  /**
+   * Paragraph inside the panel.
+   */
+  fl_body?: string | null;
+  /**
+   * Lime button. Default: "Get free layout design" → /free-layout-design.
+   */
+  fl_primary_label?: string | null;
+  fl_primary_url?: string | null;
+  /**
+   * Ghost button. Default: "Browse catalogue" → /products.
+   */
+  fl_ghost_label?: string | null;
+  fl_ghost_url?: string | null;
   updatedAt?: string | null;
   createdAt?: string | null;
 }
@@ -1726,25 +1759,18 @@ export interface SiteSettingsSelect {
         link_url?: boolean;
         style?: boolean;
       };
-  nav?:
-    | boolean
-    | {
-        primary_links?:
-          | boolean
-          | {
-              label?: boolean;
-              url?: boolean;
-              icon?: boolean;
-              open_in_new_tab?: boolean;
-              id?: boolean;
-            };
-        cta_label?: boolean;
-        cta_url?: boolean;
-      };
   footer?:
     | boolean
     | {
         tagline?: boolean;
+        legal_text?: boolean;
+        social_links?:
+          | boolean
+          | {
+              platform?: boolean;
+              url?: boolean;
+              id?: boolean;
+            };
         link_columns?:
           | boolean
           | {
@@ -1758,22 +1784,19 @@ export interface SiteSettingsSelect {
                   };
               id?: boolean;
             };
-        legal_text?: boolean;
-        social_links?:
-          | boolean
-          | {
-              platform?: boolean;
-              url?: boolean;
-              id?: boolean;
-            };
       };
   contact?:
     | boolean
     | {
         email?: boolean;
-        phone?: boolean;
+        phones?:
+          | boolean
+          | {
+              label?: boolean;
+              number?: boolean;
+              id?: boolean;
+            };
         address?: boolean;
-        hours?: boolean;
       };
   seo?:
     | boolean
@@ -1796,45 +1819,35 @@ export interface SiteSettingsSelect {
 export interface HomePageSelect {
   hero_eyebrow?: boolean;
   hero_headline?: boolean;
-  hero_subheading?: boolean;
-  hero_video_url?: boolean;
-  hero_features?:
+  hero_lead?: boolean;
+  hero_primary_label?: boolean;
+  hero_primary_url?: boolean;
+  hero_ghost_label?: boolean;
+  hero_ghost_url?: boolean;
+  why_eyebrow?: boolean;
+  why_heading?: boolean;
+  why_pillars?:
     | boolean
     | {
+        title?: boolean;
+        desc?: boolean;
+        id?: boolean;
+      };
+  why_stats?:
+    | boolean
+    | {
+        value?: boolean;
         label?: boolean;
-        desc?: boolean;
+        lime?: boolean;
         id?: boolean;
       };
-  stats_heading?: boolean;
-  stats_description?: boolean;
-  stats_cta_label?: boolean;
-  stats_cta_url?: boolean;
-  stats_items?:
-    | boolean
-    | {
-        label?: boolean;
-        desc?: boolean;
-        id?: boolean;
-      };
-  quote_text?: boolean;
-  quote_author_role?: boolean;
-  quote_author_location?: boolean;
-  process_heading?: boolean;
-  process_cta_label?: boolean;
-  process_cta_url?: boolean;
-  process_steps?:
-    | boolean
-    | {
-        name?: boolean;
-        desc?: boolean;
-        id?: boolean;
-      };
-  cta_heading?: boolean;
-  cta_body?: boolean;
-  cta_primary_label?: boolean;
-  cta_primary_url?: boolean;
-  cta_secondary_label?: boolean;
-  cta_secondary_url?: boolean;
+  fl_eyebrow?: boolean;
+  fl_heading?: boolean;
+  fl_body?: boolean;
+  fl_primary_label?: boolean;
+  fl_primary_url?: boolean;
+  fl_ghost_label?: boolean;
+  fl_ghost_url?: boolean;
   updatedAt?: boolean;
   createdAt?: boolean;
   globalType?: boolean;

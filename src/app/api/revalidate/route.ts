@@ -1,13 +1,14 @@
 import { revalidatePath } from 'next/cache'
 import { NextRequest, NextResponse } from 'next/server'
-import { clearSiteSettingsCache } from '@/lib/site-settings'
-import { clearHomePageCache } from '@/lib/home-page'
 
 // POST /api/revalidate?paths=/blog,/blog/foo
 // Header: x-revalidate-secret: <REVALIDATE_SECRET>
 //
-// Called by the Posts collection's afterChange hook to invalidate Next.js's
-// ISR cache when an editor publishes / unpublishes / edits a post.
+// Called by Payload afterChange hooks (Posts, Homepage global, Site Settings
+// global) to invalidate Next.js's cache when an editor publishes a change.
+//
+// '/__site-settings' is a pseudo-path: footer/contact details render inside
+// the root layout on every page, so it revalidates the whole layout tree.
 
 export async function POST(req: NextRequest) {
   const secret = req.headers.get('x-revalidate-secret')
@@ -23,11 +24,9 @@ export async function POST(req: NextRequest) {
 
   const paths = pathsParam.split(',').filter(Boolean)
   for (const p of paths) {
-    revalidatePath(p)
+    if (p === '/__site-settings') revalidatePath('/', 'layout')
+    else revalidatePath(p)
   }
-
-  if (paths.includes('/__site-settings')) clearSiteSettingsCache()
-  if (paths.includes('/__home-page')) clearHomePageCache()
 
   return NextResponse.json({ ok: true, revalidated: paths })
 }

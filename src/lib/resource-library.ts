@@ -9,6 +9,7 @@
 import { getPayload } from 'payload'
 import config from '@/payload.config'
 import { resolveAssetUrl, datasheetHref } from '@/lib/asset-url'
+import { visibleProductConditions } from '@/lib/products'
 import { dbFamilyToMarketing } from '@/data/family-map'
 import type { DatasheetDoc } from '@/lib/resource-library-types'
 
@@ -35,7 +36,7 @@ type ProductRow = {
 }
 
 /**
- * Every enabled product that carries a datasheet, deduped by the resolved file
+ * Every publicly visible product that carries a datasheet, deduped by the resolved file
  * URL (signage modules share one datasheet across SKUs), titled by product name
  * and tagged with a short range label. URLs are run through `resolveAssetUrl`
  * so the relative Akeneo paths become absolute, downloadable links.
@@ -44,7 +45,7 @@ export async function getDatasheetLibrary(): Promise<DatasheetDoc[]> {
   const p = await getPayload({ config })
   const res = await p.find({
     collection: 'products',
-    where: { and: [{ enabled: { equals: true } }, { spec_sheet_url: { exists: true } }] },
+    where: { and: [...visibleProductConditions(), { spec_sheet_url: { exists: true } }] },
     sort: 'name',
     limit: 1000,
     depth: 0,

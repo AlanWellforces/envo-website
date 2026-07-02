@@ -1,25 +1,30 @@
 import Link from 'next/link'
 import { ArrowRight } from './icons'
+import type { HomeFlCtaData } from '@/lib/home-page'
 
-export function FreeLayoutCta() {
+export function FreeLayoutCta({ data = {} }: { data?: HomeFlCtaData }) {
   return (
     <section className="flB">
       <div className="v4-wrap">
         <div className="panel">
           <div className="glow" />
           <div className="txt">
-            <div className="eb">Free service · 24h</div>
-            <h2>Get a free layout design for your next project.</h2>
+            <div className="eb">{data.eyebrow ?? 'Free service · 24h'}</div>
+            <h2>{data.heading ?? 'Get a free layout design for your next project.'}</h2>
             <p>
-              Send us your sign or facade dimensions. We&apos;ll return a wired layout, parts list
-              and wattage budget — typically within 24 hours.
+              {data.body ?? (
+                <>
+                  Send us your sign or facade dimensions. We&apos;ll return a wired layout, parts list
+                  and wattage budget — typically within 24 hours.
+                </>
+              )}
             </p>
             <div className="btns">
-              <Link className="fl-lime" href="/free-layout-design">
-                Get free layout design <ArrowRight />
+              <Link className="fl-lime" href={data.primary_url ?? '/free-layout-design'}>
+                {data.primary_label ?? 'Get free layout design'} <ArrowRight />
               </Link>
-              <Link className="fl-ghost" href="/products">
-                Browse catalogue
+              <Link className="fl-ghost" href={data.ghost_url ?? '/products'}>
+                {data.ghost_label ?? 'Browse catalogue'}
               </Link>
             </div>
           </div>

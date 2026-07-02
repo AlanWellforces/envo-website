@@ -1,14 +1,39 @@
 import type { GlobalConfig } from 'payload'
 
+// Fields mirror the live v4 homepage sections (src/components/home/*). Sections
+// with no fields here (Value Props, Shop by Category, Signage Range) are
+// product/structure-driven and stay code-owned. Every field falls back to the
+// current hardcoded copy when left empty, so a blank global renders the site
+// exactly as designed.
+
 export const HomePage: GlobalConfig = {
   slug: 'home-page',
   label: 'Homepage',
   admin: {
     group: 'Website',
-    description: 'Content for each homepage section. Changes take effect on next publish.',
+    description:
+      'Text for the homepage Hero, Why ENVO and Free Layout Design sections. Leave a field empty to keep the built-in copy. Saving publishes immediately.',
   },
   access: {
     read: () => true,
+  },
+  hooks: {
+    afterChange: [
+      async ({ doc }) => {
+        const siteUrl = process.env.NEXT_PUBLIC_SITE_URL
+        const secret = process.env.REVALIDATE_SECRET
+        if (!siteUrl || !secret) return doc // env not configured (CI, fresh checkout)
+        try {
+          await fetch(`${siteUrl}/api/revalidate?paths=/`, {
+            method: 'POST',
+            headers: { 'x-revalidate-secret': secret },
+          })
+        } catch (err) {
+          console.error('[HomePage.afterChange] revalidate fetch failed:', err)
+        }
+        return doc
+      },
+    ],
   },
   fields: [
     {
@@ -22,165 +47,105 @@ export const HomePage: GlobalConfig = {
             {
               name: 'hero_eyebrow',
               type: 'text',
-              defaultValue: 'Engineered Illumination',
-              admin: { description: 'Small label above the headline.' },
+              admin: { description: 'Small label above the headline. Default: "High-Quality LED Signage Components".' },
             },
             {
               name: 'hero_headline',
-              type: 'text',
-              defaultValue: 'Light that performs.',
-              admin: { description: 'Main H1. Use a period at the end.' },
-            },
-            {
-              name: 'hero_subheading',
               type: 'textarea',
-              defaultValue: 'ENVO designs and manufactures professional grade LED lighting systems that power signage and architectural illumination worldwide.',
+              admin: { description: 'Main H1. A line break here becomes a line break on the page. Default: "Innovative signage / for the digital age."' },
             },
             {
-              name: 'hero_video_url',
+              name: 'hero_lead',
+              type: 'textarea',
+              admin: { description: 'Paragraph under the headline. Plain text — the built-in default keeps its bold styling until you override it.' },
+            },
+            {
+              name: 'hero_primary_label',
               type: 'text',
-              defaultValue: '/assets/videos/hero-led-night.mp4',
-              admin: { description: 'Path to background video. Leave as-is unless you upload a new one.' },
+              admin: { description: 'Primary button. Default: "Explore signage modules" → /products.' },
+            },
+            { name: 'hero_primary_url', type: 'text' },
+            {
+              name: 'hero_ghost_label',
+              type: 'text',
+              admin: { description: 'Secondary button. Default: "Get free layout design" → /free-layout-design.' },
+            },
+            { name: 'hero_ghost_url', type: 'text' },
+          ],
+        },
+
+        // ─── Why ENVO ─────────────────────────────────────────────────────────
+        {
+          label: 'Why ENVO',
+          fields: [
+            {
+              name: 'why_eyebrow',
+              type: 'text',
+              admin: { description: 'Default: "Why ENVO".' },
             },
             {
-              name: 'hero_features',
+              name: 'why_heading',
+              type: 'textarea',
+              admin: { description: 'Section heading; line breaks respected. Default: "Engineered, certified, / supported."' },
+            },
+            {
+              name: 'why_pillars',
               type: 'array',
               maxRows: 3,
-              admin: { description: '3 feature bullets shown under the headline. Leave empty to use defaults.' },
+              admin: { description: '3 pillar cards. Icons are fixed in code — only text is editable. Leave empty for defaults.' },
               fields: [
-                { name: 'label', type: 'text', required: true },
-                { name: 'desc',  type: 'text', required: true },
+                { name: 'title', type: 'text', required: true },
+                { name: 'desc', type: 'textarea', required: true },
               ],
             },
-          ],
-        },
-
-        // ─── Stats (Impact section) ────────────────────────────────────────────
-        {
-          label: 'Stats',
-          fields: [
             {
-              name: 'stats_heading',
-              type: 'text',
-              defaultValue: 'Lighting systems engineered for impact.',
-            },
-            {
-              name: 'stats_description',
-              type: 'textarea',
-              defaultValue: 'From concept to installation, ENVO delivers high-performance LED solutions with expert support at every stage.',
-            },
-            {
-              name: 'stats_cta_label',
-              type: 'text',
-              defaultValue: 'Discover our solutions',
-            },
-            {
-              name: 'stats_cta_url',
-              type: 'text',
-              defaultValue: '/solutions',
-            },
-            {
-              name: 'stats_items',
+              name: 'why_stats',
               type: 'array',
               maxRows: 4,
-              admin: { description: '4 stat cards. Icons are fixed — only text is editable here.' },
+              admin: {
+                description:
+                  'Proof numbers. IMPORTANT: the built-in defaults (10+ years, 60+ countries, 5yr warranty, 48h layout) are UNVERIFIED placeholders — replace them with real figures here.',
+              },
               fields: [
-                { name: 'label', type: 'text', required: true },
-                { name: 'desc',  type: 'text', required: true },
+                { name: 'value', type: 'text', required: true, admin: { description: 'e.g. "10+"' } },
+                { name: 'label', type: 'text', required: true, admin: { description: 'e.g. "years manufacturing"' } },
+                { name: 'lime', type: 'checkbox', defaultValue: false, admin: { description: 'Highlight this number in brand lime.' } },
               ],
             },
           ],
         },
 
-        // ─── Quote ────────────────────────────────────────────────────────────
+        // ─── Free Layout CTA ──────────────────────────────────────────────────
         {
-          label: 'Quote',
+          label: 'Free Layout CTA',
           fields: [
             {
-              name: 'quote_text',
+              name: 'fl_eyebrow',
+              type: 'text',
+              admin: { description: 'Default: "Free service · 24h".' },
+            },
+            {
+              name: 'fl_heading',
+              type: 'text',
+              admin: { description: 'Default: "Get a free layout design for your next project."' },
+            },
+            {
+              name: 'fl_body',
               type: 'textarea',
-              defaultValue: 'Same colour binning across two phases of the same facade — that\'s spec\'d quality.',
-              admin: { description: 'Testimonial quote. No quotation marks needed — they are added automatically.' },
+              admin: { description: 'Paragraph inside the panel.' },
             },
             {
-              name: 'quote_author_role',
+              name: 'fl_primary_label',
               type: 'text',
-              defaultValue: 'Lead Architect',
+              admin: { description: 'Lime button. Default: "Get free layout design" → /free-layout-design.' },
             },
+            { name: 'fl_primary_url', type: 'text' },
             {
-              name: 'quote_author_location',
+              name: 'fl_ghost_label',
               type: 'text',
-              defaultValue: 'Auckland CBD installation',
+              admin: { description: 'Ghost button. Default: "Browse catalogue" → /products.' },
             },
-          ],
-        },
-
-        // ─── Process ──────────────────────────────────────────────────────────
-        {
-          label: 'Process',
-          fields: [
-            {
-              name: 'process_heading',
-              type: 'text',
-              defaultValue: 'Free Layout Design & Expert Support',
-            },
-            {
-              name: 'process_cta_label',
-              type: 'text',
-              defaultValue: 'Get free layout design',
-            },
-            {
-              name: 'process_cta_url',
-              type: 'text',
-              defaultValue: '/free-layout-design',
-            },
-            {
-              name: 'process_steps',
-              type: 'array',
-              maxRows: 4,
-              admin: { description: '4 process steps. Step numbers and icons are fixed.' },
-              fields: [
-                { name: 'name', type: 'text', required: true },
-                { name: 'desc', type: 'text', required: true },
-              ],
-            },
-          ],
-        },
-
-        // ─── Final CTA ────────────────────────────────────────────────────────
-        {
-          label: 'Final CTA',
-          fields: [
-            {
-              name: 'cta_heading',
-              type: 'text',
-              defaultValue: 'Ready to engineer your next project?',
-            },
-            {
-              name: 'cta_body',
-              type: 'text',
-              defaultValue: 'Find your match in 60 seconds, or talk to an engineer.',
-            },
-            {
-              name: 'cta_primary_label',
-              type: 'text',
-              defaultValue: 'Find your match',
-            },
-            {
-              name: 'cta_primary_url',
-              type: 'text',
-              defaultValue: '/find-your-match',
-            },
-            {
-              name: 'cta_secondary_label',
-              type: 'text',
-              defaultValue: 'Contact engineering',
-            },
-            {
-              name: 'cta_secondary_url',
-              type: 'text',
-              defaultValue: '/contact',
-            },
+            { name: 'fl_ghost_url', type: 'text' },
           ],
         },
 

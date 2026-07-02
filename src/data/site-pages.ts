@@ -24,9 +24,11 @@ export const SITE_PAGES: SitePage[] = [
   { label: 'Free Layout Design', route: '/free-layout-design', section: 'Marketing', source: 'code', editHref: '/admin/collections/page-seo?where[route][equals]=/free-layout-design' },
   { label: 'Find Your Match', route: '/find-your-match', section: 'Marketing', source: 'code', editHref: '/admin/collections/page-seo?where[route][equals]=/find-your-match' },
 
-  { label: 'Solutions', route: '/solutions', section: 'Solutions', source: 'code', editHref: '/admin/collections/page-seo?where[route][equals]=/solutions' },
-  { label: 'Architectural Lighting', route: '/solutions/architectural-lighting', section: 'Solutions', source: 'code', editHref: '/admin/collections/page-seo?where[route][equals]=/solutions/architectural-lighting' },
-  { label: 'Signage Lighting', route: '/solutions/signage-lighting', section: 'Solutions', source: 'code', editHref: '/admin/collections/page-seo?where[route][equals]=/solutions/signage-lighting' },
+  // Solutions content lives in the Solutions collection (one doc per page);
+  // per-route SEO overrides still come from page-seo like everywhere else.
+  { label: 'Solutions', route: '/solutions', section: 'Solutions', source: 'cms', editHref: '/admin/collections/solutions' },
+  { label: 'Architectural Lighting', route: '/solutions/architectural-lighting', section: 'Solutions', source: 'cms', editHref: '/admin/collections/solutions?where[slug][equals]=architectural-lighting' },
+  { label: 'Signage Lighting', route: '/solutions/signage-lighting', section: 'Solutions', source: 'cms', editHref: '/admin/collections/solutions?where[slug][equals]=signage-lighting' },
 
   { label: 'Blog', route: '/blog', section: 'Content collections', source: 'cms', editHref: '/admin/collections/posts' },
   { label: 'Projects', route: '/projects', section: 'Content collections', source: 'cms', editHref: '/admin/collections/projects' },
