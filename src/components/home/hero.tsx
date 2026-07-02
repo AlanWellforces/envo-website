@@ -1,4 +1,5 @@
 import Image from 'next/image'
+import { RegionShippingChip } from '@/components/region/RegionShippingChip'
 import Link from 'next/link'
 import { ArrowRight } from './icons'
 
@@ -36,13 +37,7 @@ export function Hero() {
               </svg>{' '}
               Free LED layout design
             </span>
-            <span className="v4-chip">
-              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                <circle cx="12" cy="12" r="9" />
-                <path d="M3 12h18M12 3c2.6 2.8 2.6 15.2 0 18M12 3c-2.6 2.8-2.6 15.2 0 18" />
-              </svg>{' '}
-              Ships fast, US-stocked
-            </span>
+            <RegionShippingChip />
             <span className="v4-chip cert-chip">
               <Image src="/assets/images/certs/ce.png" alt="CE" width={25} height={20} priority />
               <Image src="/assets/images/certs/ul.png" alt="UL" width={20} height={20} priority />

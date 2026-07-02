@@ -3,6 +3,7 @@ import { Inter_Tight } from 'next/font/google'
 import '../globals.css'
 import { PageViewBeacon } from '@/components/analytics/PageViewBeacon'
 import { Sidebar } from '@/components/layout/sidebar'
+import { RegionProvider } from '@/components/region/RegionProvider'
 import { TopSubnav } from '@/components/layout/top-subnav'
 import { Footer } from '@/components/layout/footer'
 import { CursorGlow } from '@/components/layout/cursor-glow'
@@ -35,13 +36,15 @@ export default function RootLayout({
     <html lang="en" className={interTight.variable}>
       <body>
         <PageViewBeacon />
-        <Sidebar />
-        <TopSubnav />
-        <CursorGlow />
-        {children}
-        <Footer />
-        <RevealOnScroll />
-        <BackToTop />
+        <RegionProvider>
+          <Sidebar />
+          <TopSubnav />
+          <CursorGlow />
+          {children}
+          <Footer />
+          <RevealOnScroll />
+          <BackToTop />
+        </RegionProvider>
       </body>
     </html>
   )
