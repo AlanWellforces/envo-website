@@ -1,13 +1,11 @@
 import Image from 'next/image'
 import Link from 'next/link'
-import { SOLUTIONS } from '@/data/solutions'
+import type { Solution } from '@/lib/solutions'
 import { PURCHASE_CHANNELS } from '@/data/purchase-channels'
 import { SolutionGallery } from './SolutionGallery'
 import '@/components/solutions/solutions-dark.css'
 
-export function SolutionDetail({ slug }: { slug: string }) {
-  const s = SOLUTIONS.find((x) => x.slug === slug)
-  if (!s) return null
+export function SolutionDetail({ solution: s }: { solution: Solution }) {
   const hasCompat = s.kit.some((k) => !k.envo)
 
   return (

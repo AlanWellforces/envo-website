@@ -2,7 +2,7 @@ import type { Metadata } from 'next'
 import Image from 'next/image'
 import Link from 'next/link'
 import { EnvoButton } from '@/components/ui/envo-button'
-import { SOLUTIONS } from '@/data/solutions'
+import { getSolutions } from '@/lib/solutions'
 import { metadataForRoute } from '@/lib/page-seo'
 import '@/components/solutions/solutions-dark.css'
 
@@ -14,7 +14,8 @@ export async function generateMetadata(): Promise<Metadata> {
   })
 }
 
-export default function SolutionsPage() {
+export default async function SolutionsPage() {
+  const solutions = await getSolutions()
   return (
     <div className="sd-wrap">
       <div className="container">
@@ -38,7 +39,7 @@ export default function SolutionsPage() {
 
       <section className="sd-rows">
         <div className="container">
-          {SOLUTIONS.map((s) => (
+          {solutions.map((s) => (
             <article key={s.slug} className="sd-row">
               <div className="sd-media">
                 <Image src={s.img} alt={s.name} fill sizes="(min-width: 900px) 40vw, 100vw" />
