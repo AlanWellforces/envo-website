@@ -8,8 +8,11 @@
 .right { margin-left:auto; display:flex; align-items:center; gap:14px; }
 .count { color:#cbd5e1; font-size:12px; } .count b { color:#fff; font-size:15px; }
 .reset { background:none; border:1px solid #475569; color:#cbd5e1; border-radius:6px; padding:7px 11px; font-size:11.5px; cursor:pointer; }
-.tableWrap { background:#fff; border:1px solid #dbe2ea; border-top:none; border-radius:0 0 10px 10px; overflow:hidden; }
-.tableWrap :global(table) { border-collapse:collapse; width:100%; }
+/* overflow-x:auto (not hidden) — the 12-column table scrolls inside the card
+   on narrow screens instead of clipping. min-width keeps rows readable and is
+   what actually triggers the scroll. */
+.tableWrap { background:#fff; border:1px solid #dbe2ea; border-top:none; border-radius:0 0 10px 10px; overflow-x:auto; }
+.tableWrap :global(table) { border-collapse:collapse; width:100%; min-width:960px; }
 .tableWrap :global(th), .tableWrap :global(td) { padding:9px 11px; text-align:left; border-bottom:1px solid #dbe2ea; }
 .tableWrap :global(thead th) { background:#f1f5f9; font-size:9.5px; letter-spacing:.09em; text-transform:uppercase; color:#64748b; font-weight:800; border-bottom:2px solid #cbd5e1; }
 .num { text-align:right; font-variant-numeric:tabular-nums; }

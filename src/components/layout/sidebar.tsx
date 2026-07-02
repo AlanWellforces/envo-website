@@ -175,7 +175,8 @@ const NAVIGATE: NavItem[] = [
 // links sit under a "Products" eyebrow (four catalogue families = browse by
 // type, plus Solutions = browse by application), and the support links are
 // pinned to the bottom (above the CTA) so product vs. support read as
-// distinct types.
+// distinct types. (#120's selector nav entry was NOT carried over — the
+// selector is reachable via Resources → Tools; the zoned nav is newer.)
 const SUPPORT_SECTIONS = new Set(['resources', 'contact'])
 // Hidden for now (user 2026-07-08): the DB has no live accessory products, so
 // the family page is an empty state. Remove from this set to restore the link
