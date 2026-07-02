@@ -22,6 +22,12 @@ export type PurchaseChannel = {
   url: string
   /** Short display label for the primary CTA, e.g. "wellforces.co.nz". */
   urlLabel: string
+  /** Home-hero fulfillment chip — region-true and attributed to the
+   *  distributor (ENVO itself stocks and ships nothing). */
+  fulfillmentChip: string
+  /** Distributor hotline shown in the footer; null = no public phone for the
+   *  region (footer falls back to the distributor site link). */
+  phone: { tel: string; display: string; note: string } | null
 }
 
 export const PURCHASE_CHANNELS: PurchaseChannel[] = [
@@ -33,6 +39,8 @@ export const PURCHASE_CHANNELS: PurchaseChannel[] = [
     body: 'ENVO\'s Asia-Pacific service partner — full range carried locally with NZ warranty, NZD pricing and same-day Auckland dispatch for trade and project customers.',
     url: 'https://wellforces.co.nz',
     urlLabel: 'wellforces.co.nz',
+    fulfillmentChip: 'NZ-stocked · ships via our distributor',
+    phone: null, // Wellforces NZ hotline TBC — site link shown until then
   },
   {
     id: 'us-global',
@@ -42,5 +50,7 @@ export const PURCHASE_CHANNELS: PurchaseChannel[] = [
     body: 'ENVO\'s US service partner stocks the full range with local warranty support and serves international customers outside the Asia-Pacific region.',
     url: 'https://powersupplymall.com',
     urlLabel: 'powersupplymall.com',
+    fulfillmentChip: 'US-stocked · ships via our distributor',
+    phone: { tel: '+18882289138', display: '888.228.9138', note: 'Power Supply Mall · US & Global orders' },
   },
 ]
