@@ -3,29 +3,35 @@
 import { useState } from 'react'
 import styles from './page.module.css'
 
-// Demo-only form — no backend yet. Real submission (Resend) is a follow-up;
-// it currently shows a confirmation and does not send. Actionable contact
-// details (phone/email) live alongside in the page panel.
 export function ContactForm() {
-  const [sent, setSent] = useState(false)
+  const [state, setState] = useState<'idle' | 'sending' | 'sent' | 'error'>('idle')
 
-  if (sent) {
+  async function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
+    e.preventDefault()
+    setState('sending')
+    const form = new FormData(e.currentTarget)
+    form.set('type', 'contact')
+    form.set('sourcePath', '/contact')
+    try {
+      const res = await fetch('/api/submissions', { method: 'POST', body: form })
+      setState(res.ok ? 'sent' : 'error')
+    } catch {
+      setState('error')
+    }
+  }
+
+  if (state === 'sent') {
     return (
       <div className={styles.sent}>
-        Thanks — your message is noted. (This form is a demo; for now please reach us directly at{' '}
-        <a href="mailto:contact@envo-led.com">contact@envo-led.com</a> or 888.228.9138.)
+        Thanks — your message has been received. We usually reply within one business day. For
+        anything urgent, reach us at{' '}
+        <a href="mailto:contact@envo-led.com">contact@envo-led.com</a> or 888.228.9138.
       </div>
     )
   }
 
   return (
-    <form
-      className={styles.form}
-      onSubmit={(e) => {
-        e.preventDefault()
-        setSent(true)
-      }}
-    >
+    <form className={styles.form} onSubmit={handleSubmit}>
       <div className={styles.row2}>
         <div className={styles.field}>
           <label className={styles.label} htmlFor="cf-name">Name</label>
@@ -50,8 +56,17 @@ export function ContactForm() {
         <label className={styles.label} htmlFor="cf-message">Message</label>
         <textarea className={styles.textarea} id="cf-message" name="message" required />
       </div>
-      <button className={styles.submit} type="submit">Send message</button>
-      <p className={styles.note}>We usually reply within one business day.</p>
+      <button className={styles.submit} type="submit" disabled={state === 'sending'}>
+        {state === 'sending' ? 'Sending…' : 'Send message'}
+      </button>
+      {state === 'error' ? (
+        <p className={styles.note}>
+          Something went wrong — please email{' '}
+          <a href="mailto:contact@envo-led.com">contact@envo-led.com</a> directly.
+        </p>
+      ) : (
+        <p className={styles.note}>We usually reply within one business day.</p>
+      )}
     </form>
   )
 }
