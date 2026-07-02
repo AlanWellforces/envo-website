@@ -53,12 +53,12 @@ export default function FreeLayoutDesignPage() {
               </div>
               <div className={styles.badge}>
                 <span className={styles.badgeIcon} aria-hidden="true">
-                  <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="10" /><polyline points="12 6 12 12 16 14" /></svg>
+                  <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8Z" /><polyline points="14 2 14 8 20 8" /><line x1="8" y1="13" x2="16" y2="13" /><line x1="8" y1="17" x2="16" y2="17" /></svg>
                 </span>
                 <span>
-                  <span className={styles.badgeTitle}>24-Hour</span>
+                  <span className={styles.badgeTitle}>Full BOM</span>
                   <br />
-                  <span className={styles.badgeSub}>Reply</span>
+                  <span className={styles.badgeSub}>Included</span>
                 </span>
               </div>
               <div className={styles.badge}>
@@ -66,9 +66,9 @@ export default function FreeLayoutDesignPage() {
                   <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10Z" /></svg>
                 </span>
                 <span>
-                  <span className={styles.badgeTitle}>15+ Years</span>
+                  <span className={styles.badgeTitle}>CE·UL·TÜV</span>
                   <br />
-                  <span className={styles.badgeSub}>Experience</span>
+                  <span className={styles.badgeSub}>Certified parts</span>
                 </span>
               </div>
             </div>
