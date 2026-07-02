@@ -714,14 +714,6 @@ export interface Solution {
    */
   heroDesc?: string | null;
   /**
-   * Short card blurb (used by other pages linking here).
-   */
-  shortDesc?: string | null;
-  /**
-   * Longer summary — also the default meta description.
-   */
-  longDesc?: string | null;
-  /**
    * Card/hero image. Overrides the path below.
    */
   image?: (number | null) | Media;
@@ -795,6 +787,14 @@ export interface Solution {
       }[]
     | null;
   /**
+   * Used as <meta name="description">. Falls back to the short blurb, then the hero description. Aim ≤ 155 characters.
+   */
+  longDesc?: string | null;
+  /**
+   * Fallback summary for other pages linking here. Not shown on /solutions itself.
+   */
+  shortDesc?: string | null;
+  /**
    * URL: /solutions/<slug>
    */
   slug: string;
@@ -857,16 +857,15 @@ export interface Submission {
   company?: string | null;
   phone?: string | null;
   /**
-   * Page the lead came from.
+   * What the customer wrote in the form.
    */
-  sourcePath?: string | null;
+  message?: string | null;
   /**
-   * Uploaded sketch / drawing (Free Layout).
+   * Extra form answers (sign type, dimensions, location…), one per line.
    */
+  details?: string | null;
   sketch?: (number | null) | LeadFile;
-  /**
-   * Raw form fields / wizard answers.
-   */
+  sourcePath?: string | null;
   data?:
     | {
         [k: string]: unknown;
@@ -1356,8 +1355,6 @@ export interface SolutionsSelect {
   eyebrow?: boolean;
   heroTitle?: boolean;
   heroDesc?: boolean;
-  shortDesc?: boolean;
-  longDesc?: boolean;
   image?: boolean;
   imagePath?: boolean;
   checklist?:
@@ -1395,6 +1392,8 @@ export interface SolutionsSelect {
             };
         id?: boolean;
       };
+  longDesc?: boolean;
+  shortDesc?: boolean;
   slug?: boolean;
   order?: boolean;
   updatedAt?: boolean;
@@ -1425,8 +1424,10 @@ export interface SubmissionsSelect {
   email?: boolean;
   company?: boolean;
   phone?: boolean;
-  sourcePath?: boolean;
+  message?: boolean;
+  details?: boolean;
   sketch?: boolean;
+  sourcePath?: boolean;
   data?: boolean;
   updatedAt?: boolean;
   createdAt?: boolean;

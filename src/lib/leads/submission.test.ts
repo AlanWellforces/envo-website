@@ -29,10 +29,19 @@ describe('normalizeSubmission', () => {
 })
 
 describe('buildLeadEmail', () => {
-  it('summarises the lead', () => {
-    const { subject, text } = buildLeadEmail({ type: 'free-layout', name: 'Jane', email: 'jane@acme.com', company: 'Acme', data: { dimensions: '600x1800' } })
+  it('summarises the lead with the message and prettified details', () => {
+    const { subject, text } = buildLeadEmail({
+      type: 'free-layout',
+      name: 'Jane',
+      email: 'jane@acme.com',
+      company: 'Acme',
+      message: 'Need a layout for our new store.',
+      data: { signType: 'channel letters', dimensions: '600x1800' },
+    })
     expect(subject).toContain('Jane')
     expect(text).toContain('jane@acme.com')
-    expect(text).toContain('dimensions')
+    expect(text).toContain('Message:\nNeed a layout for our new store.')
+    expect(text).toContain('Sign Type: channel letters')
+    expect(text).toContain('Dimensions: 600x1800')
   })
 })

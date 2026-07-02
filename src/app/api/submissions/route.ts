@@ -2,7 +2,7 @@ import { NextResponse } from 'next/server'
 import { after } from 'next/server'
 import { getPayload } from 'payload'
 import config from '@payload-config'
-import { normalizeSubmission } from '@/lib/leads/submission'
+import { buildLeadDetails, normalizeSubmission } from '@/lib/leads/submission'
 import { notifyNewLead } from '@/lib/leads/notify'
 
 // Matches the Free Layout form's advertised list: JPG · PNG · PDF · DWG · SVG.
@@ -83,6 +83,8 @@ export async function POST(req: Request) {
         company: lead.company,
         phone: lead.phone,
         sourcePath: lead.sourcePath,
+        message: lead.message,
+        details: buildLeadDetails(lead.data) || undefined,
         data: lead.data,
         ...(sketchId ? { sketch: sketchId } : {}),
       },

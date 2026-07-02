@@ -23,8 +23,7 @@ export function ContactForm() {
   if (state === 'sent') {
     return (
       <div className={styles.sent}>
-        Thanks — your message has been received. We usually reply within one business day. For
-        anything urgent, reach us at{' '}
+        Thanks — your message has been received. For anything urgent, reach us at{' '}
         <a href="mailto:contact@envo-led.com">contact@envo-led.com</a> or 888.228.9138.
       </div>
     )
@@ -59,13 +58,11 @@ export function ContactForm() {
       <button className={styles.submit} type="submit" disabled={state === 'sending'}>
         {state === 'sending' ? 'Sending…' : 'Send message'}
       </button>
-      {state === 'error' ? (
+      {state === 'error' && (
         <p className={styles.note}>
           Something went wrong — please email{' '}
           <a href="mailto:contact@envo-led.com">contact@envo-led.com</a> directly.
         </p>
-      ) : (
-        <p className={styles.note}>We usually reply within one business day.</p>
       )}
     </form>
   )

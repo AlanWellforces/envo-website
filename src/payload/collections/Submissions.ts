@@ -46,12 +46,54 @@ export const Submissions: CollectionConfig = {
         { label: 'Archived', value: 'archived' },
       ],
     },
-    { name: 'name', type: 'text' },
-    { name: 'email', type: 'email' },
-    { name: 'company', type: 'text' },
-    { name: 'phone', type: 'text' },
-    { name: 'sourcePath', type: 'text', admin: { description: 'Page the lead came from.' } },
-    { name: 'sketch', type: 'upload', relationTo: 'lead-files', admin: { description: 'Uploaded sketch / drawing (Free Layout).' } },
-    { name: 'data', type: 'json', admin: { description: 'Raw form fields / wizard answers.' } },
+    {
+      type: 'row',
+      fields: [
+        { name: 'name', type: 'text', label: 'Name' },
+        { name: 'email', type: 'email', label: 'Email' },
+      ],
+    },
+    {
+      type: 'row',
+      fields: [
+        { name: 'company', type: 'text', label: 'Company' },
+        { name: 'phone', type: 'text', label: 'Phone' },
+      ],
+    },
+    {
+      name: 'message',
+      type: 'textarea',
+      label: 'Message',
+      admin: { description: 'What the customer wrote in the form.' },
+    },
+    {
+      name: 'details',
+      type: 'textarea',
+      label: 'Request details',
+      admin: {
+        description: 'Extra form answers (sign type, dimensions, location…), one per line.',
+        condition: (data) => Boolean(data?.details),
+      },
+    },
+    {
+      name: 'sketch',
+      type: 'upload',
+      relationTo: 'lead-files',
+      label: 'Attached sketch / drawing',
+      admin: { condition: (data) => Boolean(data?.sketch) },
+    },
+    {
+      name: 'sourcePath',
+      type: 'text',
+      label: 'Submitted from page',
+      admin: { position: 'sidebar', readOnly: true },
+    },
+    {
+      // Raw capture kept for the record; hidden so the editing view stays
+      // non-technical — everything a human needs is in message/details above.
+      name: 'data',
+      type: 'json',
+      admin: { hidden: true },
+    },
   ],
 }
