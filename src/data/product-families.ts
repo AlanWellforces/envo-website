@@ -214,9 +214,9 @@ export const PRODUCT_FAMILIES: ProductFamily[] = [
       'Consistent brightness',
       'Energy efficient',
       'Built to last',
-      '5-year warranty',
+      '50,000 h rated life',
     ],
-    productSpecsCallout: 'SMD2835 · IP65 · 170° beam · 5-yr warranty',
+    productSpecsCallout: 'SMD2835 · IP65 · 170° beam · 50,000 h life',
     applications: [
       {
         title: 'Channel Letters',
@@ -242,8 +242,8 @@ export const PRODUCT_FAMILIES: ProductFamily[] = [
     trustBadges: [
       {
         icon: 'shield',
-        title: '5-year warranty',
-        description: 'Every module ships with full 5-year coverage on output and build.',
+        title: '50,000-hour rated life',
+        description: 'Every module is rated for 50,000 hours of operation. Warranty terms are published per series on each datasheet.',
       },
       {
         icon: 'droplet',
@@ -270,7 +270,7 @@ export const PRODUCT_FAMILIES: ProductFamily[] = [
       {
         question: 'How long does an LED signage module last?',
         answer:
-          'ENVO modules are rated for 50,000 hours of typical operation. At 12 hours per day, that is roughly 11 years of service. The 5-year warranty covers output and build over that window.',
+          'ENVO modules are rated for 50,000 hours of typical operation. At 12 hours per day, that is roughly 11 years of service. Warranty terms are published per series — check each product’s datasheet.',
       },
       {
         question: 'How many modules do I need for my sign?',
@@ -359,7 +359,7 @@ export const PRODUCT_FAMILIES: ProductFamily[] = [
               'Single, Duo, Triple and Quad LED variants in the same form factor — match output to letter size without changing modules.',
           },
           {
-            title: '5-year warranty',
+            title: 'Certified & supported',
             description:
               'Backed by UL · CE · TUV · LM-80 · RoHS certifications and ENVO global support.',
           },

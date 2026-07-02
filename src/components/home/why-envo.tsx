@@ -34,12 +34,12 @@ const DEFAULT_PILLARS = [
   },
 ]
 
-// Verified 2026-07-03 against the product DB / Akeneo descriptions (219 visible
-// SKUs; signage modules state a 7-year warranty; certs per PR #81). Editable
-// via the Homepage global (Why ENVO → Stats).
+// Verified 2026-07-03 against the product DB / Akeneo data (219 visible SKUs;
+// all 73 visible modules rate lifetime_hrs = 50,000; certs per PR #81).
+// Editable via the Homepage global (Why ENVO → Stats).
 const DEFAULT_STATS = [
   { value: '200+', label: 'catalogue SKUs' },
-  { value: '7yr', label: 'warranty on signage modules' },
+  { value: '50,000h', label: 'rated module lifetime' },
   { value: '4', label: 'product families' },
   { value: 'CE·UL·TÜV', label: 'certified across the range', lime: true },
 ]

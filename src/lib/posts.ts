@@ -38,13 +38,18 @@ async function payload() {
 }
 
 /**
- * Date filter applied to every public read. Future-dated posts (publishedAt in
- * the future) do not appear on the public site even when their _status is
- * 'published'. Payload's drafts behavior already hides _status='draft' from
- * default reads, so we don't add an explicit _status filter here.
+ * Filter applied to every public read: published only, and not future-dated.
+ * The explicit _status condition is required — Payload's local find() does NOT
+ * exclude drafts by itself (the `draft` option only controls version merging),
+ * so without it an unpublished post keeps showing on /blog.
  */
 function dateFilter(): Where {
-  return { publishedAt: { less_than_equal: new Date().toISOString() } }
+  return {
+    and: [
+      { _status: { equals: 'published' } },
+      { publishedAt: { less_than_equal: new Date().toISOString() } },
+    ],
+  }
 }
 
 export type GetPostsOpts = {

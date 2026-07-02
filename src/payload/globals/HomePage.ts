@@ -104,7 +104,7 @@ export const HomePage: GlobalConfig = {
               maxRows: 4,
               admin: {
                 description:
-                  'Proof numbers. Built-in defaults (200+ SKUs, 7yr module warranty, 4 families, CE·UL·TÜV) were verified against the product data on 2026-07-03. Keep any replacement verifiable — no response-time promises.',
+                  'Proof numbers. Built-in defaults (200+ SKUs, 50,000h module lifetime, 4 families, CE·UL·TÜV) were verified against the product data on 2026-07-03. Keep any replacement verifiable — no response-time promises.',
               },
               fields: [
                 { name: 'value', type: 'text', required: true, admin: { description: 'e.g. "10+"' } },
