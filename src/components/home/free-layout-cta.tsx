@@ -9,13 +9,13 @@ export function FreeLayoutCta({ data = {} }: { data?: HomeFlCtaData }) {
         <div className="panel">
           <div className="glow" />
           <div className="txt">
-            <div className="eb">{data.eyebrow ?? 'Free service · 24h'}</div>
+            <div className="eb">{data.eyebrow ?? 'Free service'}</div>
             <h2>{data.heading ?? 'Get a free layout design for your next project.'}</h2>
             <p>
               {data.body ?? (
                 <>
                   Send us your sign or facade dimensions. We&apos;ll return a wired layout, parts list
-                  and wattage budget — typically within 24 hours.
+                  and wattage budget.
                 </>
               )}
             </p>

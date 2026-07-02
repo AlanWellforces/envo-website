@@ -34,13 +34,14 @@ const DEFAULT_PILLARS = [
   },
 ]
 
-// NOTE: these proof numbers are placeholders pending verification — replace via
-// the Homepage global (Why ENVO → Stats) before shipping publicly.
+// Verified 2026-07-03 against the product DB / Akeneo descriptions (219 visible
+// SKUs; signage modules state a 7-year warranty; certs per PR #81). Editable
+// via the Homepage global (Why ENVO → Stats).
 const DEFAULT_STATS = [
-  { value: '10+', label: 'years manufacturing' },
-  { value: '60+', label: 'countries shipped' },
-  { value: '5yr', label: 'standard warranty' },
-  { value: '48h', label: 'layout turnaround', lime: true },
+  { value: '200+', label: 'catalogue SKUs' },
+  { value: '7yr', label: 'warranty on signage modules' },
+  { value: '4', label: 'product families' },
+  { value: 'CE·UL·TÜV', label: 'certified across the range', lime: true },
 ]
 
 export function WhyEnvo({ data }: { data?: HomeWhyData }) {

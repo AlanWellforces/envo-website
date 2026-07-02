@@ -9,7 +9,7 @@ export async function generateMetadata(): Promise<Metadata> {
   return metadataForRoute('/free-layout-design', {
     title: 'Free Layout Design — ENVO',
     description:
-      'Send us your sign sketch and dimensions. Our LED engineering team replies within 24 hours with a free module count, driver size and wiring layout.',
+      'Send us your sign sketch and dimensions. Our LED engineering team replies with a free module count, driver size and wiring layout.',
   })
 }
 
@@ -28,7 +28,7 @@ export default function FreeLayoutDesignPage() {
       <section className="sig-hero">
         <div className={styles.heroSplit}>
           <div className={styles.heroText}>
-            <span className="sig-eyebrow">Free Service · 24h Turnaround</span>
+            <span className="sig-eyebrow">Free Service</span>
             <h1>
               Free Layout Design
               <br />
@@ -36,7 +36,7 @@ export default function FreeLayoutDesignPage() {
             </h1>
             <p className="sig-hero-desc">
               Tell us the sign size, viewing distance and install location. Our LED engineering
-              team replies within 24 hours with a free module count, driver sizing and wiring
+              team replies with a free module count, driver sizing and wiring
               layout — ready for you to quote and install.
             </p>
 
@@ -115,7 +115,7 @@ export default function FreeLayoutDesignPage() {
           <div className={styles.stepCard}>
             <div className={styles.stepNum}>03</div>
             <h3>You quote &amp; build</h3>
-            <p>Within 24 hours you&apos;ll have a complete bill of materials — ENVO modules, drivers, connectors and cable lengths.</p>
+            <p>You&apos;ll get a complete bill of materials — ENVO modules, drivers, connectors and cable lengths.</p>
           </div>
         </div>
       </section>
@@ -162,7 +162,7 @@ export default function FreeLayoutDesignPage() {
           <div className={styles.sectionLabel}>Get Started</div>
           <h2 className={styles.sectionH2}>Tell us about your sign</h2>
           <p className={styles.formLead}>
-            We&apos;ll reply within 24 hours with a complete layout. No fees, no commitment — just
+            We&apos;ll reply with a complete layout. No fees, no commitment — just
             a faster way to spec your project.
           </p>
           <SketchForm />

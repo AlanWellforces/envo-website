@@ -1701,7 +1701,7 @@ export interface HomePage {
       }[]
     | null;
   /**
-   * Proof numbers. IMPORTANT: the built-in defaults (10+ years, 60+ countries, 5yr warranty, 48h layout) are UNVERIFIED placeholders — replace them with real figures here.
+   * Proof numbers. Built-in defaults (200+ SKUs, 7yr module warranty, 4 families, CE·UL·TÜV) were verified against the product data on 2026-07-03. Keep any replacement verifiable — no response-time promises.
    */
   why_stats?:
     | {
@@ -1721,7 +1721,7 @@ export interface HomePage {
       }[]
     | null;
   /**
-   * Default: "Free service · 24h".
+   * Default: "Free service". No response-time promises.
    */
   fl_eyebrow?: string | null;
   /**
