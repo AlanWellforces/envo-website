@@ -71,6 +71,8 @@ export interface Config {
     media: Media;
     posts: Post;
     projects: Project;
+    submissions: Submission;
+    events: Event;
     faqs: Faq;
     'page-seo': PageSeo;
     pages: Page;
@@ -86,6 +88,8 @@ export interface Config {
     media: MediaSelect;
     posts: PostsSelect;
     projects: ProjectsSelect;
+    submissions: SubmissionsSelect;
+    events: EventsSelect;
     faqs: FaqsSelect;
     'page-seo': PageSeoSelect;
     pages: PagesSelect;
@@ -636,6 +640,65 @@ export interface Project {
   _status?: ('draft' | 'published') | null;
 }
 /**
+ * Enquiries captured from the website. Newest first.
+ *
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "submissions".
+ */
+export interface Submission {
+  id: number;
+  type: 'free-layout' | 'find-your-match' | 'contact';
+  status?: ('new' | 'contacted' | 'archived') | null;
+  name?: string | null;
+  email?: string | null;
+  company?: string | null;
+  phone?: string | null;
+  /**
+   * Page the lead came from.
+   */
+  sourcePath?: string | null;
+  /**
+   * Uploaded sketch / drawing (Free Layout).
+   */
+  sketch?: (number | null) | Media;
+  /**
+   * Raw form fields / wizard answers.
+   */
+  data?:
+    | {
+        [k: string]: unknown;
+      }
+    | unknown[]
+    | string
+    | number
+    | boolean
+    | null;
+  updatedAt: string;
+  createdAt: string;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "events".
+ */
+export interface Event {
+  id: number;
+  kind: 'pageview' | 'find-your-match';
+  path?: string | null;
+  referrer?: string | null;
+  sessionHash?: string | null;
+  data?:
+    | {
+        [k: string]: unknown;
+      }
+    | unknown[]
+    | string
+    | number
+    | boolean
+    | null;
+  updatedAt: string;
+  createdAt: string;
+}
+/**
  * Questions answered on /resources/faq. Publish to make one visible.
  *
  * This interface was referenced by `Config`'s JSON-Schema
@@ -823,6 +886,14 @@ export interface PayloadLockedDocument {
     | ({
         relationTo: 'projects';
         value: number | Project;
+      } | null)
+    | ({
+        relationTo: 'submissions';
+        value: number | Submission;
+      } | null)
+    | ({
+        relationTo: 'events';
+        value: number | Event;
       } | null)
     | ({
         relationTo: 'faqs';
@@ -1116,6 +1187,36 @@ export interface ProjectsSelect {
   updatedAt?: boolean;
   createdAt?: boolean;
   _status?: boolean;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "submissions_select".
+ */
+export interface SubmissionsSelect {
+  type?: boolean;
+  status?: boolean;
+  name?: boolean;
+  email?: boolean;
+  company?: boolean;
+  phone?: boolean;
+  sourcePath?: boolean;
+  sketch?: boolean;
+  data?: boolean;
+  updatedAt?: boolean;
+  createdAt?: boolean;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "events_select".
+ */
+export interface EventsSelect {
+  kind?: boolean;
+  path?: boolean;
+  referrer?: boolean;
+  sessionHash?: boolean;
+  data?: boolean;
+  updatedAt?: boolean;
+  createdAt?: boolean;
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema

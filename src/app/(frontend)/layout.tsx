@@ -1,6 +1,7 @@
 import type { Metadata } from 'next'
 import { Inter_Tight } from 'next/font/google'
 import '../globals.css'
+import { PageViewBeacon } from '@/components/analytics/PageViewBeacon'
 import { Sidebar } from '@/components/layout/sidebar'
 import { TopSubnav } from '@/components/layout/top-subnav'
 import { Footer } from '@/components/layout/footer'
@@ -33,6 +34,7 @@ export default function RootLayout({
   return (
     <html lang="en" className={interTight.variable}>
       <body>
+        <PageViewBeacon />
         <Sidebar />
         <TopSubnav />
         <CursorGlow />

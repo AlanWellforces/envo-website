@@ -1,4 +1,6 @@
 import { NextResponse } from 'next/server'
+import { getPayload } from 'payload'
+import config from '@payload-config'
 import { listProducts } from '@/lib/products'
 import { recommend } from '@/lib/find-your-match/match'
 import { templateExplanation, rationalePrompt } from '@/lib/find-your-match/explain'
@@ -16,6 +18,26 @@ export async function POST(req: Request) {
   // catalogue source would be passed — the engine is catalogue-agnostic.)
   const { docs } = await listProducts({ limit: 1000 })
   const rec = recommend(answers, docs)
+
+  // Best-effort usage log (no free-text notes — privacy). Never blocks the reply.
+  try {
+    const payload = await getPayload({ config })
+    await payload.create({
+      collection: 'events',
+      data: {
+        kind: 'find-your-match',
+        data: {
+          application: answers.application,
+          environment: answers.environment,
+          colour: answers.colour,
+          size: answers.size,
+          control: answers.control,
+        },
+      },
+    })
+  } catch {
+    // logging failure must not affect the recommendation
+  }
 
   let explanation = templateExplanation(answers, rec)
   const key = process.env.ANTHROPIC_API_KEY

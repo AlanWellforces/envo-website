@@ -22,7 +22,7 @@ export const Projects: CollectionConfig = {
     // Cover leads the list (Shopify-style — same as Posts).
     defaultColumns: ['coverPreview', 'title', '_status', 'industry', 'completedYear', 'publishedAt'],
     description: 'Real-world ENVO LED installations. Publish to make a case study visible on the website.',
-    group: 'Editorial',
+    group: 'Content',
   },
   access: {
     read: () => true,

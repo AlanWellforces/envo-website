@@ -13,7 +13,7 @@ export const Pages: CollectionConfig = {
   admin: {
     useAsTitle: 'title',
     defaultColumns: ['title', '_status', 'slug', 'updatedAt'],
-    group: 'Website',
+    group: 'Content',
     description: 'Standalone rich-text pages. Publish to make a page Visible on the website.',
   },
   access: { read: () => true },

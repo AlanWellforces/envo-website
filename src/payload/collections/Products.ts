@@ -14,7 +14,7 @@ export const Products: CollectionConfig = {
     useAsTitle: 'name',
     defaultColumns: ['thumbnail', 'sku', 'name', 'family', 'enabled', 'featured'],
     description: 'ENVO product catalogue. Synced from Akeneo — edit freely. Enable sync_locked to prevent Akeneo from overwriting your changes.',
-    group: 'Products',
+    group: 'Catalogue',
     // Hide un-enriched Akeneo shells (no family — never categorisable on the
     // frontend) from the default list. Clear the Filters panel to see them.
     baseListFilter: () => ({ family: { exists: true } }),

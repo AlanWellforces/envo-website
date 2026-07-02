@@ -2,9 +2,9 @@ import type { GlobalConfig } from 'payload'
 
 export const HomePage: GlobalConfig = {
   slug: 'home-page',
-  label: 'Home Page',
+  label: 'Homepage',
   admin: {
-    group: 'Settings',
+    group: 'Website',
     description: 'Content for each homepage section. Changes take effect on next publish.',
   },
   access: {

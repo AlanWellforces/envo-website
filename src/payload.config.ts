@@ -1,5 +1,6 @@
 import { postgresAdapter } from '@payloadcms/db-postgres'
 import { lexicalEditor } from '@payloadcms/richtext-lexical'
+import { s3Storage } from '@payloadcms/storage-s3'
 import { fileURLToPath } from 'node:url'
 import path from 'node:path'
 import { buildConfig } from 'payload'
@@ -10,6 +11,8 @@ import { Products } from './payload/collections/Products.ts'
 import { Media } from './payload/collections/Media.ts'
 import { Posts } from './payload/collections/Posts.ts'
 import { Projects } from './payload/collections/Projects.ts'
+import { Submissions } from './payload/collections/Submissions.ts'
+import { Events } from './payload/collections/Events.ts'
 import { Faqs } from './payload/collections/Faqs.ts'
 import { PageSeo } from './payload/collections/PageSeo.ts'
 import { Pages } from './payload/collections/Pages.ts'
@@ -28,8 +31,12 @@ export default buildConfig({
     components: {
       // Injects small global admin CSS (e.g. a taller rich-text editor).
       providers: ['/payload/components/AdminStyles#AdminStyles'],
+      beforeNavLinks: ['/payload/components/NavBrand#NavBrand'],
       afterNavLinks: ['/payload/components/PagesNavLink#PagesNavLink'],
       views: {
+        dashboard: {
+          Component: '/payload/views/Dashboard#Dashboard',
+        },
         pagesOverview: {
           Component: '/payload/views/PagesOverview#PagesOverview',
           path: '/pages-overview',
@@ -43,8 +50,29 @@ export default buildConfig({
   // Order drives the admin nav group order: content first (Products,
   // Editorial), then Website (Page SEO — per-route SEO overrides), then
   // Settings (Users) last — so Users/Settings sits at the bottom.
-  collections: [Products, Media, Posts, Projects, Faqs, PageSeo, Pages, Users],
+  collections: [Products, Media, Posts, Projects, Pages, Faqs, Submissions, Events, PageSeo, Users],
   globals: [SiteSettings, HomePage],
+  plugins: [
+    // File binaries → Supabase Storage when configured; falls back to local disk
+    // in dev when S3_BUCKET is unset, so no creds are required to run locally.
+    ...(process.env.S3_BUCKET
+      ? [
+          s3Storage({
+            collections: { media: true },
+            bucket: process.env.S3_BUCKET,
+            config: {
+              endpoint: process.env.S3_ENDPOINT,
+              region: process.env.S3_REGION || 'us-west-2',
+              forcePathStyle: true,
+              credentials: {
+                accessKeyId: process.env.S3_ACCESS_KEY_ID || '',
+                secretAccessKey: process.env.S3_SECRET_ACCESS_KEY || '',
+              },
+            },
+          }),
+        ]
+      : []),
+  ],
   editor: lexicalEditor(),
   secret: process.env.PAYLOAD_SECRET || '',
   typescript: {

@@ -12,7 +12,7 @@ export const Faqs: CollectionConfig = {
   admin: {
     useAsTitle: 'question',
     defaultColumns: ['question', 'group', 'order', '_status'],
-    group: 'Editorial',
+    group: 'Content',
     description: 'Questions answered on /resources/faq. Publish to make one visible.',
   },
   access: { read: () => true },
