@@ -1,4 +1,4 @@
-/* eslint-disable @next/next/no-img-element */
+import Image from 'next/image'
 import Link from 'next/link'
 import { ArrowRight } from './icons'
 
@@ -6,6 +6,8 @@ const CATEGORIES = [
   {
     name: 'Signage Module',
     img: '/assets/images/cat-modules.png',
+    w: 1000,
+    h: 600,
     href: '/products/led-signage-modules',
     desc: 'High-uniformity backlit & sidelit LED modules for channel letters, light boxes and built-up signage.',
     tags: ['Mini', 'Eco', 'Pro', 'RGB', '24V', 'Sidelit'],
@@ -13,6 +15,8 @@ const CATEGORIES = [
   {
     name: 'LED Driver',
     img: '/assets/images/cat-drivers.png',
+    w: 2048,
+    h: 1577,
     href: '/products/led-drivers',
     desc: 'Constant-voltage supplies — screw-terminal, super-slim linear and triac-dimmable, indoor and outdoor.',
     tags: ['Screw Terminal', 'Linear', 'Triac Dimmable'],
@@ -20,6 +24,8 @@ const CATEGORIES = [
   {
     name: 'Control Gear',
     img: '/assets/images/cat-controllers.png',
+    w: 2000,
+    h: 1300,
     href: '/products/control-gear',
     desc: 'Remotes, receivers, signal converters, sensors and ZigBee smart controllers for dynamic scenes.',
     tags: ['Remote & Receiver', 'Signal Converter', 'Sensor', 'ZigBee'],
@@ -27,6 +33,8 @@ const CATEGORIES = [
   {
     name: 'Accessories',
     img: '/assets/images/cat-sensors.png',
+    w: 2048,
+    h: 1331,
     href: '/products/accessories',
     desc: 'Connectors and cables that make every install fast, clean and reliable.',
     tags: ['Connector', 'Cable'],
@@ -47,7 +55,7 @@ export function ShopByCategory() {
           {CATEGORIES.map((c) => (
             <Link className="mk-ccard" href={c.href} key={c.name}>
               <div className="pic">
-                <img src={c.img} alt={c.name} />
+                <Image src={c.img} alt={c.name} width={c.w} height={c.h} sizes="110px" />
               </div>
               <div className="cb">
                 <div className="ct">

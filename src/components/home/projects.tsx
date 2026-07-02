@@ -1,4 +1,4 @@
-/* eslint-disable @next/next/no-img-element */
+import Image from 'next/image'
 import Link from 'next/link'
 import { ArrowRight } from './icons'
 
@@ -16,7 +16,12 @@ export function Projects() {
         <h2>Signage, lit and installed.</h2>
         <div className="pj-feat">
           <div className="pic">
-            <img src="/assets/images/app-mini-hospitality-facade.jpg" alt="Aurora Hotel Facade Wash" />
+            <Image
+              src="/assets/images/app-mini-hospitality-facade.jpg"
+              alt="Aurora Hotel Facade Wash"
+              fill
+              sizes="(min-width: 981px) 50vw, 100vw"
+            />
           </div>
           <div className="info">
             <div className="eb">Hospitality · Facade</div>
@@ -37,7 +42,12 @@ export function Projects() {
         <div className="pj-grid">
           {TILES.map((t) => (
             <Link className="pj-tile" href="/projects" key={t.title}>
-              <img src={`/assets/images/${t.img}`} alt={t.title} />
+              <Image
+                src={`/assets/images/${t.img}`}
+                alt={t.title}
+                fill
+                sizes="(min-width: 981px) 33vw, 100vw"
+              />
               <span className="ov" />
               <div className="tx">
                 <div className="eb">{t.eb}</div>

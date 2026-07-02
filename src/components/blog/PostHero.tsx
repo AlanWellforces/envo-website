@@ -1,3 +1,4 @@
+import Image from 'next/image'
 import Link from 'next/link'
 import type { Post } from '@/lib/posts'
 
@@ -35,9 +36,13 @@ export function PostHero({ post }: { post: Post }) {
       }}
     >
       {img && (
-        <div
-          className="absolute inset-0 bg-cover bg-center"
-          style={{ backgroundImage: `url(${img})` }}
+        <Image
+          src={img}
+          alt=""
+          fill
+          priority
+          sizes="100vw"
+          style={{ objectFit: 'cover' }}
           aria-hidden="true"
         />
       )}

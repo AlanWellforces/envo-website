@@ -1,4 +1,3 @@
-/* eslint-disable @next/next/no-img-element */
 import { Fragment } from 'react'
 import Image from 'next/image'
 import Link from 'next/link'
@@ -10,9 +9,15 @@ import styles from './GenericProductDetail.module.css'
 
 function ProductImg({ product }: { product: Product }) {
   const img = resolveProductImage(product, '/assets/images/cat-modules.png')
-  return img.isLocal
-    ? <Image src={img.src} alt={img.alt} width={520} height={520} />
-    : <img src={img.src} alt={img.alt} />
+  return (
+    <Image
+      src={img.src}
+      alt={img.alt}
+      width={520}
+      height={520}
+      sizes="(max-width: 780px) 60vw, 460px"
+    />
+  )
 }
 
 export function GenericProductDetail({

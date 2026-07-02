@@ -1,4 +1,3 @@
-/* eslint-disable @next/next/no-img-element */
 import Image from 'next/image'
 import Link from 'next/link'
 import { resolveProductImage, type Product } from '@/lib/products'
@@ -13,9 +12,7 @@ export function ProductCardGrid({ products, familySlug }: { products: Product[];
         return (
           <Link key={p.sku} href={`/products/${familySlug}/${seriesSlug(p.series)}/${p.sku}`} className={styles.seriesCard}>
             <div className={`${styles.seriesCardThumb} ${styles.seriesCardThumbBrand}`}>
-              {img.isLocal
-                ? <Image src={img.src} alt={img.alt} width={400} height={250} sizes="(min-width:1000px) 33vw, 50vw" />
-                : <img src={img.src} alt={img.alt} />}
+              <Image src={img.src} alt={img.alt} width={400} height={250} sizes="(min-width:1000px) 33vw, 50vw" />
             </div>
             <div className={styles.seriesCardBody}>
               <h3 className={styles.seriesCardName}>{p.name}</h3>

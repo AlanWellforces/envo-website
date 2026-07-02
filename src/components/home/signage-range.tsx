@@ -1,4 +1,4 @@
-/* eslint-disable @next/next/no-img-element */
+import Image from 'next/image'
 import Link from 'next/link'
 import { ArrowRight } from './icons'
 
@@ -29,7 +29,12 @@ export function SignageRange() {
           {SERIES.map((s) => (
             <Link className="scard" href="/products/led-signage-modules" key={s.name}>
               <div className="ph">
-                <img src={`/assets/images/${s.scene}`} alt={`${s.name} application`} />
+                <Image
+                  src={`/assets/images/${s.scene}`}
+                  alt={`${s.name} application`}
+                  fill
+                  sizes="(min-width: 981px) 33vw, 100vw"
+                />
                 <span className="ov" />
                 <span className="model">{s.model}</span>
               </div>

@@ -1,3 +1,4 @@
+import Image from 'next/image'
 import Link from 'next/link'
 import { notFound } from 'next/navigation'
 import type { Metadata } from 'next'
@@ -15,9 +16,9 @@ const CATEGORY_LABEL: Record<string, string> = {
   industry: 'Industry',
 }
 
-function coverUrl(cover: Post['cover']): string | null {
-  if (typeof cover === 'number') return null
-  return cover?.url ?? null
+function coverData(cover: Post['cover']): { url: string; alt?: string } | null {
+  if (typeof cover === 'number' || !cover?.url) return null
+  return { url: cover.url, alt: cover.alt }
 }
 
 export async function generateStaticParams() {
@@ -52,7 +53,7 @@ export default async function PostDetailPage(
   if (!post) notFound()
 
   const related = await getRelatedPosts(post)
-  const cover = coverUrl(post.cover)
+  const cover = coverData(post.cover)
   const categoryLabel = CATEGORY_LABEL[post.category] ?? post.category
 
   return (
@@ -117,16 +118,22 @@ export default async function PostDetailPage(
         <div style={{ margin: '0 0 48px', padding: '0 56px' }}>
           <div
             style={{
+              position: 'relative',
               borderRadius: '18px',
               overflow: 'hidden',
               aspectRatio: '16 / 8',
               background: '#e8ecf2',
-              backgroundImage: `url(${cover})`,
-              backgroundSize: 'cover',
-              backgroundPosition: 'center',
             }}
-            aria-hidden="true"
-          />
+          >
+            <Image
+              src={cover.url}
+              alt={cover.alt || post.title}
+              fill
+              priority
+              sizes="(min-width: 1100px) 900px, 100vw"
+              style={{ objectFit: 'cover' }}
+            />
+          </div>
         </div>
       )}
 

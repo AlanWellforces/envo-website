@@ -2,6 +2,7 @@
 'use client'
 
 import { useMemo, useState } from 'react'
+import Image from 'next/image'
 import Link from 'next/link'
 import type { SelectorRow, FamilySelectorConfig, SelectorFilter } from '@/data/selector-config'
 import styles from './ProductSelectorTable.module.css'
@@ -136,8 +137,7 @@ export function ProductSelectorTable({
       out.push(
         <tr key={r.sku}>
           <td>
-            {/* eslint-disable-next-line @next/next/no-img-element */}
-            <img className={styles.thumb} loading="lazy" src={r.image} alt="" />
+            <Image className={styles.thumb} src={r.image} alt={r.name} width={132} height={132} sizes="66px" />
           </td>
           <td><strong>{r.name}</strong>{r.voltage && <span className={styles.tag}>{r.voltage}</span>}<span className={styles.sub}>{r.sku}</span></td>
           <td><span className={styles.tag} style={{ margin: 0 }}>{r.seriesLabel}</span></td>
