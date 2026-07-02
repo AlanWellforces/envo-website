@@ -5,16 +5,26 @@ import styles from './page.module.css'
 
 export function SketchForm() {
   const [state, setState] = useState<'idle' | 'sending' | 'sent' | 'error'>('idle')
+  const [serverError, setServerError] = useState<string | null>(null)
 
   async function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault()
     setState('sending')
+    setServerError(null)
     const form = new FormData(e.currentTarget)
     form.set('type', 'free-layout')
     form.set('sourcePath', '/free-layout-design')
     try {
       const res = await fetch('/api/submissions', { method: 'POST', body: form })
-      setState(res.ok ? 'sent' : 'error')
+      if (res.ok) {
+        setState('sent')
+      } else {
+        // Surface the API's reason (e.g. a rejected/oversized sketch) so the
+        // user can fix it instead of guessing.
+        const body = (await res.json().catch(() => null)) as { errors?: string[] } | null
+        setServerError(body?.errors?.[0] ?? null)
+        setState('error')
+      }
     } catch {
       setState('error')
     }
@@ -87,8 +97,8 @@ export function SketchForm() {
       )}
       {state === 'error' && (
         <div className={`${styles.fieldWide} ${styles.thanks}`} role="alert">
-          <strong>Something went wrong.</strong> Please try again, or email{' '}
-          <a href="mailto:contact@envo-led.com">contact@envo-led.com</a>.
+          <strong>Something went wrong.</strong> {serverError ? `${serverError}. ` : ''}Please try
+          again, or email <a href="mailto:contact@envo-led.com">contact@envo-led.com</a>.
         </div>
       )}
     </form>
