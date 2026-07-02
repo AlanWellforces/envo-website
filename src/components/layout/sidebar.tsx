@@ -110,6 +110,17 @@ const NAVIGATE: NavItem[] = [
       </svg>
     ),
   },
+  {
+    section: 'contact',
+    href: '/contact',
+    label: 'Contact',
+    icon: (
+      <svg className="sidebar-icon" viewBox="0 0 24 24" aria-hidden="true">
+        <rect x="2" y="4" width="20" height="16" rx="2" />
+        <path d="M2 7l10 6 10-6" />
+      </svg>
+    ),
+  },
 ]
 
 const TOOLS: NavItem[] = [
