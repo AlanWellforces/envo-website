@@ -346,7 +346,8 @@ export async function Dashboard(props: DashboardProps) {
           <a href="/admin/collections/projects" className="ed-stat">
             <div className="num">{d.projectsTotal}</div>
             <div className="lbl">Projects</div>
-            <div className="sub">case studies</div>
+            {/* /projects is unlinked on the site until real installs exist (#111-era decision) */}
+            <div className="sub">case studies · not linked on site yet</div>
           </a>
           <a href="/admin/collections/faqs" className="ed-stat">
             <div className="num">{d.faqsTotal}</div>

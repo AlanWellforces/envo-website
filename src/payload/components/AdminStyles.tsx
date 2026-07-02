@@ -179,6 +179,17 @@ ${iconRules}
 
 /* Focus ring → brand blue (stock rule reads this var for its shadow) */
 input:focus, textarea:focus, select:focus { --theme-success-400: rgba(0, 113, 188, .35); }
+
+/* Login / minimal template — ENVO branding (graphics.Logo supplies the wordmark) */
+.template-minimal { background: linear-gradient(180deg, #f7f9fc 0%, #eef2f7 100%); }
+.template-minimal .brand { display: flex; justify-content: center; margin-bottom: 12px; }
+.template-minimal form { background: #fff; border: 1px solid #e6e9ee; border-radius: 12px; padding: 28px; box-shadow: 0 8px 28px rgba(15, 30, 50, .06); }
+.template-minimal .form-submit .btn {
+  --bg-color: ${BLUE_HEX};
+  --color: #fff;
+  --hover-bg: #005a98;
+  --hover-color: #fff;
+}
 `
 
 export const AdminStyles: React.FC<{ children?: React.ReactNode }> = ({ children }) => (

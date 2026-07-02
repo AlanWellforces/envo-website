@@ -35,6 +35,11 @@ export default buildConfig({
       providers: ['/payload/components/AdminStyles#AdminStyles'],
       beforeNavLinks: ['/payload/components/NavBrand#NavBrand'],
       afterNavLinks: ['/payload/components/PagesNavLink#PagesNavLink'],
+      // ENVO branding on the login page + compact header/loading mark.
+      graphics: {
+        Logo: '/payload/components/BrandLogo#BrandLogo',
+        Icon: '/payload/components/BrandIcon#BrandIcon',
+      },
       views: {
         dashboard: {
           Component: '/payload/views/Dashboard#Dashboard',
@@ -47,6 +52,10 @@ export default buildConfig({
     },
     importMap: {
       baseDir: path.resolve(dirname),
+    },
+    meta: {
+      titleSuffix: ' · ENVO Admin',
+      icons: [{ rel: 'icon', type: 'image/svg+xml', url: '/assets/images/favicon.svg' }],
     },
   },
   // Order drives the admin nav group order: content first (Products,
