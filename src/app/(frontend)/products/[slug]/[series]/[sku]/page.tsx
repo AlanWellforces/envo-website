@@ -25,12 +25,13 @@ export async function generateStaticParams() {
 }
 
 export async function generateMetadata({ params }: { params: Params }): Promise<Metadata> {
-  const { sku } = await params
+  const { slug, series, sku } = await params
   const product = await getProduct(sku)
   if (!product) return {}
   return {
     title: `${product.name} — ENVO`,
     description: product.short_description ?? product.subtitle ?? undefined,
+    alternates: { canonical: `/products/${slug}/${series}/${sku}` },
   }
 }
 

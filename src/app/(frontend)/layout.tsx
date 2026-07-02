@@ -17,6 +17,7 @@ const interTight = Inter_Tight({
 })
 
 export const metadata: Metadata = {
+  metadataBase: new URL(process.env.NEXT_PUBLIC_SITE_URL || 'http://localhost:3000'),
   title: 'ENVO — Engineered Illumination',
   description:
     'ENVO designs and manufactures professional-grade LED lighting systems that power signage and architectural illumination worldwide.',

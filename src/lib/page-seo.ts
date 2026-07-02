@@ -43,6 +43,8 @@ export async function metadataForRoute(
   return {
     title: seo?.seoTitle ?? defaults.title,
     description: seo?.metaDescription ?? defaults.description,
+    // Canonical = the route itself (resolved against metadataBase).
+    alternates: { canonical: route },
     ...(seo?.ogImage ? { openGraph: { images: [{ url: seo.ogImage.url }] } } : {}),
   }
 }

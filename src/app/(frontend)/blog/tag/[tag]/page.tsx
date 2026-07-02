@@ -10,7 +10,7 @@ export async function generateMetadata(
   { params }: { params: Promise<{ tag: string }> },
 ): Promise<Metadata> {
   const { tag } = await params
-  return { title: `#${tag} — ENVO Blog` }
+  return { title: `#${tag} — ENVO Blog`, alternates: { canonical: `/blog/tag/${tag}` } }
 }
 
 export default async function TagPage(

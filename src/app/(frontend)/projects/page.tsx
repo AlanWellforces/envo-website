@@ -5,6 +5,7 @@ import { getProjects } from '@/lib/projects'
 import '@/components/projects/projects-redesign.css'
 
 export const metadata: Metadata = {
+  alternates: { canonical: '/projects' },
   title: 'Projects — ENVO',
   description:
     'Signage and architectural installs running ENVO LED modules and drivers.',

@@ -7,6 +7,7 @@ import type { Metadata } from 'next'
 export const revalidate = 3600 // ISR fallback — every hour
 
 export const metadata: Metadata = {
+  alternates: { canonical: '/blog' },
   title: 'Blog — ENVO',
   description: 'Guides, tech insights, and company news from ENVO.',
 }

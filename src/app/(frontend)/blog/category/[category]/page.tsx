@@ -25,6 +25,7 @@ export async function generateMetadata(
   if (!VALID_CATEGORIES.includes(category as PostCategory)) return {}
   return {
     title: `${CATEGORY_LABEL[category as PostCategory]} — ENVO Blog`,
+    alternates: { canonical: `/blog/category/${category}` },
   }
 }
 

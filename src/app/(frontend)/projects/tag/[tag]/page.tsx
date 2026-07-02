@@ -9,6 +9,7 @@ export async function generateMetadata({ params }: { params: Params }): Promise<
   const { tag } = await params
   const decoded = decodeURIComponent(tag)
   return {
+    alternates: { canonical: `/projects/tag/${tag}` },
     title: `Projects tagged "${decoded}" — ENVO`,
     description: `ENVO LED case studies tagged "${decoded}".`,
   }
