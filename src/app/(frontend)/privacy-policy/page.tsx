@@ -8,6 +8,7 @@ const SLUG = 'privacy-policy'
 export async function generateMetadata(): Promise<Metadata> {
   const page = await getPageBySlug(SLUG)
   return {
+    alternates: { canonical: '/privacy-policy' },
     title: page?.seoTitle ?? 'Privacy Policy — ENVO',
     description:
       page?.metaDescription ??

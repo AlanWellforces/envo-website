@@ -30,6 +30,7 @@ export async function generateMetadata({ params }: { params: Params }): Promise<
   const og = imgUrl(project.ogImage)
   const ogImage = og ?? cover
   return {
+    alternates: { canonical: `/projects/${slug}` },
     title: project.seoTitle ?? `${project.title} — ENVO Projects`,
     description: project.seoDescription ?? project.excerpt,
     openGraph: { images: ogImage ? [ogImage] : undefined },

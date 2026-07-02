@@ -35,14 +35,14 @@ export async function generateMetadata({ params }: { params: Params }): Promise<
   if (!family) return {}
   const seriesObj = family.series.find((s): s is LiveSeries => isLive(s) && s.slug === series)
   if (seriesObj) {
-    return { title: `${seriesObj.label} · ${seriesObj.productName} — ENVO`, description: seriesObj.description }
+    return { title: `${seriesObj.label} · ${seriesObj.productName} — ENVO`, description: seriesObj.description, alternates: { canonical: `/products/${slug}/${series}` } }
   }
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const editorial = Object.entries(SERIES_EDITORIAL as Record<string, any>).find(
     ([code]) => toSeriesSlug(code) === series,
   )
-  if (editorial) return { title: `${editorial[1].label} — ENVO`, description: editorial[1].lede }
-  return { title: `${family.name} — ENVO`, description: family.longDesc }
+  if (editorial) return { title: `${editorial[1].label} — ENVO`, description: editorial[1].lede, alternates: { canonical: `/products/${slug}/${series}` } }
+  return { title: `${family.name} — ENVO`, description: family.longDesc, alternates: { canonical: `/products/${slug}/${series}` } }
 }
 
 export default async function SeriesDetailPage({ params }: { params: Params }) {

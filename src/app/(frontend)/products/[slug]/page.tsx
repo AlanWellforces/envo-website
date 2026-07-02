@@ -19,7 +19,7 @@ export async function generateMetadata({ params }: { params: Params }): Promise<
   const { slug } = await params
   const family = PRODUCT_FAMILIES.find((f) => f.slug === slug)
   if (!family) return {}
-  return { title: `${family.name} — ENVO`, description: family.longDesc }
+  return { title: `${family.name} — ENVO`, description: family.longDesc, alternates: { canonical: `/products/${slug}` } }
 }
 
 export default async function ProductFamilyPage({ params }: { params: Params }) {

@@ -33,6 +33,7 @@ export async function generateMetadata({ params }: { params: Params }): Promise<
   const { industry } = await params
   if (!isValid(industry)) return {}
   return {
+    alternates: { canonical: `/projects/industry/${industry}` },
     title: `${INDUSTRY_LABELS[industry]} projects — ENVO`,
     description: `ENVO LED installations in the ${INDUSTRY_LABELS[industry].toLowerCase()} sector.`,
   }

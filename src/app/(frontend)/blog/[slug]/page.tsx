@@ -42,6 +42,7 @@ export async function generateMetadata(
     title: post.seoTitle || post.title,
     description: post.seoDescription || post.excerpt,
     openGraph: ogImg ? { images: [{ url: ogImg }] } : undefined,
+    alternates: { canonical: `/blog/${slug}` },
   }
 }
 

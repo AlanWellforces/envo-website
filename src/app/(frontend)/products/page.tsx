@@ -7,6 +7,7 @@ import { CatalogueFilter } from '@/components/products/CatalogueFilter'
 import '@/components/products/products-catalogue.css'
 
 export const metadata: Metadata = {
+  alternates: { canonical: '/products' },
   title: 'Product catalogue — ENVO',
   description:
     'Modules, drivers, control gear and accessories — engineered to work together as one signage system. Filter the full ENVO catalogue by application, colour temperature and certification.',

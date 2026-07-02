@@ -7,6 +7,7 @@ import styles from './page.module.css'
 export const revalidate = 3600
 
 export const metadata: Metadata = {
+  alternates: { canonical: '/resources/faq' },
   title: 'FAQ — ENVO',
   description: 'Answers on ordering, product compatibility, installation and warranty for ENVO LED signage.',
 }

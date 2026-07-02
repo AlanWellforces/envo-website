@@ -14,7 +14,7 @@ export async function generateMetadata(
   const { slug } = await params
   const page = await getPageBySlug(slug)
   if (!page) return {}
-  return { title: page.seoTitle ?? `${page.title} — ENVO`, description: page.metaDescription }
+  return { title: page.seoTitle ?? `${page.title} — ENVO`, description: page.metaDescription, alternates: { canonical: `/pages/${slug}` } }
 }
 
 export default async function CmsDynamicPage({ params }: { params: Promise<{ slug: string }> }) {
