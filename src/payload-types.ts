@@ -71,11 +71,12 @@ export interface Config {
     media: Media;
     posts: Post;
     projects: Project;
-    submissions: Submission;
-    events: Event;
-    faqs: Faq;
-    'page-seo': PageSeo;
     pages: Page;
+    faqs: Faq;
+    submissions: Submission;
+    'lead-files': LeadFile;
+    events: Event;
+    'page-seo': PageSeo;
     users: User;
     'payload-kv': PayloadKv;
     'payload-locked-documents': PayloadLockedDocument;
@@ -88,11 +89,12 @@ export interface Config {
     media: MediaSelect;
     posts: PostsSelect;
     projects: ProjectsSelect;
-    submissions: SubmissionsSelect;
-    events: EventsSelect;
-    faqs: FaqsSelect;
-    'page-seo': PageSeoSelect;
     pages: PagesSelect;
+    faqs: FaqsSelect;
+    submissions: SubmissionsSelect;
+    'lead-files': LeadFilesSelect;
+    events: EventsSelect;
+    'page-seo': PageSeoSelect;
     users: UsersSelect;
     'payload-kv': PayloadKvSelect;
     'payload-locked-documents': PayloadLockedDocumentsSelect;
@@ -640,132 +642,6 @@ export interface Project {
   _status?: ('draft' | 'published') | null;
 }
 /**
- * Enquiries captured from the website. Newest first.
- *
- * This interface was referenced by `Config`'s JSON-Schema
- * via the `definition` "submissions".
- */
-export interface Submission {
-  id: number;
-  type: 'free-layout' | 'find-your-match' | 'contact';
-  status?: ('new' | 'contacted' | 'archived') | null;
-  name?: string | null;
-  email?: string | null;
-  company?: string | null;
-  phone?: string | null;
-  /**
-   * Page the lead came from.
-   */
-  sourcePath?: string | null;
-  /**
-   * Uploaded sketch / drawing (Free Layout).
-   */
-  sketch?: (number | null) | Media;
-  /**
-   * Raw form fields / wizard answers.
-   */
-  data?:
-    | {
-        [k: string]: unknown;
-      }
-    | unknown[]
-    | string
-    | number
-    | boolean
-    | null;
-  updatedAt: string;
-  createdAt: string;
-}
-/**
- * This interface was referenced by `Config`'s JSON-Schema
- * via the `definition` "events".
- */
-export interface Event {
-  id: number;
-  kind: 'pageview' | 'find-your-match';
-  path?: string | null;
-  referrer?: string | null;
-  sessionHash?: string | null;
-  data?:
-    | {
-        [k: string]: unknown;
-      }
-    | unknown[]
-    | string
-    | number
-    | boolean
-    | null;
-  updatedAt: string;
-  createdAt: string;
-}
-/**
- * Questions answered on /resources/faq. Publish to make one visible.
- *
- * This interface was referenced by `Config`'s JSON-Schema
- * via the `definition` "faqs".
- */
-export interface Faq {
-  id: number;
-  question: string;
-  answer: {
-    root: {
-      type: string;
-      children: {
-        type: any;
-        version: number;
-        [k: string]: unknown;
-      }[];
-      direction: ('ltr' | 'rtl') | null;
-      format: 'left' | 'start' | 'center' | 'right' | 'end' | 'justify' | '';
-      indent: number;
-      version: number;
-    };
-    [k: string]: unknown;
-  };
-  /**
-   * Which FAQ section this appears under.
-   */
-  group: 'ordering' | 'products' | 'installation' | 'warranty';
-  /**
-   * Sort order within the group (low → high).
-   */
-  order: number;
-  updatedAt: string;
-  createdAt: string;
-  _status?: ('draft' | 'published') | null;
-}
-/**
- * SEO title / description / share image for code-built pages, keyed by route. Empty fields fall back to the page’s in-code defaults.
- *
- * This interface was referenced by `Config`'s JSON-Schema
- * via the `definition` "page-seo".
- */
-export interface PageSeo {
-  id: number;
-  /**
-   * Exact route path, e.g. /about or /solutions/signage-lighting
-   */
-  route: string;
-  /**
-   * Optional friendly name shown in the admin list.
-   */
-  label?: string | null;
-  /**
-   * Overrides the <title>. Leave blank to keep the page default.
-   */
-  seoTitle?: string | null;
-  /**
-   * Overrides <meta name="description">. Aim ≤ 155 characters.
-   */
-  metaDescription?: string | null;
-  /**
-   * Optional social share image.
-   */
-  ogImage?: (number | null) | Media;
-  updatedAt: string;
-  createdAt: string;
-}
-/**
  * Standalone rich-text pages. Publish to make a page Visible on the website.
  *
  * This interface was referenced by `Config`'s JSON-Schema
@@ -816,6 +692,151 @@ export interface Page {
   updatedAt: string;
   createdAt: string;
   _status?: ('draft' | 'published') | null;
+}
+/**
+ * Questions answered on /resources/faq. Publish to make one visible.
+ *
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "faqs".
+ */
+export interface Faq {
+  id: number;
+  question: string;
+  answer: {
+    root: {
+      type: string;
+      children: {
+        type: any;
+        version: number;
+        [k: string]: unknown;
+      }[];
+      direction: ('ltr' | 'rtl') | null;
+      format: 'left' | 'start' | 'center' | 'right' | 'end' | 'justify' | '';
+      indent: number;
+      version: number;
+    };
+    [k: string]: unknown;
+  };
+  /**
+   * Which FAQ section this appears under.
+   */
+  group: 'ordering' | 'products' | 'installation' | 'warranty';
+  /**
+   * Sort order within the group (low → high).
+   */
+  order: number;
+  updatedAt: string;
+  createdAt: string;
+  _status?: ('draft' | 'published') | null;
+}
+/**
+ * Enquiries captured from the website. Newest first.
+ *
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "submissions".
+ */
+export interface Submission {
+  id: number;
+  type: 'free-layout' | 'find-your-match' | 'contact';
+  status?: ('new' | 'contacted' | 'archived') | null;
+  name?: string | null;
+  email?: string | null;
+  company?: string | null;
+  phone?: string | null;
+  /**
+   * Page the lead came from.
+   */
+  sourcePath?: string | null;
+  /**
+   * Uploaded sketch / drawing (Free Layout).
+   */
+  sketch?: (number | null) | LeadFile;
+  /**
+   * Raw form fields / wizard answers.
+   */
+  data?:
+    | {
+        [k: string]: unknown;
+      }
+    | unknown[]
+    | string
+    | number
+    | boolean
+    | null;
+  updatedAt: string;
+  createdAt: string;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "lead-files".
+ */
+export interface LeadFile {
+  id: number;
+  alt?: string | null;
+  updatedAt: string;
+  createdAt: string;
+  url?: string | null;
+  thumbnailURL?: string | null;
+  filename?: string | null;
+  mimeType?: string | null;
+  filesize?: number | null;
+  width?: number | null;
+  height?: number | null;
+  focalX?: number | null;
+  focalY?: number | null;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "events".
+ */
+export interface Event {
+  id: number;
+  kind: 'pageview' | 'find-your-match';
+  path?: string | null;
+  referrer?: string | null;
+  sessionHash?: string | null;
+  data?:
+    | {
+        [k: string]: unknown;
+      }
+    | unknown[]
+    | string
+    | number
+    | boolean
+    | null;
+  updatedAt: string;
+  createdAt: string;
+}
+/**
+ * SEO title / description / share image for code-built pages, keyed by route. Empty fields fall back to the page’s in-code defaults.
+ *
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "page-seo".
+ */
+export interface PageSeo {
+  id: number;
+  /**
+   * Exact route path, e.g. /about or /solutions/signage-lighting
+   */
+  route: string;
+  /**
+   * Optional friendly name shown in the admin list.
+   */
+  label?: string | null;
+  /**
+   * Overrides the <title>. Leave blank to keep the page default.
+   */
+  seoTitle?: string | null;
+  /**
+   * Overrides <meta name="description">. Aim ≤ 155 characters.
+   */
+  metaDescription?: string | null;
+  /**
+   * Optional social share image.
+   */
+  ogImage?: (number | null) | Media;
+  updatedAt: string;
+  createdAt: string;
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
@@ -888,24 +909,28 @@ export interface PayloadLockedDocument {
         value: number | Project;
       } | null)
     | ({
-        relationTo: 'submissions';
-        value: number | Submission;
-      } | null)
-    | ({
-        relationTo: 'events';
-        value: number | Event;
+        relationTo: 'pages';
+        value: number | Page;
       } | null)
     | ({
         relationTo: 'faqs';
         value: number | Faq;
       } | null)
     | ({
-        relationTo: 'page-seo';
-        value: number | PageSeo;
+        relationTo: 'submissions';
+        value: number | Submission;
       } | null)
     | ({
-        relationTo: 'pages';
-        value: number | Page;
+        relationTo: 'lead-files';
+        value: number | LeadFile;
+      } | null)
+    | ({
+        relationTo: 'events';
+        value: number | Event;
+      } | null)
+    | ({
+        relationTo: 'page-seo';
+        value: number | PageSeo;
       } | null)
     | ({
         relationTo: 'users';
@@ -1190,6 +1215,36 @@ export interface ProjectsSelect {
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "pages_select".
+ */
+export interface PagesSelect {
+  title?: boolean;
+  content?: boolean;
+  slug?: boolean;
+  showInFooter?: boolean;
+  seoTitle?: boolean;
+  metaDescription?: boolean;
+  lastUpdated?: boolean;
+  ogImage?: boolean;
+  updatedAt?: boolean;
+  createdAt?: boolean;
+  _status?: boolean;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "faqs_select".
+ */
+export interface FaqsSelect {
+  question?: boolean;
+  answer?: boolean;
+  group?: boolean;
+  order?: boolean;
+  updatedAt?: boolean;
+  createdAt?: boolean;
+  _status?: boolean;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "submissions_select".
  */
 export interface SubmissionsSelect {
@@ -1207,6 +1262,24 @@ export interface SubmissionsSelect {
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "lead-files_select".
+ */
+export interface LeadFilesSelect {
+  alt?: boolean;
+  updatedAt?: boolean;
+  createdAt?: boolean;
+  url?: boolean;
+  thumbnailURL?: boolean;
+  filename?: boolean;
+  mimeType?: boolean;
+  filesize?: boolean;
+  width?: boolean;
+  height?: boolean;
+  focalX?: boolean;
+  focalY?: boolean;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "events_select".
  */
 export interface EventsSelect {
@@ -1220,19 +1293,6 @@ export interface EventsSelect {
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
- * via the `definition` "faqs_select".
- */
-export interface FaqsSelect {
-  question?: boolean;
-  answer?: boolean;
-  group?: boolean;
-  order?: boolean;
-  updatedAt?: boolean;
-  createdAt?: boolean;
-  _status?: boolean;
-}
-/**
- * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "page-seo_select".
  */
 export interface PageSeoSelect {
@@ -1243,23 +1303,6 @@ export interface PageSeoSelect {
   ogImage?: boolean;
   updatedAt?: boolean;
   createdAt?: boolean;
-}
-/**
- * This interface was referenced by `Config`'s JSON-Schema
- * via the `definition` "pages_select".
- */
-export interface PagesSelect {
-  title?: boolean;
-  content?: boolean;
-  slug?: boolean;
-  showInFooter?: boolean;
-  seoTitle?: boolean;
-  metaDescription?: boolean;
-  lastUpdated?: boolean;
-  ogImage?: boolean;
-  updatedAt?: boolean;
-  createdAt?: boolean;
-  _status?: boolean;
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema

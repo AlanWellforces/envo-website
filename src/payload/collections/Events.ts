@@ -9,7 +9,10 @@ export const Events: CollectionConfig = {
   admin: { hidden: true, useAsTitle: 'kind' },
   access: {
     read: ({ req }) => Boolean(req.user),
-    create: () => true, // public beacon / API routes
+    // Writes go through /api/track and /api/find-your-match via the Local API
+    // (which bypasses access control) — Payload's public REST/GraphQL create
+    // stays CLOSED so forged events can't skip the bot filter / truncation.
+    create: () => false,
     update: () => false,
     delete: ({ req }) => Boolean(req.user),
   },

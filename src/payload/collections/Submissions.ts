@@ -16,7 +16,10 @@ export const Submissions: CollectionConfig = {
   },
   access: {
     read: ({ req }) => Boolean(req.user),
-    create: () => true, // public site posts via /api/submissions
+    // The public site posts via /api/submissions (Local API, bypasses access
+    // control) — Payload's own REST/GraphQL create stays CLOSED so spam can't
+    // skip normalizeSubmission or set internal fields like status/sketch.
+    create: () => false,
     update: ({ req }) => Boolean(req.user),
     delete: ({ req }) => Boolean(req.user),
   },
@@ -48,7 +51,7 @@ export const Submissions: CollectionConfig = {
     { name: 'company', type: 'text' },
     { name: 'phone', type: 'text' },
     { name: 'sourcePath', type: 'text', admin: { description: 'Page the lead came from.' } },
-    { name: 'sketch', type: 'upload', relationTo: 'media', admin: { description: 'Uploaded sketch / drawing (Free Layout).' } },
+    { name: 'sketch', type: 'upload', relationTo: 'lead-files', admin: { description: 'Uploaded sketch / drawing (Free Layout).' } },
     { name: 'data', type: 'json', admin: { description: 'Raw form fields / wizard answers.' } },
   ],
 }
