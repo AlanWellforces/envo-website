@@ -10,7 +10,7 @@ const BASE = (process.env.NEXT_PUBLIC_SITE_URL || 'http://localhost:3000').repla
 
 const STATIC_PATHS = [
   '', '/about', '/contact', '/products', '/solutions', '/blog',
-  '/resources', '/resources/downloads', '/resources/tools', '/resources/tools/signage-selector',
+  '/resources', '/resources/downloads', '/resources/tools',
   '/find-your-match', '/free-layout-design',
 ]
 
