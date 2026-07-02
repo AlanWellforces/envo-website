@@ -6,26 +6,20 @@
 // every number aggregates live via the Payload Local API.
 import { getPayload } from 'payload'
 import config from '@payload-config'
-import {
-  pageViewsByDay,
-  uniqueVisitors,
-  topPaths,
-  topReferrers,
-  fymRunStats,
-  type AnalyticsEvent,
-} from '@/lib/analytics/aggregate'
+import { analyticsSummary } from '@/lib/analytics/aggregate'
 
 const BLUE = '#0071bc'
 const LIME = '#aec90b'
+// The team works from NZ; the server (Vercel) runs in UTC. Every human-facing
+// clock label on this page is pinned to Pacific/Auckland.
+const TZ = 'Pacific/Auckland'
+const tzDay = (d: Date): string => d.toLocaleDateString('en-CA', { timeZone: TZ })
 
 type RecentDoc = { id: number | string; title: string; kind: 'post' | 'page' | 'project'; href: string; updatedAt: string }
 
 async function loadData() {
   const payload = await getPayload({ config })
 
-  const since = new Date()
-  since.setUTCDate(since.getUTCDate() - 6)
-  since.setUTCHours(0, 0, 0, 0)
   const weekStart = new Date()
   weekStart.setUTCDate(weekStart.getUTCDate() - 7)
 
@@ -41,7 +35,7 @@ async function loadData() {
     leadsTotal,
     leadsThisWeek,
     recentLeads,
-    eventsRes,
+    analytics,
     recentPosts,
     recentPages,
     recentProjects,
@@ -65,13 +59,7 @@ async function loadData() {
       where: { createdAt: { greater_than: weekStart.toISOString() } },
     }),
     payload.find({ collection: 'submissions', limit: 5, sort: '-createdAt', depth: 0 }),
-    payload.find({
-      collection: 'events',
-      limit: 10000,
-      sort: '-createdAt',
-      depth: 0,
-      where: { createdAt: { greater_than: since.toISOString() } },
-    }),
+    analyticsSummary(payload, 7),
     payload.find({ collection: 'posts', limit: 3, sort: '-updatedAt', depth: 0 }),
     payload.find({ collection: 'pages', limit: 3, sort: '-updatedAt', depth: 0 }),
     payload.find({ collection: 'projects', limit: 3, sort: '-updatedAt', depth: 0 }),
@@ -84,9 +72,6 @@ async function loadData() {
     }),
     payload.count({ collection: 'products', where: { sync_locked: { equals: true } } }),
   ])
-
-  const events = eventsRes.docs as unknown as AnalyticsEvent[]
-  const today = new Date().toISOString().slice(0, 10)
 
   const recent: RecentDoc[] = [
     ...recentPosts.docs.map((d): RecentDoc => ({
@@ -131,12 +116,12 @@ async function loadData() {
       type?: string | null
       createdAt: string
     }>,
-    byDay: pageViewsByDay(events, 7, today),
-    uniques: uniqueVisitors(events),
-    totalPv: events.filter((e) => e.kind === 'pageview').length,
-    paths: topPaths(events, 5),
-    referrers: topReferrers(events, 5),
-    fym: fymRunStats(events),
+    byDay: analytics.byDay,
+    uniques: analytics.uniques,
+    totalPv: analytics.totalPv,
+    paths: analytics.paths,
+    referrers: analytics.referrers,
+    fym: analytics.fym,
     recent,
     lastSyncedAt: (lastSynced.docs[0] as { akeneo_synced_at?: string | null } | undefined)
       ?.akeneo_synced_at,
@@ -157,13 +142,12 @@ function relTime(iso: string): string {
 function lastSyncLabel(iso: string | null | undefined): string {
   if (!iso) return 'Never'
   const d = new Date(iso)
-  const time = d.toLocaleTimeString('en-NZ', { hour: 'numeric', minute: '2-digit' })
-  const today = new Date()
-  if (d.toDateString() === today.toDateString()) return `Today, ${time}`
-  const yesterday = new Date(today)
-  yesterday.setDate(today.getDate() - 1)
-  if (d.toDateString() === yesterday.toDateString()) return `Yesterday, ${time}`
-  return d.toLocaleDateString('en-NZ', { day: 'numeric', month: 'short' }) + `, ${time}`
+  const time = d.toLocaleTimeString('en-NZ', { hour: 'numeric', minute: '2-digit', timeZone: TZ })
+  const now = new Date()
+  if (tzDay(d) === tzDay(now)) return `Today, ${time}`
+  const yesterday = new Date(now.getTime() - 24 * 60 * 60 * 1000)
+  if (tzDay(d) === tzDay(yesterday)) return `Yesterday, ${time}`
+  return d.toLocaleDateString('en-NZ', { day: 'numeric', month: 'short', timeZone: TZ }) + `, ${time}`
 }
 
 /** Horizontal ranked bars (top pages / referrers / FYM applications). */
@@ -239,11 +223,13 @@ type DashboardProps = { user?: { name?: string | null; email?: string | null } |
 export async function Dashboard(props: DashboardProps) {
   const d = await loadData()
 
-  const hour = new Date().getHours()
+  const hour = Number(
+    new Intl.DateTimeFormat('en-NZ', { hour: 'numeric', hourCycle: 'h23', timeZone: TZ }).format(new Date()),
+  )
   const greeting = hour < 12 ? 'Good morning' : hour < 18 ? 'Good afternoon' : 'Good evening'
   const firstName = props.user?.name?.trim().split(/\s+/)[0] || props.user?.email?.split('@')[0] || 'there'
   const dateStr = new Date()
-    .toLocaleDateString('en-NZ', { weekday: 'short', day: 'numeric', month: 'short', year: 'numeric' })
+    .toLocaleDateString('en-NZ', { weekday: 'short', day: 'numeric', month: 'short', year: 'numeric', timeZone: TZ })
     .replace(/,/g, ' ·')
 
   return (

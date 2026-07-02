@@ -1,27 +1,23 @@
-export type AnalyticsEvent = {
-  kind: 'pageview' | 'find-your-match'
-  path?: string | null
-  referrer?: string | null
-  sessionHash?: string | null
-  data?: Record<string, unknown> | null
-  createdAt: string
+// Analytics aggregation for the admin Dashboard. Counting happens in SQL —
+// the previous version fetched up to 10k event rows and counted in memory,
+// which silently truncated every chart once traffic passed the cap.
+import { sql } from '@payloadcms/db-postgres/drizzle'
+import type { Payload } from 'payload'
+
+export type AnalyticsSummary = {
+  byDay: { date: string; count: number }[]
+  uniques: number
+  totalPv: number
+  paths: { path: string; count: number }[]
+  referrers: { referrer: string; count: number }[]
+  fym: { total: number; byApplication: { application: string; count: number }[] }
 }
 
-const dayOf = (iso: string): string => iso.slice(0, 10) // YYYY-MM-DD (UTC)
+type Rows = { rows: Record<string, unknown>[] }
+type Drizzle = { execute: (query: unknown) => Promise<Rows> }
 
-function rankCounts(map: Map<string, number>, n: number): { key: string; count: number }[] {
-  return [...map.entries()]
-    .map(([key, count]) => ({ key, count }))
-    .sort((a, b) => b.count - a.count || a.key.localeCompare(b.key))
-    .slice(0, n)
-}
-
-export function pageViewsByDay(events: AnalyticsEvent[], days: number, today: string): { date: string; count: number }[] {
-  const counts = new Map<string, number>()
-  for (const e of events) {
-    if (e.kind !== 'pageview') continue
-    counts.set(dayOf(e.createdAt), (counts.get(dayOf(e.createdAt)) ?? 0) + 1)
-  }
+/** Zero-fill a day-count map into an oldest→newest window ending at `today` (UTC dates). */
+export function fillDays(counts: Map<string, number>, days: number, today: string): { date: string; count: number }[] {
   const out: { date: string; count: number }[] = []
   const end = new Date(`${today}T00:00:00.000Z`)
   for (let i = days - 1; i >= 0; i--) {
@@ -33,39 +29,48 @@ export function pageViewsByDay(events: AnalyticsEvent[], days: number, today: st
   return out
 }
 
-export function uniqueVisitors(events: AnalyticsEvent[]): number {
-  const set = new Set<string>()
-  for (const e of events) if (e.kind === 'pageview' && e.sessionHash) set.add(e.sessionHash)
-  return set.size
-}
+/** All Dashboard analytics numbers for the trailing `days`-day window (UTC day buckets). */
+export async function analyticsSummary(payload: Payload, days: number): Promise<AnalyticsSummary> {
+  const db = (payload.db as unknown as { drizzle: Drizzle }).drizzle
+  const since = new Date()
+  since.setUTCDate(since.getUTCDate() - (days - 1))
+  since.setUTCHours(0, 0, 0, 0)
+  const sinceISO = since.toISOString()
 
-export function topPaths(events: AnalyticsEvent[], n: number): { path: string; count: number }[] {
-  const map = new Map<string, number>()
-  for (const e of events) {
-    if (e.kind !== 'pageview' || !e.path) continue
-    map.set(e.path, (map.get(e.path) ?? 0) + 1)
-  }
-  return rankCounts(map, n).map(({ key, count }) => ({ path: key, count }))
-}
+  // Sequential on purpose: the Dashboard already fans out a large Promise.all
+  // and the Supabase session pooler has a tight connection cap.
+  const totals = await db.execute(sql`
+    select count(*)::int as total, count(distinct session_hash)::int as uniques
+    from events where kind = 'pageview' and created_at >= ${sinceISO}`)
+  const byDay = await db.execute(sql`
+    select to_char(created_at at time zone 'UTC', 'YYYY-MM-DD') as date, count(*)::int as count
+    from events where kind = 'pageview' and created_at >= ${sinceISO}
+    group by 1`)
+  const paths = await db.execute(sql`
+    select path, count(*)::int as count
+    from events where kind = 'pageview' and created_at >= ${sinceISO} and path is not null
+    group by path order by count desc, path asc limit 5`)
+  const referrers = await db.execute(sql`
+    select coalesce(nullif(trim(referrer), ''), 'direct') as referrer, count(*)::int as count
+    from events where kind = 'pageview' and created_at >= ${sinceISO}
+    group by 1 order by count desc, referrer asc limit 5`)
+  const fym = await db.execute(sql`
+    select coalesce(data ->> 'application', 'unknown') as application, count(*)::int as count
+    from events where kind = 'find-your-match' and created_at >= ${sinceISO}
+    group by 1 order by count desc, application asc`)
 
-export function topReferrers(events: AnalyticsEvent[], n: number): { referrer: string; count: number }[] {
-  const map = new Map<string, number>()
-  for (const e of events) {
-    if (e.kind !== 'pageview') continue
-    const ref = e.referrer && e.referrer.trim() ? e.referrer : 'direct'
-    map.set(ref, (map.get(ref) ?? 0) + 1)
-  }
-  return rankCounts(map, n).map(({ key, count }) => ({ referrer: key, count }))
-}
+  const dayCounts = new Map(byDay.rows.map((r) => [String(r.date), Number(r.count)]))
+  const fymGroups = fym.rows.map((r) => ({ application: String(r.application), count: Number(r.count) }))
 
-export function fymRunStats(events: AnalyticsEvent[]): { total: number; byApplication: { application: string; count: number }[] } {
-  const map = new Map<string, number>()
-  let total = 0
-  for (const e of events) {
-    if (e.kind !== 'find-your-match') continue
-    total++
-    const app = typeof e.data?.application === 'string' ? e.data.application : 'unknown'
-    map.set(app, (map.get(app) ?? 0) + 1)
+  return {
+    byDay: fillDays(dayCounts, days, new Date().toISOString().slice(0, 10)),
+    uniques: Number(totals.rows[0]?.uniques ?? 0),
+    totalPv: Number(totals.rows[0]?.total ?? 0),
+    paths: paths.rows.map((r) => ({ path: String(r.path), count: Number(r.count) })),
+    referrers: referrers.rows.map((r) => ({ referrer: String(r.referrer), count: Number(r.count) })),
+    fym: {
+      total: fymGroups.reduce((sum, g) => sum + g.count, 0),
+      byApplication: fymGroups.slice(0, 10),
+    },
   }
-  return { total, byApplication: rankCounts(map, 10).map(({ key, count }) => ({ application: key, count })) }
 }
