@@ -19,6 +19,12 @@ const TOOLS = [
     href: '/find-your-match',
   },
   {
+    name: 'Product selector',
+    desc: 'Filter the signage module range by series, LED count, voltage, CCT and IP rating to compare models side by side.',
+    cta: 'Open selector →',
+    href: '/resources/tools/signage-selector',
+  },
+  {
     name: 'Free layout design',
     desc: 'Send an elevation or sign face and our engineers return a buildable module, driver and wiring layout — free.',
     cta: 'Send a sketch →',

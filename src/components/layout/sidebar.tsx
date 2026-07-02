@@ -134,6 +134,19 @@ const TOOLS: NavItem[] = [
     ),
   },
   {
+    section: 'product-selector',
+    href: '/resources/tools/signage-selector',
+    label: 'Product selector',
+    icon: (
+      <svg className="sidebar-icon" viewBox="0 0 24 24" aria-hidden="true">
+        <line x1="4" y1="8" x2="20" y2="8" />
+        <circle cx="9" cy="8" r="2" />
+        <line x1="4" y1="16" x2="20" y2="16" />
+        <circle cx="15" cy="16" r="2" />
+      </svg>
+    ),
+  },
+  {
     section: 'free-layout-design',
     href: '/free-layout-design',
     label: 'Free layout design',
