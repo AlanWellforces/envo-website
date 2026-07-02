@@ -31,6 +31,7 @@ import { PostCoverCell as PostCoverCell_43b84654e8dc9bd683f062b98c3ff9cc } from 
 import { PagesNavLink as PagesNavLink_71301e389f6f82a741cd5854bd63fc95 } from '../../../payload/components/PagesNavLink'
 import { NavBrand as NavBrand_a45be23d1892af4f119f31f9e8736c16 } from '../../../payload/components/NavBrand'
 import { AdminStyles as AdminStyles_d2e9dd3decb9ad98a30b241aa0ec226d } from '../../../payload/components/AdminStyles'
+import { S3ClientUploadHandler as S3ClientUploadHandler_f97aa6c64367fa259c5bc0567239ef24 } from '@payloadcms/storage-s3/client'
 import { Dashboard as Dashboard_daa791a99564503ddd0da5ef10265bae } from '../../../payload/views/Dashboard'
 import { PagesOverview as PagesOverview_a7f2c921f84e2b57b1450686cd2d68ca } from '../../../payload/views/PagesOverview'
 import { CollectionCards as CollectionCards_f9c02e79a4aed9a3924487c0cd4cafb1 } from '@payloadcms/next/rsc'
@@ -70,6 +71,7 @@ export const importMap = {
   "/payload/components/PagesNavLink#PagesNavLink": PagesNavLink_71301e389f6f82a741cd5854bd63fc95,
   "/payload/components/NavBrand#NavBrand": NavBrand_a45be23d1892af4f119f31f9e8736c16,
   "/payload/components/AdminStyles#AdminStyles": AdminStyles_d2e9dd3decb9ad98a30b241aa0ec226d,
+  "@payloadcms/storage-s3/client#S3ClientUploadHandler": S3ClientUploadHandler_f97aa6c64367fa259c5bc0567239ef24,
   "/payload/views/Dashboard#Dashboard": Dashboard_daa791a99564503ddd0da5ef10265bae,
   "/payload/views/PagesOverview#PagesOverview": PagesOverview_a7f2c921f84e2b57b1450686cd2d68ca,
   "@payloadcms/next/rsc#CollectionCards": CollectionCards_f9c02e79a4aed9a3924487c0cd4cafb1
