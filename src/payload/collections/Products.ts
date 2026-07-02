@@ -103,6 +103,16 @@ export const Products: CollectionConfig = {
           label: 'Media',
           fields: [
             {
+              name: 'image_preview',
+              type: 'ui',
+              label: 'Akeneo images',
+              admin: {
+                components: {
+                  Field: '/payload/components/ProductImagePreview#ProductImagePreview',
+                },
+              },
+            },
+            {
               name: 'image',
               type: 'upload',
               relationTo: 'media',
