@@ -1,9 +1,7 @@
-// Brand capability band under the home hero — a statement line plus four
-// capability blocks (no step numbers; this is a manifesto, not a process).
-// Copy rules: verified facts only — no invented stats, no response-time
-// promises (see the 2026-07-02 content audit).
-const DARK = false
-
+// Brand capability band under the home hero — the original card style
+// (dividers, icon on top) minus the 01–04 step numbers. Copy rules: verified
+// facts only — no invented stats, no response-time promises (see the
+// 2026-07-02 content audit).
 const PROPS = [
   {
     t: 'Engineered Product System',
@@ -50,22 +48,19 @@ const PROPS = [
 
 export function ValueProps() {
   return (
-    <section className={DARK ? 'va va-dark' : 'va'}>
+    <section className="va">
       <div className="v4-wrap">
-        <p className="va-statement">
-          Modules<span>.</span> Drivers<span>.</span> Controls<span>.</span> Support<span>.</span>
-        </p>
         <div className="va-grid">
           {PROPS.map((p) => (
             <div className="va-item" key={p.t}>
-              <h3>
+              <div className="va-top">
                 <span className="va-ic">
                   <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
                     {p.icon}
                   </svg>
                 </span>
-                {p.t}
-              </h3>
+              </div>
+              <h3>{p.t}</h3>
               <p>{p.d}</p>
             </div>
           ))}
