@@ -22,7 +22,6 @@ export const SITE_PAGES: SitePage[] = [
   { label: 'About', route: '/about', section: 'Marketing', source: 'code', editHref: '/admin/collections/page-seo?where[route][equals]=/about' },
   { label: 'Contact', route: '/contact', section: 'Marketing', source: 'code', editHref: '/admin/collections/page-seo?where[route][equals]=/contact' },
   { label: 'Free Layout Design', route: '/free-layout-design', section: 'Marketing', source: 'code', editHref: '/admin/collections/page-seo?where[route][equals]=/free-layout-design' },
-  { label: 'Find Your Match', route: '/find-your-match', section: 'Marketing', source: 'code', editHref: '/admin/collections/page-seo?where[route][equals]=/find-your-match' },
 
   // Solutions content lives in the Solutions collection (one doc per page);
   // per-route SEO overrides still come from page-seo like everywhere else.

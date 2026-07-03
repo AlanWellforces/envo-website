@@ -61,7 +61,6 @@ export async function Footer() {
           <div className="footer-col">
             <h5>Resources</h5>
             <ul>
-              <li><Link href="/find-your-match">Find Your Match</Link></li>
               <li><Link href="/free-layout-design">Free Layout Design</Link></li>
               <li><Link href="/resources/downloads">Resources &amp; Downloads</Link></li>
               <li><Link href="/contact">Contact Us</Link></li>
