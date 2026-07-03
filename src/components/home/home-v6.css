@@ -232,32 +232,34 @@
 .mk-cat h2 { color: var(--v4-ink); margin: 10px 0 0; }
 .mk-cat .lead { font: 500 17px/1.55 var(--font-sans); color: var(--v4-muted); max-width: 560px; margin: 14px 0 0; }
 .mk-cat .v4-sec-head { margin-bottom: 0; }
-.mk-cat-grid { display: grid; grid-template-columns: 1.45fr 1fr; gap: 20px; margin-top: 40px; }
+.mk-cat-grid { display: grid; grid-template-columns: 1.55fr 1fr; gap: 20px; margin-top: 40px; }
 /* feature: the scene photo fills the card (cover, right-weighted); its flat
-   studio-grey left side is the text area, so the bg matches the photo. */
-.mk-feature { position: relative; display: block; border-radius: 20px; overflow: hidden; background: #e4e4e7; border: 1px solid var(--v4-mist-line); min-height: 600px; text-decoration: none; color: inherit; transition: all .18s; }
+   studio-grey left side is the text area, so the bg matches the photo.
+   side cards: the scene bleeds full-height to the card's right edge. */
+.mk-feature { position: relative; display: block; border-radius: 20px; overflow: hidden; background: #e4e4e7; border: 1px solid var(--v4-mist-line); aspect-ratio: 1556 / 1011; text-decoration: none; color: inherit; transition: all .18s; }
 .mk-feature:hover { transform: translateY(-3px); box-shadow: 0 16px 40px #14233b1a; }
 .mk-feature > img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; object-position: right center; }
-.mk-feature .body { position: relative; z-index: 2; display: flex; flex-direction: column; align-items: flex-start; height: 100%; min-height: inherit; padding: 40px 44px; }
-.mk-feature h3 { font: 700 32px/1.1 var(--font-sans); color: var(--v4-ink); letter-spacing: -.02em; margin: 0; }
+.mk-feature .body { position: relative; z-index: 2; display: flex; flex-direction: column; align-items: flex-start; height: 100%; padding: 32px 36px; }
+.mk-feature h3 { font: 700 28px/1.1 var(--font-sans); color: var(--v4-ink); letter-spacing: -.02em; margin: 0; }
 .mk-feature h3:after { content: ""; display: block; width: 44px; height: 3px; background: var(--v4-lime); margin-top: 15px; border-radius: 2px; }
-.mk-feature .body > p { font: 500 15px/1.6 var(--font-sans); color: #3f4c60; max-width: 290px; margin: 20px 0 22px; }
+.mk-feature .body > p { font: 500 14px/1.55 var(--font-sans); color: #3f4c60; max-width: 270px; margin: 14px 0 16px; }
 .mk-feature .mk-tags { max-width: 250px; }
 .mk-feature .explore { margin-top: auto; display: inline-flex; align-items: center; gap: 8px; font: 600 15px/1 var(--font-sans); color: var(--v4-blue); border-bottom: 2px solid var(--v4-lime); padding-bottom: 6px; }
 .mk-feature .explore svg { width: 17px; height: 17px; }
 .mk-tags { display: flex; flex-wrap: wrap; gap: 8px; }
 .mk-tags span { font: 600 12px/1 var(--font-sans); color: var(--v4-text); border: 1px solid #d2d6dd; border-radius: 8px; padding: 7px 12px; background: rgba(255,255,255,.85); }
 .mk-side { display: grid; grid-template-rows: repeat(3, 1fr); gap: 20px; }
-.mk-scard { display: flex; align-items: center; gap: 12px; background: #fff; border: 1px solid var(--v4-mist-line); border-radius: 16px; padding: 20px 16px 20px 24px; text-decoration: none; color: inherit; transition: all .18s; }
+/* card bg = the scenes' studio white, so contain-mode edges are invisible */
+.mk-scard { position: relative; overflow: hidden; display: flex; align-items: center; background: #fcfdff; border: 1px solid var(--v4-mist-line); border-radius: 16px; padding: 18px 0 18px 22px; text-decoration: none; color: inherit; transition: all .18s; }
 .mk-scard:hover { border-color: #cdd8e8; transform: translateY(-3px); box-shadow: 0 16px 40px #14233b1a; }
-.mk-scard .cb { flex: 1; display: flex; flex-direction: column; align-items: flex-start; align-self: stretch; }
-.mk-scard h3 { font: 700 21px/1.1 var(--font-sans); color: var(--v4-ink); letter-spacing: -.015em; margin: 2px 0 0; }
-.mk-scard h3:after { content: ""; display: block; width: 34px; height: 3px; background: var(--v4-lime); margin-top: 10px; border-radius: 2px; }
-.mk-scard p { font: 500 13.5px/1.5 var(--font-sans); color: var(--v4-muted); margin: 12px 0 12px; max-width: 210px; }
+.mk-scard .cb { position: relative; z-index: 2; display: flex; flex-direction: column; align-items: flex-start; align-self: stretch; width: 47%; flex: none; }
+.mk-scard h3 { font: 700 19px/1.1 var(--font-sans); color: var(--v4-ink); letter-spacing: -.015em; margin: 0; }
+.mk-scard h3:after { content: ""; display: block; width: 32px; height: 3px; background: var(--v4-lime); margin-top: 8px; border-radius: 2px; }
+.mk-scard p { font: 500 13px/1.5 var(--font-sans); color: var(--v4-muted); margin: 9px 0 8px; max-width: 210px; }
 .mk-scard .go { margin-top: auto; color: var(--v4-blue); display: inline-flex; }
-.mk-scard .go svg { width: 19px; height: 19px; }
-.mk-scard .pic { flex: none; width: 53%; }
-.mk-scard .pic img { width: 100%; height: auto; display: block; }
+.mk-scard .go svg { width: 18px; height: 18px; }
+.mk-scard .pic { position: absolute; top: 0; right: 0; bottom: 0; width: 56%; }
+.mk-scard .pic img { width: 100%; height: 100%; object-fit: cover; object-position: center; display: block; }
 
 /* --- signage module range (blue gradient) + scene photos + feature tiles --- */
 .sersec { padding: 76px 0; position: relative; overflow: hidden; }
@@ -356,12 +358,15 @@
   .mk-cat-grid, .sgrid, .sfeat-grid, .pj-grid, .wd-grid { grid-template-columns: 1fr; }
   /* mobile: text block on top, scene photo below it (its baked-in studio bg
      blends with the card), instead of text over the bright letter */
-  .mk-feature { display: flex; flex-direction: column; min-height: 0; }
+  .mk-feature { display: flex; flex-direction: column; aspect-ratio: auto; }
   .mk-feature > img { position: static; inset: auto; width: 100%; height: auto; order: 2; }
   .mk-feature .body { padding: 30px 24px 0; }
   .mk-feature .explore { margin: 4px 0 22px; }
-  .mk-scard .pic { width: 42%; }
-  .mk-scard h3 { font-size: 19px; }
+  .mk-scard .pic { width: 46%; }
+  .mk-scard .cb { width: 54%; padding-right: 4px; }
+  /* narrow screens: contain instead of cover — the scene's near-white bg
+     blends with the card, and the product stays whole instead of zoom-cropped */
+  .mk-scard .pic img { object-fit: contain; object-position: right center; }
   .pj-feat, .flB .panel { grid-template-columns: 1fr; gap: 28px; }
   .wd-stats { grid-template-columns: repeat(2, 1fr); }
   .wd h2 { font-size: 30px; }
