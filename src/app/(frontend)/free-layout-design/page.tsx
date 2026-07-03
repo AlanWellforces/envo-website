@@ -142,9 +142,11 @@ export default async function FreeLayoutDesignPage() {
       </section>
 
       {/* ============ WHAT YOU GET ============ */}
-      <section className={`${styles.section} ${styles.sectionSoft}`}>
-        <div className={styles.sectionLabel}>What You Get</div>
-        <h2 className={styles.sectionH2}>A complete, buildable spec</h2>
+      {/* Tinted band is full-bleed; .section inside keeps the 1200px frame. */}
+      <section className={styles.sectionSoft}>
+        <div className={styles.section}>
+          <div className={styles.sectionLabel}>What You Get</div>
+          <h2 className={styles.sectionH2}>A complete, buildable spec</h2>
         <div className={styles.featuresGrid}>
           <div className={styles.featureCard}>
             <div className={styles.featureIcon} aria-hidden="true">
@@ -173,6 +175,7 @@ export default async function FreeLayoutDesignPage() {
             </div>
             <h4>Bill of Materials</h4>
             <p>Itemised list of every part with quantities — ready to quote.</p>
+          </div>
           </div>
         </div>
       </section>

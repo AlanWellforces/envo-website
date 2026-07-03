@@ -229,7 +229,9 @@
   margin: 0 auto;
   padding: clamp(48px, 7vw, 88px) clamp(28px, 4vw, 64px);
 }
-.sectionSoft { background: rgba(0, 113, 188, 0.03); }
+/* Full-bleed tinted band wrapping a .section; padding:0 beats the global
+   envo.css `section { padding: 140px 0 }`. */
+.sectionSoft { padding: 0; background: rgba(0, 113, 188, 0.03); }
 .sectionLabel {
   display: inline-flex;
   align-items: center;
