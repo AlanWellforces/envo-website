@@ -464,7 +464,10 @@ export function Sidebar() {
               onClick={toggleCollapsed}
             >
               <svg className="sidebar-collapse-icon" viewBox="0 0 24 24" aria-hidden="true">
-                <path d="M15 6l-6 6 6 6" />
+                <rect x="3" y="4" width="18" height="16" rx="2" />
+                <line x1="9" y1="4" x2="9" y2="20" />
+                {/* chevron flips with state: point left to collapse, right to expand */}
+                {collapsed ? <path d="m13.5 9 3 3-3 3" /> : <path d="m17 9-3 3 3 3" />}
               </svg>
             </button>
           </div>

@@ -2387,7 +2387,7 @@
       border-color: rgba(77,195,255,.10);
     }
     .sidebar-collapse-icon {
-      width: 14px; height: 14px;
+      width: 18px; height: 18px;
       stroke: currentColor; stroke-width: 1.8; fill: none;
       stroke-linecap: round; stroke-linejoin: round;
       flex-shrink: 0;
@@ -2458,7 +2458,6 @@
     }
     body.sidebar-collapsed .sidebar-link .sidebar-icon { position: relative; z-index: 1; }
     body.sidebar-collapsed .sidebar-collapse-btn { justify-content: center; padding: 9px 0; }
-    body.sidebar-collapsed .sidebar-collapse-icon { transform: rotate(180deg); }
     body.sidebar-collapsed .top-subnav { left: var(--sidebar-w-collapsed); }
     /* Match the sidebar's slide curve */
     .sidebar-inner,
