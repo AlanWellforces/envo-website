@@ -2,75 +2,88 @@ import Image from 'next/image'
 import Link from 'next/link'
 import { ArrowRight } from './icons'
 
-const CATEGORIES = [
+// Feature-plus-stack layout: Signage Modules is the hero card (full scene
+// photo, text over its flat left area), the other three families stack beside
+// it. Scene images live in public/assets/images/home-categories/ and carry
+// their own studio background, so the cards blend seamlessly.
+const SIDE_CATEGORIES = [
   {
-    name: 'Signage Module',
-    img: '/assets/images/cat-modules.png',
-    w: 1000,
-    h: 600,
-    href: '/products/led-signage-modules',
-    desc: 'High-uniformity backlit & sidelit LED modules for channel letters, light boxes and built-up signage.',
-    tags: ['Mini', 'Eco', 'Pro', 'RGB', '24V', 'Sidelit'],
-  },
-  {
-    name: 'LED Driver',
-    img: '/assets/images/cat-drivers.png',
-    w: 2048,
-    h: 1577,
+    name: 'LED Drivers',
+    img: '/assets/images/home-categories/led-drivers-scene.png',
     href: '/products/led-drivers',
-    desc: 'Constant-voltage supplies — screw-terminal, super-slim linear and triac-dimmable, indoor and outdoor.',
-    tags: ['Screw Terminal', 'Linear', 'Triac Dimmable'],
+    desc: 'Power supplies matched to ENVO module loads.',
   },
   {
     name: 'Control Gear',
-    img: '/assets/images/cat-controllers.png',
-    w: 2000,
-    h: 1300,
+    img: '/assets/images/home-categories/control-gear-scene.png',
     href: '/products/control-gear',
-    desc: 'Remotes, receivers, signal converters, sensors and ZigBee smart controllers for dynamic scenes.',
-    tags: ['Remote & Receiver', 'Signal Converter', 'Sensor', 'ZigBee'],
+    desc: 'Receivers, sensors and smart controllers for dynamic lighting.',
   },
   {
     name: 'Accessories',
-    img: '/assets/images/cat-sensors.png',
-    w: 2048,
-    h: 1331,
+    img: '/assets/images/home-categories/accessories-scene.png',
     href: '/products/accessories',
-    desc: 'Connectors and cables that make every install fast, clean and reliable.',
-    tags: ['Connector', 'Cable'],
+    desc: 'Connectors and cables for clean installations.',
   },
 ]
+
+const MODULE_TAGS = ['Mini', 'Eco', 'Pro', 'RGB', '24V', 'Sidelit']
 
 export function ShopByCategory() {
   return (
     <section className="mk-cat">
       <div className="v4-wrap">
-        <div className="v4-eyebrow">Shop by category</div>
-        <h2>Everything to build a sign.</h2>
-        <p className="lead">
-          High-quality LED modules, drivers, controllers and accessories — engineered to work
-          together as one system.
-        </p>
+        <div className="v4-sec-head">
+          <div>
+            <div className="v4-eyebrow">Shop by category</div>
+            <h2>Everything to build a sign.</h2>
+            <p className="lead">
+              A matched range of LED modules, drivers, control gear and accessories for
+              professional signage projects.
+            </p>
+          </div>
+          <Link className="v4-seelink" href="/products">
+            View full catalogue <ArrowRight />
+          </Link>
+        </div>
         <div className="mk-cat-grid">
-          {CATEGORIES.map((c) => (
-            <Link className="mk-ccard" href={c.href} key={c.name}>
-              <div className="pic">
-                <Image src={c.img} alt={c.name} width={c.w} height={c.h} sizes="110px" />
+          <Link className="mk-feature" href="/products/led-signage-modules">
+            <Image
+              src="/assets/images/home-categories/signage-modules-scene.png"
+              alt="ENVO backlit signage modules lighting a channel-letter E"
+              width={1556}
+              height={1011}
+              sizes="(max-width: 980px) 100vw, 56vw"
+            />
+            <div className="body">
+              <h3>Signage Modules</h3>
+              <p>Backlit and sidelit modules for channel letters, light boxes and built-up signage.</p>
+              <div className="mk-tags">
+                {MODULE_TAGS.map((t) => (
+                  <span key={t}>{t}</span>
+                ))}
               </div>
-              <div className="cb">
-                <div className="ct">
+              <span className="explore">
+                Explore modules <ArrowRight />
+              </span>
+            </div>
+          </Link>
+          <div className="mk-side">
+            {SIDE_CATEGORIES.map((c) => (
+              <Link className="mk-scard" href={c.href} key={c.name}>
+                <div className="cb">
                   <h3>{c.name}</h3>
-                  <ArrowRight />
+                  <p>{c.desc}</p>
+                  <span className="go">
+                    <ArrowRight />
+                  </span>
                 </div>
-                <p>{c.desc}</p>
-                <div className="mk-tags">
-                  {c.tags.map((t) => (
-                    <span key={t}>{t}</span>
-                  ))}
+                <div className="pic">
+                  <Image src={c.img} alt={c.name} width={1192} height={404} sizes="280px" />
                 </div>
-              </div>
-            </Link>
-          ))}
+              </Link>
+            ))}
+          </div>
         </div>
       </div>
     </section>
