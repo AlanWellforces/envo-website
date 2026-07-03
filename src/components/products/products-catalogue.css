@@ -2,7 +2,9 @@
    /products/[slug] = same page filtered to one family. Light surfaces via the
    production .theme-light tokens (var(--bg)/--fg/--line…); brand accents via
    --envo-* tokens. Scoped under .pcat (inside a .theme-light wrapper). */
-.pcat { background:var(--bg); color:var(--fg); }
+/* padding-bottom (not margin on the last card — it would collapse out of the
+   wrapper) keeps the final series card clear of the footer */
+.pcat { background:var(--bg); color:var(--fg); padding-bottom:72px; }
 .pcat .breadcrumb { padding:20px 0 2px; }
 
 /* header (compact) */
