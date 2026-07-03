@@ -2042,8 +2042,7 @@
       transition: max-width .28s cubic-bezier(.4, 0, .2, 1),
                   opacity .18s cubic-bezier(.4, 0, .2, 1);
     }
-    .sidebar-region-label,
-    .sidebar-collapse-label {
+    .sidebar-region-label {
       overflow: hidden;
       white-space: nowrap;
       max-width: 200px;
@@ -2400,8 +2399,7 @@
 
     /* Collapsed: shrink labels' width AND fade — frees space so icons truly center */
     body.sidebar-collapsed .sidebar-label,
-    body.sidebar-collapsed .sidebar-region-label,
-    body.sidebar-collapsed .sidebar-collapse-label {
+    body.sidebar-collapsed .sidebar-region-label {
       max-width: 0;
       opacity: 0;
       pointer-events: none;
@@ -2422,7 +2420,6 @@
     /* Eliminate flex gap so icons sit dead-center, not offset by ghost-label gap */
     body.sidebar-collapsed .sidebar-link { gap: 0; }
     body.sidebar-collapsed .sidebar-region { gap: 0; padding: 8px 0; justify-content: center; }
-    body.sidebar-collapsed .sidebar-collapse-btn { gap: 0; }
 
     body.sidebar-collapsed { padding-left: var(--sidebar-w-collapsed); }
     body.sidebar-collapsed .sidebar {

@@ -466,7 +466,6 @@ export function Sidebar() {
               <svg className="sidebar-collapse-icon" viewBox="0 0 24 24" aria-hidden="true">
                 <path d="M15 6l-6 6 6 6" />
               </svg>
-              <span className="sidebar-collapse-label">Collapse</span>
             </button>
           </div>
         </div>
