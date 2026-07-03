@@ -7,17 +7,11 @@ export async function generateMetadata(): Promise<Metadata> {
   return metadataForRoute('/resources/tools', {
     title: 'Tools — ENVO',
     description:
-      'ENVO sizing and selection tools — find your match, filter the signage range by spec, or get a free layout design from a sketch.',
+      'ENVO sizing and selection tools — get a free layout design from a sketch.',
   })
 }
 
 const TOOLS = [
-  {
-    name: 'Find your match',
-    desc: 'Answer a few questions about your sign and we spec the modules, driver and control as a complete bundle.',
-    cta: 'Start the wizard →',
-    href: '/find-your-match',
-  },
   {
     name: 'Free layout design',
     desc: 'Send an elevation or sign face and our engineers return a buildable module, driver and wiring layout — free.',

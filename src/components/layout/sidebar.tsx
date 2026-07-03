@@ -124,16 +124,6 @@ const NAVIGATE: NavItem[] = [
 
 const TOOLS: NavItem[] = [
   {
-    section: 'find-your-match',
-    href: '/find-your-match',
-    label: 'Find your match',
-    icon: (
-      <svg className="sidebar-icon" viewBox="0 0 24 24" aria-hidden="true">
-        <polygon points="13,2 4,14 12,14 11,22 20,10 12,10 13,2" />
-      </svg>
-    ),
-  },
-  {
     section: 'free-layout-design',
     href: '/free-layout-design',
     label: 'Free layout design',

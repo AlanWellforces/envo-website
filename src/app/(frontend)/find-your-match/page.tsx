@@ -1,4 +1,5 @@
 import type { Metadata } from 'next'
+import { notFound } from 'next/navigation'
 import { metadataForRoute } from '@/lib/page-seo'
 import Link from 'next/link'
 import { Wizard } from './Wizard'
@@ -13,6 +14,12 @@ export async function generateMetadata(): Promise<Metadata> {
 }
 
 export default function FindYourMatchPage() {
+  // Hidden — planned rework into a dimension-input layout calculator. 404s
+  // direct URLs meanwhile. Re-enable by removing this line and restoring the
+  // entry points (sidebar, footer, /resources/tools, sitemap, site-pages,
+  // product-families FAQ copy).
+  notFound()
+
   return (
     <div className="theme-light">
       <div className="container">

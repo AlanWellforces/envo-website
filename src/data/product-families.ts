@@ -275,7 +275,7 @@ export const PRODUCT_FAMILIES: ProductFamily[] = [
       {
         question: 'How many modules do I need for my sign?',
         answer:
-          'Module count depends on letter stroke width, cabinet depth and target brightness. Use Find your match for an automatic BOM, or talk to engineering — we will spec the right module + driver + spacing for your sign size.',
+          'Module count depends on letter stroke width, cabinet depth and target brightness. Send us your sign through Free layout design for an exact BOM, or talk to engineering — we will spec the right module + driver + spacing for your sign size.',
       },
       {
         question: 'How do I pick the right IP rating?',
