@@ -30,6 +30,8 @@ import { HorizontalRuleFeatureClient as HorizontalRuleFeatureClient_e70f5e05f09f
 import { InlineToolbarFeatureClient as InlineToolbarFeatureClient_e70f5e05f09f93e00b997edb1ef0c864 } from '@payloadcms/richtext-lexical/client'
 import { PostCoverCell as PostCoverCell_43b84654e8dc9bd683f062b98c3ff9cc } from '../../../payload/components/PostCoverCell'
 import { SolutionThumbCell as SolutionThumbCell_8a8f580c271240c20987e168a9922c28 } from '../../../payload/components/SolutionThumbCell'
+import { BrandIcon as BrandIcon_8f07872f3b3df16e30228d25de566b95 } from '../../../payload/components/BrandIcon'
+import { BrandLogo as BrandLogo_c403c2ac45aae66e87f2efb12e3bb4a1 } from '../../../payload/components/BrandLogo'
 import { PagesNavLink as PagesNavLink_71301e389f6f82a741cd5854bd63fc95 } from '../../../payload/components/PagesNavLink'
 import { NavBrand as NavBrand_a45be23d1892af4f119f31f9e8736c16 } from '../../../payload/components/NavBrand'
 import { AdminStyles as AdminStyles_d2e9dd3decb9ad98a30b241aa0ec226d } from '../../../payload/components/AdminStyles'
@@ -72,6 +74,8 @@ export const importMap = {
   "@payloadcms/richtext-lexical/client#InlineToolbarFeatureClient": InlineToolbarFeatureClient_e70f5e05f09f93e00b997edb1ef0c864,
   "/payload/components/PostCoverCell#PostCoverCell": PostCoverCell_43b84654e8dc9bd683f062b98c3ff9cc,
   "/payload/components/SolutionThumbCell#SolutionThumbCell": SolutionThumbCell_8a8f580c271240c20987e168a9922c28,
+  "/payload/components/BrandIcon#BrandIcon": BrandIcon_8f07872f3b3df16e30228d25de566b95,
+  "/payload/components/BrandLogo#BrandLogo": BrandLogo_c403c2ac45aae66e87f2efb12e3bb4a1,
   "/payload/components/PagesNavLink#PagesNavLink": PagesNavLink_71301e389f6f82a741cd5854bd63fc95,
   "/payload/components/NavBrand#NavBrand": NavBrand_a45be23d1892af4f119f31f9e8736c16,
   "/payload/components/AdminStyles#AdminStyles": AdminStyles_d2e9dd3decb9ad98a30b241aa0ec226d,

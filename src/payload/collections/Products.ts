@@ -13,7 +13,7 @@ export const Products: CollectionConfig = {
   admin: {
     useAsTitle: 'name',
     defaultColumns: ['thumbnail', 'sku', 'name', 'family', 'enabled', 'featured'],
-    description: 'ENVO product catalogue. Synced from Akeneo — edit freely. Enable sync_locked to prevent Akeneo from overwriting your changes.',
+    description: 'ENVO product catalogue. ⚠️ The nightly Akeneo sync OVERWRITES every "Synced from Akeneo" field — turn on Sync locked (sidebar) before hand-editing a product, or your changes disappear on the next sync. Payload-only fields (uploads, subtitle, pricing) are always safe.',
     group: 'Catalogue',
     // Hide un-enriched Akeneo shells (no family — never categorisable on the
     // frontend) from the default list. Clear the Filters panel to see them.
@@ -50,7 +50,7 @@ export const Products: CollectionConfig = {
               name: 'name',
               type: 'text',
               required: true,
-              admin: { description: 'Synced from Akeneo. Edit freely.' },
+              admin: { description: 'Synced from Akeneo — the nightly sync overwrites edits unless Sync locked is on.' },
             },
             {
               name: 'subtitle',
@@ -66,7 +66,7 @@ export const Products: CollectionConfig = {
               name: 'description',
               type: 'textarea',
               admin: {
-                description: 'Full product description. Accepts HTML. Synced from Akeneo — edit to override.',
+                description: 'Full product description. Accepts HTML. Synced from Akeneo — the nightly sync overwrites edits unless Sync locked is on.',
                 rows: 8,
               },
             },
@@ -451,7 +451,8 @@ export const Products: CollectionConfig = {
         // TAB 4: Pricing & Availability
         // -----------------------------------------------------------------------
         {
-          label: 'Pricing',
+          label: 'Pricing (internal)',
+          description: 'Internal reference only — the brand site is lead-gen and NEVER shows prices, stock or pack quantities. Fulfilment lives with the regional distributors.',
           fields: [
             {
               type: 'row',
@@ -460,7 +461,7 @@ export const Products: CollectionConfig = {
                   name: 'price_nzd',
                   type: 'number',
                   label: 'Price (NZD)',
-                  admin: { width: '33%', description: 'Retail price ex-GST.' },
+                  admin: { width: '33%', description: 'Retail price ex-GST. Internal — never rendered on the site.' },
                 },
                 {
                   name: 'inventory_type',
@@ -585,18 +586,18 @@ export const Products: CollectionConfig = {
             {
               name: 'seo_title',
               type: 'text',
-              admin: { description: 'Page title tag. Synced from Akeneo.' },
+              admin: { description: 'Page title tag. Synced from Akeneo — overwritten on sync unless Sync locked is on.' },
             },
             {
               name: 'seo_description',
               type: 'textarea',
-              admin: { description: 'Meta description. Synced from Akeneo.' },
+              admin: { description: 'Meta description. Synced from Akeneo — overwritten on sync unless Sync locked is on.' },
             },
             {
               name: 'faq',
               type: 'array',
               label: 'FAQ',
-              admin: { description: 'Questions and answers shown on the product page. Synced from Akeneo — edit freely.' },
+              admin: { description: 'Questions and answers shown on the product page. Synced from Akeneo — overwritten on sync unless Sync locked is on.' },
               fields: [
                 {
                   name: 'question',
