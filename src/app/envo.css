@@ -115,6 +115,66 @@
     }
     .promo-bar-close:hover { background: rgba(255,255,255,.06); color: #fff; }
 
+    /* ========== FIRST-VISIT REGION BANNER ========== */
+    /* Fixed overlay: appears only after hydration, so it must never push
+       content (layout shift). Light strip per approved screenshot; sits
+       above sidebar/subnav (highest z-index in use is 250). */
+    .region-banner {
+      position: fixed; top: 0; left: 0; right: 0; z-index: 300;
+      display: flex; align-items: center; justify-content: space-between;
+      gap: 16px; flex-wrap: wrap;
+      padding: 12px 24px;
+      background: #fff;
+      border-bottom: 1px solid #dbe2ea;
+      box-shadow: 0 1px 8px rgba(10,20,36,.08);
+    }
+    .region-banner-text {
+      margin: 0;
+      color: #1d2939;
+      font-size: 14px;
+      line-height: 1.4;
+    }
+    .region-banner-controls {
+      display: flex; align-items: center; gap: 12px;
+      margin-left: auto;
+    }
+    .region-banner-select {
+      appearance: none;
+      padding: 9px 34px 9px 14px;
+      border: 1px solid var(--envo-blue);
+      border-radius: 10px;
+      background: #fff url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8'%3E%3Cpath d='M1 1l5 5 5-5' fill='none' stroke='%231d2939' stroke-width='2' stroke-linecap='round'/%3E%3C/svg%3E") no-repeat right 12px center;
+      color: #1d2939;
+      font-family: inherit; font-size: 13px; font-weight: 500;
+      cursor: pointer;
+    }
+    .region-banner-cta {
+      padding: 9px 22px;
+      border: none; border-radius: 999px;
+      background: var(--envo-blue);
+      color: #fff;
+      font-family: inherit; font-size: 13px; font-weight: 600;
+      cursor: pointer;
+      transition: filter .15s ease;
+    }
+    .region-banner-cta:hover { filter: brightness(1.1); }
+    .region-banner-close {
+      background: transparent; border: none;
+      color: #667085;
+      font-size: 20px; line-height: 1; cursor: pointer;
+      width: 28px; height: 28px;
+      display: flex; align-items: center; justify-content: center;
+      border-radius: 50%;
+      font-family: inherit;
+      transition: all .15s;
+    }
+    .region-banner-close:hover { background: rgba(10,20,36,.06); color: #1d2939; }
+    @media (max-width: 640px) {
+      .region-banner { padding: 10px 16px; }
+      .region-banner-controls { margin-left: 0; width: 100%; }
+      .region-banner-select { flex: 1; }
+    }
+
     /* ========== HEADER ========== */
     .site-header {
       position: sticky; top: 0; left: 0; right: 0; z-index: 100;

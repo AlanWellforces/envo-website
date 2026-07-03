@@ -12,8 +12,10 @@ import type { PurchaseChannel } from '@/data/purchase-channels'
 
 export type RegionId = PurchaseChannel['id']
 
-const STORAGE_KEY = 'envo-region'
-const CHANGE_EVENT = 'envo-region-change'
+export const REGION_STORAGE_KEY = 'envo-region'
+export const REGION_CHANGE_EVENT = 'envo-region-change'
+const STORAGE_KEY = REGION_STORAGE_KEY
+const CHANGE_EVENT = REGION_CHANGE_EVENT
 const REGION_DEFAULT: RegionId = 'nz-ap'
 
 const RegionContext = createContext<{ region: RegionId; setRegion: (r: RegionId) => void }>({
@@ -27,18 +29,40 @@ export function RegionProvider({ children }: { children: React.ReactNode }) {
   const [region, set] = useState<RegionId>(REGION_DEFAULT)
 
   useEffect(() => {
-    const read = () => {
+    const readSaved = (): RegionId | null => {
       try {
         const saved = window.localStorage.getItem(STORAGE_KEY)
-        if (saved === 'nz-ap' || saved === 'us-global') set(saved)
+        return saved === 'nz-ap' || saved === 'us-global' ? saved : null
       } catch {
-        /* private mode etc. — keep default */
+        return null /* private mode etc. — keep default */
       }
     }
+    const read = () => {
+      const saved = readSaved()
+      if (saved) set(saved)
+    }
     read()
+
+    // First visit (nothing saved): ask the server for a geo-derived default.
+    // In-memory only — a silent default is not a user choice, so it is never
+    // persisted; an explicit choice made before the response lands wins.
+    let cancelled = false
+    if (!readSaved()) {
+      fetch('/api/region-default')
+        .then((res) => (res.ok ? res.json() : null))
+        .then((data: { region?: string } | null) => {
+          if (cancelled || readSaved()) return
+          if (data?.region === 'nz-ap' || data?.region === 'us-global') set(data.region)
+        })
+        .catch(() => {
+          /* offline etc. — keep default */
+        })
+    }
+
     window.addEventListener(CHANGE_EVENT, read)
     window.addEventListener('storage', read) // cross-tab
     return () => {
+      cancelled = true
       window.removeEventListener(CHANGE_EVENT, read)
       window.removeEventListener('storage', read)
     }
