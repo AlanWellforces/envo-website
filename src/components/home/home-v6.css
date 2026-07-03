@@ -213,16 +213,18 @@
 }
 .v4-chip.cert-chip img { height: 20px; width: auto; display: block; }
 
-/* --- value props (engineering index) --- */
+/* --- brand capability band (original card style, no step numbers) --- */
 .va { background: var(--v4-mist); border-top: 1px solid var(--v4-mist-line); border-bottom: 1px solid var(--v4-mist-line); padding: 56px 0; }
 .va-grid { display: grid; grid-template-columns: repeat(4, 1fr); }
-.va-item { padding: 4px 32px; border-left: 1px solid var(--v4-mist-line); }
+/* uniform block rhythm: every card = one-line title + three-line text.
+   15px h3 keeps the longest title ("Distributor-backed Availability") on one
+   line; the 26px gutters + 13px body land each description on 3 lines. */
+.va-item { padding: 4px 26px; border-left: 1px solid var(--v4-mist-line); }
 .va-item:first-child { border-left: 0; padding-left: 0; }
-.va-top { display: flex; align-items: center; justify-content: space-between; margin-bottom: 16px; }
+.va-top { display: flex; align-items: center; margin-bottom: 16px; }
 .va-ic svg { width: 23px; height: 23px; color: #5f7700; }
-.va-num { font: 700 36px/1 var(--font-sans); color: #cfdbe9; letter-spacing: -.03em; }
-.va-item h3 { font: 700 16px/1.2 var(--font-sans); color: var(--v4-ink); margin: 0 0 8px; letter-spacing: -.01em; }
-.va-item p { font: 500 13.5px/1.55 var(--font-sans); color: var(--v4-muted); margin: 0; }
+.va-item h3 { font: 700 15px/1.2 var(--font-sans); color: var(--v4-ink); margin: 0 0 8px; letter-spacing: -.012em; white-space: nowrap; }
+.va-item p { font: 500 13px/1.6 var(--font-sans); color: var(--v4-muted); margin: 0; }
 
 /* --- shop by category (light, 2x2) --- */
 .mk-cat { background: var(--v4-paper); padding: 76px 0; }

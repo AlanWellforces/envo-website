@@ -1,17 +1,22 @@
+// Brand capability band under the home hero — the original card style
+// (dividers, icon on top) minus the 01–04 step numbers. Copy rules: verified
+// facts only — no invented stats, no response-time promises (see the
+// 2026-07-02 content audit).
 const PROPS = [
   {
-    t: 'Customized Solutions',
-    d: 'We transform your ideas into tailored LED layouts, designed to meet your specific needs.',
+    t: 'Engineered Product System',
+    d: 'LED modules, drivers and control gear designed to work together across signage and architectural applications.',
     icon: (
       <>
-        <path d="M12 20h9" />
-        <path d="M16.5 3.5a2.1 2.1 0 0 1 3 3L7 19l-4 1 1-4Z" />
+        <polygon points="12,2 22,8 12,14 2,8" />
+        <polyline points="2,12 12,18 22,12" />
+        <polyline points="2,16 12,22 22,16" />
       </>
     ),
   },
   {
-    t: 'Trusted Partnerships',
-    d: 'Collaborating with sign-makers and integrators to deliver reliable lighting on every project.',
+    t: 'Certified Range',
+    d: 'CE, UL, RoHS and TÜV options support professional specifications and compliance reviews.',
     icon: (
       <>
         <path d="M12 3l7.5 2.8v5.4c0 4.6-3.2 7.4-7.5 8.3-4.3-.9-7.5-3.7-7.5-8.3V5.8z" />
@@ -20,23 +25,22 @@ const PROPS = [
     ),
   },
   {
-    t: 'Free LED Layout Design',
-    d: 'Submit your requirements and receive a complimentary LED layout from our engineering team.',
+    t: 'Application Support',
+    d: 'Guidance for module spacing, driver sizing and product selection helps teams specify with confidence.',
     icon: (
       <>
-        <rect x="3" y="3" width="18" height="18" rx="2" />
-        <path d="M3 9h18M9 21V9" />
+        <circle cx="12" cy="12" r="9" />
+        <polygon points="14.8,9.2 13,13 9.2,14.8 11,11" />
       </>
     ),
   },
   {
-    t: 'Efficient Delivery',
-    d: 'We prioritise quick processing and shipping to keep your projects on schedule.',
+    t: 'Distributor-backed Availability',
+    d: 'Authorised regional partners help customers source ENVO components for local projects.',
     icon: (
       <>
-        <path d="M3 7h11v8H3zM14 10h4l3 3v2h-7z" />
-        <circle cx="7" cy="17" r="2" />
-        <circle cx="17" cy="17" r="2" />
+        <circle cx="12" cy="12" r="9" />
+        <path d="M3 12h18M12 3c2.6 2.8 2.6 15.2 0 18M12 3c-2.6 2.8-2.6 15.2 0 18" />
       </>
     ),
   },
@@ -47,7 +51,7 @@ export function ValueProps() {
     <section className="va">
       <div className="v4-wrap">
         <div className="va-grid">
-          {PROPS.map((p, i) => (
+          {PROPS.map((p) => (
             <div className="va-item" key={p.t}>
               <div className="va-top">
                 <span className="va-ic">
@@ -55,7 +59,6 @@ export function ValueProps() {
                     {p.icon}
                   </svg>
                 </span>
-                <span className="va-num">0{i + 1}</span>
               </div>
               <h3>{p.t}</h3>
               <p>{p.d}</p>
