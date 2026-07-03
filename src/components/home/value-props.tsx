@@ -1,10 +1,13 @@
-// Brand capability band under the home hero. Copy rules: verified facts only —
-// no invented stats, no response-time promises (see the 2026-07-02 content
-// audit). Certifications and family counts must stay true to the live range.
+// Brand capability band under the home hero — a statement line plus four
+// capability blocks (no step numbers; this is a manifesto, not a process).
+// Copy rules: verified facts only — no invented stats, no response-time
+// promises (see the 2026-07-02 content audit).
+const DARK = false
+
 const PROPS = [
   {
     t: 'Engineered Product System',
-    d: 'Modules, drivers and control gear designed to work as one system — matched voltages, dimming and mounting across four product families.',
+    d: 'LED modules, drivers and control gear designed to work together across signage and architectural applications.',
     icon: (
       <>
         <polygon points="12,2 22,8 12,14 2,8" />
@@ -15,7 +18,7 @@ const PROPS = [
   },
   {
     t: 'Certified Range',
-    d: 'Certified to international standards — CE, UL and TÜV among them — with the datasheet for every model a click away.',
+    d: 'CE, UL, RoHS and TÜV options support professional specifications and compliance reviews.',
     icon: (
       <>
         <path d="M12 3l7.5 2.8v5.4c0 4.6-3.2 7.4-7.5 8.3-4.3-.9-7.5-3.7-7.5-8.3V5.8z" />
@@ -25,7 +28,7 @@ const PROPS = [
   },
   {
     t: 'Application Support',
-    d: 'From product matching to LED layout design, our engineers help you spec the right light for signage and architectural work.',
+    d: 'Guidance for module spacing, driver sizing and product selection helps teams specify with confidence.',
     icon: (
       <>
         <circle cx="12" cy="12" r="9" />
@@ -35,7 +38,7 @@ const PROPS = [
   },
   {
     t: 'Distributor-backed Availability',
-    d: 'Stock held with our distribution partners in New Zealand and the United States, so projects source locally in each region.',
+    d: 'Authorised regional partners help customers source ENVO components for local projects.',
     icon: (
       <>
         <circle cx="12" cy="12" r="9" />
@@ -47,20 +50,22 @@ const PROPS = [
 
 export function ValueProps() {
   return (
-    <section className="va">
+    <section className={DARK ? 'va va-dark' : 'va'}>
       <div className="v4-wrap">
+        <p className="va-statement">
+          Modules<span>.</span> Drivers<span>.</span> Controls<span>.</span> Support<span>.</span>
+        </p>
         <div className="va-grid">
-          {PROPS.map((p, i) => (
+          {PROPS.map((p) => (
             <div className="va-item" key={p.t}>
-              <div className="va-top">
+              <h3>
                 <span className="va-ic">
                   <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
                     {p.icon}
                   </svg>
                 </span>
-                <span className="va-num">0{i + 1}</span>
-              </div>
-              <h3>{p.t}</h3>
+                {p.t}
+              </h3>
               <p>{p.d}</p>
             </div>
           ))}
