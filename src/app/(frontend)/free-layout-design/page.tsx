@@ -49,10 +49,10 @@ export default async function FreeLayoutDesignPage() {
         <div className={styles.heroSplit}>
           <div className={styles.heroText}>
             <span className="sig-eyebrow">Free Service · Fast Turnaround</span>
-            <h1>
+            <h1 className={styles.heroTitle}>
               Send a sketch.
               <br />
-              <em>Get a spec.</em>
+              Get a spec.
             </h1>
             <p className="sig-hero-desc">
               Tell us the sign size, viewing distance and install location. Our LED
