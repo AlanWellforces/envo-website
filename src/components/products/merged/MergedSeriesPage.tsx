@@ -16,6 +16,8 @@ export type MergedVariant = {
   ledBeads?: string
   output?: string
   power?: string
+  /** per-model input voltage — set only when models in the series differ */
+  inputVoltage?: string
   size?: string
   bestFor?: string
 }
@@ -51,6 +53,7 @@ const VARIANT_ROWS: { label: string; key: keyof MergedVariant; cls?: string }[] 
   { label: 'LED beads', key: 'ledBeads' },
   { label: 'Output', key: 'output' },
   { label: 'Power', key: 'power' },
+  { label: 'Input voltage', key: 'inputVoltage' },
   { label: 'Module size', key: 'size' },
   { label: 'Best for', key: 'bestFor', cls: 'best' },
 ]
