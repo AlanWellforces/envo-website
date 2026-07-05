@@ -357,6 +357,9 @@
 @media (max-width: 980px) {
   .va-grid { grid-template-columns: repeat(2, 1fr); }
   .va-item { border-left: 0; padding: 4px 0 18px; }
+  /* let headings wrap in the 2-col layout — nowrap headings push the grid's
+     min-content past 375px and phones zoom the whole page out to fit */
+  .va-item h3 { white-space: normal; }
   .mk-cat-grid, .sgrid, .sfeat-grid, .pj-grid, .wd-grid { grid-template-columns: 1fr; }
   /* mobile: text block on top, scene photo below it (its baked-in studio bg
      blends with the card), instead of text over the bright letter */

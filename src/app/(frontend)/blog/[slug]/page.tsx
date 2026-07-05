@@ -211,13 +211,7 @@ export default async function PostDetailPage(
               View all {categoryLabel} →
             </Link>
           </div>
-          <div
-            style={{
-              display: 'grid',
-              gridTemplateColumns: 'repeat(3, minmax(0, 1fr))',
-              gap: '20px',
-            }}
-          >
+          <div className="grid gap-5 md:grid-cols-2 lg:grid-cols-3">
             {related.map((p) => (
               <PostCard key={p.id} post={p} />
             ))}
@@ -226,17 +220,13 @@ export default async function PostDetailPage(
       )}
 
       {/* End CTA */}
-      <div style={{ padding: '0 56px 64px' }}>
+      <div className="blog-end-cta">
         <div
+          className="blog-end-cta-card"
           style={{
             background: '#1a2332',
             color: '#fff',
             borderRadius: '18px',
-            padding: '40px 48px',
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'space-between',
-            gap: '32px',
           }}
         >
           <div>
@@ -247,7 +237,7 @@ export default async function PostDetailPage(
               Need help speccing controls for a project?
             </h3>
             <p style={{ fontSize: '14.5px', color: 'rgba(255,255,255,0.7)', margin: 0, maxWidth: '48ch' }}>
-              Our engineering team reviews installations larger than 30 luminaires for free. Send us your floor plan and luminaire schedule — we&apos;ll come back within two business days.
+              Our engineering team reviews installations larger than 30 luminaires for free. Send us your floor plan and luminaire schedule — we&apos;ll come back with recommendations.
             </p>
           </div>
           <Link

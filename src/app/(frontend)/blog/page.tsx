@@ -54,15 +54,7 @@ export default async function BlogIndexPage() {
       {rest.length === 0 && !hero ? (
         <p style={{ padding: '0 56px 48px', color: '#4a5568' }}>No posts yet — check back soon.</p>
       ) : (
-        <section
-          aria-label="Articles"
-          style={{
-            display: 'grid',
-            gap: '20px',
-            padding: '0 56px 32px',
-            gridTemplateColumns: 'repeat(3, minmax(0, 1fr))',
-          }}
-        >
+        <section aria-label="Articles" className="blog-post-grid">
           {rest.map((post) => (
             <PostCard key={post.id} post={post} />
           ))}

@@ -172,7 +172,11 @@
     @media (max-width: 640px) {
       .region-banner { padding: 10px 16px; }
       .region-banner-controls { margin-left: 0; width: 100%; }
-      .region-banner-select { flex: 1; }
+      /* width:0 + flex:1 zeroes the select's intrinsic-width contribution.
+         Mobile Chrome sizes the layout viewport from intrinsic widths (it
+         ignores flex shrinking there), so the select's longest option text
+         otherwise forces the whole page to zoom out on phones. */
+      .region-banner-select { flex: 1; min-width: 0; width: 0; }
     }
 
     /* ========== HEADER ========== */
@@ -3193,6 +3197,37 @@
   .sig-grid { grid-template-columns: 1fr; }
   .sig-stats { grid-template-columns: 1fr; }
   .sig-hero h1 { font-size: 36px; }
+}
+
+/* ============================================================
+   Blog index + detail responsive layout. Plain classes (not
+   Tailwind spacing utilities) because the global `* { margin:0;
+   padding:0 }` and `section { padding:140px 0 }` rules above are
+   unlayered and always beat @layer utilities.
+   ============================================================ */
+.blog-post-grid { display: grid; gap: 20px; padding: 0 20px 32px; }
+.blog-hero-card { margin: 14px 20px 24px; }
+.blog-hero-body { padding: 24px; }
+.blog-end-cta { padding: 0 20px 64px; }
+.blog-end-cta-card {
+  display: flex; flex-wrap: wrap; align-items: center;
+  justify-content: space-between; gap: 24px; padding: 24px;
+}
+@media (min-width: 641px) {
+  .blog-hero-body { padding: 40px; }
+}
+@media (min-width: 768px) {
+  .blog-post-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); padding: 0 56px 32px; }
+  .blog-hero-card { margin: 14px 56px 24px; }
+  .blog-hero-body { padding: 56px 60px 48px; }
+  .blog-end-cta { padding: 0 56px 64px; }
+  .blog-end-cta-card { gap: 32px; padding: 40px 48px; }
+}
+@media (min-width: 1024px) {
+  .blog-post-grid { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+}
+@media (max-width: 640px) {
+  article.blog-article-body { padding: 0 20px 40px; }
 }
 
 /* ============================================================
