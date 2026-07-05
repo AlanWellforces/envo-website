@@ -17,6 +17,22 @@ const COLUMN_CAP = 6
 const CERT_NAME: Record<string, string> = {
   c_ul: 'UL', c_cul: 'cUL', c_ce: 'CE', c_tuv: 'TÜV', c_rohs: 'RoHS',
   c_cb: 'CB', c_bis: 'BIS', c_ccc: 'CCC', c_fcc: 'FCC', c_fc: 'FCC', c_selv: 'SELV', c_lm80: 'LM-80',
+  c_saa: 'SAA', c_rcm: 'RCM',
+}
+
+// Akeneo carries a mains input range in input_voltage_min/max_v (drivers,
+// dimmers) and the SELV supply rail in output_voltage_v (modules). In this
+// catalogue a ≥90 V minimum is always a mains AC input; below that it's a DC
+// rail — there is no AC/DC flag in the PIM to read instead.
+function inputVoltageDisplay(p: Product): string | null {
+  const min = num(p.input_voltage_min_v)
+  const max = num(p.input_voltage_max_v)
+  if (min != null) {
+    const unit = min >= 90 ? 'V AC' : 'V DC'
+    return max != null && max !== min ? `${min}–${max} ${unit}` : `${min} ${unit}`
+  }
+  const out = num(p.output_voltage_v)
+  return out != null ? `${out} V DC` : null
 }
 const LED_BEADS: Record<string, number> = { Single: 1, Double: 2, Triple: 3, Quad: 4, Penta: 5 }
 
@@ -44,6 +60,17 @@ export function buildMergedSeriesProps(
   const ledsList = models.map((m) => m.leds)
   const ledsDistinguish = !ledsList.includes('—') && new Set(ledsList).size === ledsList.length
 
+  // One shared "Input voltage" row when every model agrees; per-variant cells
+  // when ranges differ across the series (e.g. 90–132 V vs 100–240 V drivers).
+  const voltageByCode = new Map(
+    models.map((m) => {
+      const rep = repByCode.get(m.code)
+      return [m.code, rep ? inputVoltageDisplay(rep) : null] as const
+    }),
+  )
+  const voltageValues = uniq([...voltageByCode.values()].filter((v): v is string => v != null))
+  const sharedVoltage = voltageValues.length === 1 ? voltageValues[0] : null
+
   const variants: MergedVariant[] = models.map((m) => {
     const beads = LED_BEADS[m.leds]
     const colour = repByCode.get(m.code)?.led_chip_colour
@@ -60,6 +87,7 @@ export function buildMergedSeriesProps(
       ledBeads: beads ? String(beads) : undefined,
       output: m.lumens ? `~ ${m.lumens} lm` : undefined,
       power: m.powerW != null ? `${m.powerW} W` : undefined,
+      inputVoltage: sharedVoltage ? undefined : (voltageByCode.get(m.code) ?? undefined),
       size: m.dimsMm ? `${m.dimsMm} mm` : undefined,
     }
   })
@@ -69,8 +97,7 @@ export function buildMergedSeriesProps(
   const ccts = uniq(products.map((p) => num(p.cct_k)).filter((k): k is number => k != null)).sort((a, b) => a - b)
   if (ccts.length) sharedRows.push({ label: 'Colour temperature', value: ccts.map((k) => `${k} K`).join(' · ') })
 
-  const volts = products.map((p) => num(p.input_voltage_min_v) ?? num(p.output_voltage_v)).find(Boolean) ?? null
-  if (volts) sharedRows.push({ label: 'Input voltage', value: `${volts} V DC` })
+  if (sharedVoltage) sharedRows.push({ label: 'Input voltage', value: sharedVoltage })
 
   const beam = products.map((p) => num(p.beam_angle_deg)).find(Boolean) ?? null
   if (beam) sharedRows.push({ label: 'Beam angle', value: `${beam}°` })
