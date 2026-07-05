@@ -5,9 +5,17 @@ import { cache } from 'react'
 import { getPayload } from 'payload'
 import config from '@payload-config'
 import type { Solution as SolutionDoc, Media } from '@/payload-types'
-import type { Solution, KitItem, GalleryImage } from '@/data/solutions'
+import type {
+  Solution,
+  KitItem,
+  GalleryImage,
+  BestForItem,
+  Consideration,
+  SeriesRec,
+  Alternative,
+} from '@/data/solutions'
 
-export type { Solution, KitItem, GalleryImage }
+export type { Solution, KitItem, GalleryImage, BestForItem, Consideration, SeriesRec, Alternative }
 
 /** Uploaded media URL if present, else the repo-asset path fallback. */
 function resolveImg(upload: number | Media | null | undefined, path: string | null | undefined): string {
@@ -27,8 +35,26 @@ function mapDoc(doc: SolutionDoc): Solution {
     heroTitle: doc.heroTitle,
     heroDesc: doc.heroDesc ?? '',
     checklist: (doc.checklist ?? []).map((c) => c.text),
+    useCases: (doc.useCases ?? []).map((u) => u.label),
     gallery: (doc.gallery ?? []).map(
       (g): GalleryImage => ({ src: resolveImg(g.image, g.imagePath), alt: g.alt }),
+    ),
+    bestFor: (doc.bestFor ?? []).map(
+      (b): BestForItem => ({ scenario: b.scenario, note: b.note ?? '' }),
+    ),
+    considerations: (doc.considerations ?? []).map(
+      (c): Consideration => ({ title: c.title, text: c.text ?? '' }),
+    ),
+    series: (doc.series ?? []).map(
+      (r): SeriesRec => ({
+        name: r.name,
+        blurb: r.blurb ?? '',
+        href: r.href,
+        img: resolveImg(r.image, r.imagePath),
+      }),
+    ),
+    alternatives: (doc.alternatives ?? []).map(
+      (a): Alternative => ({ when: a.when, choose: a.choose, ...(a.href ? { href: a.href } : {}) }),
     ),
     kitHeading: doc.kitHeading ?? '',
     kitLede: doc.kitLede ?? '',

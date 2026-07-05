@@ -104,9 +104,70 @@
 .dist-note { margin-top:8px; font-size:13px; color:rgba(255,255,255,.6); }
 .dist-note a { color:var(--envo-lime); font-weight:600; }
 
+/* use-case chips (landing cards) */
+.sd-usecases { list-style:none; margin:0 0 16px; padding:0; display:flex; flex-wrap:wrap; gap:8px; }
+.sd-usecases li { font-size:12px; font-weight:600; color:#cfe0ef; padding:6px 12px; border-radius:999px;
+  border:1px solid rgba(120,170,225,.28); background:rgba(120,170,225,.08); }
+
+/* shared section head (best-for / considerations / series / alternatives) */
+.sd-sechead { max-width:720px; margin-bottom:24px; }
+.sd-sechead h2 { font-size:clamp(21px,2.2vw,29px); font-weight:700; letter-spacing:-.02em; color:#f5f7fa; }
+
+/* best for */
+.bf-grid { display:grid; grid-template-columns:repeat(4,1fr); gap:18px; }
+.bf-card { background:#16273f; border:1px solid rgba(120,170,225,.16); border-radius:14px; padding:20px 22px; }
+.bf-card h3 { font-size:15px; font-weight:700; color:#f5f7fa; margin-bottom:8px; }
+.bf-card p { font-size:13px; color:#8b9cb0; line-height:1.55; }
+
+/* design considerations */
+.dc-grid { display:grid; grid-template-columns:1fr 1fr; gap:18px 26px; }
+.dc-item { display:flex; gap:16px; padding:19px 22px; border:1px solid rgba(120,170,225,.12);
+  border-radius:14px; background:rgba(22,39,63,.5); }
+.dc-num { flex:none; font-size:12px; font-weight:700; color:var(--envo-lime); letter-spacing:.08em; padding-top:3px; }
+.dc-item h3 { font-size:14.5px; font-weight:700; color:#f5f7fa; margin-bottom:6px; }
+.dc-item p { font-size:13px; color:#8b9cb0; line-height:1.55; }
+
+/* recommended series cards */
+.sr-grid { display:grid; grid-template-columns:repeat(4,1fr); gap:20px; }
+.sr-card { display:flex; flex-direction:column; background:#16273f; border:1px solid rgba(120,170,225,.16);
+  border-radius:16px; overflow:hidden; transition:transform .25s, border-color .25s, box-shadow .25s; }
+.sr-card:hover { transform:translateY(-3px); border-color:rgba(174,201,11,.4); box-shadow:0 28px 56px -28px rgba(0,0,0,.7); }
+.sr-img { position:relative; aspect-ratio:16/10; background:#eef1f5; }
+.sr-img img { object-fit:cover; }
+.sr-img.is-contain img { object-fit:contain; padding:14px; }
+.sr-body { padding:15px 17px 17px; display:flex; flex-direction:column; flex:1; }
+.sr-name { font-size:15.5px; font-weight:700; color:#f5f7fa; margin-bottom:6px; }
+.sr-blurb { font-size:12.5px; color:#8b9cb0; line-height:1.5; margin-bottom:12px; }
+.sr-link { margin-top:auto; display:inline-flex; align-items:center; gap:7px; font-size:13px; font-weight:600; color:var(--envo-blue-glow); }
+.sr-link span { transition:transform .25s; } .sr-card:hover .sr-link span { transform:translateX(4px); }
+
+/* when to choose alternatives */
+.alt-rows { display:grid; gap:12px; max-width:880px; }
+.alt-row { display:flex; align-items:center; gap:16px; flex-wrap:wrap; padding:16px 20px;
+  border:1px solid rgba(120,170,225,.14); border-radius:12px; background:rgba(22,39,63,.4); }
+.alt-when { flex:1 1 320px; font-size:13.5px; color:#dfe7f0; }
+.alt-arrow { color:#5a6c80; }
+.alt-choose { font-size:13.5px; font-weight:600; color:var(--envo-blue-glow); }
+a.alt-choose:hover { color:var(--envo-lime); }
+.alt-choose.is-plain { color:#dfe7f0; }
+
+/* free layout design CTA */
+.sd-fld-sec { padding-bottom:0; }
+.fld-cta { display:flex; align-items:center; justify-content:space-between; gap:28px; flex-wrap:wrap;
+  padding:36px max(30px,3.5vw); border-radius:18px; border:1px solid rgba(174,201,11,.35);
+  background:linear-gradient(120deg, rgba(174,201,11,.13) 0%, rgba(22,45,79,.55) 55%), #10233c; }
+.fld-cta h2 { font-size:clamp(20px,2.2vw,27px); font-weight:700; letter-spacing:-.02em; color:#f5f7fa; margin-bottom:9px; }
+.fld-cta p { font-size:14px; color:#9fb0c4; line-height:1.55; max-width:520px; }
+.fld-btn { flex:none; }
+
 @media (max-width:900px) {
   .sd-row { grid-template-columns:1fr; gap:20px; padding:20px; }
   .sd-hero-2col { grid-template-columns:1fr; gap:26px; }
   .kit-grid { grid-template-columns:1fr; }
   .dist-cta-inner { grid-template-columns:1fr; gap:28px; }
+  .bf-grid, .sr-grid { grid-template-columns:1fr 1fr; }
+  .dc-grid { grid-template-columns:1fr; }
+}
+@media (max-width:560px) {
+  .bf-grid, .sr-grid { grid-template-columns:1fr; }
 }

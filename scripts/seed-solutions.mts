@@ -24,7 +24,16 @@ for (const [i, s] of SOLUTIONS.entries()) {
     longDesc: s.longDesc,
     imagePath: s.img,
     checklist: s.checklist.map((text) => ({ text })),
+    useCases: s.useCases.map((label) => ({ label })),
     gallery: s.gallery.map((g) => ({ imagePath: g.src, alt: g.alt })),
+    bestFor: s.bestFor.map((b) => ({ scenario: b.scenario, note: b.note })),
+    considerations: s.considerations.map((c) => ({ title: c.title, text: c.text })),
+    series: s.series.map((r) => ({ name: r.name, blurb: r.blurb, href: r.href, imagePath: r.img })),
+    alternatives: s.alternatives.map((a) => ({
+      when: a.when,
+      choose: a.choose,
+      ...(a.href ? { href: a.href } : {}),
+    })),
     kitHeading: s.kitHeading,
     kitLede: s.kitLede,
     kit: s.kit.map((k) => ({

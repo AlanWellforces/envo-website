@@ -86,6 +86,15 @@ export const Solutions: CollectionConfig = {
       fields: [{ name: 'text', type: 'text', required: true }],
     },
     {
+      name: 'useCases',
+      type: 'array',
+      labels: { singular: 'Use case', plural: 'Use cases' },
+      admin: {
+        description: 'Scenario chips on the /solutions card (e.g. Channel letters, Light boxes).',
+      },
+      fields: [{ name: 'label', type: 'text', required: true }],
+    },
+    {
       name: 'gallery',
       type: 'array',
       labels: { singular: 'Image', plural: 'Images' },
@@ -99,6 +108,53 @@ export const Solutions: CollectionConfig = {
           ],
         },
         { name: 'alt', type: 'text', required: true },
+      ],
+    },
+
+    // ===== Detail-page sections (Best for → considerations → series) =====
+    {
+      name: 'bestFor',
+      type: 'array',
+      labels: { singular: 'Application', plural: 'Applications' },
+      admin: { description: '"Best for" cards — the concrete applications this solution suits.' },
+      fields: [
+        { name: 'scenario', type: 'text', required: true },
+        { name: 'note', type: 'textarea' },
+      ],
+    },
+    {
+      name: 'considerations',
+      type: 'array',
+      labels: { singular: 'Consideration', plural: 'Considerations' },
+      admin: {
+        description: 'Design considerations — what gets checked before speccing this build.',
+      },
+      fields: [
+        { name: 'title', type: 'text', required: true },
+        { name: 'text', type: 'textarea' },
+      ],
+    },
+    {
+      name: 'series',
+      type: 'array',
+      labels: { singular: 'Series', plural: 'Series' },
+      admin: { description: 'Recommended ENVO series — cards linking to series pages.' },
+      fields: [
+        { name: 'name', type: 'text', required: true },
+        { name: 'blurb', type: 'textarea' },
+        {
+          name: 'href',
+          type: 'text',
+          required: true,
+          admin: { description: 'Series page, e.g. /products/led-signage-modules/envo-minilux' },
+        },
+        {
+          type: 'row',
+          fields: [
+            { name: 'image', type: 'upload', relationTo: 'media', admin: { width: '50%' } },
+            { name: 'imagePath', type: 'text', admin: { description: 'Fallback asset path.', width: '50%' } },
+          ],
+        },
       ],
     },
 
@@ -160,6 +216,27 @@ export const Solutions: CollectionConfig = {
             },
           ],
         },
+      ],
+    },
+
+    // ===== When to choose alternatives =====
+    {
+      name: 'alternatives',
+      type: 'array',
+      labels: { singular: 'Alternative', plural: 'Alternatives' },
+      admin: {
+        description:
+          '"When to choose alternatives" rows — honest routing when another series or solution fits better.',
+      },
+      fields: [
+        {
+          type: 'row',
+          fields: [
+            { name: 'when', type: 'text', required: true, admin: { placeholder: 'If the faces need…', width: '50%' } },
+            { name: 'choose', type: 'text', required: true, admin: { placeholder: 'ChromaFlux RGBW modules', width: '50%' } },
+          ],
+        },
+        { name: 'href', type: 'text', admin: { description: 'Optional link for the suggestion.' } },
       ],
     },
 

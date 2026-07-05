@@ -144,7 +144,7 @@ export interface UserAuthOperations {
   };
 }
 /**
- * ENVO product catalogue. Synced from Akeneo — edit freely. Enable sync_locked to prevent Akeneo from overwriting your changes.
+ * ENVO product catalogue. ⚠️ The nightly Akeneo sync OVERWRITES every "Synced from Akeneo" field — turn on Sync locked (sidebar) before hand-editing a product, or your changes disappear on the next sync. Payload-only fields (uploads, subtitle, pricing) are always safe.
  *
  * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "products".
@@ -152,7 +152,7 @@ export interface UserAuthOperations {
 export interface Product {
   id: number;
   /**
-   * Synced from Akeneo. Edit freely.
+   * Synced from Akeneo — the nightly sync overwrites edits unless Sync locked is on.
    */
   name: string;
   /**
@@ -164,7 +164,7 @@ export interface Product {
    */
   short_description?: string | null;
   /**
-   * Full product description. Accepts HTML. Synced from Akeneo — edit to override.
+   * Full product description. Accepts HTML. Synced from Akeneo — the nightly sync overwrites edits unless Sync locked is on.
    */
   description?: string | null;
   /**
@@ -303,7 +303,7 @@ export interface Product {
     | null;
   warranty_years?: number | null;
   /**
-   * Retail price ex-GST.
+   * Retail price ex-GST. Internal — never rendered on the site.
    */
   price_nzd?: number | null;
   inventory_type?: ('stocked' | 'on_demand') | null;
@@ -355,15 +355,15 @@ export interface Product {
       }[]
     | null;
   /**
-   * Page title tag. Synced from Akeneo.
+   * Page title tag. Synced from Akeneo — overwritten on sync unless Sync locked is on.
    */
   seo_title?: string | null;
   /**
-   * Meta description. Synced from Akeneo.
+   * Meta description. Synced from Akeneo — overwritten on sync unless Sync locked is on.
    */
   seo_description?: string | null;
   /**
-   * Questions and answers shown on the product page. Synced from Akeneo — edit freely.
+   * Questions and answers shown on the product page. Synced from Akeneo — overwritten on sync unless Sync locked is on.
    */
   faq?:
     | {
@@ -731,6 +731,15 @@ export interface Solution {
       }[]
     | null;
   /**
+   * Scenario chips on the /solutions card (e.g. Channel letters, Light boxes).
+   */
+  useCases?:
+    | {
+        label: string;
+        id?: string | null;
+      }[]
+    | null;
+  /**
    * Detail-page gallery (first image leads).
    */
   gallery?:
@@ -741,6 +750,45 @@ export interface Solution {
          */
         imagePath?: string | null;
         alt: string;
+        id?: string | null;
+      }[]
+    | null;
+  /**
+   * "Best for" cards — the concrete applications this solution suits.
+   */
+  bestFor?:
+    | {
+        scenario: string;
+        note?: string | null;
+        id?: string | null;
+      }[]
+    | null;
+  /**
+   * Design considerations — what gets checked before speccing this build.
+   */
+  considerations?:
+    | {
+        title: string;
+        text?: string | null;
+        id?: string | null;
+      }[]
+    | null;
+  /**
+   * Recommended ENVO series — cards linking to series pages.
+   */
+  series?:
+    | {
+        name: string;
+        blurb?: string | null;
+        /**
+         * Series page, e.g. /products/led-signage-modules/envo-minilux
+         */
+        href: string;
+        image?: (number | null) | Media;
+        /**
+         * Fallback asset path.
+         */
+        imagePath?: string | null;
         id?: string | null;
       }[]
     | null;
@@ -783,6 +831,20 @@ export interface Solution {
               id?: string | null;
             }[]
           | null;
+        id?: string | null;
+      }[]
+    | null;
+  /**
+   * "When to choose alternatives" rows — honest routing when another series or solution fits better.
+   */
+  alternatives?:
+    | {
+        when: string;
+        choose: string;
+        /**
+         * Optional link for the suggestion.
+         */
+        href?: string | null;
         id?: string | null;
       }[]
     | null;
@@ -1363,12 +1425,42 @@ export interface SolutionsSelect {
         text?: boolean;
         id?: boolean;
       };
+  useCases?:
+    | boolean
+    | {
+        label?: boolean;
+        id?: boolean;
+      };
   gallery?:
     | boolean
     | {
         image?: boolean;
         imagePath?: boolean;
         alt?: boolean;
+        id?: boolean;
+      };
+  bestFor?:
+    | boolean
+    | {
+        scenario?: boolean;
+        note?: boolean;
+        id?: boolean;
+      };
+  considerations?:
+    | boolean
+    | {
+        title?: boolean;
+        text?: boolean;
+        id?: boolean;
+      };
+  series?:
+    | boolean
+    | {
+        name?: boolean;
+        blurb?: boolean;
+        href?: boolean;
+        image?: boolean;
+        imagePath?: boolean;
         id?: boolean;
       };
   kitHeading?: boolean;
@@ -1390,6 +1482,14 @@ export interface SolutionsSelect {
               value?: boolean;
               id?: boolean;
             };
+        id?: boolean;
+      };
+  alternatives?:
+    | boolean
+    | {
+        when?: boolean;
+        choose?: boolean;
+        href?: boolean;
         id?: boolean;
       };
   longDesc?: boolean;

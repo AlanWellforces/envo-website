@@ -51,6 +51,13 @@ export default async function SolutionsPage() {
                 <span className="sd-tag">{s.eyebrow}</span>
                 <h2>{s.heroTitle}</h2>
                 <p>{s.heroDesc}</p>
+                {s.useCases.length > 0 && (
+                  <ul className="sd-usecases">
+                    {s.useCases.map((u) => (
+                      <li key={u}>{u}</li>
+                    ))}
+                  </ul>
+                )}
                 <ul className="sd-checks">
                   {s.checklist.map((c) => (
                     <li key={c}>{c}</li>

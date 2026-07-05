@@ -2,6 +2,7 @@ import Image from 'next/image'
 import Link from 'next/link'
 import type { Solution } from '@/lib/solutions'
 import { PURCHASE_CHANNELS } from '@/data/purchase-channels'
+import { EnvoButton } from '@/components/ui/envo-button'
 import { SolutionGallery } from './SolutionGallery'
 import '@/components/solutions/solutions-dark.css'
 
@@ -40,11 +41,82 @@ export function SolutionDetail({ solution: s }: { solution: Solution }) {
         </div>
       </section>
 
-      {/* recommended kit */}
-      <section className="sd-sec sd-band sd-kit">
+      {/* best for */}
+      {s.bestFor.length > 0 && (
+        <section className="sd-sec sd-band">
+          <div className="container">
+            <div className="sd-sechead">
+              <span className="sd-tag">Best for</span>
+              <h2>Where this solution fits</h2>
+            </div>
+            <div className="bf-grid">
+              {s.bestFor.map((b) => (
+                <article key={b.scenario} className="bf-card">
+                  <h3>{b.scenario}</h3>
+                  <p>{b.note}</p>
+                </article>
+              ))}
+            </div>
+          </div>
+        </section>
+      )}
+
+      {/* design considerations */}
+      {s.considerations.length > 0 && (
+        <section className="sd-sec">
+          <div className="container">
+            <div className="sd-sechead">
+              <span className="sd-tag">Design considerations</span>
+              <h2>What we check before speccing the build</h2>
+            </div>
+            <div className="dc-grid">
+              {s.considerations.map((c, i) => (
+                <article key={c.title} className="dc-item">
+                  <span className="dc-num">{String(i + 1).padStart(2, '0')}</span>
+                  <div>
+                    <h3>{c.title}</h3>
+                    <p>{c.text}</p>
+                  </div>
+                </article>
+              ))}
+            </div>
+          </div>
+        </section>
+      )}
+
+      {/* recommended ENVO series */}
+      {s.series.length > 0 && (
+        <section className="sd-sec sd-band">
+          <div className="container">
+            <div className="sd-sechead">
+              <span className="sd-tag">Recommended ENVO series</span>
+              <h2>Start with these series</h2>
+            </div>
+            <div className="sr-grid">
+              {s.series.map((r) => (
+                <Link key={r.name} href={r.href} className="sr-card">
+                  <div className={r.img.endsWith('.png') ? 'sr-img is-contain' : 'sr-img'}>
+                    <Image src={r.img} alt={r.name} fill sizes="(min-width: 900px) 25vw, 100vw" />
+                  </div>
+                  <div className="sr-body">
+                    <span className="sr-name">{r.name}</span>
+                    <p className="sr-blurb">{r.blurb}</p>
+                    <span className="sr-link">
+                      View series <span>→</span>
+                    </span>
+                  </div>
+                </Link>
+              ))}
+            </div>
+          </div>
+        </section>
+      )}
+
+      {/* typical kit */}
+      <section className="sd-sec sd-kit">
         <div className="container">
           <div className="kit-head">
-            <span className="sd-tag">The recommended kit</span>
+            <span className="sd-tag">The typical kit</span>
             <h2>{s.kitHeading}</h2>
             <p>{s.kitLede}</p>
           </div>
@@ -70,7 +142,7 @@ export function SolutionDetail({ solution: s }: { solution: Solution }) {
                   </ul>
                   {k.envo && k.href ? (
                     <Link href={k.href} className="kc-details">
-                      View product <span>→</span>
+                      View series <span>→</span>
                     </Link>
                   ) : (
                     <span className="kc-note">Supplied via your distributor</span>
@@ -89,6 +161,51 @@ export function SolutionDetail({ solution: s }: { solution: Solution }) {
         </div>
       </section>
 
+      {/* when to choose alternatives */}
+      {s.alternatives.length > 0 && (
+        <section className="sd-sec">
+          <div className="container">
+            <div className="sd-sechead">
+              <span className="sd-tag">When to choose alternatives</span>
+              <h2>When another fit is better</h2>
+            </div>
+            <div className="alt-rows">
+              {s.alternatives.map((a) => (
+                <div key={a.when} className="alt-row">
+                  <span className="alt-when">{a.when}</span>
+                  <span className="alt-arrow">→</span>
+                  {a.href ? (
+                    <Link href={a.href} className="alt-choose">
+                      {a.choose}
+                    </Link>
+                  ) : (
+                    <span className="alt-choose is-plain">{a.choose}</span>
+                  )}
+                </div>
+              ))}
+            </div>
+          </div>
+        </section>
+      )}
+
+      {/* free layout design CTA */}
+      <section className="sd-sec sd-fld-sec">
+        <div className="container">
+          <div className="fld-cta">
+            <div>
+              <h2>Not sure where to start? Get a free layout.</h2>
+              <p>
+                Send your dimensions or elevation and our engineers return a module layout with a
+                full bill of materials — free, no commitment.
+              </p>
+            </div>
+            <EnvoButton href="/free-layout-design" variant="primary" arrow className="fld-btn">
+              Get a free layout design
+            </EnvoButton>
+          </div>
+        </div>
+      </section>
+
       {/* distributor CTA */}
       <section className="sd-sec sd-cta-sec">
         <div className="container">
@@ -97,16 +214,10 @@ export function SolutionDetail({ solution: s }: { solution: Solution }) {
               <div>
                 <h2>Source the complete kit from your regional distributor</h2>
                 <p>
-                  ENVO is a lead-gen brand — pricing and stock sit with our distributors, who supply
-                  the ENVO products and the compatible parts together in one order. Pick your region,
-                  or get a free layout from our engineers first.
+                  ENVO products are supplied through authorised regional distributors, who hold
+                  pricing and stock and ship the ENVO products and the compatible parts together in
+                  one order. Pick your region to get started.
                 </p>
-                <div className="dist-note">
-                  New project?{' '}
-                  <Link href="/free-layout-design">
-                    Get a free layout — we&rsquo;ll spec the full bill of materials →
-                  </Link>
-                </div>
               </div>
               <div className="dist-actions">
                 {PURCHASE_CHANNELS.map((c) => (
