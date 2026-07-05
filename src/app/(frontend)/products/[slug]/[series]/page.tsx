@@ -6,6 +6,7 @@ import { datasheetHref } from '@/lib/asset-url'
 import { getProduct, getProductsByMarketingFamily, type Product } from '@/lib/products'
 import { seriesSlug as toSeriesSlug } from '@/data/family-map'
 import { buildMergedSeriesProps } from '@/lib/merged-series'
+import { COMPLEMENT_FAMILIES, pickRelatedSeries } from '@/lib/related-series'
 import { SERIES_EDITORIAL } from '@/data/series-editorial.generated'
 
 type Params = Promise<{ slug: string; series: string }>
@@ -161,7 +162,19 @@ export default async function SeriesDetailPage({ params }: { params: Params }) {
   const all = await getProductsByMarketingFamily(slug, { depth: 0 })
   const products = all.filter((p) => toSeriesSlug(p.series) === series)
   if (products.length === 0) notFound()
+
+  // "Pairs with" cards need the complementary families' series lists too.
+  // Fetched sequentially on purpose — the dev pooler's connection cap.
+  const productsByFamily: Record<string, Product[]> = { [slug]: all }
+  for (const comp of COMPLEMENT_FAMILIES[slug] ?? []) {
+    productsByFamily[comp] = await getProductsByMarketingFamily(comp, { depth: 0 })
+  }
+  const related = pickRelatedSeries(slug, series, productsByFamily)
+
   return (
-    <MergedSeriesPage {...buildMergedSeriesProps(family, products[0].series ?? series, products)} />
+    <MergedSeriesPage
+      {...buildMergedSeriesProps(family, products[0].series ?? series, products)}
+      related={related.length ? related : undefined}
+    />
   )
 }
