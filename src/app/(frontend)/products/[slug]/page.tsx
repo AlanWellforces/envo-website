@@ -41,7 +41,7 @@ export default async function ProductFamilyPage({ params }: { params: Params }) 
   const total = [...countBySlug.values()].reduce((a, b) => a + b, 0)
 
   const cards = buildCards(family, products)
-  const groups = buildGroups(cards)
+  const groups = buildGroups(cards, slug)
   const unit = slug === 'led-signage-modules' ? 'modules' : 'models'
 
   return (
@@ -77,7 +77,7 @@ export default async function ProductFamilyPage({ params }: { params: Params }) 
           </div>
         </div>
 
-        <CatalogueFilter cards={cards} groups={groups} unit={unit} />
+        <CatalogueFilter cards={cards} groups={groups} unit={unit} showSections />
       </div>
     </div>
   )

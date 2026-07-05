@@ -11,6 +11,9 @@ type Props = {
   cards: CatalogueCard[]
   groups: FacetGroup[]
   unit: string
+  /** Group the results under their section headings (e.g. CV / CC drivers)
+   *  while no filter or search is active; any active filter flattens the list. */
+  showSections?: boolean
 }
 
 /**
@@ -19,7 +22,7 @@ type Props = {
  * group intersect the selected set (so a card lacking a value for an active
  * facet is excluded), and the query (if any) appears in its name/family.
  */
-export function CatalogueFilter({ cards, groups, unit }: Props) {
+export function CatalogueFilter({ cards, groups, unit, showSections = false }: Props) {
   const [selected, setSelected] = useState<Record<string, Set<string>>>({})
   const [query, setQuery] = useState('')
 
@@ -144,8 +147,20 @@ export function CatalogueFilter({ cards, groups, unit }: Props) {
             </button>
           </p>
         ) : (
-          <div className="pcat-list">
-            {visible.map((c) => (
+          (() => {
+            // Sectioned view only while nothing is filtered — an active filter
+            // must not scatter its results across headings.
+            const sections = showSections && activeCount === 0
+              ? [...new Set(visible.map((c) => c.section))]
+              : []
+            const buckets = sections.length > 1
+              ? sections.map((s) => ({ title: s, cards: visible.filter((c) => c.section === s) }))
+              : [{ title: null as string | null, cards: visible }]
+            return buckets.map((b) => (
+              <div key={b.title ?? 'all'}>
+                {b.title && <h2 className="pcat-section">{b.title}</h2>}
+                <div className="pcat-list">
+                  {b.cards.map((c) => (
               <Link key={c.key} href={c.href} className="pcat-row">
                 <div className="pcat-row-media">
                   {c.beads ? (
@@ -191,8 +206,11 @@ export function CatalogueFilter({ cards, groups, unit }: Props) {
                   </span>
                 </div>
               </Link>
-            ))}
-          </div>
+                  ))}
+                </div>
+              </div>
+            ))
+          })()
         )}
       </section>
     </div>
