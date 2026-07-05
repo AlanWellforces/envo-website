@@ -6,6 +6,7 @@ import type { Product } from './products'
 
 const driversFamily = PRODUCT_FAMILIES.find((f) => f.slug === 'led-drivers')!
 const modulesFamily = PRODUCT_FAMILIES.find((f) => f.slug === 'led-signage-modules')!
+const controlFamily = PRODUCT_FAMILIES.find((f) => f.slug === 'control-gear')!
 
 const p = (over: Partial<Product> & Record<string, unknown>): Product => ({
   sku: 'X', name: 'n', productName: null, slug: null, family: 'sc_envo',
@@ -23,17 +24,18 @@ const sharedRow = (props: ReturnType<typeof buildMergedSeriesProps>, label: stri
   props.sharedRows?.find((r) => r.label === label)
 
 describe('input voltage row', () => {
-  it('shows the full AC range for mains-input drivers, never "V DC"', () => {
+  it('drivers always carry input voltage per model — the full AC range, never "V DC"', () => {
     const props = buildMergedSeriesProps(driversFamily, 'sc_envo', [
       p({ sku: 'SC-10-12', input_voltage_min_v: 90, input_voltage_max_v: 132 }),
       p({ sku: 'SC-20-12', input_voltage_min_v: 90, input_voltage_max_v: 132 }),
     ])
-    expect(sharedRow(props, 'Input voltage')?.value).toBe('90–132 V AC')
+    expect(sharedRow(props, 'Input voltage')).toBeUndefined()
+    for (const v of props.variants) expect(v.inputVoltage).toBe('90–132 V AC')
   })
 
-  it('labels a low-voltage input range as DC', () => {
-    const props = buildMergedSeriesProps(driversFamily, 'envo_zigbee', [
-      p({ sku: 'SR-1', input_voltage_min_v: 12, input_voltage_max_v: 48 }),
+  it('labels a low-voltage input range as DC (shared row on non-driver families)', () => {
+    const props = buildMergedSeriesProps(controlFamily, 'envo_zigbee', [
+      p({ sku: 'SR-1', family: 'psu_led_controller', series: 'envo_zigbee', input_voltage_min_v: 12, input_voltage_max_v: 48 }),
     ])
     expect(sharedRow(props, 'Input voltage')?.value).toBe('12–48 V DC')
   })
@@ -60,6 +62,117 @@ describe('input voltage row', () => {
     const props = buildMergedSeriesProps(driversFamily, 'sc_envo', [p({ sku: 'A' })])
     expect(sharedRow(props, 'Input voltage')).toBeUndefined()
     expect(props.variants[0].inputVoltage).toBeUndefined()
+  })
+})
+
+// ── driver spec table (user-locked columns 2026-07-06):
+//    Model / Power / Output voltage / Rated current / Input voltage / Dimming / IP rating / Dimensions
+describe('driver series spec table', () => {
+  const slModel = (over: Record<string, unknown> = {}) =>
+    p({
+      sku: 'EV-SL-100-12', name: 'ENVO EV-SL-100-12 Linear Type LED Driver 100W 12V 8.33A',
+      series: 'envo_sl_us', family: 'psu_led_cv', power_w: 100, output_voltage_v: 12,
+      rated_current_a: 8.33, input_voltage_min_v: 100, input_voltage_max_v: 240,
+      waterproof: 'ip20', length_mm: 280, width_mm: 30, height_mm: 21,
+      description: 'Open circuit, short circuit, overload and over voltage protection.',
+      operation_mode: 'cv',
+      ...over,
+    })
+
+  it('each driver variant carries the full selection columns', () => {
+    const props = buildMergedSeriesProps(driversFamily, 'envo_sl_us', [slModel()])
+    const v = props.variants[0]
+    expect(v.power).toBe('100 W')
+    expect(v.outputVoltage).toBe('12 V DC')
+    expect(v.ratedCurrent).toBe('8.33 A')
+    expect(v.inputVoltage).toBe('100–240 V AC')
+    expect(v.ip).toBe('IP20')
+    expect(v.dimensions).toBe('280 × 30 × 21 mm')
+    // "Module size" must never render on a driver page
+    expect(v.size).toBeUndefined()
+  })
+
+  it('signage variants keep Module size and gain none of the driver columns', () => {
+    const props = buildMergedSeriesProps(modulesFamily, 'envo_ecoglo', [
+      p({ sku: 'EV-BLEG02LBY-NW', series: 'envo_ecoglo', family: 'led_module', power_w: 1, length_mm: 30, width_mm: 12, height_mm: 6 }),
+    ])
+    const v = props.variants[0]
+    expect(v.size).toBe('30 × 12 × 6 mm')
+    expect(v.dimensions).toBeUndefined()
+    expect(v.ratedCurrent).toBeUndefined()
+    expect(v.ip).toBeUndefined()
+  })
+
+  it('derives per-model dimming: field, triac-name, non-dimmable-name', () => {
+    const props = buildMergedSeriesProps(driversFamily, 'sc_envo', [
+      p({ sku: 'A', name: 'Driver', dimming_control: ['dali'] }),
+      p({ sku: 'B', name: 'Triac Dimmable LED Driver' }),
+      p({ sku: 'C', name: 'Non-Dimmable LED Driver' }),
+      p({ sku: 'D', name: 'Driver' }),
+    ])
+    const byCode = Object.fromEntries(props.variants.map((v) => [v.modelCode, v.dimming]))
+    expect(byCode['A']).toBe('DALI')
+    expect(byCode['B']).toBe('Triac')
+    expect(byCode['C']).toBe('Non-dimmable')
+    expect(byCode['D']).toBeUndefined()
+  })
+
+  it('non-IP-rated models show no IP value', () => {
+    const props = buildMergedSeriesProps(driversFamily, 'sc_envo', [
+      p({ sku: 'A', waterproof: 'non_waterproof' }),
+      p({ sku: 'B', waterproof: 'ip67' }),
+    ])
+    const byCode = Object.fromEntries(props.variants.map((v) => [v.modelCode, v.ip]))
+    expect(byCode['A']).toBeUndefined()
+    expect(byCode['B']).toBe('IP67')
+  })
+
+  it('drivers get no shared Ingress row — IP lives in the per-model column', () => {
+    const props = buildMergedSeriesProps(driversFamily, 'envo_sng', [
+      p({ sku: 'A', series: 'envo_sng', waterproof: 'ip67' }),
+    ])
+    expect(sharedRow(props, 'Ingress protection')).toBeUndefined()
+  })
+})
+
+describe('driver shared rows: operation mode, protections, warranty', () => {
+  it('uniform operation mode shows as one shared row', () => {
+    const props = buildMergedSeriesProps(driversFamily, 'envo_sl_us', [
+      p({ sku: 'A', operation_mode: 'cv' }), p({ sku: 'B', operation_mode: 'cv' }),
+    ])
+    expect(sharedRow(props, 'Operation mode')?.value).toBe('Constant voltage (CV)')
+  })
+
+  it('mixed CV/CC series says it varies by model', () => {
+    const props = buildMergedSeriesProps(driversFamily, 'sc_envo', [
+      p({ sku: 'A', operation_mode: 'cv' }), p({ sku: 'B', operation_mode: 'cc' }),
+    ])
+    expect(sharedRow(props, 'Operation mode')?.value).toBe('CV & CC — varies by model')
+  })
+
+  it('protections come from the models\' own Akeneo copy, intersected across the series', () => {
+    const desc = 'Open circuit, short circuit, overload and over voltage protection.'
+    const props = buildMergedSeriesProps(driversFamily, 'envo_sl_us', [
+      p({ sku: 'A', description: desc }),
+      p({ sku: 'B', description: 'short circuit and overload protection' }),
+    ])
+    expect(sharedRow(props, 'Protections')?.value).toBe('Short-circuit · Overload')
+  })
+
+  it('no protection copy → no Protections row (sr_triac)', () => {
+    const props = buildMergedSeriesProps(driversFamily, 'sr_triac', [
+      p({ sku: 'A', series: 'sr_triac', description: 'NFC programmable DALI DT6 driver.' }),
+    ])
+    expect(sharedRow(props, 'Protections')).toBeUndefined()
+  })
+
+  it('warranty renders only when the PIM carries warranty_years', () => {
+    const withWarranty = buildMergedSeriesProps(driversFamily, 'envo_sl_us', [
+      p({ sku: 'A', warranty_years: 5 }), p({ sku: 'B', warranty_years: 5 }),
+    ])
+    expect(sharedRow(withWarranty, 'Warranty')?.value).toBe('5 years')
+    const without = buildMergedSeriesProps(driversFamily, 'envo_sl_us', [p({ sku: 'A' })])
+    expect(sharedRow(without, 'Warranty')).toBeUndefined()
   })
 })
 

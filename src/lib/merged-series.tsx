@@ -39,6 +39,46 @@ const LED_BEADS: Record<string, number> = { Single: 1, Double: 2, Triple: 3, Qua
 const num = (n: unknown): number | null => (typeof n === 'number' && !Number.isNaN(n) ? n : null)
 const uniq = <T,>(a: T[]) => [...new Set(a)]
 
+// Per-model dimming for the driver spec table. From dimming_control plus the
+// product NAME (the PIM leaves the field empty on SP's triac models and KVS's
+// non-dimmable one). Never derived from series labels — sr_triac is DALI.
+const DIMMING_LABEL: Record<string, string> = {
+  triac: 'Triac', dali: 'DALI', pwm: 'PWM', '0_10v': '0–10 V', none: 'Non-dimmable',
+}
+function dimmingDisplay(p: Product): string | undefined {
+  const vals = new Set((p.dimming_control ?? []).filter((d) => DIMMING_LABEL[d]))
+  if (/triac[- ]?dim/i.test(p.name)) vals.add('triac')
+  if (/non[- ]?dimmable/i.test(p.name)) vals.add('none')
+  if (vals.size > 1) vals.delete('none')
+  if (!vals.size) return undefined
+  return [...vals].map((v) => DIMMING_LABEL[v]).join(' · ')
+}
+
+function ipDisplay(p: Product): string | undefined {
+  return p.waterproof && /^ip\d+$/i.test(p.waterproof) ? p.waterproof.toUpperCase() : undefined
+}
+
+// Protection features, from each model's own Akeneo copy (there is no
+// structured attribute). The shared row shows the INTERSECTION across models
+// that mention any protection — never a union, so nothing is over-claimed.
+const PROTECTION_TERMS: [RegExp, string][] = [
+  [/short[- ]?circuit/i, 'Short-circuit'],
+  [/open[- ]?circuit/i, 'Open-circuit'],
+  [/over[- ]?load/i, 'Overload'],
+  [/over[- ]?voltage/i, 'Over-voltage'],
+  [/over[- ]?temp|over[- ]?heat/i, 'Over-temperature'],
+]
+function protectionsOf(p: Product): string[] {
+  const text = `${p.description ?? ''} ${p.short_description ?? ''}`
+  return PROTECTION_TERMS.filter(([re]) => re.test(text)).map(([, label]) => label)
+}
+function sharedProtections(products: Product[]): string | null {
+  const sets = products.map(protectionsOf).filter((s) => s.length > 0)
+  if (!sets.length) return null
+  const common = sets.reduce((a, b) => a.filter((x) => b.includes(x)))
+  return common.length ? common.join(' · ') : null
+}
+
 export function buildMergedSeriesProps(
   family: ProductFamily,
   series: string,
@@ -69,11 +109,15 @@ export function buildMergedSeriesProps(
     }),
   )
   const voltageValues = uniq([...voltageByCode.values()].filter((v): v is string => v != null))
-  const sharedVoltage = voltageValues.length === 1 ? voltageValues[0] : null
+  // Drivers ALWAYS show input voltage per model (user-locked table columns);
+  // other families keep the shared-row-when-uniform behaviour.
+  const isDrivers = family.slug === 'led-drivers'
+  const sharedVoltage = !isDrivers && voltageValues.length === 1 ? voltageValues[0] : null
 
   const variants: MergedVariant[] = models.map((m) => {
     const beads = LED_BEADS[m.leds]
-    const colour = repByCode.get(m.code)?.led_chip_colour
+    const rep = repByCode.get(m.code)
+    const colour = rep?.led_chip_colour
     const name = ledsDistinguish && m.leds !== '—' ? m.leds : colour ? colour.toUpperCase() : m.code
     return {
       name,
@@ -88,7 +132,18 @@ export function buildMergedSeriesProps(
       output: m.lumens ? `~ ${m.lumens} lm` : undefined,
       power: m.powerW != null ? `${m.powerW} W` : undefined,
       inputVoltage: sharedVoltage ? undefined : (voltageByCode.get(m.code) ?? undefined),
-      size: m.dimsMm ? `${m.dimsMm} mm` : undefined,
+      // Driver selection columns: Output V / Rated A / Dimming / IP / Dimensions.
+      // The same physical size renders as "Module size" on signage pages and
+      // "Dimensions" on driver pages — hence two keys for one value.
+      ...(isDrivers
+        ? {
+            outputVoltage: rep?.output_voltage_v != null ? `${rep.output_voltage_v} V DC` : undefined,
+            ratedCurrent: rep?.rated_current_a != null ? `${rep.rated_current_a} A` : undefined,
+            dimming: rep ? dimmingDisplay(rep) : undefined,
+            ip: rep ? ipDisplay(rep) : undefined,
+            dimensions: m.dimsMm ? `${m.dimsMm} mm` : undefined,
+          }
+        : { size: m.dimsMm ? `${m.dimsMm} mm` : undefined }),
     }
   })
 
@@ -105,11 +160,22 @@ export function buildMergedSeriesProps(
   const efficacy = products.map((p) => num(p.efficacy_lm_w)).find(Boolean) ?? null
   if (efficacy) sharedRows.push({ label: 'Efficacy', value: `~ ${efficacy} lm / W` })
 
+  // Drivers carry IP in the per-model column instead of a shared row.
   const ipField = products.map((p) => p.waterproof).find((w) => w && /^ip\d+$/i.test(w))
-  if (ipField) sharedRows.push({ label: 'Ingress protection', value: ipField.toUpperCase() })
+  if (ipField && !isDrivers) sharedRows.push({ label: 'Ingress protection', value: ipField.toUpperCase() })
 
   const lifetime = products.map((p) => num(p.lifetime_hrs)).find(Boolean) ?? null
   if (lifetime) sharedRows.push({ label: 'Lifetime', value: `${lifetime.toLocaleString()} h` })
+
+  const modes = uniq(products.map((p) => p.operation_mode).filter(Boolean))
+  if (modes.length === 1 && modes[0] !== 'cv_cc') {
+    sharedRows.push({
+      label: 'Operation mode',
+      value: modes[0] === 'cv' ? 'Constant voltage (CV)' : 'Constant current (CC)',
+    })
+  } else if (modes.length > 1 || modes[0] === 'cv_cc') {
+    sharedRows.push({ label: 'Operation mode', value: 'CV & CC — varies by model' })
+  }
 
   const certs = uniq(products.flatMap((p) => p.standards_met ?? [])).map((c) => CERT_NAME[c] ?? c)
   if (certs.length)
@@ -125,6 +191,13 @@ export function buildMergedSeriesProps(
         </span>
       ),
     })
+
+  const protections = sharedProtections(products)
+  if (protections) sharedRows.push({ label: 'Protections', value: protections })
+
+  const warranties = uniq(products.map((p) => num(p.warranty_years)).filter((w): w is number => w != null))
+  if (warranties.length === 1)
+    sharedRows.push({ label: 'Warranty', value: `${warranties[0]} year${warranties[0] === 1 ? '' : 's'}` })
 
   const datasheetUrl = models.find((m) => m.datasheetUrl)?.datasheetUrl ?? undefined
   const checklist: string[] | undefined = copy?.strengths
