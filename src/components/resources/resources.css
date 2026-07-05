@@ -47,8 +47,10 @@
   display:grid; place-items:center; font-size:8px; font-weight:700; letter-spacing:.04em; color:#6a7a8a; }
 .rd-row[data-cat="cert"] .rd-ic { color:var(--envo-lime-deep); border-color:rgba(174,201,11,.45); background:#f4f8d8; }
 .rd-row[data-cat="cad"] .rd-ic { color:var(--envo-blue); border-color:rgba(0,113,188,.35); background:#e8f1fb; }
-.rd-doc { min-width:0; }
-.rd-name { font-size:14.5px; font-weight:600; letter-spacing:-.01em; color:#1a2332;
+/* .rd-doc/.rd-name are spans — they must be block-level for min-width:0 and
+   text-overflow to apply; inline spans let long titles widen the page on phones */
+.rd-doc { display:block; min-width:0; }
+.rd-name { display:block; font-size:14.5px; font-weight:600; letter-spacing:-.01em; color:#1a2332;
   white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
 .rd-chips { margin-top:6px; display:flex; gap:7px; flex-wrap:wrap; }
 .rd-chip { font-size:9.5px; letter-spacing:.05em; text-transform:uppercase; color:#6a7a8a;

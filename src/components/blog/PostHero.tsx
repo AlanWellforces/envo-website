@@ -27,9 +27,8 @@ export function PostHero({ post }: { post: Post }) {
   return (
     <Link
       href={`/blog/${post.slug}`}
-      className="relative block rounded-2xl overflow-hidden flex items-end isolate"
+      className="relative block rounded-2xl overflow-hidden flex items-end isolate blog-hero-card"
       style={{
-        margin: '14px 56px 24px',
         minHeight: '460px',
         background: 'linear-gradient(135deg, #1a3a66 0%, #0f2347 50%, #06122a 100%)',
         color: '#ffffff',
@@ -55,10 +54,7 @@ export function PostHero({ post }: { post: Post }) {
         aria-hidden="true"
       />
 
-      <div
-        className="relative z-10 max-w-[760px]"
-        style={{ padding: '56px 60px 48px' }}
-      >
+      <div className="relative z-10 max-w-[760px] blog-hero-body">
         <div
           className="font-semibold uppercase"
           style={{ fontSize: '12px', letterSpacing: '0.08em', color: '#aec90b' }}
@@ -70,7 +66,7 @@ export function PostHero({ post }: { post: Post }) {
 
         <h1
           className="font-bold"
-          style={{ fontSize: '52px', lineHeight: 1.05, letterSpacing: '-0.025em', maxWidth: '18ch', margin: '16px 0 14px', color: '#ffffff' }}
+          style={{ fontSize: 'clamp(30px, 6vw, 52px)', lineHeight: 1.05, letterSpacing: '-0.025em', maxWidth: '18ch', margin: '16px 0 14px', color: '#ffffff' }}
         >
           {post.title}
         </h1>
