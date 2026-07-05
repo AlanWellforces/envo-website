@@ -41,9 +41,8 @@
 
 /* hero key-spec grid (reference layout 2026-07-06): two columns of
    icon + LABEL-over-value rows with hairline separators */
-.pdetail .kspecs { margin: 2px 0 24px; }
-.pdetail .kspecs-title { font-size: 10px; letter-spacing: 0.18em; text-transform: uppercase; font-weight: 700; color: var(--text); margin-bottom: 2px; }
-.pdetail .kspecs-grid { display: grid; grid-template-columns: 1fr 1fr; column-gap: 30px; }
+.pdetail .kspecs { margin: 6px 0 26px; }
+.pdetail .kspecs-grid { display: grid; grid-template-columns: 1fr 1fr; column-gap: 30px; border-top: 1px solid var(--line); }
 .pdetail .ks { display: flex; align-items: center; gap: 12px; padding: 13px 0; border-bottom: 1px solid var(--line); min-width: 0; }
 .pdetail .ks-ico { width: 24px; height: 24px; flex: none; fill: none; stroke: var(--text-subtle); stroke-width: 1.6; stroke-linecap: round; stroke-linejoin: round; }
 .pdetail .ks-bd { display: flex; flex-direction: column; gap: 2px; min-width: 0; }

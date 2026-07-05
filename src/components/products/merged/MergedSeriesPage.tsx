@@ -85,11 +85,6 @@ function Picture({ img, sizes }: { img: Img; sizes: string }) {
   return <Image src={img.src} alt={img.alt} width={300} height={220} sizes={sizes} />
 }
 
-const CheckIcon = () => (
-  <svg viewBox="0 0 24 24" aria-hidden>
-    <polyline points="20 6 9 17 4 12" />
-  </svg>
-)
 const FileIcon = () => (
   <svg viewBox="0 0 24 24" aria-hidden>
     <path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z" />
@@ -207,11 +202,12 @@ export default function MergedSeriesPage(p: MergedSeriesProps) {
           <div className="p-info">
             <div className="eyebrow">{p.eyebrow}</div>
             <h1>{p.title}</h1>
-            <p className="intro">{p.intro}</p>
-
+            {/* Hero shows the key-spec grid ONLY (user-locked 2026-07-06):
+                no intro paragraph, no grid title, no checklist — the H1 goes
+                straight to the facts. `intro`/`checklist` stay in the props
+                for series that may surface them elsewhere later. */}
             {p.keySpecs && p.keySpecs.length > 0 && (
               <div className="kspecs">
-                <div className="kspecs-title">Product specs</div>
                 <div className="kspecs-grid">
                   {p.keySpecs.map((s) => (
                     <div key={s.label} className="ks">
@@ -226,17 +222,6 @@ export default function MergedSeriesPage(p: MergedSeriesProps) {
                   ))}
                 </div>
               </div>
-            )}
-
-            {p.checklist && p.checklist.length > 0 && (
-              <ul className="checklist">
-                {p.checklist.map((c) => (
-                  <li key={c}>
-                    <CheckIcon />
-                    {c}
-                  </li>
-                ))}
-              </ul>
             )}
 
             <div className="cta">
