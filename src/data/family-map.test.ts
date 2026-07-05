@@ -11,7 +11,9 @@ describe('family mapping (7 DB → 4 marketing)', () => {
     expect(dbFamilyToMarketing('psu_led_cc')?.slug).toBe('led-drivers')
     expect(dbFamilyToMarketing('psu_led_controller')?.slug).toBe('control-gear')
     expect(dbFamilyToMarketing('switch_switch_module')?.slug).toBe('control-gear')
-    expect(dbFamilyToMarketing('sensor')?.slug).toBe('accessories')
+    // sensor moved to control-gear 2026-07-06 (user decision — every live
+    // "accessory" was a sensor, and sensors belong with the controls they feed)
+    expect(dbFamilyToMarketing('sensor')?.slug).toBe('control-gear')
     expect(dbFamilyToMarketing('accessory_general')?.slug).toBe('accessories')
   })
   it('returns null for an unknown DB family', () => {
@@ -21,7 +23,7 @@ describe('family mapping (7 DB → 4 marketing)', () => {
     expect(marketingFamilyToDbFamilies('led-drivers').sort())
       .toEqual(['psu_led_cc', 'psu_led_cv'])
     expect(marketingFamilyToDbFamilies('control-gear').sort())
-      .toEqual(['psu_led_controller', 'switch_switch_module'])
+      .toEqual(['psu_led_controller', 'sensor', 'switch_switch_module'])
   })
   it('exposes exactly 4 marketing families', () => {
     expect(MARKETING_FAMILIES.map((f) => f.slug).sort())

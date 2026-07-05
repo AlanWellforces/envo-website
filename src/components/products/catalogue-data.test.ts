@@ -141,13 +141,23 @@ describe('per-family filter groups', () => {
     expect(keys).not.toContain('brightness')
   })
 
-  it('control-gear gets protocol only — never the driver facets', () => {
+  it('control-gear gets protocol/function/control-type/channels — never the driver facets', () => {
     const controlProducts = [
-      p({ sku: 'CA-1', family: 'psu_led_controller', series: 'envo_casambi', dimming_control: ['casambi'], power_w: 192 }),
-      p({ sku: 'ZB-1', family: 'psu_led_controller', series: 'envo_zigbee', dimming_control: ['zigbee', 'dali'], power_w: 96 }),
+      p({ sku: 'CA-1', name: 'ENVO Casambi Low Voltage Controller, 12-48V 5 Channel', family: 'psu_led_controller', series: 'envo_casambi', dimming_control: ['casambi'], controller_type: ['rgbw'], output_channel: '5_channel' }),
+      p({ sku: 'ZB-1', name: 'ENVO ZigBee Single Colour Mini Controller 1 Channel', family: 'psu_led_controller', series: 'envo_zigbee', dimming_control: ['zigbee'], controller_type: ['dimming'], output_channel: '1ch' }),
+      p({ sku: 'ZB-2', name: 'ENVO ZigBee Classic Remote Single Colour - 4 Zones', family: 'psu_led_controller', series: 'envo_zigbee', dimming_control: ['zigbee'] }),
     ]
     const groups = buildGroups(buildCards(CONTROL, controlProducts), 'control-gear')
-    expect(groups.map((g) => g.key)).toEqual(['protocol'])
+    expect(groups.map((g) => g.key)).toEqual(['protocol', 'function', 'controltype', 'channels'])
+  })
+
+  it('control-gear never shows size or the driver facets', () => {
+    const controlProducts = [
+      p({ sku: 'A', family: 'psu_led_controller', series: 'envo_zigbee', dimming_control: ['zigbee'], power_w: 96, length_mm: 20 }),
+      p({ sku: 'B', family: 'psu_led_controller', series: 'envo_dali', dimming_control: ['dali'], power_w: 300, length_mm: 200 }),
+    ]
+    const keys = buildGroups(buildCards(CONTROL, controlProducts), 'control-gear').map((g) => g.key)
+    for (const k of ['size', 'power', 'outv', 'environment', 'formfactor', 'voltage']) expect(keys).not.toContain(k)
   })
 
   it('accessories get no facet groups', () => {
@@ -163,6 +173,49 @@ describe('per-family filter groups', () => {
     const keys = groups.map((g) => g.key)
     expect(keys).not.toContain('power')
     expect(keys).not.toContain('environment')
+  })
+})
+
+// ── control-gear facet derivations ──────────────────────────────────────────
+describe('control-gear derivations', () => {
+  const card1 = (over: Record<string, unknown>) =>
+    cardFor(CONTROL, [p({ family: 'psu_led_controller', series: 'envo_zigbee', ...over })], 'envo_zigbee')
+
+  it('derives function from names: dimmer beats wall, sensor beats dimming mention', () => {
+    expect(card1({ sku: 'A', name: 'ENVO ZigBee US Standard Push Button Smart Dimmer' }).facets.function).toEqual(['dimmer'])
+    expect(card1({ sku: 'B', name: 'ENVO ZigBee 2Gang In-wall Switch - On/Off Control' }).facets.function).toEqual(['wall-switch'])
+    expect(card1({ sku: 'C', name: 'ENVO ZigBee Ceiling Mounted Microwave Sensor, 0-10V Dimming' }).facets.function).toEqual(['sensor'])
+    expect(card1({ sku: 'D', name: 'ENVO DALI2 Relay On/Off Control + DALI2 to 0/1-10V Conveter' }).facets.function).toEqual(['relay-converter'])
+    expect(card1({ sku: 'E', name: 'ENVO ZigBee Gateway Smart Hub' }).facets.function).toEqual(['gateway'])
+    expect(card1({ sku: 'F', name: 'ENVO ZigBee Self-powered Remote' }).facets.function).toEqual(['remote'])
+    expect(card1({ sku: 'G', name: 'ENVO ZigBee Blinds Controller - On/Off and Level Control' }).facets.function).toEqual(['controller'])
+  })
+
+  it('derives protocol from the name when dimming_control is empty (DALI2 wall panels, ZigbBee typo)', () => {
+    expect(card1({ sku: 'A', name: 'ENVO DALI2 Wall Panel, 8 Buttons, White', dimming_control: [] }).facets.protocol).toEqual(['dali'])
+    expect(card1({ sku: 'B', name: 'ENVO ZigbBee Mini In Wall AC Phase Smart Dimmer', dimming_control: [] }).facets.protocol).toEqual(['zigbee'])
+  })
+
+  it('derives channels from output_channel codes and name fallback', () => {
+    expect(card1({ sku: 'A', output_channel: '1ch' }).facets.channels).toEqual(['1'])
+    expect(card1({ sku: 'B', output_channel: '5_channel' }).facets.channels).toEqual(['5'])
+    expect(card1({ sku: 'C', output_channel: '4a_5ch' }).facets.channels).toEqual(['5'])
+    expect(card1({ sku: 'D', name: 'ENVO PRO DALI2 DT8 LED Controller RGBWW 5 CH 12-36VDC' }).facets.channels).toEqual(['5'])
+  })
+
+  it('derives control type from controller_type tags and RGBWW names', () => {
+    expect(card1({ sku: 'A', controller_type: ['ct', 'dimming', 'rgb', 'rgb_cct', 'rgbw'] }).facets.controltype)
+      .toEqual(expect.arrayContaining(['ct', 'single', 'rgb', 'rgb_cct', 'rgbw']))
+    expect(card1({ sku: 'B', name: 'ENVO PRO DALI2 DT8 LED Controller RGBWW 5 CH' }).facets.controltype).toEqual(['rgb_cct'])
+  })
+})
+
+// ── sensor family lives under control-gear ──────────────────────────────────
+describe('sensor family placement', () => {
+  it('maps the sensor DB family to control-gear, leaving accessories to accessory_general', async () => {
+    const { dbFamilyToMarketing, marketingFamilyToDbFamilies } = await import('@/data/family-map')
+    expect(dbFamilyToMarketing('sensor')?.slug).toBe('control-gear')
+    expect(marketingFamilyToDbFamilies('accessories')).toEqual(['accessory_general'])
   })
 })
 

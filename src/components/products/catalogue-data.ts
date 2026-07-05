@@ -110,11 +110,33 @@ const ENVIRONMENT_OPTIONS = [
   { value: 'outdoor', label: 'Outdoor' },
   { value: 'ip67', label: 'IP67' },
 ] as const
-// Control-gear facet: which control protocol the unit speaks.
+// ── Control-gear facets ─────────────────────────────────────────────────────
 const PROTOCOL_OPTIONS = [
   { value: 'casambi', label: 'Casambi' },
   { value: 'dali', label: 'DALI' },
   { value: 'zigbee', label: 'Zigbee' },
+] as const
+const FUNCTION_OPTIONS = [
+  { value: 'controller', label: 'Controller' },
+  { value: 'dimmer', label: 'Dimmer' },
+  { value: 'remote', label: 'Remote' },
+  { value: 'wall-switch', label: 'Wall switch / panel' },
+  { value: 'relay-converter', label: 'Relay / converter' },
+  { value: 'gateway', label: 'Gateway' },
+  { value: 'sensor', label: 'Sensor' },
+] as const
+const CONTROLTYPE_OPTIONS = [
+  { value: 'single', label: 'Single colour' },
+  { value: 'ct', label: 'Tunable white (CCT)' },
+  { value: 'rgb', label: 'RGB' },
+  { value: 'rgbw', label: 'RGBW' },
+  { value: 'rgb_cct', label: 'RGB+CCT' },
+] as const
+const CHANNELS_OPTIONS = [
+  { value: '1', label: '1 channel' },
+  { value: '2', label: '2 channels' },
+  { value: '4', label: '4 channels' },
+  { value: '5', label: '5 channels' },
 ] as const
 
 function sizeBand(mm: number | null): string | undefined {
@@ -177,8 +199,49 @@ function formfactorValues(p: Product, seriesTags: string[]): string[] {
   return [...vals]
 }
 const PROTOCOL_VALUES = new Set<string>(PROTOCOL_OPTIONS.map((o) => o.value))
+/** Protocol from dimming_control plus the name — the PIM leaves the field
+    empty on some units (DALI2 wall panels; "ZigbBee" typo models). */
 function protocolValues(p: Product): string[] {
-  return (p.dimming_control ?? []).filter((d) => PROTOCOL_VALUES.has(d))
+  const vals = new Set((p.dimming_control ?? []).filter((d) => PROTOCOL_VALUES.has(d)))
+  if (/casambi/i.test(p.name)) vals.add('casambi')
+  if (/dali/i.test(p.name)) vals.add('dali')
+  if (/zig.?bee/i.test(p.name)) vals.add('zigbee')
+  return [...vals]
+}
+/** What the unit IS, from its name. Order matters: gateway/sensor/remote win
+    over the dimming or switching words that also appear in their names. */
+function functionValue(p: Product): string | undefined {
+  const n = p.name
+  if (/gateway|smart hub/i.test(n)) return 'gateway'
+  if (/sensor/i.test(n)) return 'sensor'
+  if (/remote/i.test(n)) return 'remote'
+  if (/dimmer/i.test(n)) return 'dimmer'
+  if (/relay|conve[rn]?ter/i.test(n)) return 'relay-converter'
+  if (/wall panel|in-?wall|push button|rotary|switch/i.test(n)) return 'wall-switch'
+  if (/controller/i.test(n)) return 'controller'
+  return undefined
+}
+/** Colour capability, from the controller_type tags plus RGBWW/RGB+CCT names. */
+const CONTROLTYPE_FROM_FIELD: Record<string, string> = {
+  dimming: 'single', ct: 'ct', rgb: 'rgb', rgbw: 'rgbw', rgb_cct: 'rgb_cct',
+}
+function controlTypeValues(p: Product): string[] {
+  const vals = new Set<string>()
+  for (const t of p.controller_type ?? []) {
+    const mapped = CONTROLTYPE_FROM_FIELD[t]
+    if (mapped) vals.add(mapped)
+  }
+  if (/rgb\+?cct|rgbww/i.test(p.name)) vals.add('rgb_cct')
+  else if (/rgbw\b/i.test(p.name)) vals.add('rgbw')
+  if (/single colou?r/i.test(p.name)) vals.add('single')
+  return [...vals]
+}
+/** Output channels from the output_channel code ('1ch', '5_channel',
+    '4a_5ch' = 4 A per channel × 5ch) with a "5 CH" name fallback. */
+function channelsValue(p: Product): string | undefined {
+  const fromField = (p.output_channel ?? '').match(/(\d+)_?ch(annel)?$/i)?.[1]
+  if (fromField) return fromField
+  return p.name.match(/(\d+)\s*ch(annel)?s?\b/i)?.[1]
 }
 
 /** value → label / sort-order accessors for an options list. */
@@ -202,6 +265,9 @@ const DIMMING = maps(DIMMING_OPTIONS)
 const FORMFACTOR = maps(FORMFACTOR_OPTIONS)
 const ENVIRONMENT = maps(ENVIRONMENT_OPTIONS)
 const PROTOCOL = maps(PROTOCOL_OPTIONS)
+const FUNCTION = maps(FUNCTION_OPTIONS)
+const CONTROLTYPE = maps(CONTROLTYPE_OPTIONS)
+const CHANNELS = maps(CHANNELS_OPTIONS)
 
 /**
  * Feature chips for non-signage cards. Priority (user-locked 2026-07-06):
@@ -213,7 +279,12 @@ const CHIP_DIMMING: Record<string, string> = {
   '0_10v': '0–10 V dim', pwm: 'PWM',
 }
 export const MAX_CHIPS = 5
-function buildChips(facets: Record<string, string[]>, maxPowerW: number | null): string[] {
+function buildChips(
+  facets: Record<string, string[]>,
+  // "High power" is a driver spec — a controller's power_w is its switched
+  // LOAD rating, so the chip would mislead outside led-drivers.
+  maxPowerW: number | null,
+): string[] {
   const chips: string[] = []
   const dims = uniq([...(facets.dimming ?? []), ...(facets.protocol ?? [])])
   for (const d of dims) if (CHIP_DIMMING[d]) chips.push(CHIP_DIMMING[d])
@@ -282,6 +353,9 @@ export function buildCards(family: ProductFamily, products: Product[]): Catalogu
         formfactor: uniq(g.products.flatMap((p) => formfactorValues(p, authored?.formFactor ?? []))),
         environment: uniq(g.products.flatMap((p) => environmentValues(p.waterproof))),
         protocol: uniq(g.products.flatMap(protocolValues)),
+        function: uniq(g.products.map(functionValue)),
+        controltype: uniq(g.products.flatMap(controlTypeValues)),
+        channels: uniq(g.products.map(channelsValue)),
       }
       const maxPowerW = g.products.reduce<number | null>(
         (mx, p) => (p.power_w != null && (mx == null || p.power_w > mx) ? p.power_w : mx),
@@ -302,7 +376,7 @@ export function buildCards(family: ProductFamily, products: Product[]): Catalogu
         badge: spec ? `${spec.ipRating} · ${spec.voltage}` : undefined,
         chips: signage
           ? spec ? [spec.ipRating, spec.voltage, spec.beam].filter(Boolean) : []
-          : buildChips(facets, maxPowerW),
+          : buildChips(facets, family.slug === 'led-drivers' ? maxPowerW : null),
         modelCount: g.products.length,
         section: sec.title,
         beads: beadsFromLedConfig(spec?.ledConfig),
@@ -350,7 +424,12 @@ export function buildGroups(cards: CatalogueCard[], familySlug?: string): FacetG
           group('opmode', 'Operation mode', cards, OPMODE.label, OPMODE.order),
         ]
       case 'control-gear':
-        return [group('protocol', 'Protocol', cards, PROTOCOL.label, PROTOCOL.order)]
+        return [
+          group('protocol', 'Protocol', cards, PROTOCOL.label, PROTOCOL.order),
+          group('function', 'Function', cards, FUNCTION.label, FUNCTION.order),
+          group('controltype', 'Control type', cards, CONTROLTYPE.label, CONTROLTYPE.order),
+          group('channels', 'Channels', cards, CHANNELS.label, CHANNELS.order),
+        ]
       case 'accessories':
         return []
       case 'led-signage-modules':

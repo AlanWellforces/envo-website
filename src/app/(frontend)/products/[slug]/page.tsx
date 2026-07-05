@@ -63,7 +63,7 @@ export default async function ProductFamilyPage({ params }: { params: Params }) 
             <Link href="/products" className="pcat-pill">
               All <span className="n">{total}</span>
             </Link>
-            {PRODUCT_FAMILIES.map((f) =>
+            {PRODUCT_FAMILIES.filter((f) => f.slug === slug || (countBySlug.get(f.slug) ?? 0) > 0).map((f) =>
               f.slug === slug ? (
                 <span key={f.slug} className="pcat-pill on">
                   {f.name} <span className="n">{countBySlug.get(f.slug)}</span>

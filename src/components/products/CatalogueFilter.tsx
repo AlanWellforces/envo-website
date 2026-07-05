@@ -80,6 +80,7 @@ export function CatalogueFilter({ cards, groups, unit, showSections = false }: P
         </div>
 
         <div className="pcat-ftitle">Filters</div>
+        {groups.length > 0 && <p className="pcat-fnote">Counts are matching series, not models.</p>}
 
         {groups.map((g) => {
           const picked = selected[g.key]?.size ?? 0
@@ -101,7 +102,7 @@ export function CatalogueFilter({ cards, groups, unit, showSections = false }: P
                       />
                       <span className="box" aria-hidden />
                       <span className="lab">{o.label}</span>
-                      <span className="ct">{o.count}</span>
+                      <span className="ct" title={`${o.count} matching series`}>{o.count}</span>
                     </label>
                   )
                 })}
@@ -139,7 +140,9 @@ export function CatalogueFilter({ cards, groups, unit, showSections = false }: P
           </div>
         )}
 
-        {visible.length === 0 ? (
+        {cards.length === 0 ? (
+          <p className="pcat-empty">Nothing in this category yet — check back soon.</p>
+        ) : visible.length === 0 ? (
           <p className="pcat-empty">
             No series match those filters.{' '}
             <button type="button" className="pcat-empty-reset" onClick={reset}>
