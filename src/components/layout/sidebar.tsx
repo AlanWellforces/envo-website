@@ -169,19 +169,21 @@ export function Sidebar() {
   }, [collapsed])
 
   // Auto-expand any parent group whose route the user is currently inside.
-  useEffect(() => {
-    setOpenGroups((prev) => {
-      const next = new Set(prev)
-      let changed = false
-      for (const item of NAVIGATE) {
-        if (item.children && isActive(pathname, item.href) && !next.has(item.section)) {
-          next.add(item.section)
-          changed = true
-        }
+  // Adjust-state-during-render (not an effect) so React re-renders in place
+  // without flashing the collapsed state first.
+  const [expandedForPath, setExpandedForPath] = useState(pathname)
+  if (expandedForPath !== pathname) {
+    setExpandedForPath(pathname)
+    const next = new Set(openGroups)
+    let changed = false
+    for (const item of NAVIGATE) {
+      if (item.children && isActive(pathname, item.href) && !next.has(item.section)) {
+        next.add(item.section)
+        changed = true
       }
-      return changed ? next : prev
-    })
-  }, [pathname])
+    }
+    if (changed) setOpenGroups(next)
+  }
 
   // Close the region dropdown when clicking outside it.
   useEffect(() => {

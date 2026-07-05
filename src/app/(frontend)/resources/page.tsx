@@ -9,7 +9,7 @@ export async function generateMetadata(): Promise<Metadata> {
   return metadataForRoute('/resources', {
     title: 'Resources — ENVO',
     description:
-      'The ENVO technical library — datasheets, installation guides, certificates, CAD/IES files and warranty docs. Specify, quote and install in one place.',
+      'The ENVO technical library — product datasheets and spec sheets in one searchable place. Need another document? Request it from our team.',
   })
 }
 
@@ -27,9 +27,9 @@ export default async function ResourcesPage() {
         {/* ===== HEADER ===== */}
         <header className="rd-head">
           <span className="rd-eyebrow">Resources</span>
-          <h1>Specs, drawings, downloads.</h1>
+          <h1>Product specs and datasheets.</h1>
           <p className="rd-sub">
-            Everything you need to specify, quote and install — in one place.
+            Find ENVO product datasheets and spec sheets in one searchable place.
           </p>
         </header>
 
@@ -47,8 +47,8 @@ export default async function ResourcesPage() {
             </span>
             <h3>Request a document</h3>
             <p>
-              Tell us the model — older versions, a certificate or a custom datasheet. Usually same
-              day.
+              Need an older version, a certificate, a custom datasheet or another file? Tell us the
+              model and we&apos;ll send it over.
             </p>
             <Link className="rd-req-btn" href="/contact">
               Request →

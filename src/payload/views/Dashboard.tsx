@@ -5,6 +5,7 @@
 // SVG charts, then Recently-edited + Akeneo-sync panels. Server component —
 // every number aggregates live via the Payload Local API.
 import { getPayload } from 'payload'
+import Link from 'next/link'
 import config from '@payload-config'
 import { analyticsSummary } from '@/lib/analytics/aggregate'
 import { ADMIN_COLORS, ADMIN_FONT_FAMILY, ICON_GEOMETRY } from '../admin-theme'
@@ -326,34 +327,34 @@ export async function Dashboard(props: DashboardProps) {
         </div>
 
         <div className="ed-grid5">
-          <a href="/admin/collections/products" className="ed-stat b">
+          <Link href="/admin/collections/products" className="ed-stat b">
             <div className="num">{d.productsTotal}</div>
             <div className="lbl">Products</div>
             <div className="sub">{d.productsLive} live · synced</div>
-          </a>
-          <a href="/admin/collections/pages" className="ed-stat">
+          </Link>
+          <Link href="/admin/collections/pages" className="ed-stat">
             <div className="num">{d.pagesTotal}</div>
             <div className="lbl">CMS Pages</div>
             <div className="sub">{d.pagesTotal === 0 ? 'none yet' : 'all published'}</div>
-          </a>
-          <a href="/admin/collections/posts" className="ed-stat l">
+          </Link>
+          <Link href="/admin/collections/posts" className="ed-stat l">
             <div className="num">{d.postsPublished + d.postsDraft}</div>
             <div className="lbl">Blog Posts</div>
             <div className="sub">
               {d.postsPublished} live · {d.postsDraft} draft{d.postsDraft === 1 ? '' : 's'}
             </div>
-          </a>
-          <a href="/admin/collections/projects" className="ed-stat">
+          </Link>
+          <Link href="/admin/collections/projects" className="ed-stat">
             <div className="num">{d.projectsTotal}</div>
             <div className="lbl">Projects</div>
             {/* /projects is unlinked on the site until real installs exist (#111-era decision) */}
             <div className="sub">case studies · not linked on site yet</div>
-          </a>
-          <a href="/admin/collections/faqs" className="ed-stat">
+          </Link>
+          <Link href="/admin/collections/faqs" className="ed-stat">
             <div className="num">{d.faqsTotal}</div>
             <div className="lbl">FAQs</div>
             <div className="sub">help content</div>
-          </a>
+          </Link>
         </div>
 
         <div className="ed-sectit">Quick actions</div>
@@ -405,9 +406,9 @@ export async function Dashboard(props: DashboardProps) {
                 ))}
               </div>
             )}
-            <a href="/admin/collections/submissions" className="ed-more">
+            <Link href="/admin/collections/submissions" className="ed-more">
               View all leads →
-            </a>
+            </Link>
           </div>
 
           <div className="ed-panel">

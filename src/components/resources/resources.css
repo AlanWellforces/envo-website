@@ -93,3 +93,8 @@
   .rd-tri { grid-template-columns:1fr; }
   .rd-row { grid-template-columns:34px 1fr 24px; gap:12px; }
 }
+@media (max-width:640px) {
+  /* Model codes at the end of the title are the distinguishing part — wrap
+     instead of truncating on phones. */
+  .rd-name { white-space:normal; overflow-wrap:anywhere; }
+}

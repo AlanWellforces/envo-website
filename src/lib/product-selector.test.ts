@@ -1,5 +1,4 @@
 // src/lib/product-selector.test.ts
-/* eslint-disable @typescript-eslint/no-explicit-any */
 import { describe, it, expect, vi } from 'vitest'
 import { parseLedCount, getProductsForSelector } from './product-selector'
 
