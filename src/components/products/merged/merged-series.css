@@ -39,6 +39,18 @@
 .pdetail .p-info h1 { font-size: 46px; letter-spacing: -0.04em; margin: 9px 0 14px; font-weight: 800; }
 .pdetail .p-info .intro { font-size: 16px; color: var(--text-muted); line-height: 1.55; margin: 0 0 26px; max-width: 52ch; }
 
+/* hero key-spec grid (reference layout 2026-07-06): two columns of
+   icon + LABEL-over-value rows with hairline separators */
+.pdetail .kspecs { margin: 2px 0 24px; }
+.pdetail .kspecs-title { font-size: 10px; letter-spacing: 0.18em; text-transform: uppercase; font-weight: 700; color: var(--text); margin-bottom: 2px; }
+.pdetail .kspecs-grid { display: grid; grid-template-columns: 1fr 1fr; column-gap: 30px; }
+.pdetail .ks { display: flex; align-items: center; gap: 12px; padding: 13px 0; border-bottom: 1px solid var(--line); min-width: 0; }
+.pdetail .ks-ico { width: 24px; height: 24px; flex: none; fill: none; stroke: var(--text-subtle); stroke-width: 1.6; stroke-linecap: round; stroke-linejoin: round; }
+.pdetail .ks-bd { display: flex; flex-direction: column; gap: 2px; min-width: 0; }
+.pdetail .ks-lab { font-size: 9.5px; letter-spacing: 0.14em; text-transform: uppercase; font-weight: 700; color: var(--text-subtle); }
+.pdetail .ks-val { font-size: 14.5px; font-weight: 650; color: var(--text); letter-spacing: -0.01em; }
+@media (max-width: 560px) { .pdetail .kspecs-grid { grid-template-columns: 1fr; } }
+
 .pdetail .checklist { list-style: none; padding: 0; margin: 24px 0 26px; display: grid; gap: 9px; }
 .pdetail .checklist li { display: flex; align-items: flex-start; gap: 9px; font-size: 14px; color: var(--text); }
 .pdetail .checklist svg { width: 17px; height: 17px; stroke: var(--lime-deep); fill: none; stroke-width: 2.2; flex-shrink: 0; margin-top: 1px; }

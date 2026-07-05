@@ -102,6 +102,14 @@ export default async function SeriesDetailPage({ params }: { params: Params }) {
           'Up to ~40 modules per power-injection feed',
           '50,000-hour L70 rated life',
         ]}
+        keySpecs={[
+          { icon: 'voltage', label: 'Voltage', value: '12 V DC' },
+          { icon: 'cct', label: 'Colour temp', value: '3000 / 4000 / 7000 K' },
+          { icon: 'beam', label: 'Beam angle', value: '180° × 140°' },
+          { icon: 'ip', label: 'IP rating', value: 'IP66' },
+          { icon: 'efficacy', label: 'Efficacy', value: '~ 125 lm/W' },
+          { icon: 'lifetime', label: 'Lifetime', value: '50,000 h · L70' },
+        ]}
         datasheetUrl={datasheetUrl}
         thumbs={[
           img('mod-mini.png', 'MiniLux module'),

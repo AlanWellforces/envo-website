@@ -8,7 +8,7 @@ import { SERIES_EDITORIAL } from '@/data/series-editorial.generated'
 import { SERIES_BLURBS } from '@/data/series-applications'
 import { seriesLabel, seriesLineArt } from '@/data/family-map'
 import type { ProductFamily } from '@/data/product-families'
-import type { MergedSeriesProps, MergedVariant, MergedSharedRow } from '@/components/products/merged/MergedSeriesPage'
+import type { MergedSeriesProps, MergedVariant, MergedSharedRow, MergedKeySpec } from '@/components/products/merged/MergedSeriesPage'
 
 // >6 variant columns is unreadable as a compare table (e.g. the 33-model
 // sc_envo driver catalogue) — those render variants as rows instead.
@@ -45,13 +45,17 @@ const uniq = <T,>(a: T[]) => [...new Set(a)]
 const DIMMING_LABEL: Record<string, string> = {
   triac: 'Triac', dali: 'DALI', pwm: 'PWM', '0_10v': '0–10 V', none: 'Non-dimmable',
 }
-function dimmingDisplay(p: Product): string | undefined {
+const DIMMING_ORDER = ['triac', 'dali', 'pwm', '0_10v', 'none']
+function dimmingValuesOf(p: Product): string[] {
   const vals = new Set((p.dimming_control ?? []).filter((d) => DIMMING_LABEL[d]))
   if (/triac[- ]?dim/i.test(p.name)) vals.add('triac')
   if (/non[- ]?dimmable/i.test(p.name)) vals.add('none')
   if (vals.size > 1) vals.delete('none')
-  if (!vals.size) return undefined
-  return [...vals].map((v) => DIMMING_LABEL[v]).join(' · ')
+  return [...vals].sort((a, b) => DIMMING_ORDER.indexOf(a) - DIMMING_ORDER.indexOf(b))
+}
+function dimmingDisplay(p: Product): string | undefined {
+  const vals = dimmingValuesOf(p)
+  return vals.length ? vals.map((v) => DIMMING_LABEL[v]).join(' · ') : undefined
 }
 
 function ipDisplay(p: Product): string | undefined {
@@ -199,6 +203,64 @@ export function buildMergedSeriesProps(
   if (warranties.length === 1)
     sharedRows.push({ label: 'Warranty', value: `${warranties[0]} year${warranties[0] === 1 ? '' : 's'}` })
 
+  // ── hero key specs (reference layout 2026-07-06): the ≤6 identity facts of
+  // the series, icon-gridded next to the product image. Derived from the same
+  // primitives as the table — a spec with no data is omitted, never invented.
+  const keySpecs: MergedKeySpec[] = []
+  const key = (icon: MergedKeySpec['icon'], specLabel: string, value: string | null | undefined) => {
+    if (value) keySpecs.push({ icon, label: specLabel, value })
+  }
+  const powers = products.map((p) => num(p.power_w)).filter((w): w is number => w != null)
+  const powerRange = powers.length
+    ? Math.min(...powers) === Math.max(...powers)
+      ? `${powers[0]} W`
+      : `${Math.min(...powers)}–${Math.max(...powers)} W`
+    : null
+  if (isDrivers) {
+    key('power', 'Power range', powerRange)
+    const outs = uniq(products.map((p) => num(p.output_voltage_v)).filter((v): v is number => v != null)).sort((a, b) => a - b)
+    key('voltage', 'Output voltage', outs.length ? `${outs.join(' / ')} V DC` : null)
+    const inMins = products.map((p) => num(p.input_voltage_min_v)).filter((v): v is number => v != null)
+    const inMaxes = products.map((p) => num(p.input_voltage_max_v)).filter((v): v is number => v != null)
+    if (inMins.length) {
+      const lo = Math.min(...inMins)
+      const hi = inMaxes.length ? Math.max(...inMaxes) : null
+      const unit = lo >= 90 ? 'V AC' : 'V DC'
+      key('input', 'Input voltage', hi && hi !== lo ? `${lo}–${hi} ${unit}` : `${lo} ${unit}`)
+    }
+    key(
+      'mode', 'Operation mode',
+      modes.length === 1 && modes[0] !== 'cv_cc'
+        ? modes[0] === 'cv' ? 'Constant voltage' : 'Constant current'
+        : modes.length ? 'CV / CC' : null,
+    )
+    const dims = uniq(products.flatMap(dimmingValuesOf))
+    const realDims = dims.filter((d) => d !== 'none')
+    key(
+      'dimming', 'Dimming',
+      realDims.length
+        ? realDims.sort((a, b) => DIMMING_ORDER.indexOf(a) - DIMMING_ORDER.indexOf(b)).map((d) => DIMMING_LABEL[d]).join(' / ')
+        : dims.includes('none') ? 'Non-dimmable' : null,
+    )
+    const ips = uniq(products.map(ipDisplay).filter((v): v is string => !!v)).sort()
+    key('ip', 'IP rating', ips.length ? ips.join(' / ') : null)
+  } else if (family.slug === 'led-signage-modules') {
+    key('voltage', 'Voltage', sharedVoltage)
+    key('cct', 'Colour temp', ccts.length ? `${ccts.join(' / ')} K` : null)
+    key('beam', 'Beam angle', beam ? `${beam}°` : null)
+    key('ip', 'IP rating', ipField ? ipField.toUpperCase() : null)
+    key('efficacy', 'Efficacy', efficacy ? `~ ${efficacy} lm/W` : null)
+    key('lifetime', 'Lifetime', lifetime ? `${lifetime.toLocaleString()} h` : null)
+  } else {
+    // control gear / accessories — whatever identity facts the data carries
+    key('input', 'Input voltage', sharedVoltage)
+    const protoDims = uniq(products.flatMap(dimmingValuesOf)).filter((d) => d !== 'none')
+    key('dimming', 'Protocol', protoDims.length ? protoDims.map((d) => DIMMING_LABEL[d]).join(' / ') : null)
+    key('power', 'Power range', powerRange)
+    key('ip', 'IP rating', ipField ? ipField.toUpperCase() : null)
+    key('lifetime', 'Lifetime', lifetime ? `${lifetime.toLocaleString()} h` : null)
+  }
+
   const datasheetUrl = models.find((m) => m.datasheetUrl)?.datasheetUrl ?? undefined
   const checklist: string[] | undefined = copy?.strengths
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -222,6 +284,7 @@ export function buildMergedSeriesProps(
     title: label,
     intro,
     checklist: checklist?.length ? checklist : undefined,
+    keySpecs: keySpecs.slice(0, 6),
     datasheetUrl,
     variants,
     variantLayout: variants.length > COLUMN_CAP ? 'rows' : 'columns',

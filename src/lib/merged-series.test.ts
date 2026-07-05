@@ -187,3 +187,48 @@ describe('certification names', () => {
     expect(labels).toEqual(['CE', 'SAA', 'RCM'])
   })
 })
+
+// ── hero key specs (reference layout 2026-07-06: icon grid, max 6) ──────────
+describe('hero key specs', () => {
+  it('driver series: power range, output voltage, input, mode, dimming, IP', () => {
+    const props = buildMergedSeriesProps(driversFamily, 'envo_se_us', [
+      p({ sku: 'A', name: 'Driver', series: 'envo_se_us', power_w: 15, output_voltage_v: 12, input_voltage_min_v: 90, input_voltage_max_v: 132, operation_mode: 'cv', waterproof: 'ip20' }),
+      p({ sku: 'B', name: 'Driver', series: 'envo_se_us', power_w: 75, output_voltage_v: 24, input_voltage_min_v: 90, input_voltage_max_v: 132, operation_mode: 'cv', waterproof: 'ip20' }),
+    ])
+    const byLabel = Object.fromEntries((props.keySpecs ?? []).map((s) => [s.label, s.value]))
+    expect(byLabel['Power range']).toBe('15–75 W')
+    expect(byLabel['Output voltage']).toBe('12 / 24 V DC')
+    expect(byLabel['Input voltage']).toBe('90–132 V AC')
+    expect(byLabel['Operation mode']).toBe('Constant voltage')
+    expect(byLabel['IP rating']).toBe('IP20')
+    expect((props.keySpecs ?? []).length).toBeLessThanOrEqual(6)
+  })
+
+  it('signage series: voltage, CCT, beam, IP, efficacy, lifetime', () => {
+    const props = buildMergedSeriesProps(modulesFamily, 'envo_ecoglo', [
+      p({ sku: 'EV-BLEG02LBY-WW', series: 'envo_ecoglo', family: 'led_module', output_voltage_v: 12, cct_k: 3000, beam_angle_deg: 170, waterproof: 'ip65', efficacy_lm_w: 100, lifetime_hrs: 50000 }),
+      p({ sku: 'EV-BLEG02LBY-CW', series: 'envo_ecoglo', family: 'led_module', output_voltage_v: 12, cct_k: 7000, beam_angle_deg: 170, waterproof: 'ip65', efficacy_lm_w: 100, lifetime_hrs: 50000 }),
+    ])
+    const byLabel = Object.fromEntries((props.keySpecs ?? []).map((s) => [s.label, s.value]))
+    expect(byLabel['Voltage']).toBe('12 V DC')
+    expect(byLabel['Colour temp']).toBe('3000 / 7000 K')
+    expect(byLabel['Beam angle']).toBe('170°')
+    expect(byLabel['IP rating']).toBe('IP65')
+    expect(byLabel['Efficacy']).toBe('~ 100 lm/W')
+    expect(byLabel['Lifetime']).toBe('50,000 h')
+  })
+
+  it('omits key specs with no data instead of fabricating', () => {
+    const props = buildMergedSeriesProps(driversFamily, 'sc_envo', [p({ sku: 'A' })])
+    expect(props.keySpecs ?? []).toEqual([])
+  })
+
+  it('mixed dimming shows the union of real dimming values', () => {
+    const props = buildMergedSeriesProps(driversFamily, 'sc_envo', [
+      p({ sku: 'A', name: 'Triac Dimmable Driver', power_w: 10 }),
+      p({ sku: 'B', name: 'Driver', dimming_control: ['pwm'], power_w: 20 }),
+    ])
+    const dim = (props.keySpecs ?? []).find((s) => s.label === 'Dimming')
+    expect(dim?.value).toBe('Triac / PWM')
+  })
+})

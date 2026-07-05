@@ -34,6 +34,11 @@ export type MergedVariant = {
 }
 
 export type MergedSharedRow = { label: string; value: ReactNode }
+export type MergedKeySpec = {
+  icon: 'power' | 'voltage' | 'input' | 'mode' | 'dimming' | 'ip' | 'beam' | 'cct' | 'efficacy' | 'lifetime'
+  label: string
+  value: string
+}
 export type MergedSolution = { title: string; pick: string; image?: Img }
 export type MergedDownload = { name: string; meta?: string; href?: string }
 export type MergedRelated = { kicker: string; name: string; href: string; image: Img }
@@ -45,6 +50,8 @@ export type MergedSeriesProps = {
   intro: string
   beadtag?: string
   checklist?: string[]
+  /** icon-grid of the series' identity facts, rendered beside the image (≤6) */
+  keySpecs?: MergedKeySpec[]
   datasheetUrl?: string
   thumbs?: (Img & { cover?: boolean })[]
   variants: MergedVariant[]
@@ -89,6 +96,62 @@ const FileIcon = () => (
     <path d="M14 2v6h6" />
   </svg>
 )
+
+// Stroke icons for the hero key-spec grid, keyed by MergedKeySpec.icon.
+const KEY_SPEC_ICONS: Record<MergedKeySpec['icon'], ReactNode> = {
+  power: <path d="M13 2 3 14h7l-1 8 10-12h-7l1-8z" />,
+  voltage: (
+    <>
+      <rect x="2" y="7" width="16" height="10" rx="2" />
+      <path d="M22 11v2M6 10v4M10 10v4" />
+    </>
+  ),
+  input: (
+    <>
+      <path d="M9 2v6M15 2v6M6 8h12v4a6 6 0 0 1-12 0V8z" />
+      <path d="M12 18v4" />
+    </>
+  ),
+  mode: (
+    <>
+      <path d="M4 8h10M4 16h6" />
+      <circle cx="17" cy="8" r="2.6" />
+      <circle cx="13" cy="16" r="2.6" />
+    </>
+  ),
+  dimming: (
+    <>
+      <circle cx="12" cy="12" r="4" />
+      <path d="M12 2v3M12 19v3M2 12h3M19 12h3M4.9 4.9l2.1 2.1M17 17l2.1 2.1M19.1 4.9 17 7M7 17l-2.1 2.1" />
+    </>
+  ),
+  ip: <path d="M12 3s6 6.3 6 10.2A6 6 0 0 1 6 13.2C6 9.3 12 3 12 3z" />,
+  beam: (
+    <>
+      <path d="M4 20 12 4l8 16" />
+      <path d="M8.5 13a7 7 0 0 0 7 0" />
+    </>
+  ),
+  cct: (
+    <>
+      <circle cx="12" cy="12" r="5" />
+      <path d="M12 3v2M12 19v2M3 12h2M19 12h2" />
+    </>
+  ),
+  efficacy: (
+    <>
+      <path d="M4 14a8 8 0 0 1 16 0" />
+      <path d="M12 14 15.5 9" />
+      <path d="M2 18h20" />
+    </>
+  ),
+  lifetime: (
+    <>
+      <circle cx="12" cy="12" r="9" />
+      <path d="M12 7v5l3.5 2" />
+    </>
+  ),
+}
 
 /**
  * One page = the whole series. De-shopped hero (variant gallery + service CTA),
@@ -145,6 +208,25 @@ export default function MergedSeriesPage(p: MergedSeriesProps) {
             <div className="eyebrow">{p.eyebrow}</div>
             <h1>{p.title}</h1>
             <p className="intro">{p.intro}</p>
+
+            {p.keySpecs && p.keySpecs.length > 0 && (
+              <div className="kspecs">
+                <div className="kspecs-title">Product specs</div>
+                <div className="kspecs-grid">
+                  {p.keySpecs.map((s) => (
+                    <div key={s.label} className="ks">
+                      <svg className="ks-ico" viewBox="0 0 24 24" aria-hidden>
+                        {KEY_SPEC_ICONS[s.icon]}
+                      </svg>
+                      <span className="ks-bd">
+                        <span className="ks-lab">{s.label}</span>
+                        <span className="ks-val">{s.value}</span>
+                      </span>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )}
 
             {p.checklist && p.checklist.length > 0 && (
               <ul className="checklist">
