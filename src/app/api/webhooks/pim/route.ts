@@ -33,14 +33,15 @@ export async function POST(req: NextRequest) {
     }
   }
 
-  let body: any
+  type PimEvent = { action?: string; data?: { resource?: { identifier?: string } } }
+  let body: { events?: PimEvent[] }
   try {
     body = JSON.parse(rawBody)
   } catch {
     return NextResponse.json({ error: 'Invalid JSON' }, { status: 400 })
   }
 
-  const events: any[] = body.events ?? []
+  const events = body.events ?? []
   if (events.length === 0) {
     return NextResponse.json({ processed: 0 })
   }
@@ -51,7 +52,7 @@ export async function POST(req: NextRequest) {
   const toDisable: string[] = []
 
   for (const event of events) {
-    const sku: string = event.data?.resource?.identifier
+    const sku = event.data?.resource?.identifier
     if (!sku) continue
     const action: string = event.action ?? ''
     if (action === 'product.removed') {
@@ -69,8 +70,9 @@ export async function POST(req: NextRequest) {
     let token: string
     try {
       token = await getAkeneoToken()
-    } catch (e: any) {
-      return NextResponse.json({ error: `Akeneo auth failed: ${e.message}` }, { status: 502 })
+    } catch (e) {
+      const msg = e instanceof Error ? e.message : String(e)
+      return NextResponse.json({ error: `Akeneo auth failed: ${msg}` }, { status: 502 })
     }
 
     for (const [sku, action] of toUpsert) {
@@ -84,8 +86,8 @@ export async function POST(req: NextRequest) {
         const data = normalise(p)
         const result = await upsertProduct(payload, data)
         results.push({ sku, action, ...result })
-      } catch (e: any) {
-        results.push({ sku, action, status: 'error', error: e.message })
+      } catch (e) {
+        results.push({ sku, action, status: 'error', error: e instanceof Error ? e.message : String(e) })
       }
     }
   }
@@ -94,8 +96,8 @@ export async function POST(req: NextRequest) {
     try {
       const result = await disableProduct(payload, sku)
       results.push({ sku, action: 'product.removed', ...result })
-    } catch (e: any) {
-      results.push({ sku, action: 'product.removed', status: 'error', error: e.message })
+    } catch (e) {
+      results.push({ sku, action: 'product.removed', status: 'error', error: e instanceof Error ? e.message : String(e) })
     }
   }
 

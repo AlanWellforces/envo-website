@@ -1,4 +1,7 @@
 #!/usr/bin/env npx tsx
+/* eslint-disable @typescript-eslint/no-explicit-any --
+   Akeneo REST payloads are untyped upstream; this operational script works on
+   loose shapes by design. Typing them properly is tracked tech debt. */
 /**
  * Akeneo → Payload sync script (uses Payload local API — no auth needed)
  * Usage:  npx tsx --tsconfig tsconfig.json scripts/akeneo-sync.ts          (full sync)

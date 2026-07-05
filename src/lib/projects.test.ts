@@ -1,5 +1,3 @@
-// Test predicates inspect dynamic mock-call shapes — `any` is the right tool here.
-/* eslint-disable @typescript-eslint/no-explicit-any */
 import { describe, it, expect, vi, beforeEach } from 'vitest'
 
 // Mock Payload before importing the module under test.

@@ -1,6 +1,8 @@
 import type { CollectionConfig } from 'payload'
 
-const isAdmin = ({ req: { user } }: { req: { user: any } }) =>
+type MaybeUser = { role?: string | null } | null | undefined
+
+const isAdmin = ({ req: { user } }: { req: { user: MaybeUser } }) =>
   user?.role === 'admin'
 
 export const Users: CollectionConfig = {
@@ -13,7 +15,8 @@ export const Users: CollectionConfig = {
     // Hide this collection from the sidebar for non-admins.
     // NOTE: do NOT use access.admin for this — Payload uses that to gate
     // the entire admin panel, which would lock out all editors.
-    hidden: ({ user }: { user: any }) => user?.role !== 'admin',
+    // Payload's ClientUser type doesn't carry our custom `role` field — narrow it here.
+    hidden: ({ user }) => (user as MaybeUser)?.role !== 'admin',
   },
   access: {
     // Only admins can create or delete user accounts

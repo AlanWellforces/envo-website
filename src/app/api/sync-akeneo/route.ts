@@ -24,8 +24,8 @@ export async function GET(req: NextRequest) {
       try {
         const result = await upsertProduct(payload, data)
         results.push({ sku: data.sku, ...result })
-      } catch (e: any) {
-        results.push({ sku: data.sku, status: 'error', error: e.message })
+      } catch (e) {
+        results.push({ sku: data.sku, status: 'error', error: e instanceof Error ? e.message : String(e) })
       }
     }
 
@@ -34,7 +34,7 @@ export async function GET(req: NextRequest) {
     const skipped = results.filter(r => r.status === 'skipped').length
     return NextResponse.json({ ok, failed, skipped, results })
 
-  } catch (e: any) {
-    return NextResponse.json({ error: e.message }, { status: 500 })
+  } catch (e) {
+    return NextResponse.json({ error: e instanceof Error ? e.message : String(e) }, { status: 500 })
   }
 }

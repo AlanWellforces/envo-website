@@ -1,3 +1,6 @@
+/* eslint-disable @typescript-eslint/no-explicit-any --
+   Akeneo REST payloads are untyped upstream; the value-extraction helpers here
+   deliberately work on loose shapes. Typing them properly is tracked tech debt. */
 import { CERT_CODES } from '../cert-codes'
 import type { getPayload } from 'payload'
 

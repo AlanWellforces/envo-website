@@ -1,4 +1,5 @@
 #!/usr/bin/env npx tsx
+/* eslint-disable @typescript-eslint/no-explicit-any -- one-off Akeneo script; payloads untyped upstream */
 /**
  * One-off fix: retag 16 SKUs from c_fc → c_fcc in Akeneo PIM.
  * "FC" is a mis-entry of FCC (see PR #81 comment).

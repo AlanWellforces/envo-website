@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server'
-import { getPayload } from 'payload'
+import { getPayload, type Where } from 'payload'
 import config from '@/payload.config'
 import path from 'node:path'
 
@@ -37,7 +37,7 @@ export async function POST(req: NextRequest) {
   const payload = await getPayload({ config })
 
   // Find products to process
-  const where: any = sku
+  const where: Where = sku
     ? { sku: { equals: sku } }
     : force
       ? { image_url_fallback: { not_equals: null } }
@@ -53,18 +53,21 @@ export async function POST(req: NextRequest) {
     where,
     limit: limit || 500,
     depth: 0,
-    select: { id: true, sku: true, name: true, image_url_fallback: true, clean_image_url_fallback: true, image: true, clean_image: true } as any,
+    select: { id: true, sku: true, name: true, image_url_fallback: true, clean_image_url_fallback: true, image: true, clean_image: true },
   })
 
   const results: { sku: string; status: 'ok' | 'failed' | 'skipped'; error?: string }[] = []
 
-  for (const product of found.docs as any[]) {
+  type ProductRow = { id: number | string; sku: string; name?: string | null } & {
+    [K in ImageField | FallbackField]?: unknown
+  }
+  for (const product of found.docs as ProductRow[]) {
     let anyDownloaded = false
     const errors: string[] = []
 
     for (const { field, fallback } of PAIRS) {
-      const url: string | null = product[fallback]
-      if (!url) continue
+      const url = product[fallback]
+      if (typeof url !== 'string' || !url) continue
 
       // Skip if already has an image and not forcing
       if (!force && product[field]) continue
@@ -83,12 +86,12 @@ export async function POST(req: NextRequest) {
         await payload.update({
           collection: 'products',
           id: product.id,
-          data: { [field]: (media as any).id },
+          data: { [field]: media.id },
         })
 
         anyDownloaded = true
-      } catch (err: any) {
-        errors.push(`${field}: ${err.message}`)
+      } catch (err) {
+        errors.push(`${field}: ${err instanceof Error ? err.message : String(err)}`)
       }
     }
 
