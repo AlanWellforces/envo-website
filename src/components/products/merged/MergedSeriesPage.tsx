@@ -3,6 +3,7 @@ import Link from 'next/link'
 import type { ReactNode } from 'react'
 import type { SeriesPurchaseLinks } from '@/data/distributors'
 import { FindDistributorCta } from './FindDistributorCta'
+import { SectionNav } from './SectionNav'
 import { SeriesGallery } from './SeriesGallery'
 import './merged-series.css'
 
@@ -262,9 +263,20 @@ export default function MergedSeriesPage(p: MergedSeriesProps) {
           </div>
         </div>
 
+        {/* ===== SECTION NAV — tab-looking anchors; nothing is hidden ===== */}
+        <SectionNav
+          items={[
+            ...(p.overview ? [{ id: 'overview', label: 'Overview' }] : []),
+            { id: 'specs', label: 'Specifications' },
+            ...(p.solutions?.length ? [{ id: 'solutions', label: 'Where it works' }] : []),
+            ...(p.downloads?.some((d) => d.href) ? [{ id: 'downloads', label: 'Downloads' }] : []),
+            ...(p.related?.length ? [{ id: 'related', label: 'Pairs with' }] : []),
+          ]}
+        />
+
         {/* ===== OVERVIEW ===== */}
         {p.overview && (
-          <div className="overview">
+          <div className="overview" id="overview">
             <div className="eyebrow">Overview</div>
             <h2>{p.overview.heading}</h2>
             <p>{p.overview.body}</p>
@@ -273,7 +285,7 @@ export default function MergedSeriesPage(p: MergedSeriesProps) {
 
         {/* ===== SPEC — single model: one combined definition list ===== */}
         {single && (activeVariantRows.length > 0 || (p.sharedRows && p.sharedRows.length > 0)) && (
-          <div className="compare">
+          <div className="compare" id="specs">
             <div className="lead">
               <div className="eyebrow">Specifications</div>
               <h2>Full specification.</h2>
@@ -303,7 +315,7 @@ export default function MergedSeriesPage(p: MergedSeriesProps) {
           (activeVariantRows.length > 0 || (p.sharedRows && p.sharedRows.length > 0)) &&
           (p.variantLayout === 'rows' ? (
             // Many models → variants as rows + shared specs as a definition list.
-            <div className="compare">
+            <div className="compare" id="specs">
               <div className="lead">
                 <div className="eyebrow">Specifications</div>
                 <h2>{p.variants.length} models — full spec reference.</h2>
@@ -349,7 +361,7 @@ export default function MergedSeriesPage(p: MergedSeriesProps) {
               )}
             </div>
           ) : (
-            <div className="compare">
+            <div className="compare" id="specs">
               <div className="lead">
                 <div className="eyebrow">Specifications</div>
                 <h2>Compare the range — and every shared spec.</h2>
@@ -404,7 +416,7 @@ export default function MergedSeriesPage(p: MergedSeriesProps) {
 
         {/* ===== SOLUTIONS — where this series fits ===== */}
         {p.solutions && p.solutions.length > 0 && (
-          <div className="solutions">
+          <div className="solutions" id="solutions">
             <div className="sol-head">
               <div className="eyebrow">Where it works</div>
               <h2>Built for the job.</h2>
@@ -432,7 +444,7 @@ export default function MergedSeriesPage(p: MergedSeriesProps) {
           const files = (p.downloads ?? []).filter((d) => d.href)
           if (files.length === 0) return null
           return (
-            <div className="downloads">
+            <div className="downloads" id="downloads">
               <div className="dl-head">
                 <div className="eyebrow">Downloads</div>
                 <h2>Specs, drawings and compliance — one click away.</h2>
@@ -461,7 +473,7 @@ export default function MergedSeriesPage(p: MergedSeriesProps) {
 
         {/* ===== RELATED ===== */}
         {p.related && p.related.length > 0 && (
-          <div className="rel">
+          <div className="rel" id="related">
             <div className="rel-head">
               <h2>Pairs with</h2>
               <Link href={p.breadcrumb.familyHref}>All {p.breadcrumb.familyName.toLowerCase()} →</Link>
