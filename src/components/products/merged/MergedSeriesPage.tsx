@@ -3,7 +3,7 @@ import Link from 'next/link'
 import type { ReactNode } from 'react'
 import type { SeriesPurchaseLinks } from '@/data/distributors'
 import { FindDistributorCta } from './FindDistributorCta'
-import { SectionNav } from './SectionNav'
+import { SpecTabs, type SpecTab } from './SpecTabs'
 import { SeriesGallery } from './SeriesGallery'
 import './merged-series.css'
 
@@ -204,6 +204,175 @@ export default function MergedSeriesPage(p: MergedSeriesProps) {
   const maxBeads = Math.max(0, ...p.variants.map((v) => v.beads ?? 0))
   const activeVariantRows = VARIANT_ROWS.filter((r) => p.variants.some((v) => v[r.key]))
   const single = p.variants.length === 1
+  const hasSpecs = activeVariantRows.length > 0 || (p.sharedRows && p.sharedRows.length > 0)
+  const files = (p.downloads ?? []).filter((d) => d.href)
+
+  // ── Tab panels (Overview / Specifications / Downloads). Built here so the
+  //    tab wiring below stays readable. "Where it works" + "Pairs with" are
+  //    NOT tabbed — they render as always-visible sections after the tabs. ──
+  const overviewPanel: ReactNode = p.overview && (
+    <div className="overview">
+      <div className="eyebrow">Overview</div>
+      <h2>{p.overview.heading}</h2>
+      <p>{p.overview.body}</p>
+    </div>
+  )
+
+  const specSingle: ReactNode = (
+    <div className="compare">
+      <div className="lead">
+        <div className="eyebrow">Specifications</div>
+        <h2>Full specification.</h2>
+      </div>
+      <dl className="shared-specs">
+        {activeVariantRows
+          .filter((r) => r.key !== 'bestFor')
+          .map((r) => (
+            <div key={r.key}>
+              <dt>{r.label}</dt>
+              <dd className={r.cls}>{(p.variants[0][r.key] as string) ?? '—'}</dd>
+            </div>
+          ))}
+        {p.sharedRows?.map((row) => (
+          <div key={row.label}>
+            <dt>{row.label}</dt>
+            <dd>{row.value}</dd>
+          </div>
+        ))}
+      </dl>
+      {p.variants[0].bestFor && <p className="spec-bestfor">Best for {p.variants[0].bestFor}.</p>}
+    </div>
+  )
+
+  const specRows = activeVariantRows.filter((r) => r.key !== 'modelCode' && r.key !== 'bestFor')
+  const specMulti: ReactNode =
+    p.variantLayout === 'rows' ? (
+      <div className="compare">
+        <div className="lead">
+          <div className="eyebrow">Specifications</div>
+          <h2>{p.variants.length} models — full spec reference.</h2>
+        </div>
+        <div className="cmp-tablewrap">
+          <table className="cmp-table rows">
+            <thead>
+              <tr>
+                <th className="rowhead">Model</th>
+                {specRows.map((r) => (
+                  <th key={r.key}>{r.label}</th>
+                ))}
+              </tr>
+            </thead>
+            <tbody>
+              {p.variants.map((v) => (
+                <tr key={v.name}>
+                  <th className="mono">{v.modelCode ?? v.name}</th>
+                  {specRows.map((r) => (
+                    <td key={r.key} className={r.cls}>
+                      {(v[r.key] as string) ?? '—'}
+                    </td>
+                  ))}
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+        {p.sharedRows && p.sharedRows.length > 0 && (
+          <dl className="shared-specs">
+            {p.sharedRows.map((row) => (
+              <div key={row.label}>
+                <dt>{row.label}</dt>
+                <dd>{row.value}</dd>
+              </div>
+            ))}
+          </dl>
+        )}
+      </div>
+    ) : (
+      <div className="compare">
+        <div className="lead">
+          <div className="eyebrow">Specifications</div>
+          <h2>Compare the range — and every shared spec.</h2>
+        </div>
+        <div className="cmp-tablewrap">
+          <table className="cmp-table">
+            <thead>
+              <tr>
+                <th className="rowhead" />
+                {p.variants.map((v) => (
+                  <th key={v.name} className={`vcol${v.star ? ' c-star' : ''}`}>
+                    {v.star && <span className="star">★ most specified</span>}
+                    <div className="vimg">
+                      <Picture img={v.image} sizes="110px" />
+                    </div>
+                    {maxBeads > 0 && (
+                      <div className="dots">
+                        {Array.from({ length: maxBeads }).map((_, i) => (
+                          <i key={i} className={i < (v.beads ?? 0) ? '' : 'off'} />
+                        ))}
+                      </div>
+                    )}
+                    <div className="nm">{v.name}</div>
+                  </th>
+                ))}
+              </tr>
+            </thead>
+            <tbody>
+              {activeVariantRows.map((row) => (
+                <tr key={row.key}>
+                  <th>{row.label}</th>
+                  {p.variants.map((v) => (
+                    <td key={v.name} className={row.cls}>
+                      {(v[row.key] as string) ?? '—'}
+                    </td>
+                  ))}
+                </tr>
+              ))}
+              {p.sharedRows?.map((row) => (
+                <tr key={row.label}>
+                  <th>{row.label}</th>
+                  <td className="shared" colSpan={p.variants.length}>
+                    {row.value}
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+      </div>
+    )
+
+  const downloadsPanel: ReactNode = files.length > 0 && (
+    <div className="downloads">
+      <div className="dl-head">
+        <div className="eyebrow">Downloads</div>
+        <h2>Specs, drawings and compliance — one click away.</h2>
+      </div>
+      <div className="dl-grid">
+        {files.map((d) => (
+          <a key={d.name} className="dl-card" href={d.href} target="_blank" rel="noopener noreferrer">
+            <span className="dl-ico">
+              <FileIcon />
+            </span>
+            <span className="dl-body">
+              <span className="dl-name">{d.name}</span>
+              {d.meta && <span className="dl-meta">{d.meta}</span>}
+            </span>
+            <span className="dl-arrow">↓</span>
+          </a>
+        ))}
+      </div>
+      <p className="dl-contact">
+        Need installation guides, drawings or compliance certificates?{' '}
+        <Link href="/contact">Request files →</Link>
+      </p>
+    </div>
+  )
+
+  const tabs: SpecTab[] = ([
+    overviewPanel ? { id: 'overview', label: 'Overview', content: overviewPanel } : null,
+    hasSpecs ? { id: 'specs', label: 'Specifications', content: single ? specSingle : specMulti } : null,
+    downloadsPanel ? { id: 'downloads', label: 'Downloads', content: downloadsPanel } : null,
+  ] as (SpecTab | null)[]).filter((t): t is SpecTab => t !== null)
 
   return (
     <div className="theme-light pdetail">
@@ -263,158 +432,12 @@ export default function MergedSeriesPage(p: MergedSeriesProps) {
           </div>
         </div>
 
-        {/* ===== SECTION NAV — tab-looking anchors; nothing is hidden ===== */}
-        <SectionNav
-          items={[
-            ...(p.overview ? [{ id: 'overview', label: 'Overview' }] : []),
-            { id: 'specs', label: 'Specifications' },
-            ...(p.solutions?.length ? [{ id: 'solutions', label: 'Where it works' }] : []),
-            ...(p.downloads?.some((d) => d.href) ? [{ id: 'downloads', label: 'Downloads' }] : []),
-            ...(p.related?.length ? [{ id: 'related', label: 'Pairs with' }] : []),
-          ]}
-        />
+        {/* ===== TABS: Overview / Specifications / Downloads (real tabs — one
+             panel at a time). "Where it works" + "Pairs with" stay below as
+             always-visible sections (user 2026-07-06). ===== */}
+        <SpecTabs tabs={tabs} />
 
-        {/* ===== OVERVIEW ===== */}
-        {p.overview && (
-          <div className="overview" id="overview">
-            <div className="eyebrow">Overview</div>
-            <h2>{p.overview.heading}</h2>
-            <p>{p.overview.body}</p>
-          </div>
-        )}
-
-        {/* ===== SPEC — single model: one combined definition list ===== */}
-        {single && (activeVariantRows.length > 0 || (p.sharedRows && p.sharedRows.length > 0)) && (
-          <div className="compare" id="specs">
-            <div className="lead">
-              <div className="eyebrow">Specifications</div>
-              <h2>Full specification.</h2>
-            </div>
-            <dl className="shared-specs">
-              {activeVariantRows
-                .filter((r) => r.key !== 'bestFor')
-                .map((r) => (
-                  <div key={r.key}>
-                    <dt>{r.label}</dt>
-                    <dd className={r.cls}>{(p.variants[0][r.key] as string) ?? '—'}</dd>
-                  </div>
-                ))}
-              {p.sharedRows?.map((row) => (
-                <div key={row.label}>
-                  <dt>{row.label}</dt>
-                  <dd>{row.value}</dd>
-                </div>
-              ))}
-            </dl>
-            {p.variants[0].bestFor && <p className="spec-bestfor">Best for {p.variants[0].bestFor}.</p>}
-          </div>
-        )}
-
-        {/* ===== COMPARE + SPEC TABLE (multi-model) ===== */}
-        {!single &&
-          (activeVariantRows.length > 0 || (p.sharedRows && p.sharedRows.length > 0)) &&
-          (p.variantLayout === 'rows' ? (
-            // Many models → variants as rows + shared specs as a definition list.
-            <div className="compare" id="specs">
-              <div className="lead">
-                <div className="eyebrow">Specifications</div>
-                <h2>{p.variants.length} models — full spec reference.</h2>
-              </div>
-              {(() => {
-                const cols = activeVariantRows.filter((r) => r.key !== 'modelCode' && r.key !== 'bestFor')
-                return (
-                  <div className="cmp-tablewrap">
-                    <table className="cmp-table rows">
-                      <thead>
-                        <tr>
-                          <th className="rowhead">Model</th>
-                          {cols.map((r) => (
-                            <th key={r.key}>{r.label}</th>
-                          ))}
-                        </tr>
-                      </thead>
-                      <tbody>
-                        {p.variants.map((v) => (
-                          <tr key={v.name}>
-                            <th className="mono">{v.modelCode ?? v.name}</th>
-                            {cols.map((r) => (
-                              <td key={r.key} className={r.cls}>
-                                {(v[r.key] as string) ?? '—'}
-                              </td>
-                            ))}
-                          </tr>
-                        ))}
-                      </tbody>
-                    </table>
-                  </div>
-                )
-              })()}
-              {p.sharedRows && p.sharedRows.length > 0 && (
-                <dl className="shared-specs">
-                  {p.sharedRows.map((row) => (
-                    <div key={row.label}>
-                      <dt>{row.label}</dt>
-                      <dd>{row.value}</dd>
-                    </div>
-                  ))}
-                </dl>
-              )}
-            </div>
-          ) : (
-            <div className="compare" id="specs">
-              <div className="lead">
-                <div className="eyebrow">Specifications</div>
-                <h2>Compare the range — and every shared spec.</h2>
-              </div>
-              <div className="cmp-tablewrap">
-                <table className="cmp-table">
-                  <thead>
-                    <tr>
-                      <th className="rowhead" />
-                      {p.variants.map((v) => (
-                        <th key={v.name} className={`vcol${v.star ? ' c-star' : ''}`}>
-                          {v.star && <span className="star">★ most specified</span>}
-                          <div className="vimg">
-                            <Picture img={v.image} sizes="110px" />
-                          </div>
-                          {maxBeads > 0 && (
-                            <div className="dots">
-                              {Array.from({ length: maxBeads }).map((_, i) => (
-                                <i key={i} className={i < (v.beads ?? 0) ? '' : 'off'} />
-                              ))}
-                            </div>
-                          )}
-                          <div className="nm">{v.name}</div>
-                        </th>
-                      ))}
-                    </tr>
-                  </thead>
-                  <tbody>
-                    {activeVariantRows.map((row) => (
-                      <tr key={row.key}>
-                        <th>{row.label}</th>
-                        {p.variants.map((v) => (
-                          <td key={v.name} className={row.cls}>
-                            {(v[row.key] as string) ?? '—'}
-                          </td>
-                        ))}
-                      </tr>
-                    ))}
-                    {p.sharedRows?.map((row) => (
-                      <tr key={row.label}>
-                        <th>{row.label}</th>
-                        <td className="shared" colSpan={p.variants.length}>
-                          {row.value}
-                        </td>
-                      </tr>
-                    ))}
-                  </tbody>
-                </table>
-              </div>
-            </div>
-          ))}
-
-        {/* ===== SOLUTIONS — where this series fits ===== */}
+        {/* ===== SOLUTIONS — where this series fits (always visible) ===== */}
         {p.solutions && p.solutions.length > 0 && (
           <div className="solutions" id="solutions">
             <div className="sol-head">
@@ -439,39 +462,7 @@ export default function MergedSeriesPage(p: MergedSeriesProps) {
           </div>
         )}
 
-        {/* ===== DOWNLOADS — only files we actually host; the rest is a request link ===== */}
-        {(() => {
-          const files = (p.downloads ?? []).filter((d) => d.href)
-          if (files.length === 0) return null
-          return (
-            <div className="downloads" id="downloads">
-              <div className="dl-head">
-                <div className="eyebrow">Downloads</div>
-                <h2>Specs, drawings and compliance — one click away.</h2>
-              </div>
-              <div className="dl-grid">
-                {files.map((d) => (
-                  <a key={d.name} className="dl-card" href={d.href} target="_blank" rel="noopener noreferrer">
-                    <span className="dl-ico">
-                      <FileIcon />
-                    </span>
-                    <span className="dl-body">
-                      <span className="dl-name">{d.name}</span>
-                      {d.meta && <span className="dl-meta">{d.meta}</span>}
-                    </span>
-                    <span className="dl-arrow">↓</span>
-                  </a>
-                ))}
-              </div>
-              <p className="dl-contact">
-                Need installation guides, drawings or compliance certificates?{' '}
-                <Link href="/contact">Request files →</Link>
-              </p>
-            </div>
-          )
-        })()}
-
-        {/* ===== RELATED ===== */}
+        {/* ===== RELATED — Pairs with (always visible) ===== */}
         {p.related && p.related.length > 0 && (
           <div className="rel" id="related">
             <div className="rel-head">
