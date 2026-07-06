@@ -45,7 +45,7 @@ export default async function ProductsPage() {
             <span className="pcat-pill on">
               All <span className="n">{total}</span>
             </span>
-            {PRODUCT_FAMILIES.map((f) => (
+            {PRODUCT_FAMILIES.filter((f) => (countBySlug.get(f.slug) ?? 0) > 0).map((f) => (
               <Link key={f.slug} href={f.href} className="pcat-pill">
                 {f.name} <span className="n">{countBySlug.get(f.slug)}</span>
               </Link>

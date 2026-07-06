@@ -9,6 +9,7 @@ import {
 } from '@/lib/products'
 import { seriesSlug, seriesLabel, seriesLineArt } from '@/data/family-map'
 import { SERIES_BLURBS, LED_CONFIG_OPTIONS } from '@/data/series-applications'
+import { catalogueSeriesMeta } from '@/data/series-catalogue-meta'
 
 export type FacetOption = { value: string; label: string; count: number }
 export type FacetGroup = { key: string; label: string; options: FacetOption[] }
@@ -26,6 +27,8 @@ export type CatalogueCard = {
   badge?: string
   chips: string[]
   modelCount: number
+  /** Section heading this card belongs to (e.g. "Constant-voltage drivers"). */
+  section: string
   /** Max LED bead count in the series (from compareSpec.ledConfig) — drives the
    *  little dot indicator on the row. Undefined when not a bead-count series. */
   beads?: number
@@ -77,6 +80,65 @@ const OPMODE_OPTIONS = [
   { value: 'cc', label: 'Constant current (CC)' },
 ] as const
 
+// ── Driver-selection facets (led-drivers page only) ─────────────────────────
+const OUTV_OPTIONS = [
+  { value: '12', label: '12 V' },
+  { value: '24', label: '24 V' },
+  { value: '48', label: '48 V' },
+] as const
+const POWER_OPTIONS = [
+  { value: 'p30', label: 'Up to 30 W' },
+  { value: 'p75', label: '31–75 W' },
+  { value: 'p150', label: '76–150 W' },
+  { value: 'p151', label: '151 W +' },
+] as const
+const DIMMING_OPTIONS = [
+  { value: 'none', label: 'Non-dimmable' },
+  { value: 'triac', label: 'Triac' },
+  { value: 'dali', label: 'DALI' },
+  { value: '0_10v', label: '0–10 V' },
+  { value: 'pwm', label: 'PWM' },
+] as const
+const FORMFACTOR_OPTIONS = [
+  { value: 'linear', label: 'Linear' },
+  { value: 'slim', label: 'Slim' },
+  { value: 'compact', label: 'Compact' },
+  { value: 'screw-terminal', label: 'Screw terminal' },
+] as const
+const ENVIRONMENT_OPTIONS = [
+  { value: 'indoor', label: 'Indoor' },
+  { value: 'outdoor', label: 'Outdoor' },
+  { value: 'ip67', label: 'IP67' },
+] as const
+// ── Control-gear facets ─────────────────────────────────────────────────────
+const PROTOCOL_OPTIONS = [
+  { value: 'casambi', label: 'Casambi' },
+  { value: 'dali', label: 'DALI' },
+  { value: 'zigbee', label: 'Zigbee' },
+] as const
+const FUNCTION_OPTIONS = [
+  { value: 'controller', label: 'Controller' },
+  { value: 'dimmer', label: 'Dimmer' },
+  { value: 'remote', label: 'Remote' },
+  { value: 'wall-switch', label: 'Wall switch / panel' },
+  { value: 'relay-converter', label: 'Relay / converter' },
+  { value: 'gateway', label: 'Gateway' },
+  { value: 'sensor', label: 'Sensor' },
+] as const
+const CONTROLTYPE_OPTIONS = [
+  { value: 'single', label: 'Single colour' },
+  { value: 'ct', label: 'Tunable white (CCT)' },
+  { value: 'rgb', label: 'RGB' },
+  { value: 'rgbw', label: 'RGBW' },
+  { value: 'rgb_cct', label: 'RGB+CCT' },
+] as const
+const CHANNELS_OPTIONS = [
+  { value: '1', label: '1 channel' },
+  { value: '2', label: '2 channels' },
+  { value: '4', label: '4 channels' },
+  { value: '5', label: '5 channels' },
+] as const
+
 function sizeBand(mm: number | null): string | undefined {
   if (mm == null) return undefined
   if (mm < 30) return 'compact'
@@ -101,6 +163,86 @@ function opmodeValues(m: Product['operation_mode']): string[] {
   if (m === 'cv_cc') return ['cv', 'cc']
   return []
 }
+function outvBand(v: number | null): string | undefined {
+  return v === 12 || v === 24 || v === 48 ? String(v) : undefined
+}
+function powerBand(w: number | null): string | undefined {
+  if (w == null) return undefined
+  if (w <= 30) return 'p30'
+  if (w <= 75) return 'p75'
+  if (w <= 150) return 'p150'
+  return 'p151'
+}
+/**
+ * Dimming values come from `dimming_control` plus the product NAME — the PIM
+ * leaves the field empty on some genuinely dimmable models (SP says "Triac
+ * Dimmable" only in its name). Never derived from series labels: the sr_triac
+ * series is DALI, and its legacy "Triac" label must not classify anything.
+ */
+const DIMMING_VALUES = new Set<string>(DIMMING_OPTIONS.map((o) => o.value))
+function dimmingValues(p: Product): string[] {
+  const vals = new Set((p.dimming_control ?? []).filter((d) => DIMMING_VALUES.has(d)))
+  if (/triac[- ]?dim/i.test(p.name)) vals.add('triac')
+  if (/non[- ]?dimmable/i.test(p.name)) vals.add('none')
+  return [...vals]
+}
+function environmentValues(w: string | null): string[] {
+  if (w === 'ip67') return ['outdoor', 'ip67']
+  if (w === 'ip65' || w === 'ip66') return ['outdoor']
+  return ['indoor']
+}
+function formfactorValues(p: Product, seriesTags: string[]): string[] {
+  const vals = new Set(seriesTags)
+  if (/linear/i.test(p.name)) vals.add('linear')
+  if (/ultra[- ]?thin|slim/i.test(p.name)) vals.add('slim')
+  if (/screw[- ]?terminal/i.test(p.name)) vals.add('screw-terminal')
+  return [...vals]
+}
+const PROTOCOL_VALUES = new Set<string>(PROTOCOL_OPTIONS.map((o) => o.value))
+/** Protocol from dimming_control plus the name — the PIM leaves the field
+    empty on some units (DALI2 wall panels; "ZigbBee" typo models). */
+function protocolValues(p: Product): string[] {
+  const vals = new Set((p.dimming_control ?? []).filter((d) => PROTOCOL_VALUES.has(d)))
+  if (/casambi/i.test(p.name)) vals.add('casambi')
+  if (/dali/i.test(p.name)) vals.add('dali')
+  if (/zig.?bee/i.test(p.name)) vals.add('zigbee')
+  return [...vals]
+}
+/** What the unit IS, from its name. Order matters: gateway/sensor/remote win
+    over the dimming or switching words that also appear in their names. */
+function functionValue(p: Product): string | undefined {
+  const n = p.name
+  if (/gateway|smart hub/i.test(n)) return 'gateway'
+  if (/sensor/i.test(n)) return 'sensor'
+  if (/remote/i.test(n)) return 'remote'
+  if (/dimmer/i.test(n)) return 'dimmer'
+  if (/relay|conve[rn]?ter/i.test(n)) return 'relay-converter'
+  if (/wall panel|in-?wall|push button|rotary|switch/i.test(n)) return 'wall-switch'
+  if (/controller/i.test(n)) return 'controller'
+  return undefined
+}
+/** Colour capability, from the controller_type tags plus RGBWW/RGB+CCT names. */
+const CONTROLTYPE_FROM_FIELD: Record<string, string> = {
+  dimming: 'single', ct: 'ct', rgb: 'rgb', rgbw: 'rgbw', rgb_cct: 'rgb_cct',
+}
+function controlTypeValues(p: Product): string[] {
+  const vals = new Set<string>()
+  for (const t of p.controller_type ?? []) {
+    const mapped = CONTROLTYPE_FROM_FIELD[t]
+    if (mapped) vals.add(mapped)
+  }
+  if (/rgb\+?cct|rgbww/i.test(p.name)) vals.add('rgb_cct')
+  else if (/rgbw\b/i.test(p.name)) vals.add('rgbw')
+  if (/single colou?r/i.test(p.name)) vals.add('single')
+  return [...vals]
+}
+/** Output channels from the output_channel code ('1ch', '5_channel',
+    '4a_5ch' = 4 A per channel × 5ch) with a "5 CH" name fallback. */
+function channelsValue(p: Product): string | undefined {
+  const fromField = (p.output_channel ?? '').match(/(\d+)_?ch(annel)?$/i)?.[1]
+  if (fromField) return fromField
+  return p.name.match(/(\d+)\s*ch(annel)?s?\b/i)?.[1]
+}
 
 /** value → label / sort-order accessors for an options list. */
 function maps(opts: readonly { value: string; label: string }[]) {
@@ -117,6 +259,44 @@ const SIZE = maps(SIZE_OPTIONS)
 const BRIGHTNESS = maps(BRIGHTNESS_OPTIONS)
 const VOLTAGE = maps(VOLTAGE_OPTIONS)
 const OPMODE = maps(OPMODE_OPTIONS)
+const OUTV = maps(OUTV_OPTIONS)
+const POWER = maps(POWER_OPTIONS)
+const DIMMING = maps(DIMMING_OPTIONS)
+const FORMFACTOR = maps(FORMFACTOR_OPTIONS)
+const ENVIRONMENT = maps(ENVIRONMENT_OPTIONS)
+const PROTOCOL = maps(PROTOCOL_OPTIONS)
+const FUNCTION = maps(FUNCTION_OPTIONS)
+const CONTROLTYPE = maps(CONTROLTYPE_OPTIONS)
+const CHANNELS = maps(CHANNELS_OPTIONS)
+
+/**
+ * Feature chips for non-signage cards. Priority (user-locked 2026-07-06):
+ * dimming/protocol → CV/CC → voltage → environment/IP → form factor, max 5.
+ * "None" (non-dimmable) earns no chip; indoor is the default and earns none.
+ */
+const CHIP_DIMMING: Record<string, string> = {
+  triac: 'Triac dimmable', dali: 'DALI', casambi: 'Casambi', zigbee: 'Zigbee',
+  '0_10v': '0–10 V dim', pwm: 'PWM',
+}
+export const MAX_CHIPS = 5
+function buildChips(
+  facets: Record<string, string[]>,
+  // "High power" is a driver spec — a controller's power_w is its switched
+  // LOAD rating, so the chip would mislead outside led-drivers.
+  maxPowerW: number | null,
+): string[] {
+  const chips: string[] = []
+  const dims = uniq([...(facets.dimming ?? []), ...(facets.protocol ?? [])])
+  for (const d of dims) if (CHIP_DIMMING[d]) chips.push(CHIP_DIMMING[d])
+  for (const m of facets.opmode ?? []) chips.push(m === 'cv' ? 'Constant voltage' : 'Constant current')
+  const volts = (facets.outv ?? []).slice().sort((a, b) => Number(a) - Number(b))
+  if (volts.length) chips.push(`${volts.join(' / ')} V`)
+  if (facets.environment?.includes('ip67')) chips.push('IP67')
+  else if (facets.environment?.includes('outdoor')) chips.push('Outdoor')
+  if (maxPowerW != null && maxPowerW > 150) chips.push('High power')
+  for (const f of facets.formfactor ?? []) chips.push(FORMFACTOR.label(f))
+  return chips.slice(0, MAX_CHIPS)
+}
 
 /** Distinct, defined facet values from a list of maybe-undefined band results. */
 const uniq = (xs: (string | undefined)[]): string[] => [...new Set(xs.filter((x): x is string => !!x))]
@@ -159,31 +339,49 @@ export function buildCards(family: ProductFamily, products: Product[]): Catalogu
           : { src: seriesLineArt(g.code, family.slug), isLocal: true, alt: seriesLabel(g.code) })
       const ccts = [...new Set(g.products.map((p) => p.cct_k).filter((v): v is number => v != null))].map(String)
       const certs = [...new Set(g.products.flatMap((p) => p.standards_met ?? []))]
+      const authored = catalogueSeriesMeta(family.slug, g.code)
+      const facets: Record<string, string[]> = {
+        size: uniq(g.products.map((p) => sizeBand(p.length_mm))),
+        ledconfig: ledConfigFromSkus(g.products.map((p) => p.sku)),
+        brightness: uniq(g.products.map((p) => brightnessBand(p.brightness_lm))),
+        cct: ccts,
+        voltage: uniq(g.products.map((p) => voltageBand(p.output_voltage_v))),
+        opmode: uniq(g.products.flatMap((p) => opmodeValues(p.operation_mode))),
+        outv: uniq(g.products.map((p) => outvBand(p.output_voltage_v))),
+        power: uniq(g.products.map((p) => powerBand(p.power_w))),
+        dimming: uniq(g.products.flatMap(dimmingValues)),
+        formfactor: uniq(g.products.flatMap((p) => formfactorValues(p, authored?.formFactor ?? []))),
+        environment: uniq(g.products.flatMap((p) => environmentValues(p.waterproof))),
+        protocol: uniq(g.products.flatMap(protocolValues)),
+        function: uniq(g.products.map(functionValue)),
+        controltype: uniq(g.products.flatMap(controlTypeValues)),
+        channels: uniq(g.products.map(channelsValue)),
+      }
+      const maxPowerW = g.products.reduce<number | null>(
+        (mx, p) => (p.power_w != null && (mx == null || p.power_w > mx) ? p.power_w : mx),
+        null,
+      )
+      const signage = family.slug === 'led-signage-modules'
       cards.push({
         key: `${family.slug}:${g.code ?? 'other'}`,
         href: `/products/${family.slug}/${seriesSlug(g.code)}`,
         familyLabel,
-        name: meta?.productName ?? seriesLabel(g.code),
-        desc:
-          (g.code ? SERIES_BLURBS[g.code] : undefined) ??
-          meta?.shortDesc ??
-          `${g.products.length} models in the ${seriesLabel(g.code)} range.`,
+        name: authored?.title ?? meta?.productName ?? seriesLabel(g.code),
+        // Authored blurb → signage blurb → family-meta shortDesc → nothing.
+        // (The "N models in the X range." fallback is gone on purpose.)
+        desc: authored?.blurb ?? (g.code ? SERIES_BLURBS[g.code] : undefined) ?? meta?.shortDesc ?? '',
         imgSrc: img.src,
         imgLocal: img.isLocal,
         imgAlt: img.alt,
         badge: spec ? `${spec.ipRating} · ${spec.voltage}` : undefined,
-        chips: spec ? [spec.ipRating, spec.voltage, spec.beam].filter(Boolean) : [],
+        chips: signage
+          ? spec ? [spec.ipRating, spec.voltage, spec.beam].filter(Boolean) : []
+          : buildChips(facets, family.slug === 'led-drivers' ? maxPowerW : null),
         modelCount: g.products.length,
+        section: sec.title,
         beads: beadsFromLedConfig(spec?.ledConfig),
         certified: certs.length > 0,
-        facets: {
-          size: uniq(g.products.map((p) => sizeBand(p.length_mm))),
-          ledconfig: ledConfigFromSkus(g.products.map((p) => p.sku)),
-          brightness: uniq(g.products.map((p) => brightnessBand(p.brightness_lm))),
-          cct: ccts,
-          voltage: uniq(g.products.map((p) => voltageBand(p.output_voltage_v))),
-          opmode: uniq(g.products.flatMap((p) => opmodeValues(p.operation_mode))),
-        },
+        facets,
       })
     }
   }
@@ -206,14 +404,52 @@ function group(
   return { key, label, options }
 }
 
-/** Facet groups computed from the visible cards (only facets with ≥2 values). */
-export function buildGroups(cards: CatalogueCard[]): FacetGroup[] {
-  return [
-    group('size', 'Size', cards, SIZE.label, SIZE.order),
-    group('ledconfig', 'LED configuration', cards, LED.label, LED.order),
-    group('brightness', 'Brightness', cards, BRIGHTNESS.label, BRIGHTNESS.order),
-    group('cct', 'Colour temp (CCT)', cards, (v) => `${v} K`, (v) => Number(v)),
-    group('voltage', 'Voltage', cards, VOLTAGE.label, VOLTAGE.order),
-    group('opmode', 'Driver type', cards, OPMODE.label, OPMODE.order),
-  ].filter((g): g is FacetGroup => g !== null)
+/**
+ * Facet groups computed from the visible cards (only facets with ≥2 values).
+ * Each family gets the facet set that matches how its products are picked
+ * (user-locked 2026-07-06): drivers by selection logic, control gear by
+ * protocol, accessories by nothing, signage and the all-families view as
+ * before. Driver facets must never leak onto other families.
+ */
+export function buildGroups(cards: CatalogueCard[], familySlug?: string): FacetGroup[] {
+  const candidates = (() => {
+    switch (familySlug) {
+      case 'led-drivers':
+        return [
+          group('outv', 'Output voltage', cards, OUTV.label, OUTV.order),
+          group('power', 'Power range', cards, POWER.label, POWER.order),
+          group('dimming', 'Dimming', cards, DIMMING.label, DIMMING.order),
+          group('formfactor', 'Form factor', cards, FORMFACTOR.label, FORMFACTOR.order),
+          group('environment', 'Environment', cards, ENVIRONMENT.label, ENVIRONMENT.order),
+          group('opmode', 'Operation mode', cards, OPMODE.label, OPMODE.order),
+        ]
+      case 'control-gear':
+        return [
+          group('protocol', 'Protocol', cards, PROTOCOL.label, PROTOCOL.order),
+          group('function', 'Function', cards, FUNCTION.label, FUNCTION.order),
+          group('controltype', 'Control type', cards, CONTROLTYPE.label, CONTROLTYPE.order),
+          group('channels', 'Channels', cards, CHANNELS.label, CHANNELS.order),
+        ]
+      case 'accessories':
+        return []
+      case 'led-signage-modules':
+        return [
+          group('size', 'Size', cards, SIZE.label, SIZE.order),
+          group('ledconfig', 'LED configuration', cards, LED.label, LED.order),
+          group('brightness', 'Brightness', cards, BRIGHTNESS.label, BRIGHTNESS.order),
+          group('cct', 'Colour temp (CCT)', cards, (v) => `${v} K`, (v) => Number(v)),
+        ]
+      default:
+        // /products (all families) — the original generic, adaptive set.
+        return [
+          group('size', 'Size', cards, SIZE.label, SIZE.order),
+          group('ledconfig', 'LED configuration', cards, LED.label, LED.order),
+          group('brightness', 'Brightness', cards, BRIGHTNESS.label, BRIGHTNESS.order),
+          group('cct', 'Colour temp (CCT)', cards, (v) => `${v} K`, (v) => Number(v)),
+          group('voltage', 'Voltage', cards, VOLTAGE.label, VOLTAGE.order),
+          group('opmode', 'Driver type', cards, OPMODE.label, OPMODE.order),
+        ]
+    }
+  })()
+  return candidates.filter((g): g is FacetGroup => g !== null)
 }

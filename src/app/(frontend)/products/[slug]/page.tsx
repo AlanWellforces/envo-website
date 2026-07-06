@@ -41,7 +41,7 @@ export default async function ProductFamilyPage({ params }: { params: Params }) 
   const total = [...countBySlug.values()].reduce((a, b) => a + b, 0)
 
   const cards = buildCards(family, products)
-  const groups = buildGroups(cards)
+  const groups = buildGroups(cards, slug)
   const unit = slug === 'led-signage-modules' ? 'modules' : 'models'
 
   return (
@@ -63,7 +63,7 @@ export default async function ProductFamilyPage({ params }: { params: Params }) 
             <Link href="/products" className="pcat-pill">
               All <span className="n">{total}</span>
             </Link>
-            {PRODUCT_FAMILIES.map((f) =>
+            {PRODUCT_FAMILIES.filter((f) => f.slug === slug || (countBySlug.get(f.slug) ?? 0) > 0).map((f) =>
               f.slug === slug ? (
                 <span key={f.slug} className="pcat-pill on">
                   {f.name} <span className="n">{countBySlug.get(f.slug)}</span>
@@ -77,7 +77,7 @@ export default async function ProductFamilyPage({ params }: { params: Params }) 
           </div>
         </div>
 
-        <CatalogueFilter cards={cards} groups={groups} unit={unit} />
+        <CatalogueFilter cards={cards} groups={groups} unit={unit} showSections />
       </div>
     </div>
   )

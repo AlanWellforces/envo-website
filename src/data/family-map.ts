@@ -7,8 +7,11 @@ export type MarketingFamily = { slug: string; label: string; dbFamilies: string[
 export const MARKETING_FAMILIES: MarketingFamily[] = [
   { slug: 'led-signage-modules', label: 'LED Signage Modules', dbFamilies: ['led_module'] },
   { slug: 'led-drivers',         label: 'LED Drivers',         dbFamilies: ['psu_led_cv', 'psu_led_cc'] },
-  { slug: 'control-gear',        label: 'Control Gear',        dbFamilies: ['psu_led_controller', 'switch_switch_module'] },
-  { slug: 'accessories',         label: 'Accessories',         dbFamilies: ['sensor', 'accessory_general'] },
+  // `sensor` moved from accessories → control-gear 2026-07-06 (user decision):
+  // every live "accessory" was a sensor, and sensors belong with the controls
+  // they feed. Old /products/accessories/* sensor URLs 404 by design.
+  { slug: 'control-gear',        label: 'Control Gear',        dbFamilies: ['psu_led_controller', 'switch_switch_module', 'sensor'] },
+  { slug: 'accessories',         label: 'Accessories',         dbFamilies: ['accessory_general'] },
 ]
 
 export function dbFamilyToMarketing(dbFamily: string): MarketingFamily | null {
@@ -90,8 +93,8 @@ const DB_FAMILY_SECTION: Record<string, string> = {
 const SECTION_ORDER: Record<string, string[]> = {
   'led-signage-modules': ['Backlit modules', 'Sidelit modules'],
   'led-drivers': ['Constant-voltage drivers', 'Constant-current drivers'],
-  'control-gear': ['Controllers', 'Switches'],
-  'accessories': ['Sensors', 'Accessories'],
+  'control-gear': ['Controllers', 'Switches', 'Sensors'],
+  'accessories': ['Accessories'],
 }
 
 /** Section a series belongs to, by its products' dominant attribute. Signage

@@ -11,6 +11,9 @@ type Props = {
   cards: CatalogueCard[]
   groups: FacetGroup[]
   unit: string
+  /** Group the results under their section headings (e.g. CV / CC drivers)
+   *  while no filter or search is active; any active filter flattens the list. */
+  showSections?: boolean
 }
 
 /**
@@ -19,7 +22,7 @@ type Props = {
  * group intersect the selected set (so a card lacking a value for an active
  * facet is excluded), and the query (if any) appears in its name/family.
  */
-export function CatalogueFilter({ cards, groups, unit }: Props) {
+export function CatalogueFilter({ cards, groups, unit, showSections = false }: Props) {
   const [selected, setSelected] = useState<Record<string, Set<string>>>({})
   const [query, setQuery] = useState('')
 
@@ -77,6 +80,7 @@ export function CatalogueFilter({ cards, groups, unit }: Props) {
         </div>
 
         <div className="pcat-ftitle">Filters</div>
+        {groups.length > 0 && <p className="pcat-fnote">Counts are matching series, not models.</p>}
 
         {groups.map((g) => {
           const picked = selected[g.key]?.size ?? 0
@@ -98,7 +102,7 @@ export function CatalogueFilter({ cards, groups, unit }: Props) {
                       />
                       <span className="box" aria-hidden />
                       <span className="lab">{o.label}</span>
-                      <span className="ct">{o.count}</span>
+                      <span className="ct" title={`${o.count} matching series`}>{o.count}</span>
                     </label>
                   )
                 })}
@@ -136,7 +140,9 @@ export function CatalogueFilter({ cards, groups, unit }: Props) {
           </div>
         )}
 
-        {visible.length === 0 ? (
+        {cards.length === 0 ? (
+          <p className="pcat-empty">Nothing in this category yet — check back soon.</p>
+        ) : visible.length === 0 ? (
           <p className="pcat-empty">
             No series match those filters.{' '}
             <button type="button" className="pcat-empty-reset" onClick={reset}>
@@ -144,8 +150,20 @@ export function CatalogueFilter({ cards, groups, unit }: Props) {
             </button>
           </p>
         ) : (
-          <div className="pcat-list">
-            {visible.map((c) => (
+          (() => {
+            // Sectioned view only while nothing is filtered — an active filter
+            // must not scatter its results across headings.
+            const sections = showSections && activeCount === 0
+              ? [...new Set(visible.map((c) => c.section))]
+              : []
+            const buckets = sections.length > 1
+              ? sections.map((s) => ({ title: s, cards: visible.filter((c) => c.section === s) }))
+              : [{ title: null as string | null, cards: visible }]
+            return buckets.map((b) => (
+              <div key={b.title ?? 'all'}>
+                {b.title && <h2 className="pcat-section">{b.title}</h2>}
+                <div className="pcat-list">
+                  {b.cards.map((c) => (
               <Link key={c.key} href={c.href} className="pcat-row">
                 <div className="pcat-row-media">
                   {c.beads ? (
@@ -191,8 +209,11 @@ export function CatalogueFilter({ cards, groups, unit }: Props) {
                   </span>
                 </div>
               </Link>
-            ))}
-          </div>
+                  ))}
+                </div>
+              </div>
+            ))
+          })()
         )}
       </section>
     </div>

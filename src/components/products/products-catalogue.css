@@ -30,6 +30,7 @@
 /* sticky top 26px = level with the sidebar logo once the page is scrolled */
 .pcat-filters { position:sticky; top:26px; align-self:start; padding:0 0 20px; }
 .pcat-ftitle { font-size:9.5px; letter-spacing:.16em; text-transform:uppercase; color:var(--fg-soft); margin-bottom:10px; }
+.pcat-fnote { font-size:10.5px; color:var(--fg-mute); margin:-6px 0 12px; }
 
 .pcat-search { display:flex; align-items:center; gap:7px; background:var(--bg-card); border:1px solid var(--line-strong);
   border-radius:9px; padding:8px 11px; margin-bottom:12px; }
@@ -87,6 +88,9 @@
 
 /* series list — one compact wide row per series */
 .pcat-list { display:flex; flex-direction:column; gap:9px; }
+.pcat-section { font-size:10px; letter-spacing:.18em; text-transform:uppercase; color:var(--fg-soft);
+  font-weight:700; margin:22px 0 10px; }
+div:first-child > .pcat-section { margin-top:0; }
 .pcat-row { display:grid; grid-template-columns:auto 1fr auto; align-items:center; gap:20px;
   background:var(--bg-card); border:1px solid var(--line); border-radius:12px; padding:14px 18px;
   text-decoration:none; color:inherit; transition:transform .16s, border-color .16s, box-shadow .16s; }
