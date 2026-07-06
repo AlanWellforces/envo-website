@@ -24,7 +24,8 @@
 /* ===== hero split — gallery sticky, info wider ===== */
 .pdetail .p-hero { display: grid; grid-template-columns: 0.92fr 1.08fr; gap: 46px; padding: 14px 0 40px; align-items: start; }
 .pdetail .gallery { position: sticky; top: 24px; }
-.pdetail .gstage { width: 100%; aspect-ratio: 4 / 3; background: radial-gradient(120% 120% at 50% 32%, #fff, #e9eef5); border: 1px solid var(--line); border-radius: 18px; display: grid; place-items: center; position: relative; overflow: hidden; }
+/* square stage (user 2026-07-06; was 4/3) */
+.pdetail .gstage { width: 100%; aspect-ratio: 1 / 1; background: radial-gradient(120% 120% at 50% 32%, #fff, #e9eef5); border: 1px solid var(--line); border-radius: 18px; display: grid; place-items: center; position: relative; overflow: hidden; }
 .pdetail .collset { display: flex; align-items: center; justify-content: center; gap: 2%; width: 100%; height: 100%; padding: 30px 22px 18px; }
 .pdetail .collset figure { margin: 0; flex: 1; height: 100%; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 10px; }
 .pdetail .collset img { width: 100%; max-height: 58%; object-fit: contain; mix-blend-mode: multiply; }
@@ -32,6 +33,39 @@
 .pdetail .gstage .beadtag { position: absolute; top: 16px; left: 18px; font-family: var(--mono); font-size: 10px; letter-spacing: 0.12em; text-transform: uppercase; color: var(--text-subtle); }
 .pdetail .thumbs { display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; margin-top: 12px; }
 .pdetail .thumb-fig { margin: 0; min-width: 0; }
+/* thumbs are buttons now (click to swap into the stage) */
+.pdetail .thumbs button.t { appearance: none; width: 100%; padding: 0; cursor: pointer; font: inherit;
+  transition: border-color .15s, box-shadow .15s; }
+.pdetail .thumbs button.t:hover { border-color: var(--blue); }
+.pdetail .thumbs button.t.on { border-color: var(--blue); box-shadow: 0 0 0 2px rgba(0, 113, 188, .25); }
+
+/* stage zoom + single-image view */
+.pdetail .gstage.zoomable { cursor: default; }
+.pdetail .gzoom { position: absolute; top: 14px; right: 14px; z-index: 2; appearance: none; border: 1px solid var(--line);
+  background: var(--bg-card); width: 36px; height: 36px; border-radius: 50%; display: grid; place-items: center;
+  cursor: zoom-in; transition: border-color .15s; }
+.pdetail .gzoom svg { width: 17px; height: 17px; fill: none; stroke: var(--text-muted); stroke-width: 2;
+  stroke-linecap: round; }
+.pdetail .gzoom:hover { border-color: var(--blue); }
+.pdetail .gsingle { appearance: none; border: 0; background: none; padding: 24px; width: 100%; height: 100%;
+  display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 10px; cursor: zoom-in; }
+.pdetail .gsingle img { width: auto; max-width: 82%; max-height: 78%; object-fit: contain; mix-blend-mode: multiply; }
+.pdetail .gsingle-cap { font-family: var(--mono); font-size: 11px; letter-spacing: 0.06em; color: var(--text-subtle); }
+
+/* lightbox — PORTALED to <body> (so no .pdetail prefix) and above the region
+   banner's z-index 300 in envo.css */
+.glightbox { position: fixed; inset: 0; z-index: 400; background: rgba(10, 16, 26, 0.82);
+  display: grid; place-items: center; padding: 40px; cursor: zoom-out; }
+.glb-body { background: #fff; border-radius: 16px; padding: 28px; max-width: min(880px, 92vw);
+  max-height: 88vh; display: flex; flex-direction: column; align-items: center; gap: 12px; cursor: default; }
+.glb-body img { max-width: 100%; max-height: calc(88vh - 110px); object-fit: contain; }
+.glb-cap { font-family: var(--font-mono); font-size: 12px; letter-spacing: 0.06em; color: var(--fg-soft); }
+.glb-close { position: fixed; top: 18px; right: 22px; appearance: none; border: 0; background: none;
+  color: #fff; font-size: 40px; line-height: 1; cursor: pointer; z-index: 401; }
+
+/* "All models" combined tile — a mini collage of the stage figures */
+.pdetail .thumbs button.t.all { display: flex; align-items: center; justify-content: center; gap: 2px; padding: 8px; }
+.pdetail .thumbs button.t.all img { width: 30%; height: auto; max-height: 80%; object-fit: contain; mix-blend-mode: multiply; }
 .pdetail .thumb-fig figcaption { font-family: var(--mono); font-size: 10px; letter-spacing: 0.04em; color: var(--text-subtle); text-align: center; margin-top: 6px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 .pdetail .thumbs .t { aspect-ratio: 1; background: var(--bg-card); border: 1px solid var(--line); border-radius: 10px; display: grid; place-items: center; overflow: hidden; }
 .pdetail .thumbs .t img { width: 70%; object-fit: contain; mix-blend-mode: multiply; }

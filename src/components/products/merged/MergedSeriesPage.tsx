@@ -3,6 +3,7 @@ import Link from 'next/link'
 import type { ReactNode } from 'react'
 import type { SeriesPurchaseLinks } from '@/data/distributors'
 import { FindDistributorCta } from './FindDistributorCta'
+import { SeriesGallery } from './SeriesGallery'
 import './merged-series.css'
 
 type Img = { src: string; local: boolean; alt: string }
@@ -218,33 +219,16 @@ export default function MergedSeriesPage(p: MergedSeriesProps) {
 
         {/* ===== HERO ===== */}
         <div className="p-hero">
-          <div className="gallery">
-            <div className="gstage">
-              {p.beadtag && <span className="beadtag">{p.beadtag}</span>}
-              {/* Many-model series show one representative image, not a row of
-                  squished figures. ≤4 variants show the full collection set. */}
-              <div className="collset">
-                {(p.variantLayout === 'rows' ? p.variants.slice(0, 1) : p.variants.slice(0, 4)).map((v) => (
-                  <figure key={v.name}>
-                    <Picture img={v.image} sizes="120px" />
-                    {p.variantLayout !== 'rows' && <figcaption>{v.name}</figcaption>}
-                  </figure>
-                ))}
-              </div>
-            </div>
-            {p.thumbs && p.thumbs.length > 0 && (
-              <div className="thumbs">
-                {p.thumbs.map((t, i) => (
-                  <figure key={i} className="thumb-fig">
-                    <div className={`t${t.cover ? ' cover' : ''}`}>
-                      <Picture img={t} sizes="90px" />
-                    </div>
-                    {t.label && <figcaption>{t.label}</figcaption>}
-                  </figure>
-                ))}
-              </div>
-            )}
-          </div>
+          {/* Many-model series show one representative image, not a row of
+              squished figures. ≤4 variants show the full collection set. */}
+          <SeriesGallery
+            beadtag={p.beadtag}
+            stage={(p.variantLayout === 'rows' ? p.variants.slice(0, 1) : p.variants.slice(0, 4)).map((v) => ({
+              ...v.image,
+              caption: p.variantLayout !== 'rows' ? v.name : undefined,
+            }))}
+            thumbs={p.thumbs}
+          />
 
           <div className="p-info">
             <div className="eyebrow">{p.eyebrow}</div>
