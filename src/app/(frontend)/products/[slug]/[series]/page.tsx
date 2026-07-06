@@ -111,7 +111,9 @@ export default async function SeriesDetailPage({ params }: { params: Params }) {
           { icon: 'vsource', label: 'Input voltage', value: '12 V DC' },
           { icon: 'maxseries', label: 'Max series', value: '40' },
           { icon: 'waterproof', label: 'Waterproof', value: 'IP66' },
-          { icon: 'dims', label: 'Dimensions', value: '14–38.1 × 9 × 9 mm (0.55–1.5 × 0.35 × 0.35 in)' },
+          // mm line + imperial twin line — shared 9×9 profile once, the
+          // varying lengths slash-listed
+          { icon: 'dims', label: 'Dimensions', value: 'W9 × H9 × L14/26/38 mm\n(0.35 × 0.35 × 0.55/1.02/1.5 in)' },
           { icon: 'warranty', label: 'Warranty', value: '5 years' },
         ]}
         datasheetUrl={datasheetUrl}

@@ -215,19 +215,40 @@ describe('hero key specs', () => {
     expect(byLabel['Input voltage']).toBe('12 V DC')
     expect(byLabel['Max series']).toBe('40')
     expect(byLabel['Waterproof']).toBe('IP66')
-    expect(byLabel['Dimensions']).toBe('14–38.1 × 9 × 9 mm (0.55–1.5 × 0.35 × 0.35 in)')
+    // multiple sizes → shared cross-section once, lengths slash-listed;
+    // imperial twin on its own equal-size line
+    expect(byLabel['Dimensions']).toBe('W9 × H9 × L14/38.1 mm\n(0.35 × 0.35 × 0.55/1.5 in)')
     expect(byLabel['Warranty']).toBe('5 years')
     expect((props.keySpecs ?? []).length).toBeLessThanOrEqual(6)
   })
 
-  it('signage max-series and dimensions honesty: ranges when models differ, omitted when w×h mixed', () => {
+  it('signage max-series and dimensions honesty: ranges when models differ, size count when w×h mixed', () => {
     const props = buildMergedSeriesProps(modulesFamily, 'hydro_lume', [
       p({ sku: 'A', series: 'hydro_lume', family: 'led_module', subtitle: '24V 1W IP67', power_w: 1, max_in_series: 40, length_mm: 42, width_mm: 20, height_mm: 7 }),
       p({ sku: 'B', series: 'hydro_lume', family: 'led_module', subtitle: '24V 2W IP67', power_w: 2, max_in_series: 80, length_mm: 84, width_mm: 21, height_mm: 7 }),
     ])
     const byLabel = Object.fromEntries((props.keySpecs ?? []).map((s) => [s.label, s.value]))
     expect(byLabel['Max series']).toBe('40–80')
-    expect(byLabel['Dimensions']).toBeUndefined()
+    // mixed cross-sections can't state one profile — lengths-only list
+    // instead of omitting (proglo/ultraflare previously showed nothing)
+    expect(byLabel['Dimensions']).toBe('L42/84 mm\n(1.65/3.31 in)')
+  })
+
+  it('signage single size stays exact', () => {
+    const props = buildMergedSeriesProps(modulesFamily, 'envo_chromaflux', [
+      p({ sku: 'A', series: 'envo_chromaflux', family: 'led_module', subtitle: '12V 1.5W IP66', power_w: 1.5, length_mm: 87, width_mm: 17.5, height_mm: 8.4 }),
+      p({ sku: 'B', series: 'envo_chromaflux', family: 'led_module', subtitle: '12V 1.5W IP66', power_w: 1.5, length_mm: 87, width_mm: 17.5, height_mm: 8.4 }),
+    ])
+    const byLabel = Object.fromEntries((props.keySpecs ?? []).map((s) => [s.label, s.value]))
+    expect(byLabel['Dimensions']).toBe('L87 × W17.5 × H8.4 mm\n(3.43 × 0.69 × 0.33 in)')
+  })
+
+  it('signage many-length series lists every length in the sub line', () => {
+    const props = buildMergedSeriesProps(modulesFamily, 'envo_ecoglo', [10, 20, 30, 40, 50].map((l, i) =>
+      p({ sku: `S${i}`, series: 'envo_ecoglo', family: 'led_module', subtitle: '12V 1W IP66', power_w: 1, length_mm: l, width_mm: 10, height_mm: 10 }),
+    ))
+    const dim = (props.keySpecs ?? []).find((s) => s.label === 'Dimensions')
+    expect(dim?.value).toBe('W10 × H10 × L10/20/30/40/50 mm\n(0.39 × 0.39 × 0.39/0.79/1.18/1.57/1.97 in)')
   })
 
   it('omits key specs with no data instead of fabricating', () => {

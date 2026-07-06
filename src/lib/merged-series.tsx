@@ -322,20 +322,28 @@ export function buildMergedSeriesProps(
     )
     const ip = ipField ?? products.map((p) => p.subtitle?.match(/IP\s?(\d{2})/i)?.[1]).find(Boolean)
     key('waterproof', 'Waterproof', ip ? (ipField ? ipField.toUpperCase() : `IP${ip}`) : null)
-    // Dimensions only when the cross-section is shared (lengths may range);
-    // mixed w×h across models would need a misleading mash-up — omit instead.
-    const whs = uniq(products.map((p) => `${p.width_mm}×${p.height_mm}`))
-    const lens = uniq(products.map((p) => num(p.length_mm)).filter((v): v is number => v != null))
+    // Dimensions: a single size shows exact — anything more collapses to a
+    // count + length span (a merged L×W×H list reads like number soup; the
+    // compare table below carries exact per-model dims). "Lengths" when the
+    // cross-section is shared, "sizes" when profiles differ too.
+    const sized = products.filter((p) => p.length_mm != null && p.width_mm != null && p.height_mm != null)
+    const dimTuples = uniq(sized.map((p) => `${p.length_mm}×${p.width_mm}×${p.height_mm}`))
+    const lens = uniq(sized.map((p) => num(p.length_mm)).filter((v): v is number => v != null))
       .sort((a, b) => a - b)
-    if (whs.length === 1 && lens.length && products[0].width_mm != null && products[0].height_mm != null) {
-      const w = products[0].width_mm
-      const h = products[0].height_mm
-      const lo = lens[0]
-      const hi = lens[lens.length - 1]
-      const lMm = lo === hi ? `${lo}` : `${lo}–${hi}`
-      const lIn = lo === hi ? `${mmToIn(lo)}` : `${mmToIn(lo)}–${mmToIn(hi)}`
-      // dual units: mm (国标) primary, inches (美标) in parens
-      key('dims', 'Dimensions', `${lMm} × ${w} × ${h} mm (${lIn} × ${mmToIn(w)} × ${mmToIn(h)} in)`)
+    // mm line + imperial twin line, equal size (W/H/L labels say which
+    // number is which axis). Varying lengths render as a slash list
+    // (W × H × L-list); mixed cross-sections list lengths only.
+    if (dimTuples.length === 1 && sized[0].width_mm != null && sized[0].height_mm != null) {
+      const { length_mm: l, width_mm: w, height_mm: h } = sized[0]
+      key('dims', 'Dimensions', `L${l} × W${w} × H${h} mm\n(${mmToIn(l)} × ${mmToIn(w)} × ${mmToIn(h)} in)`)
+    } else if (lens.length) {
+      const shared = uniq(sized.map((p) => `${p.width_mm}×${p.height_mm}`)).length === 1
+      const lensMm = lens.join('/')
+      const lensIn = lens.map(mmToIn).join('/')
+      const value = shared && sized[0].width_mm != null && sized[0].height_mm != null
+        ? `W${sized[0].width_mm} × H${sized[0].height_mm} × L${lensMm} mm\n(${mmToIn(sized[0].width_mm)} × ${mmToIn(sized[0].height_mm)} × ${lensIn} in)`
+        : `L${lensMm} mm\n(${lensIn} in)`
+      key('dims', 'Dimensions', value)
     }
     // Every module line carries the same warranty on the distributor sites
     // (envo-led.com, verified 2026-07-06). Prefer the PIM column the moment
