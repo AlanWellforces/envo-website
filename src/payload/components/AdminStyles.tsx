@@ -119,6 +119,24 @@ ${iconRules}
 .nav__controls { border-top: 1px solid #e6e9ee; margin-top: 12px; padding-top: 10px; }
 .nav__controls a { color: #4a5568; }
 .nav__controls a:hover { color: #141d2b; }
+/* Icon-only logout link reads as a mystery arrow (users mistake it for a
+   menu-collapse). Give it a text label and lay it out like a nav item —
+   no underline, matching the nav__link hover treatment. */
+.nav__log-out {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 9px 10px;
+  border-radius: 9px;
+  font-size: 14px;
+  font-weight: 500;
+  color: #4a5568;
+  text-decoration: none;
+}
+.nav__log-out::after { content: "Log out"; text-decoration: none; }
+.nav__log-out:hover, .nav__log-out:hover::after { text-decoration: none; }
+.nav__log-out:hover { background: #f3f5f7; color: #141d2b; }
+.nav__log-out svg { width: 19px; height: 19px; flex: none; }
 
 /* ---- Editorial Bold sub-pages ----------------------------------------
    Same design language as the Dashboard for every list/edit view: light
