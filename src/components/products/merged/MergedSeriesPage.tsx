@@ -16,9 +16,20 @@ export type MergedVariant = {
   ledBeads?: string
   output?: string
   power?: string
-  /** per-model input voltage — set only when models in the series differ */
+  /** driver column: output rail, e.g. "12 V DC" */
+  outputVoltage?: string
+  /** driver column: rated output current, e.g. "8.33 A" */
+  ratedCurrent?: string
+  /** per-model input voltage (always set on driver pages; elsewhere only when models differ) */
   inputVoltage?: string
+  /** driver column: per-model dimming, e.g. "Triac", "DALI", "Non-dimmable" */
+  dimming?: string
+  /** driver column: per-model ingress rating, e.g. "IP67" */
+  ip?: string
+  /** signage: rendered as "Module size" */
   size?: string
+  /** drivers: the same physical dims rendered as "Dimensions" */
+  dimensions?: string
   bestFor?: string
 }
 
@@ -53,8 +64,13 @@ const VARIANT_ROWS: { label: string; key: keyof MergedVariant; cls?: string }[] 
   { label: 'LED beads', key: 'ledBeads' },
   { label: 'Output', key: 'output' },
   { label: 'Power', key: 'power' },
+  { label: 'Output voltage', key: 'outputVoltage' },
+  { label: 'Rated current', key: 'ratedCurrent' },
   { label: 'Input voltage', key: 'inputVoltage' },
+  { label: 'Dimming', key: 'dimming' },
+  { label: 'IP rating', key: 'ip' },
   { label: 'Module size', key: 'size' },
+  { label: 'Dimensions', key: 'dimensions' },
   { label: 'Best for', key: 'bestFor', cls: 'best' },
 ]
 
