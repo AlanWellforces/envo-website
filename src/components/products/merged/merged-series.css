@@ -266,21 +266,26 @@
 .pdetail .rel-head { display: flex; align-items: baseline; justify-content: space-between; margin-bottom: 18px; }
 .pdetail .rel-head h2 { font-size: 23px; letter-spacing: -0.025em; margin: 0; font-weight: 700; }
 .pdetail .rel-head a { font-size: 13px; color: var(--blue); font-weight: 600; text-decoration: none; }
-.pdetail .rel-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; }
-.pdetail .rel-card { background: var(--bg-card); border: 1px solid var(--line); border-radius: 13px; overflow: hidden; transition: transform 0.2s, border-color 0.2s; text-decoration: none; color: inherit; }
+/* compact 5-up row that scrolls when there are more — never wraps
+   (user 2026-07-06) */
+.pdetail .rel-grid { display: flex; gap: 14px; overflow-x: auto; scrollbar-width: thin;
+  padding-bottom: 6px; scroll-snap-type: x proximity; }
+.pdetail .rel-card { flex: 0 0 calc((100% - 56px) / 5); scroll-snap-align: start;
+  background: var(--bg-card); border: 1px solid var(--line); border-radius: 12px; overflow: hidden;
+  transition: transform 0.2s, border-color 0.2s; text-decoration: none; color: inherit; }
 .pdetail .rel-card:hover { transform: translateY(-2px); border-color: var(--line-strong); }
-/* portrait product boxes — taller than wide (user 2026-07-06): a tall
-   square-ish image area makes the whole card portrait */
+/* still portrait (taller than wide), just smaller in the 5-up row */
 .pdetail .rel-card .iw { aspect-ratio: 1 / 1; background: radial-gradient(120% 120% at 50% 20%, #fff, #eef1f5); display: grid; place-items: center; }
 .pdetail .rel-card .iw img { width: 74%; height: 74%; object-fit: contain; mix-blend-mode: multiply; }
-.pdetail .rel-card .bd { padding: 13px 15px 15px; }
-.pdetail .rel-card .rl { font-size: 9.5px; letter-spacing: 0.13em; text-transform: uppercase; font-weight: 700; color: var(--text-subtle); }
-.pdetail .rel-card .rn { font-size: 15px; font-weight: 700; margin: 3px 0 0; }
+.pdetail .rel-card .bd { padding: 11px 13px 13px; }
+.pdetail .rel-card .rl { font-size: 9px; letter-spacing: 0.12em; text-transform: uppercase; font-weight: 700; color: var(--text-subtle); }
+.pdetail .rel-card .rn { font-size: 13.5px; font-weight: 700; margin: 3px 0 0; line-height: 1.25; }
 
 @media (max-width: 900px) {
   .pdetail .p-hero { grid-template-columns: 1fr; gap: 26px; }
   .pdetail .gallery { position: static; }
   .pdetail .p-info h1 { font-size: 36px; }
   .pdetail .dl-grid { grid-template-columns: 1fr; }
-  .pdetail .rel-grid { grid-template-columns: 1fr; }
+  /* narrower viewport: show ~2.2 cards and let the rest scroll */
+  .pdetail .rel-card { flex-basis: calc((100% - 28px) / 2.2); }
 }
