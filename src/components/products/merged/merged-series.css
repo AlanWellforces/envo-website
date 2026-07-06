@@ -100,12 +100,13 @@
 .pdetail .wtb-lab { font-size: 10px; letter-spacing: 0.12em; text-transform: uppercase; font-weight: 700; color: var(--text-subtle); }
 /* dropdown trigger — subtle pill; the current region + caret */
 .pdetail .wtb-dd { position: relative; }
-.pdetail .wtb-dd-trigger { appearance: none; font-family: inherit; cursor: pointer; display: inline-flex; align-items: center; gap: 6px;
-  border: 1px solid var(--line-strong); background: var(--bg-card); border-radius: 999px; padding: 4px 8px 4px 13px;
-  font-size: 13px; color: var(--text); transition: border-color .15s; }
+/* borderless trigger — plain text + caret (user 2026-07-06) */
+.pdetail .wtb-dd-trigger { appearance: none; font-family: inherit; cursor: pointer; display: inline-flex; align-items: center; gap: 5px;
+  border: 0; background: none; padding: 0; font-size: 13px; color: var(--text); }
 .pdetail .wtb-dd-trigger b { font-weight: 650; }
-.pdetail .wtb-dd-trigger:hover { border-color: var(--blue); }
-.pdetail .wtb-dd-trigger .caret { width: 15px; height: 15px; fill: none; stroke: var(--text-subtle); stroke-width: 2;
+.pdetail .wtb-dd-trigger:hover { color: var(--blue); }
+.pdetail .wtb-dd-trigger:hover .caret { stroke: var(--blue); }
+.pdetail .wtb-dd-trigger .caret { width: 14px; height: 14px; fill: none; stroke: var(--text-subtle); stroke-width: 2;
   stroke-linecap: round; stroke-linejoin: round; transition: transform .18s; }
 .pdetail .wtb-dd.open .wtb-dd-trigger .caret { transform: rotate(180deg); }
 /* menu */
