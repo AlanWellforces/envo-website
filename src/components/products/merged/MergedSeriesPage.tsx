@@ -1,7 +1,8 @@
 import Image from 'next/image'
 import Link from 'next/link'
 import type { ReactNode } from 'react'
-import { PURCHASE_CHANNELS } from '@/data/purchase-channels'
+import type { SeriesPurchaseLinks } from '@/data/distributors'
+import { FindDistributorCta } from './FindDistributorCta'
 import './merged-series.css'
 
 type Img = { src: string; local: boolean; alt: string }
@@ -56,6 +57,8 @@ export type MergedSeriesProps = {
   /** icon-grid of the series' identity facts, rendered beside the image (≤6) */
   keySpecs?: MergedKeySpec[]
   datasheetUrl?: string
+  /** per-distributor product links for the regional purchase CTA */
+  purchaseLinks?: SeriesPurchaseLinks
   /** square tiles under the stage; `label` names the model so variants are
    *  tellable apart (user markup 2026-07-06) */
   thumbs?: (Img & { cover?: boolean; label?: string })[]
@@ -233,28 +236,9 @@ export default function MergedSeriesPage(p: MergedSeriesProps) {
               </div>
             )}
 
-            <div className="cta">
-              <Link className="cta-primary" href="/free-layout-design">
-                Get a free layout design<span>→</span>
-              </Link>
-              {p.datasheetUrl && (
-                <a className="cta-ghost" href={p.datasheetUrl} target="_blank" rel="noopener noreferrer">
-                  ↓ Datasheet (PDF)
-                </a>
-              )}
-            </div>
-            <div className="wtb">
-              <span className="wtb-lab">Where to buy</span>
-              {PURCHASE_CHANNELS.map((c, i) => (
-                <span key={c.id} style={{ display: 'inline-flex', gap: 9, alignItems: 'center' }}>
-                  {i > 0 && <span className="wtb-dot">·</span>}
-                  <a href={c.url} target="_blank" rel="noopener noreferrer">
-                    {c.regionLabel}
-                  </a>
-                </span>
-              ))}
-            </div>
-            <div className="buyfine">Sold through authorised distributors</div>
+            {/* One regional purchase CTA (user spec 2026-07-06) — never both
+                distributors at once; region-unknown shows a manual selector. */}
+            <FindDistributorCta links={p.purchaseLinks} datasheetUrl={p.datasheetUrl} />
           </div>
         </div>
 

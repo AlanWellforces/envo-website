@@ -297,3 +297,12 @@ describe('per-model gallery thumbs', () => {
     expect(props.thumbs).toBeUndefined()
   })
 })
+
+// ── regional purchase links reach the page props ─────────────────────────────
+describe('purchase links', () => {
+  it('every series carries per-distributor links (PSM collection when mapped)', () => {
+    const props = buildMergedSeriesProps(driversFamily, 'envo_sl_us', [p({ sku: 'A', series: 'envo_sl_us' })])
+    expect(props.purchaseLinks?.psm).toBe('https://powersupplymall.com/collections/envo-sl-series')
+    expect(props.purchaseLinks?.wellforces).toContain('wellforces.co.nz')
+  })
+})

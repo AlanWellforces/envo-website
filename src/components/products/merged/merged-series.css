@@ -44,6 +44,9 @@
 /* hero key-spec grid (reference layout 2026-07-06): two columns of
    icon + LABEL-over-value rows with hairline separators */
 .pdetail .hero-sub { font-size: 14.5px; color: var(--text-muted); line-height: 1.5; margin: -4px 0 18px; max-width: 52ch; }
+.pdetail .wtb-pick { appearance: none; border: 1px solid var(--line); background: var(--bg-card); border-radius: 999px;
+  padding: 4px 11px; font-family: inherit; font-size: 12px; font-weight: 600; color: var(--text-muted); cursor: pointer; }
+.pdetail .wtb-pick:hover { border-color: var(--blue); color: var(--blue); }
 .pdetail .kspecs { margin: 6px 0 26px; }
 .pdetail .kspecs-grid { display: grid; grid-template-columns: 1fr 1fr; column-gap: 30px; border-top: 1px solid var(--line); }
 .pdetail .ks { display: flex; align-items: center; gap: 12px; padding: 13px 0; border-bottom: 1px solid var(--line); min-width: 0; }

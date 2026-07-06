@@ -8,6 +8,7 @@ import { seriesSlug as toSeriesSlug } from '@/data/family-map'
 import { buildMergedSeriesProps } from '@/lib/merged-series'
 import { COMPLEMENT_FAMILIES, pickRelatedSeries } from '@/lib/related-series'
 import { SERIES_EDITORIAL } from '@/data/series-editorial.generated'
+import { seriesPurchaseLinks } from '@/data/distributors'
 
 type Params = Promise<{ slug: string; series: string }>
 
@@ -111,6 +112,7 @@ export default async function SeriesDetailPage({ params }: { params: Params }) {
           { icon: 'lifetime', label: 'Lifetime', value: '50,000 h · L70' },
         ]}
         datasheetUrl={datasheetUrl}
+        purchaseLinks={seriesPurchaseLinks('envo_minilux', 'MiniLux')}
         thumbs={[
           img('mod-mini.png', 'MiniLux module'),
           img('mod-mini-line.png', 'MiniLux line drawing'),

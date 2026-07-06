@@ -7,6 +7,7 @@ import { groupSeriesModels } from './series-template'
 import { SERIES_EDITORIAL } from '@/data/series-editorial.generated'
 import { SERIES_BLURBS } from '@/data/series-applications'
 import { catalogueSeriesMeta } from '@/data/series-catalogue-meta'
+import { seriesPurchaseLinks } from '@/data/distributors'
 import { seriesLabel, seriesLineArt } from '@/data/family-map'
 import type { ProductFamily } from '@/data/product-families'
 import type { MergedSeriesProps, MergedVariant, MergedSharedRow, MergedKeySpec } from '@/components/products/merged/MergedSeriesPage'
@@ -320,6 +321,7 @@ export function buildMergedSeriesProps(
     checklist: checklist?.length ? checklist : undefined,
     keySpecs: keySpecs.slice(0, 6),
     datasheetUrl,
+    purchaseLinks: seriesPurchaseLinks(series, label),
     thumbs,
     variants,
     variantLayout: variants.length > COLUMN_CAP ? 'rows' : 'columns',
