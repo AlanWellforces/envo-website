@@ -9,6 +9,7 @@ import { SERIES_BLURBS } from '@/data/series-applications'
 import { catalogueSeriesMeta } from '@/data/series-catalogue-meta'
 import { seriesPurchaseLinks } from '@/data/distributors'
 import { seriesLabel, seriesLineArt } from '@/data/family-map'
+import { formatDims, mmToIn } from './units'
 import type { ProductFamily } from '@/data/product-families'
 import type { MergedSeriesProps, MergedVariant, MergedSharedRow, MergedKeySpec } from '@/components/products/merged/MergedSeriesPage'
 
@@ -62,6 +63,13 @@ function dimmingDisplay(p: Product): string | undefined {
 
 function ipDisplay(p: Product): string | undefined {
   return p.waterproof && /^ip\d+$/i.test(p.waterproof) ? p.waterproof.toUpperCase() : undefined
+}
+
+// Dual-unit dimensions — metric primary, US imperial in parens (brand rule),
+// so both 国标 (mm) and 美标 (in) always show. Null-safe.
+function dualDims(p: Product | undefined): string | undefined {
+  const d = formatDims(p?.length_mm, p?.width_mm, p?.height_mm)
+  return d ? `${d.mm} (${d.in})` : undefined
 }
 
 // Protection features, from each model's own Akeneo copy (there is no
@@ -169,9 +177,9 @@ export function buildMergedSeriesProps(
             ratedCurrent: rep?.rated_current_a != null ? `${rep.rated_current_a} A` : undefined,
             dimming: rep ? dimmingDisplay(rep) : undefined,
             ip: rep ? ipDisplay(rep) : undefined,
-            dimensions: m.dimsMm ? `${m.dimsMm} mm` : undefined,
+            dimensions: dualDims(rep),
           }
-        : { size: m.dimsMm ? `${m.dimsMm} mm` : undefined }),
+        : { size: dualDims(rep) }),
     }
   })
 
@@ -320,8 +328,14 @@ export function buildMergedSeriesProps(
     const lens = uniq(products.map((p) => num(p.length_mm)).filter((v): v is number => v != null))
       .sort((a, b) => a - b)
     if (whs.length === 1 && lens.length && products[0].width_mm != null && products[0].height_mm != null) {
-      const l = lens.length === 1 ? String(lens[0]) : `${lens[0]}–${lens[lens.length - 1]}`
-      key('dims', 'Dimensions', `${l} × ${products[0].width_mm} × ${products[0].height_mm} mm`)
+      const w = products[0].width_mm
+      const h = products[0].height_mm
+      const lo = lens[0]
+      const hi = lens[lens.length - 1]
+      const lMm = lo === hi ? `${lo}` : `${lo}–${hi}`
+      const lIn = lo === hi ? `${mmToIn(lo)}` : `${mmToIn(lo)}–${mmToIn(hi)}`
+      // dual units: mm (国标) primary, inches (美标) in parens
+      key('dims', 'Dimensions', `${lMm} × ${w} × ${h} mm (${lIn} × ${mmToIn(w)} × ${mmToIn(h)} in)`)
     }
     // Every module line carries the same warranty on the distributor sites
     // (envo-led.com, verified 2026-07-06). Prefer the PIM column the moment

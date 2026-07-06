@@ -87,7 +87,7 @@ describe('driver series spec table', () => {
     expect(v.ratedCurrent).toBe('8.33 A')
     expect(v.inputVoltage).toBe('100–240 V AC')
     expect(v.ip).toBe('IP20')
-    expect(v.dimensions).toBe('280 × 30 × 21 mm')
+    expect(v.dimensions).toBe('280 × 30 × 21 mm (11.02 × 1.18 × 0.83 in)')
     // "Module size" must never render on a driver page
     expect(v.size).toBeUndefined()
   })
@@ -97,7 +97,7 @@ describe('driver series spec table', () => {
       p({ sku: 'EV-BLEG02LBY-NW', series: 'envo_ecoglo', family: 'led_module', power_w: 1, length_mm: 30, width_mm: 12, height_mm: 6 }),
     ])
     const v = props.variants[0]
-    expect(v.size).toBe('30 × 12 × 6 mm')
+    expect(v.size).toBe('30 × 12 × 6 mm (1.18 × 0.47 × 0.24 in)')
     expect(v.dimensions).toBeUndefined()
     expect(v.ratedCurrent).toBeUndefined()
     expect(v.ip).toBeUndefined()
@@ -215,7 +215,7 @@ describe('hero key specs', () => {
     expect(byLabel['Input voltage']).toBe('12 V DC')
     expect(byLabel['Max series']).toBe('40')
     expect(byLabel['Waterproof']).toBe('IP66')
-    expect(byLabel['Dimensions']).toBe('14–38.1 × 9 × 9 mm')
+    expect(byLabel['Dimensions']).toBe('14–38.1 × 9 × 9 mm (0.55–1.5 × 0.35 × 0.35 in)')
     expect(byLabel['Warranty']).toBe('5 years')
     expect((props.keySpecs ?? []).length).toBeLessThanOrEqual(6)
   })

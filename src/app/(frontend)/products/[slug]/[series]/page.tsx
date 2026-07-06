@@ -3,6 +3,7 @@ import { notFound } from 'next/navigation'
 import MergedSeriesPage from '@/components/products/merged/MergedSeriesPage'
 import { PRODUCT_FAMILIES, type SeriesLink } from '@/data/product-families'
 import { datasheetHref } from '@/lib/asset-url'
+import { formatDims } from '@/lib/units'
 import { getProduct, getProductsByMarketingFamily, type Product } from '@/lib/products'
 import { seriesSlug as toSeriesSlug } from '@/data/family-map'
 import { buildMergedSeriesProps } from '@/lib/merged-series'
@@ -62,15 +63,16 @@ export default async function SeriesDetailPage({ params }: { params: Params }) {
     // see memory project_envo-minilux-real-specs / mini-compare-shared-rows-wiring).
     const variantSkus = ['EV-BLML01LBY-NW', 'EV-BLML02LBY-NW', 'EV-BLML03LBY-NW']
     const live = await Promise.all(variantSkus.map((s) => getProduct(s)))
-    const dims = (pr: Product | null) =>
-      pr?.length_mm && pr?.width_mm && pr?.height_mm
-        ? `${pr.length_mm} × ${pr.width_mm} × ${pr.height_mm} mm`
-        : undefined
+    // dual units — mm (国标) primary, inches (美标) in parens
+    const dims = (pr: Product | null) => {
+      const d = formatDims(pr?.length_mm, pr?.width_mm, pr?.height_mm)
+      return d ? `${d.mm} (${d.in})` : undefined
+    }
 
     const META = [
-      { name: 'Single', beads: 1, img: 'mod-mini-single.png', output: '~ 29 lm', power: '0.24 W', size: '14 × 9 × 9 mm', bestFor: 'Small letters, outline trim, tight detail' },
-      { name: 'Duo', beads: 2, img: 'mod-mini-duo.png', output: '~ 55 lm', power: '0.48 W', size: '25.9 × 9 × 9 mm', bestFor: 'Standard small-to-mid returns' },
-      { name: 'Triple', beads: 3, star: true, img: 'mod-mini-triple.png', output: '~ 85 lm', power: '0.72 W', size: '38.1 × 9 × 9 mm', bestFor: 'Larger faces, brighter fills, fewer modules' },
+      { name: 'Single', beads: 1, img: 'mod-mini-single.png', output: '~ 29 lm', power: '0.24 W', size: '14 × 9 × 9 mm (0.55 × 0.35 × 0.35 in)', bestFor: 'Small letters, outline trim, tight detail' },
+      { name: 'Duo', beads: 2, img: 'mod-mini-duo.png', output: '~ 55 lm', power: '0.48 W', size: '25.9 × 9 × 9 mm (1.02 × 0.35 × 0.35 in)', bestFor: 'Standard small-to-mid returns' },
+      { name: 'Triple', beads: 3, star: true, img: 'mod-mini-triple.png', output: '~ 85 lm', power: '0.72 W', size: '38.1 × 9 × 9 mm (1.5 × 0.35 × 0.35 in)', bestFor: 'Larger faces, brighter fills, fewer modules' },
     ] as const
     const variants = META.map((m, i) => {
       const pr = live[i]
@@ -109,7 +111,7 @@ export default async function SeriesDetailPage({ params }: { params: Params }) {
           { icon: 'vsource', label: 'Input voltage', value: '12 V DC' },
           { icon: 'maxseries', label: 'Max series', value: '40' },
           { icon: 'waterproof', label: 'Waterproof', value: 'IP66' },
-          { icon: 'dims', label: 'Dimensions', value: '14–38.1 × 9 × 9 mm' },
+          { icon: 'dims', label: 'Dimensions', value: '14–38.1 × 9 × 9 mm (0.55–1.5 × 0.35 × 0.35 in)' },
           { icon: 'warranty', label: 'Warranty', value: '5 years' },
         ]}
         datasheetUrl={datasheetUrl}
