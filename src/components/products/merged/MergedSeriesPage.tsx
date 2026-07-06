@@ -212,7 +212,6 @@ export default function MergedSeriesPage(p: MergedSeriesProps) {
   //    NOT tabbed — they render as always-visible sections after the tabs. ──
   const overviewPanel: ReactNode = p.overview && (
     <div className="overview">
-      <div className="eyebrow">Overview</div>
       <h2>{p.overview.heading}</h2>
       <p>{p.overview.body}</p>
     </div>
@@ -221,7 +220,6 @@ export default function MergedSeriesPage(p: MergedSeriesProps) {
   const specSingle: ReactNode = (
     <div className="compare">
       <div className="lead">
-        <div className="eyebrow">Specifications</div>
         <h2>Full specification.</h2>
       </div>
       <dl className="shared-specs">
@@ -249,7 +247,6 @@ export default function MergedSeriesPage(p: MergedSeriesProps) {
     p.variantLayout === 'rows' ? (
       <div className="compare">
         <div className="lead">
-          <div className="eyebrow">Specifications</div>
           <h2>{p.variants.length} models — full spec reference.</h2>
         </div>
         <div className="cmp-tablewrap">
@@ -290,7 +287,6 @@ export default function MergedSeriesPage(p: MergedSeriesProps) {
     ) : (
       <div className="compare">
         <div className="lead">
-          <div className="eyebrow">Specifications</div>
           <h2>Compare the range — and every shared spec.</h2>
         </div>
         <div className="cmp-tablewrap">
@@ -344,7 +340,6 @@ export default function MergedSeriesPage(p: MergedSeriesProps) {
   const downloadsPanel: ReactNode = files.length > 0 && (
     <div className="downloads">
       <div className="dl-head">
-        <div className="eyebrow">Downloads</div>
         <h2>Specs, drawings and compliance — one click away.</h2>
       </div>
       <div className="dl-grid">
@@ -436,55 +431,64 @@ export default function MergedSeriesPage(p: MergedSeriesProps) {
              panel at a time). "Where it works" + "Pairs with" stay below as
              always-visible sections (user 2026-07-06). ===== */}
         <SpecTabs tabs={tabs} />
-
-        {/* ===== SOLUTIONS — where this series fits (always visible) ===== */}
-        {p.solutions && p.solutions.length > 0 && (
-          <div className="solutions" id="solutions">
-            <div className="sol-head">
-              <div className="eyebrow">Where it works</div>
-              <h2>Built for the job.</h2>
-            </div>
-            <div className={`sol-grid${p.solutions.some((s) => s.image) ? ' has-img' : ''}`}>
-              {p.solutions.map((s) => (
-                <div key={s.title} className={`sol-card${s.image ? ' img' : ''}`}>
-                  {s.image && (
-                    <div className="sol-img">
-                      <Picture img={s.image} sizes="280px" />
-                    </div>
-                  )}
-                  <div className="sol-bd">
-                    <h3>{s.title}</h3>
-                    <p>{s.pick}</p>
-                  </div>
-                </div>
-              ))}
-            </div>
-          </div>
-        )}
-
-        {/* ===== RELATED — Pairs with (always visible) ===== */}
-        {p.related && p.related.length > 0 && (
-          <div className="rel" id="related">
-            <div className="rel-head">
-              <h2>Pairs with</h2>
-              <Link href={p.breadcrumb.familyHref}>All {p.breadcrumb.familyName.toLowerCase()} →</Link>
-            </div>
-            <div className="rel-grid">
-              {p.related.map((r) => (
-                <Link key={r.name} className="rel-card" href={r.href}>
-                  <div className="iw">
-                    <Picture img={r.image} sizes="220px" />
-                  </div>
-                  <div className="bd">
-                    <div className="rl">{r.kicker}</div>
-                    <div className="rn">{r.name}</div>
-                  </div>
-                </Link>
-              ))}
-            </div>
-          </div>
-        )}
       </div>
+
+      {/* ===== SOLUTIONS + RELATED — full-bleed bands (user 2026-07-06):
+           outside .wrap so their backgrounds span the whole content width;
+           inner .band-inner re-centres the content to the 1180 column. ===== */}
+      {p.solutions && p.solutions.length > 0 && (
+        <section className="band band-dark" id="solutions">
+          <div className="band-inner">
+            <div className="solutions">
+              <div className="sol-head">
+                <div className="eyebrow">Where it works</div>
+                <h2>Built for the job.</h2>
+              </div>
+              <div className={`sol-grid${p.solutions.some((s) => s.image) ? ' has-img' : ''}`}>
+                {p.solutions.map((s) => (
+                  <div key={s.title} className={`sol-card${s.image ? ' img' : ''}`}>
+                    {s.image && (
+                      <div className="sol-img">
+                        <Picture img={s.image} sizes="280px" />
+                      </div>
+                    )}
+                    <div className="sol-bd">
+                      <h3>{s.title}</h3>
+                      <p>{s.pick}</p>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
+          </div>
+        </section>
+      )}
+
+      {p.related && p.related.length > 0 && (
+        <section className="band band-light" id="related">
+          <div className="band-inner">
+            <div className="rel">
+              <div className="rel-head">
+                <h2>Pairs with</h2>
+                <Link href={p.breadcrumb.familyHref}>All {p.breadcrumb.familyName.toLowerCase()} →</Link>
+              </div>
+              <div className="rel-grid">
+                {p.related.map((r) => (
+                  <Link key={r.name} className="rel-card" href={r.href}>
+                    <div className="iw">
+                      <Picture img={r.image} sizes="220px" />
+                    </div>
+                    <div className="bd">
+                      <div className="rl">{r.kicker}</div>
+                      <div className="rn">{r.name}</div>
+                    </div>
+                  </Link>
+                ))}
+              </div>
+            </div>
+          </div>
+        </section>
+      )}
     </div>
   )
 }

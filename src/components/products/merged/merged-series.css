@@ -18,7 +18,9 @@
 }
 /* bottom padding on the wrap (not margin on the last section — it would
    collapse out of the wrapper) keeps the page clear of the footer */
-.pdetail .wrap { max-width: 1180px; margin: 0 auto; padding: 0 36px 72px; }
+/* bottom padding trimmed — the full-bleed bands now follow the wrap and
+   carry their own spacing to the footer */
+.pdetail .wrap { max-width: 1180px; margin: 0 auto; padding: 0 36px 24px; }
 .pdetail .breadcrumb { padding: 22px 0 2px; }
 
 /* ===== hero split — gallery sticky, info wider ===== */
@@ -148,7 +150,7 @@
 .pdetail .buyfine { margin-top: 12px; font-size: 12px; color: var(--text-subtle); }
 
 /* ===== full-width compare + spec table ===== */
-.pdetail .compare { padding: 40px 0; border-top: 1px solid var(--line); }
+.pdetail .compare { padding: 8px 0 24px; }
 .pdetail .compare .lead { margin: 0 0 18px; }
 /* unified eyebrow face across the whole page — sans, matching the hero
    eyebrow + key-spec labels (user 2026-07-06: 字体要统一). No more mono outlier. */
@@ -200,8 +202,14 @@
    The two lower sections leave the light tab zone: "Where it works" becomes a
    dark rounded band so the lifestyle photos pop; "Pairs with" a light-grey
    band. Contained (not full-bleed) — safe inside the sidebar layout. */
-.pdetail .solutions { margin: 22px 0 0; padding: 36px 34px; border-radius: 18px;
-  background: #0a1a2e; color: #f5f7fa; }
+/* full-bleed section bands — .band spans the content column (body is already
+   offset by the sidebar), .band-inner re-centres to the 1180 grid */
+.pdetail .band { width: 100%; }
+.pdetail .band-inner { max-width: 1180px; margin: 0 auto; padding: 40px 36px; }
+.pdetail .band-dark { background: #0a1a2e; color: #f5f7fa; }
+.pdetail .band-light { background: var(--bg-elevated); }
+.pdetail .band-light:last-child .band-inner { padding-bottom: 64px; }
+
 .pdetail .solutions .sol-head { margin-bottom: 18px; }
 .pdetail .solutions .eyebrow { color: var(--lime); }
 .pdetail .solutions h2 { font-size: 23px; letter-spacing: -0.025em; margin: 6px 0 0; font-weight: 700; color: #f5f7fa; }
@@ -216,12 +224,14 @@
 .pdetail .sol-card.img .sol-img img { width: 100%; height: 100%; object-fit: cover; display: block; }
 
 /* ===== overview ===== */
-.pdetail .overview { padding: 40px 0; border-top: 1px solid var(--line); max-width: 76ch; }
+/* tab panels: no top border — the tab strip's underline is the only rule
+   (user 2026-07-06: 第二根短线 delete) */
+.pdetail .overview { padding: 8px 0 24px; max-width: 76ch; }
 .pdetail .overview h2 { font-size: 23px; letter-spacing: -0.025em; margin: 6px 0 14px; font-weight: 700; }
 .pdetail .overview p { font-size: 15px; color: var(--text-muted); line-height: 1.65; margin: 0; }
 
 /* ===== downloads ===== */
-.pdetail .downloads { padding: 40px 0; border-top: 1px solid var(--line); }
+.pdetail .downloads { padding: 8px 0 24px; }
 .pdetail .downloads .dl-head { margin-bottom: 18px; }
 .pdetail .downloads h2 { font-size: 23px; letter-spacing: -0.025em; margin: 6px 0 0; font-weight: 700; }
 .pdetail .dl-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 12px; }
@@ -239,8 +249,7 @@
 .pdetail .dl-contact a:hover { text-decoration: underline; }
 
 /* ===== related ===== */
-/* ===== related — light-grey band (version C) ===== */
-.pdetail .rel { margin: 16px 0 40px; padding: 34px; border-radius: 18px; background: var(--bg-elevated); }
+/* ===== related — sits inside the light band ===== */
 .pdetail .rel-head { display: flex; align-items: baseline; justify-content: space-between; margin-bottom: 18px; }
 .pdetail .rel-head h2 { font-size: 23px; letter-spacing: -0.025em; margin: 0; font-weight: 700; }
 .pdetail .rel-head a { font-size: 13px; color: var(--blue); font-weight: 600; text-decoration: none; }
