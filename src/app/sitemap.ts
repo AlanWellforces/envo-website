@@ -26,9 +26,9 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     for (const p of docs) {
       const m = dbFamilyToMarketing(p.family ?? '')
       if (!m) continue
-      const base = `/products/${m.slug}/${seriesSlug(p.series)}`
-      // Signage has no per-SKU page — emit the series URL (Set dedupes repeats).
-      urls.add(p.family === 'led_module' ? base : `${base}/${p.sku}`)
+      // Per-SKU pages were removed 2026-07-06 (the series page is the product
+      // grain) — emit only the series URL (Set dedupes repeats).
+      urls.add(`/products/${m.slug}/${seriesSlug(p.series)}`)
     }
   } catch { /* keep static + family URLs */ }
 
