@@ -6,6 +6,7 @@ import type { Product } from './products'
 import { groupSeriesModels } from './series-template'
 import { SERIES_EDITORIAL } from '@/data/series-editorial.generated'
 import { SERIES_BLURBS } from '@/data/series-applications'
+import { catalogueSeriesMeta } from '@/data/series-catalogue-meta'
 import { seriesLabel, seriesLineArt } from '@/data/family-map'
 import type { ProductFamily } from '@/data/product-families'
 import type { MergedSeriesProps, MergedVariant, MergedSharedRow, MergedKeySpec } from '@/components/products/merged/MergedSeriesPage'
@@ -93,6 +94,24 @@ export function buildMergedSeriesProps(
   const models = groupSeriesModels(products)
   const label = copy?.label ?? seriesLabel(series)
   const lineArt = seriesLineArt(series, family.slug)
+  const isDriversFamily = family.slug === 'led-drivers'
+  const modes = uniq(products.map((p) => p.operation_mode).filter(Boolean))
+  const authored = catalogueSeriesMeta(family.slug, series)
+
+  // Driver page titles must say WHAT the power supply is, not just the series
+  // code ("SL Linear Driver", never a bare "SL"). Authored customer-facing
+  // name first; unauthored series get a type-bearing fallback from their
+  // operation mode. The authored blurb doubles as the hero subtitle.
+  const modeWord =
+    modes.length === 1 && modes[0] === 'cv' ? 'Constant-Voltage'
+    : modes.length === 1 && modes[0] === 'cc' ? 'Constant-Current'
+    : null
+  const title = isDriversFamily
+    ? authored?.title ?? `${label}${modeWord ? ` ${modeWord}` : ''} LED Drivers`
+    : label
+  const heroSubtitle = isDriversFamily
+    ? authored?.blurb ?? (modeWord ? `${modeWord.replace('-', ' ').toLowerCase()} LED drivers` : undefined)
+    : undefined
 
   // Column name = the LED count when it actually distinguishes the variants
   // (Single/Double/Triple). When counts collide — e.g. ChromaFlux's two "Triple
@@ -171,7 +190,6 @@ export function buildMergedSeriesProps(
   const lifetime = products.map((p) => num(p.lifetime_hrs)).find(Boolean) ?? null
   if (lifetime) sharedRows.push({ label: 'Lifetime', value: `${lifetime.toLocaleString()} h` })
 
-  const modes = uniq(products.map((p) => p.operation_mode).filter(Boolean))
   if (modes.length === 1 && modes[0] !== 'cv_cc') {
     sharedRows.push({
       label: 'Operation mode',
@@ -273,6 +291,7 @@ export function buildMergedSeriesProps(
   const rep = products[0]
   const intro =
     copy?.lede ??
+    authored?.blurb ??
     SERIES_BLURBS[series] ??
     rep?.short_description?.trim() ??
     rep?.subtitle?.trim() ??
@@ -281,7 +300,8 @@ export function buildMergedSeriesProps(
   return {
     breadcrumb: { familyName: family.name, familyHref: family.href, seriesLabel: label },
     eyebrow: family.tag,
-    title: label,
+    title,
+    heroSubtitle,
     intro,
     checklist: checklist?.length ? checklist : undefined,
     keySpecs: keySpecs.slice(0, 6),

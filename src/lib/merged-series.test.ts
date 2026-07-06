@@ -232,3 +232,37 @@ describe('hero key specs', () => {
     expect(dim?.value).toBe('Triac / PWM')
   })
 })
+
+// ── series-page title: series + type of power supply (user 2026-07-06) ──────
+describe('driver page titles', () => {
+  it('uses the customer-facing name — series AND driver type, never a bare code', () => {
+    const props = buildMergedSeriesProps(driversFamily, 'envo_sl_us', [
+      p({ sku: 'EV-SL-100-12', series: 'envo_sl_us', operation_mode: 'cv' }),
+    ])
+    expect(props.title).toBe('SL Linear Driver')
+    expect(props.heroSubtitle).toMatch(/constant-voltage drivers/i)
+  })
+
+  it('sr_triac page is titled SR DALI CC Driver, never Triac', () => {
+    const props = buildMergedSeriesProps(driversFamily, 'sr_triac', [
+      p({ sku: 'SRP-1', series: 'sr_triac', operation_mode: 'cc' }),
+    ])
+    expect(props.title).toBe('SR DALI CC Driver')
+    expect(props.title.toLowerCase()).not.toContain('triac')
+  })
+
+  it('a driver series without authored meta still gets a type-bearing title', () => {
+    const props = buildMergedSeriesProps(driversFamily, 'zz_new', [
+      p({ sku: 'A', series: 'zz_new', operation_mode: 'cv' }),
+    ])
+    expect(props.title).toBe('Zz New Constant-Voltage LED Drivers')
+  })
+
+  it('signage titles and hero subtitle are untouched', () => {
+    const props = buildMergedSeriesProps(modulesFamily, 'envo_ecoglo', [
+      p({ sku: 'EV-BLEG02LBY-NW', series: 'envo_ecoglo', family: 'led_module' }),
+    ])
+    expect(props.title.toLowerCase()).not.toContain('driver')
+    expect(props.heroSubtitle).toBeUndefined()
+  })
+})

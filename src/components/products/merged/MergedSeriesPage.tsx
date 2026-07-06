@@ -47,6 +47,9 @@ export type MergedSeriesProps = {
   breadcrumb: { familyName: string; familyHref: string; seriesLabel: string }
   eyebrow: string
   title: string
+  /** one line under the H1 naming the product type (drivers: what kind of
+   *  power supply this series is) — the hero's only prose */
+  heroSubtitle?: string
   intro: string
   beadtag?: string
   checklist?: string[]
@@ -202,10 +205,11 @@ export default function MergedSeriesPage(p: MergedSeriesProps) {
           <div className="p-info">
             <div className="eyebrow">{p.eyebrow}</div>
             <h1>{p.title}</h1>
+            {p.heroSubtitle && <p className="hero-sub">{p.heroSubtitle}</p>}
             {/* Hero shows the key-spec grid ONLY (user-locked 2026-07-06):
-                no intro paragraph, no grid title, no checklist — the H1 goes
-                straight to the facts. `intro`/`checklist` stay in the props
-                for series that may surface them elsewhere later. */}
+                no intro paragraph, no grid title, no checklist — the H1 (plus
+                the type subtitle) goes straight to the facts. `intro`/
+                `checklist` stay in the props for later reuse elsewhere. */}
             {p.keySpecs && p.keySpecs.length > 0 && (
               <div className="kspecs">
                 <div className="kspecs-grid">
