@@ -10,16 +10,16 @@ import { useRegion } from '@/components/region/RegionProvider'
 
 const STORAGE_KEY = 'envo-c-sidebar-collapsed'
 
-// Short display labels for the sidebar foot — purchase-channels.ts holds long
-// regionLabel strings that don't fit the narrow row.
+// Display labels for the sidebar foot channel switcher — role-based, never
+// geographic (ENVO's positioning is global supply through authorised channels).
 const REGION_LABELS: Record<PurchaseChannel['id'], { short: string; meta: string }> = {
   'nz-ap': {
-    short: 'Oceania',
-    meta: 'NZ · Australia · Pacific Islands · via wellforces.co.nz',
+    short: 'Primary Purchasing Channel',
+    meta: 'Authorised supply · wellforces.co.nz',
   },
   'us-global': {
-    short: 'International',
-    meta: 'US · Americas · EMEA · Asia · via powersupplymall.com',
+    short: 'Global Purchasing Channel',
+    meta: 'Authorised supply · powersupplymall.com',
   },
 }
 
@@ -406,15 +406,12 @@ export function Sidebar() {
                 className="sidebar-region"
                 aria-haspopup="listbox"
                 aria-expanded={regionOpen}
-                aria-label={`Region: ${REGION_LABELS[region].short}. Click to change.`}
+                aria-label={`Purchasing channel: ${REGION_LABELS[region].short}. Click to change.`}
                 onClick={(e) => {
                   e.stopPropagation()
                   setRegionOpen((o) => !o)
                 }}
               >
-                <span className="sidebar-region-flag" aria-hidden="true">
-                  {PURCHASE_CHANNELS.find((c) => c.id === region)?.flag}
-                </span>
                 <span className="sidebar-region-label">{REGION_LABELS[region].short}</span>
                 <svg
                   className={cn('sidebar-region-caret', regionOpen && 'flip')}
@@ -427,7 +424,7 @@ export function Sidebar() {
 
               {regionOpen && (
                 <div className="sidebar-region-dropdown" role="listbox">
-                  <div className="sidebar-region-dropdown-head">Shipping region</div>
+                  <div className="sidebar-region-dropdown-head">Purchasing channel</div>
                   {PURCHASE_CHANNELS.map((channel) => {
                     const active = channel.id === region
                     const labels = REGION_LABELS[channel.id]
@@ -440,9 +437,6 @@ export function Sidebar() {
                         className={cn('sidebar-region-option', active && 'active')}
                         onClick={() => pickRegion(channel.id)}
                       >
-                        <span className="sidebar-region-option-flag" aria-hidden="true">
-                          {channel.flag}
-                        </span>
                         <span className="sidebar-region-option-body">
                           <span className="sidebar-region-option-name">{labels.short}</span>
                           <span className="sidebar-region-option-meta">{labels.meta}</span>

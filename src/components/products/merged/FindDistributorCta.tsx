@@ -38,9 +38,9 @@ export function FindDistributorCta({
 
   const distributor = DISTRIBUTORS[REGION_TO_DISTRIBUTOR[region]]
   const href = links?.[distributor.id] ?? distributor.brandFallbackUrl
-  // "New Zealand · Asia-Pacific · Wellforces" — region + serving distributor
+  // "Primary Purchasing Channel · Wellforces" — channel role + serving partner
   const label = (r: (typeof PURCHASE_CHANNELS)[number]) =>
-    `${r.regionLabel} · ${DISTRIBUTORS[REGION_TO_DISTRIBUTOR[r.id]].name}`
+    `${r.channelLabel} · ${DISTRIBUTORS[REGION_TO_DISTRIBUTOR[r.id]].name}`
   const channel = PURCHASE_CHANNELS.find((c) => c.id === region)
 
   return (

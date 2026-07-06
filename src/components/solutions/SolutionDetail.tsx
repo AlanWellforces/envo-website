@@ -212,11 +212,11 @@ export function SolutionDetail({ solution: s }: { solution: Solution }) {
           <div className="dist-cta">
             <div className="dist-cta-inner">
               <div>
-                <h2>Source the complete kit from your regional distributor</h2>
+                <h2>Source the complete kit through authorised purchasing channels</h2>
                 <p>
-                  ENVO products are supplied through authorised regional distributors, who hold
-                  pricing and stock and ship the ENVO products and the compatible parts together in
-                  one order. Pick your region to get started.
+                  ENVO products are supplied through authorised purchasing channels worldwide, which
+                  hold pricing and stock and ship the ENVO products and the compatible parts together
+                  in one order. Choose a channel to get started.
                 </p>
               </div>
               <div className="dist-actions">
@@ -229,7 +229,7 @@ export function SolutionDetail({ solution: s }: { solution: Solution }) {
                     rel="noopener noreferrer"
                   >
                     <span>
-                      <span className="dist-region">{c.regionLabel}</span>
+                      <span className="dist-region">{c.channelLabel}</span>
                       <br />
                       <span className="dist-name">{c.urlLabel}</span>
                     </span>
