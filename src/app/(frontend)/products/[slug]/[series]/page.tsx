@@ -115,8 +115,11 @@ export default async function SeriesDetailPage({ params }: { params: Params }) {
         datasheetUrl={datasheetUrl}
         purchaseLinks={seriesPurchaseLinks('envo_minilux', 'MiniLux')}
         thumbs={[
-          img('mod-mini.png', 'MiniLux module'),
-          img('mod-mini-line.png', 'MiniLux line drawing'),
+          // gallery order: combined "All models" (auto-prepended by
+          // SeriesGallery) → each product on its own → scene photos last
+          { ...img('mod-mini-single.png', 'MiniLux Single'), label: 'Single' },
+          { ...img('mod-mini-duo.png', 'MiniLux Duo'), label: 'Duo' },
+          { ...img('mod-mini-triple.png', 'MiniLux Triple'), label: 'Triple' },
           img('app-mini-channel-letters.jpg', 'MiniLux in channel letters', true),
           img('app-mini-halo-letters.jpg', 'MiniLux halo-lit letters', true),
         ]}

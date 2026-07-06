@@ -179,14 +179,25 @@ export function buildMergedSeriesProps(
   // variants are tellable apart (user markup 2026-07-06). Only for compare-
   // column series: single models would duplicate the stage image, and
   // many-model (rows) catalogues would produce an absurd strip.
+  // Gallery order (user 2026-07-06): the combined "All models" tile is
+  // auto-prepended by SeriesGallery; here we add each product on its own,
+  // then any scene/application photos the editorial carries, last.
+  const sceneThumbs = (copy?.solutions ?? [])
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    .filter((s: any) => s.image?.src)
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    .map((s: any) => ({ src: s.image.src, local: !!s.image.local, alt: s.image.alt ?? s.title, cover: true }))
   const thumbs =
     variants.length > 1 && variants.length <= COLUMN_CAP
-      ? variants.map((v) => ({
-          src: v.image.src,
-          local: v.image.local,
-          alt: v.image.alt,
-          label: v.modelCode,
-        }))
+      ? [
+          ...variants.map((v) => ({
+            src: v.image.src,
+            local: v.image.local,
+            alt: v.image.alt,
+            label: v.modelCode,
+          })),
+          ...sceneThumbs,
+        ]
       : undefined
 
   // ── shared rows (only those with real data) ──
