@@ -7,7 +7,7 @@
 // selector is shown instead of both distributor links.
 
 import Link from 'next/link'
-import { useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import { PURCHASE_CHANNELS } from '@/data/purchase-channels'
 import { useRegion } from '@/components/region/RegionProvider'
 import {
@@ -25,6 +25,21 @@ export function FindDistributorCta({
 }) {
   const { region, regionStatus, setRegion } = useRegion()
   const [picking, setPicking] = useState(false)
+  const ddRef = useRef<HTMLDivElement>(null)
+  // close the region dropdown on outside click / Escape
+  useEffect(() => {
+    if (!picking) return
+    const onDown = (e: MouseEvent) => {
+      if (ddRef.current && !ddRef.current.contains(e.target as Node)) setPicking(false)
+    }
+    const onKey = (e: KeyboardEvent) => e.key === 'Escape' && setPicking(false)
+    document.addEventListener('mousedown', onDown)
+    document.addEventListener('keydown', onKey)
+    return () => {
+      document.removeEventListener('mousedown', onDown)
+      document.removeEventListener('keydown', onKey)
+    }
+  }, [picking])
   const resolved = regionStatus === 'detected' || regionStatus === 'selected'
   const distributor = resolved ? DISTRIBUTORS[REGION_TO_DISTRIBUTOR[region]] : null
   const channel = PURCHASE_CHANNELS.find((c) => c.id === region)
@@ -47,40 +62,55 @@ export function FindDistributorCta({
           </a>
           {datasheet}
         </div>
-        <div className="region-chip" aria-live="polite">
-          <svg className="pin" viewBox="0 0 24 24" aria-hidden>
-            <path d="M12 22s7-6.1 7-12a7 7 0 1 0-14 0c0 5.9 7 12 7 12z" />
-            <circle cx="12" cy="10" r="2.6" />
-          </svg>
-          <b>{channel?.purchaseMetaLabel}</b>
-          <button type="button" className="region-chip-change" onClick={() => setPicking(!picking)}>
-            change
-          </button>
-        </div>
-        {picking && (
-          <div className="wtb">
-            {PURCHASE_CHANNELS.filter((c) => c.id !== region).map((c) => (
+        <div className="wtb-block" aria-live="polite">
+          <div className="wtb-region">
+            <svg className="pin" viewBox="0 0 24 24" aria-hidden>
+              <path d="M12 22s7-6.1 7-12a7 7 0 1 0-14 0c0 5.9 7 12 7 12z" />
+              <circle cx="12" cy="10" r="2.6" />
+            </svg>
+            <span className="wtb-lab">Ships to</span>
+            {/* region dropdown — matches the site's region switcher pattern */}
+            <div className={`wtb-dd${picking ? ' open' : ''}`} ref={ddRef}>
               <button
-                key={c.id}
                 type="button"
-                className="wtb-pick"
-                onClick={() => {
-                  setRegion(c.id)
-                  setPicking(false)
-                }}
+                className="wtb-dd-trigger"
+                aria-haspopup="listbox"
+                aria-expanded={picking}
+                onClick={() => setPicking(!picking)}
               >
-                {c.flag} {c.regionLabel}
+                <b>{channel?.purchaseMetaLabel}</b>
+                <svg className="caret" viewBox="0 0 24 24" aria-hidden>
+                  <path d="M6 9l6 6 6-6" />
+                </svg>
               </button>
-            ))}
+              <div className="wtb-dd-menu" role="listbox">
+                {PURCHASE_CHANNELS.map((c) => (
+                  <button
+                    key={c.id}
+                    type="button"
+                    role="option"
+                    aria-selected={c.id === region}
+                    className={`wtb-dd-opt${c.id === region ? ' on' : ''}`}
+                    onClick={() => {
+                      setRegion(c.id)
+                      setPicking(false)
+                    }}
+                  >
+                    <span>{c.regionLabel}</span>
+                    <span className="dist">{DISTRIBUTORS[REGION_TO_DISTRIBUTOR[c.id]].name}</span>
+                  </button>
+                ))}
+              </div>
+            </div>
           </div>
-        )}
-        <div className="buyfine">Sold through authorised distributors</div>
+          <div className="buyfine">Sold through authorised distributors</div>
+        </div>
       </>
     )
   }
 
-  // Region unknown (pending/undetected): neutral link, no guessing — and an
-  // intentional manual selector instead of listing both distributors.
+  // Region unknown (pending/undetected): neutral link, no guessing — an
+  // intentional manual selector styled the same as the resolved block.
   return (
     <>
       <div className="cta">
@@ -89,17 +119,19 @@ export function FindDistributorCta({
         </Link>
         {datasheet}
       </div>
-      {regionStatus === 'undetected' && (
-        <div className="wtb" aria-live="polite">
-          <span className="wtb-lab">Your region</span>
-          {PURCHASE_CHANNELS.map((c) => (
-            <button key={c.id} type="button" className="wtb-pick" onClick={() => setRegion(c.id)}>
-              {c.regionLabel}
-            </button>
-          ))}
-        </div>
-      )}
-      <div className="buyfine">Sold through authorised distributors</div>
+      <div className="wtb-block" aria-live="polite">
+        {regionStatus === 'undetected' && (
+          <div className="wtb-pick-row lead">
+            <span className="wtb-lab">Choose your region</span>
+            {PURCHASE_CHANNELS.map((c) => (
+              <button key={c.id} type="button" className="wtb-pick" onClick={() => setRegion(c.id)}>
+                {c.regionLabel}
+              </button>
+            ))}
+          </div>
+        )}
+        <div className="buyfine">Sold through authorised distributors</div>
+      </div>
     </>
   )
 }
