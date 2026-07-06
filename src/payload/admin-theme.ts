@@ -2,12 +2,13 @@
 // SVG icon geometry shared by AdminStyles (global admin CSS) and the
 // Dashboard view. Values were previously duplicated across both files.
 //
-// The font is self-hosted via next/font (no fonts.googleapis.com request at
-// runtime); importing this module from any admin component is what emits the
-// @font-face rules into that page's CSS.
-import { Inter_Tight } from 'next/font/google'
+// The font is vendored in src/fonts and served via next/font/local (no
+// fonts.googleapis.com request at build time or runtime); importing this
+// module from any admin component is what emits the @font-face rules into
+// that page's CSS.
+import localFont from 'next/font/local'
 
-const interTight = Inter_Tight({ subsets: ['latin'] })
+const interTight = localFont({ src: '../fonts/inter-tight-latin.woff2', weight: '100 900' })
 
 export const ADMIN_FONT_FAMILY = `${interTight.style.fontFamily}, -apple-system, BlinkMacSystemFont, sans-serif`
 

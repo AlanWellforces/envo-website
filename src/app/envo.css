@@ -2786,6 +2786,12 @@
         border-radius: 8px;
         display: flex; align-items: center; justify-content: center;
         cursor: pointer;
+        transition: left .32s cubic-bezier(.4, 0, .2, 1);
+      }
+      /* Drawer open: ride along to the drawer's top-right corner (280px wide,
+         40px button, 16px inset) so the button clears the ENVO logo */
+      .mobile-menu-toggle[aria-expanded="true"] {
+        left: 224px;
       }
     }
     @media (min-width: 981px) {

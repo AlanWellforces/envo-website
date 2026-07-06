@@ -1,5 +1,5 @@
 import type { Metadata } from 'next'
-import { Inter_Tight } from 'next/font/google'
+import localFont from 'next/font/local'
 import '../globals.css'
 import { PageViewBeacon } from '@/components/analytics/PageViewBeacon'
 import { Sidebar } from '@/components/layout/sidebar'
@@ -11,10 +11,12 @@ import { CursorGlow } from '@/components/layout/cursor-glow'
 import { RevealOnScroll } from '@/components/layout/reveal-on-scroll'
 import { BackToTop } from '@/components/layout/back-to-top'
 
-const interTight = Inter_Tight({
+// Vendored variable font (latin subset) — builds must not depend on
+// fonts.googleapis.com being reachable.
+const interTight = localFont({
+  src: '../../fonts/inter-tight-latin.woff2',
   variable: '--font-inter-tight',
-  subsets: ['latin'],
-  weight: ['400', '500', '600', '700'],
+  weight: '100 900',
 })
 
 export const metadata: Metadata = {
