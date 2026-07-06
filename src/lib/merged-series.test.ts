@@ -204,18 +204,30 @@ describe('hero key specs', () => {
     expect((props.keySpecs ?? []).length).toBeLessThanOrEqual(6)
   })
 
-  it('signage series: voltage, CCT, beam, IP, efficacy, lifetime', () => {
-    const props = buildMergedSeriesProps(modulesFamily, 'envo_ecoglo', [
-      p({ sku: 'EV-BLEG02LBY-WW', series: 'envo_ecoglo', family: 'led_module', output_voltage_v: 12, cct_k: 3000, beam_angle_deg: 170, waterproof: 'ip65', efficacy_lm_w: 100, lifetime_hrs: 50000 }),
-      p({ sku: 'EV-BLEG02LBY-CW', series: 'envo_ecoglo', family: 'led_module', output_voltage_v: 12, cct_k: 7000, beam_angle_deg: 170, waterproof: 'ip65', efficacy_lm_w: 100, lifetime_hrs: 50000 }),
+  it('signage series: old-envo key-spec set — power, input V, max series, waterproof, dims, warranty', () => {
+    const props = buildMergedSeriesProps(modulesFamily, 'envo_minilux', [
+      p({ sku: 'EV-BLML01LBY-NW', series: 'envo_minilux', family: 'led_module', name: 'MiniLux Single', subtitle: '12V 0.24W IP66', power_w: 0.24, max_in_series: 40, length_mm: 14, width_mm: 9, height_mm: 9 }),
+      p({ sku: 'EV-BLML03LBY-NW', series: 'envo_minilux', family: 'led_module', name: 'MiniLux Triple', subtitle: '12V 0.72W IP66', power_w: 0.72, max_in_series: 40, length_mm: 38.1, width_mm: 9, height_mm: 9 }),
     ])
     const byLabel = Object.fromEntries((props.keySpecs ?? []).map((s) => [s.label, s.value]))
-    expect(byLabel['Voltage']).toBe('12 V DC')
-    expect(byLabel['Colour temp']).toBe('3000 / 7000 K')
-    expect(byLabel['Beam angle']).toBe('170°')
-    expect(byLabel['IP rating']).toBe('IP65')
-    expect(byLabel['Efficacy']).toBe('~ 100 lm/W')
-    expect(byLabel['Lifetime']).toBe('50,000 h')
+    expect(byLabel['Power rating']).toBe('0.24–0.72 W')
+    // voltage + IP come from the Akeneo subtitle when the columns are null (sync gap)
+    expect(byLabel['Input voltage']).toBe('12 V DC')
+    expect(byLabel['Max series']).toBe('40')
+    expect(byLabel['Waterproof']).toBe('IP66')
+    expect(byLabel['Dimensions']).toBe('14–38.1 × 9 × 9 mm')
+    expect(byLabel['Warranty']).toBe('5 years')
+    expect((props.keySpecs ?? []).length).toBeLessThanOrEqual(6)
+  })
+
+  it('signage max-series and dimensions honesty: ranges when models differ, omitted when w×h mixed', () => {
+    const props = buildMergedSeriesProps(modulesFamily, 'hydro_lume', [
+      p({ sku: 'A', series: 'hydro_lume', family: 'led_module', subtitle: '24V 1W IP67', power_w: 1, max_in_series: 40, length_mm: 42, width_mm: 20, height_mm: 7 }),
+      p({ sku: 'B', series: 'hydro_lume', family: 'led_module', subtitle: '24V 2W IP67', power_w: 2, max_in_series: 80, length_mm: 84, width_mm: 21, height_mm: 7 }),
+    ])
+    const byLabel = Object.fromEntries((props.keySpecs ?? []).map((s) => [s.label, s.value]))
+    expect(byLabel['Max series']).toBe('40–80')
+    expect(byLabel['Dimensions']).toBeUndefined()
   })
 
   it('omits key specs with no data instead of fabricating', () => {

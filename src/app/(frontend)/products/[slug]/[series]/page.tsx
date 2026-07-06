@@ -104,12 +104,12 @@ export default async function SeriesDetailPage({ params }: { params: Params }) {
           '50,000-hour L70 rated life',
         ]}
         keySpecs={[
-          { icon: 'voltage', label: 'Voltage', value: '12 V DC' },
-          { icon: 'cct', label: 'Colour temp', value: '3000 / 4000 / 7000 K' },
-          { icon: 'beam', label: 'Beam angle', value: '180° × 140°' },
-          { icon: 'ip', label: 'IP rating', value: 'IP66' },
-          { icon: 'efficacy', label: 'Efficacy', value: '~ 125 lm/W' },
-          { icon: 'lifetime', label: 'Lifetime', value: '50,000 h · L70' },
+          { icon: 'power', label: 'Power rating', value: '0.24–0.72 W' },
+          { icon: 'vsource', label: 'Input voltage', value: '12 V DC' },
+          { icon: 'maxseries', label: 'Max series', value: '40' },
+          { icon: 'waterproof', label: 'Waterproof', value: 'IP66' },
+          { icon: 'dims', label: 'Dimensions', value: '14–38.1 × 9 × 9 mm' },
+          { icon: 'warranty', label: 'Warranty', value: '5 years' },
         ]}
         datasheetUrl={datasheetUrl}
         purchaseLinks={seriesPurchaseLinks('envo_minilux', 'MiniLux')}

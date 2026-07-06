@@ -278,12 +278,41 @@ export function buildMergedSeriesProps(
     const ips = uniq(products.map(ipDisplay).filter((v): v is string => !!v)).sort()
     key('ip', 'IP rating', ips.length ? ips.join(' / ') : null)
   } else if (family.slug === 'led-signage-modules') {
-    key('voltage', 'Voltage', sharedVoltage)
-    key('cct', 'Colour temp', ccts.length ? `${ccts.join(' / ')} K` : null)
-    key('beam', 'Beam angle', beam ? `${beam}°` : null)
-    key('ip', 'IP rating', ipField ? ipField.toUpperCase() : null)
-    key('efficacy', 'Efficacy', efficacy ? `~ ${efficacy} lm/W` : null)
-    key('lifetime', 'Lifetime', lifetime ? `${lifetime.toLocaleString()} h` : null)
+    // Old-envo "Key Specifications" set (user screenshot 2026-07-06):
+    // Power rating / Input voltage / Max series / Waterproof / Dimensions
+    // + Warranty. Voltage and IP fall back to the Akeneo SUBTITLE
+    // ("12V 0.48W IP66") — the sync drops those columns for modules.
+    key('power', 'Power rating', powerRange)
+    const volts = uniq(
+      products
+        .map((p) => num(p.output_voltage_v) ?? (Number(p.subtitle?.match(/(\d+)\s*V\b/i)?.[1]) || null))
+        .filter((v): v is number => v != null),
+    ).sort((a, b) => a - b)
+    key('vsource', 'Input voltage', volts.length ? `${volts.join(' / ')} V DC` : null)
+    const maxSeries = uniq(products.map((p) => num(p.max_in_series)).filter((v): v is number => v != null))
+      .sort((a, b) => a - b)
+    key(
+      'maxseries', 'Max series',
+      maxSeries.length
+        ? maxSeries.length === 1 ? String(maxSeries[0]) : `${maxSeries[0]}–${maxSeries[maxSeries.length - 1]}`
+        : null,
+    )
+    const ip = ipField ?? products.map((p) => p.subtitle?.match(/IP\s?(\d{2})/i)?.[1]).find(Boolean)
+    key('waterproof', 'Waterproof', ip ? (ipField ? ipField.toUpperCase() : `IP${ip}`) : null)
+    // Dimensions only when the cross-section is shared (lengths may range);
+    // mixed w×h across models would need a misleading mash-up — omit instead.
+    const whs = uniq(products.map((p) => `${p.width_mm}×${p.height_mm}`))
+    const lens = uniq(products.map((p) => num(p.length_mm)).filter((v): v is number => v != null))
+      .sort((a, b) => a - b)
+    if (whs.length === 1 && lens.length && products[0].width_mm != null && products[0].height_mm != null) {
+      const l = lens.length === 1 ? String(lens[0]) : `${lens[0]}–${lens[lens.length - 1]}`
+      key('dims', 'Dimensions', `${l} × ${products[0].width_mm} × ${products[0].height_mm} mm`)
+    }
+    // Every module line carries the same warranty on the distributor sites
+    // (envo-led.com, verified 2026-07-06). Prefer the PIM column the moment
+    // the sync fills it.
+    const warrantyYears = uniq(products.map((p) => num(p.warranty_years)).filter((w): w is number => w != null))
+    key('warranty', 'Warranty', warrantyYears.length === 1 ? `${warrantyYears[0]} years` : '5 years')
   } else {
     // control gear / accessories — whatever identity facts the data carries
     key('input', 'Input voltage', sharedVoltage)

@@ -36,7 +36,9 @@ export type MergedVariant = {
 
 export type MergedSharedRow = { label: string; value: ReactNode }
 export type MergedKeySpec = {
-  icon: 'power' | 'voltage' | 'input' | 'mode' | 'dimming' | 'ip' | 'beam' | 'cct' | 'efficacy' | 'lifetime'
+  icon:
+    | 'power' | 'voltage' | 'input' | 'mode' | 'dimming' | 'ip' | 'beam' | 'cct' | 'efficacy' | 'lifetime'
+    | 'vsource' | 'maxseries' | 'waterproof' | 'dims' | 'warranty'
   label: string
   value: string
 }
@@ -152,6 +154,40 @@ const KEY_SPEC_ICONS: Record<MergedKeySpec['icon'], ReactNode> = {
     <>
       <circle cx="12" cy="12" r="9" />
       <path d="M12 7v5l3.5 2" />
+    </>
+  ),
+  // Old-envo key-spec icon set (reference screenshot 2026-07-06)
+  vsource: (
+    <>
+      <circle cx="12" cy="12" r="6" />
+      <path d="M2 12h4M18 12h4M10 9.5l2 5 2-5" />
+    </>
+  ),
+  maxseries: (
+    <>
+      <rect x="3" y="7" width="5" height="10" rx="1.4" />
+      <rect x="9.5" y="7" width="5" height="10" rx="1.4" />
+      <rect x="16" y="7" width="5" height="10" rx="1.4" />
+      <path d="M8 12h1.5M14.5 12H16" />
+    </>
+  ),
+  waterproof: (
+    <>
+      <path d="M4 13a8 8 0 0 1 16 0H4z" />
+      <path d="M12 13v6a2 2 0 0 0 4 0" />
+      <path d="M8 4v1.5M12 3v1.5M16 4v1.5" />
+    </>
+  ),
+  dims: (
+    <>
+      <path d="M4 9V4h5M15 4h5v5M20 15v5h-5M9 20H4v-5" />
+      <path d="M4 4l4.5 4.5M20 4l-4.5 4.5M20 20l-4.5-4.5M4 20l4.5-4.5" />
+    </>
+  ),
+  warranty: (
+    <>
+      <path d="M12 3 5 6v5c0 4.5 3 8.3 7 9.7 4-1.4 7-5.2 7-9.7V6l-7-3z" />
+      <path d="m9 12 2 2 4-4" />
     </>
   ),
 }
