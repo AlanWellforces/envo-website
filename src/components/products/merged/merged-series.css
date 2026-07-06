@@ -265,8 +265,10 @@
 .pdetail .rel-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; }
 .pdetail .rel-card { background: var(--bg-card); border: 1px solid var(--line); border-radius: 13px; overflow: hidden; transition: transform 0.2s, border-color 0.2s; text-decoration: none; color: inherit; }
 .pdetail .rel-card:hover { transform: translateY(-2px); border-color: var(--line-strong); }
-.pdetail .rel-card .iw { height: 110px; background: radial-gradient(120% 120% at 50% 20%, #fff, #eef1f5); display: grid; place-items: center; }
-.pdetail .rel-card .iw img { width: 64%; height: 80px; object-fit: contain; mix-blend-mode: multiply; }
+/* portrait product boxes — taller than wide (user 2026-07-06): a tall
+   square-ish image area makes the whole card portrait */
+.pdetail .rel-card .iw { aspect-ratio: 1 / 1; background: radial-gradient(120% 120% at 50% 20%, #fff, #eef1f5); display: grid; place-items: center; }
+.pdetail .rel-card .iw img { width: 74%; height: 74%; object-fit: contain; mix-blend-mode: multiply; }
 .pdetail .rel-card .bd { padding: 13px 15px 15px; }
 .pdetail .rel-card .rl { font-size: 9.5px; letter-spacing: 0.13em; text-transform: uppercase; font-weight: 700; color: var(--text-subtle); }
 .pdetail .rel-card .rn { font-size: 15px; font-weight: 700; margin: 3px 0 0; }
