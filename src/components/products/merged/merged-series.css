@@ -204,23 +204,28 @@
    band. Contained (not full-bleed) — safe inside the sidebar layout. */
 /* full-bleed section bands — .band spans the content column (body is already
    offset by the sidebar), .band-inner re-centres to the 1180 grid */
-.pdetail .band { width: 100%; }
-.pdetail .band-inner { max-width: 1180px; margin: 0 auto; padding: 40px 36px; }
-.pdetail .band-dark { background: #0a1a2e; color: #f5f7fa; }
+/* zero the global envo.css `section { padding: 140px 0 }` that leaks onto
+   these bare <section> bands (known trap) — the band-inner owns the padding */
+.pdetail .band { width: 100%; padding: 0; }
+/* tighter vertical rhythm than the first pass (user 2026-07-06) */
+.pdetail .band-inner { max-width: 1180px; margin: 0 auto; padding: 30px 36px; }
+/* softer separation — a dark GREY, not the heavy navy; just enough to
+   step away from the light tab zone above (user 2026-07-06) */
+.pdetail .band-dark { background: #2f343b; color: #f2f4f7; }
 .pdetail .band-light { background: var(--bg-elevated); }
-.pdetail .band-light:last-child .band-inner { padding-bottom: 64px; }
+.pdetail .band-light:last-child .band-inner { padding-bottom: 40px; }
 
-.pdetail .solutions .sol-head { margin-bottom: 18px; }
+.pdetail .solutions .sol-head { margin-bottom: 16px; }
 .pdetail .solutions .eyebrow { color: var(--lime); }
-.pdetail .solutions h2 { font-size: 23px; letter-spacing: -0.025em; margin: 6px 0 0; font-weight: 700; color: #f5f7fa; }
+.pdetail .solutions h2 { font-size: 23px; letter-spacing: -0.025em; margin: 6px 0 0; font-weight: 700; color: #f2f4f7; }
 .pdetail .sol-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(230px, 1fr)); gap: 12px; }
-.pdetail .sol-card { border: 1px solid rgba(77,195,255,.12); border-radius: 12px; background: #142d4f; overflow: hidden; }
+.pdetail .sol-card { border: 1px solid rgba(255,255,255,.1); border-radius: 12px; background: #3a4048; overflow: hidden; }
 .pdetail .sol-card .sol-bd { padding: 14px 16px; }
-.pdetail .sol-card h3 { font-size: 14.5px; font-weight: 700; margin: 0 0 4px; color: #f5f7fa; }
-.pdetail .sol-card p { font-size: 12.5px; color: #8b9cb0; margin: 0; line-height: 1.45; }
+.pdetail .sol-card h3 { font-size: 14.5px; font-weight: 700; margin: 0 0 4px; color: #f2f4f7; }
+.pdetail .sol-card p { font-size: 12.5px; color: #b0b8c2; margin: 0; line-height: 1.45; }
 /* photo-backed solution cards */
 .pdetail .sol-grid.has-img { grid-template-columns: repeat(auto-fill, minmax(250px, 1fr)); }
-.pdetail .sol-card.img .sol-img { aspect-ratio: 16 / 10; overflow: hidden; background: #0a1a2e; }
+.pdetail .sol-card.img .sol-img { aspect-ratio: 16 / 10; overflow: hidden; background: #2a2f36; }
 .pdetail .sol-card.img .sol-img img { width: 100%; height: 100%; object-fit: cover; display: block; }
 
 /* ===== overview ===== */
