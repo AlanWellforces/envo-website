@@ -68,8 +68,7 @@ export function FindDistributorCta({
               <path d="M12 22s7-6.1 7-12a7 7 0 1 0-14 0c0 5.9 7 12 7 12z" />
               <circle cx="12" cy="10" r="2.6" />
             </svg>
-            <span className="wtb-lab">Ships to</span>
-            {/* region dropdown — matches the site's region switcher pattern */}
+            {/* simple region dropdown */}
             <div className={`wtb-dd${picking ? ' open' : ''}`} ref={ddRef}>
               <button
                 type="button"
@@ -96,8 +95,7 @@ export function FindDistributorCta({
                       setPicking(false)
                     }}
                   >
-                    <span>{c.regionLabel}</span>
-                    <span className="dist">{DISTRIBUTORS[REGION_TO_DISTRIBUTOR[c.id]].name}</span>
+                    {c.purchaseMetaLabel}
                   </button>
                 ))}
               </div>
