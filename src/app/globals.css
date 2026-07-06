@@ -151,3 +151,15 @@ body {
   --color-envo-lime-glow:     var(--color-brand-lime-glow);
   --color-envo-lime-deep:     var(--color-brand-lime-deep);
 }
+
+/* ============================================================
+   Layout tokens — shared page content width + side gutter
+   (2026-07-06). The homepage (.v4-wrap) is the reference; the
+   general page .container and the product-detail .wrap consume
+   these same values so every top-level page's content column and
+   gutters line up. Change the width/gutter here once, not per page.
+   ============================================================ */
+:root {
+  --content-max-width: 1200px;
+  --page-gutter: clamp(28px, 4vw, 64px);
+}

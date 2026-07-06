@@ -1914,7 +1914,7 @@
     }
 
     /* hero 字号 / container 加大，nav 移到侧边后视口高度全给 hero */
-    .container { max-width: 1440px; padding: 0 40px; }
+    .container { max-width: var(--content-max-width); padding: 0 var(--page-gutter); }
     .hero h1 { font-size: clamp(56px, 9vw, 130px); }
 
     /* ===== Light-bin 色温梯度条（品牌签名）=====

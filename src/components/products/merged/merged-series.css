@@ -18,7 +18,7 @@
 }
 /* bottom padding on the wrap (not margin on the last section — it would
    collapse out of the wrapper) keeps the page clear of the footer */
-.pdetail .wrap { max-width: 1180px; margin: 0 auto; padding: 0 36px 72px; }
+.pdetail .wrap { max-width: var(--content-max-width); margin: 0 auto; padding: 0 var(--page-gutter) 72px; }
 .pdetail .breadcrumb { padding: 22px 0 2px; }
 
 /* ===== hero split — gallery sticky, info wider ===== */
