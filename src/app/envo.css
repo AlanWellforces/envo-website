@@ -3205,7 +3205,12 @@
    padding:0 }` and `section { padding:140px 0 }` rules above are
    unlayered and always beat @layer utilities.
    ============================================================ */
-.blog-post-grid { display: grid; gap: 20px; padding: 0 20px 32px; }
+/* Blog content column — full-width section bg (set on the page wrapper), but
+   filter chips + card grid + pagination centred in the shared 1200px container.
+   .blog-container is /blog-index only; the gutter comes from the container, so
+   the grid itself no longer sets a horizontal gutter. */
+.blog-container { max-width: var(--content-max-width); margin: 0 auto; padding: 0 var(--page-gutter); }
+.blog-post-grid { display: grid; gap: 20px; padding: 0 0 32px; }
 .blog-hero-card { margin: 14px 20px 24px; }
 .blog-hero-body { padding: 24px; }
 .blog-end-cta { padding: 0 20px 64px; }
@@ -3217,7 +3222,7 @@
   .blog-hero-body { padding: 40px; }
 }
 @media (min-width: 768px) {
-  .blog-post-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); padding: 0 56px 32px; }
+  .blog-post-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); padding: 0 0 32px; }
   .blog-hero-card { margin: 14px 56px 24px; }
   .blog-hero-body { padding: 56px 60px 48px; }
   .blog-end-cta { padding: 0 56px 64px; }

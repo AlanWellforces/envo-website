@@ -1,6 +1,5 @@
 import { getPosts, getPostCounts } from '@/lib/posts'
 import { PostCard } from '@/components/blog/PostCard'
-import { PostHero } from '@/components/blog/PostHero'
 import { FilterChips } from '@/components/blog/FilterChips'
 import type { Metadata } from 'next'
 
@@ -13,80 +12,79 @@ export const metadata: Metadata = {
 }
 
 export default async function BlogIndexPage() {
-  const [featured, recent, counts] = await Promise.all([
-    getPosts({ featured: true, limit: 1 }),
+  const [recent, counts] = await Promise.all([
     getPosts({ limit: 12 }),
     getPostCounts(),
   ])
 
-  const hero = featured.docs[0]
-  const heroIds = new Set(hero ? [hero.id] : [])
-  const rest = recent.docs.filter((p) => !heroIds.has(p.id))
+  const posts = recent.docs
 
   return (
     <div className="theme-light" style={{ minHeight: '100vh', background: '#f4f5f7', color: '#1a2332' }}>
-      {/* Sticky breadcrumb */}
+      {/* Sticky breadcrumb — full-width bar, content aligned to the shared container */}
       <div
         style={{
           position: 'sticky',
           top: 0,
           zIndex: 50,
           height: '44px',
-          display: 'flex',
-          alignItems: 'center',
-          gap: '10px',
-          padding: '0 56px',
           borderBottom: '1px solid #e2e5ea',
           backdropFilter: 'blur(20px)',
           background: 'rgba(244,245,247,0.92)',
           fontSize: '13px',
         }}
       >
-        <span style={{ color: '#6a7a8a', fontWeight: 500 }}>ENVO</span>
-        <span style={{ color: '#6a7a8a', opacity: 0.4 }}>/</span>
-        <span style={{ color: '#1a2332', fontWeight: 600 }}>Blog</span>
+        <div
+          className="blog-container"
+          style={{ height: '100%', display: 'flex', alignItems: 'center', gap: '10px' }}
+        >
+          <span style={{ color: '#6a7a8a', fontWeight: 500 }}>ENVO</span>
+          <span style={{ color: '#6a7a8a', opacity: 0.4 }}>/</span>
+          <span style={{ color: '#1a2332', fontWeight: 600 }}>Blog</span>
+        </div>
       </div>
 
-      {hero && <PostHero post={hero} />}
+      {/* Full-width section; content capped + centered in the shared 1200px container */}
+      <div className="blog-container">
+        <FilterChips counts={counts} active="all" />
 
-      <FilterChips counts={counts} active="all" />
+        {posts.length === 0 ? (
+          <p style={{ padding: '0 0 48px', color: '#4a5568' }}>No posts yet — check back soon.</p>
+        ) : (
+          <section aria-label="Articles" className="blog-post-grid">
+            {posts.map((post) => (
+              <PostCard key={post.id} post={post} />
+            ))}
+          </section>
+        )}
 
-      {rest.length === 0 && !hero ? (
-        <p style={{ padding: '0 56px 48px', color: '#4a5568' }}>No posts yet — check back soon.</p>
-      ) : (
-        <section aria-label="Articles" className="blog-post-grid">
-          {rest.map((post) => (
-            <PostCard key={post.id} post={post} />
-          ))}
-        </section>
-      )}
-
-      {recent.totalPages > 1 && (
-        <div style={{ display: 'flex', justifyContent: 'center', padding: '24px 56px 56px' }}>
-          <button
-            type="button"
-            disabled
-            aria-disabled="true"
-            title="Pagination — wired in a follow-up"
-            className="font-semibold"
-            style={{
-              padding: '13px 28px',
-              background: '#ffffff',
-              border: '1px solid #d5d9e0',
-              borderRadius: '999px',
-              fontSize: '13px',
-              color: '#1a2332',
-              cursor: 'pointer',
-              transition: 'all 0.15s',
-            }}
-          >
-            Load more
-            <span style={{ marginLeft: '8px', opacity: 0.55, fontSize: '11px' }}>
-              {rest.length} of {recent.totalDocs}
-            </span>
-          </button>
-        </div>
-      )}
+        {recent.totalPages > 1 && (
+          <div style={{ display: 'flex', justifyContent: 'center', padding: '24px 0 56px' }}>
+            <button
+              type="button"
+              disabled
+              aria-disabled="true"
+              title="Pagination — wired in a follow-up"
+              className="font-semibold"
+              style={{
+                padding: '13px 28px',
+                background: '#ffffff',
+                border: '1px solid #d5d9e0',
+                borderRadius: '999px',
+                fontSize: '13px',
+                color: '#1a2332',
+                cursor: 'pointer',
+                transition: 'all 0.15s',
+              }}
+            >
+              Load more
+              <span style={{ marginLeft: '8px', opacity: 0.55, fontSize: '11px' }}>
+                {posts.length} of {recent.totalDocs}
+              </span>
+            </button>
+          </div>
+        )}
+      </div>
     </div>
   )
 }
