@@ -56,7 +56,9 @@ export type MergedSeriesProps = {
   /** icon-grid of the series' identity facts, rendered beside the image (≤6) */
   keySpecs?: MergedKeySpec[]
   datasheetUrl?: string
-  thumbs?: (Img & { cover?: boolean })[]
+  /** square tiles under the stage; `label` names the model so variants are
+   *  tellable apart (user markup 2026-07-06) */
+  thumbs?: (Img & { cover?: boolean; label?: string })[]
   variants: MergedVariant[]
   /** 'columns' (default) shows variants as compare columns; 'rows' lists them
    *  as table rows — for series with too many models for a column table. */
@@ -194,9 +196,12 @@ export default function MergedSeriesPage(p: MergedSeriesProps) {
             {p.thumbs && p.thumbs.length > 0 && (
               <div className="thumbs">
                 {p.thumbs.map((t, i) => (
-                  <div key={i} className={`t${t.cover ? ' cover' : ''}`}>
-                    <Picture img={t} sizes="90px" />
-                  </div>
+                  <figure key={i} className="thumb-fig">
+                    <div className={`t${t.cover ? ' cover' : ''}`}>
+                      <Picture img={t} sizes="90px" />
+                    </div>
+                    {t.label && <figcaption>{t.label}</figcaption>}
+                  </figure>
                 ))}
               </div>
             )}

@@ -31,6 +31,8 @@
 .pdetail .collset figcaption { font-family: var(--mono); font-size: 10.5px; letter-spacing: 0.06em; color: var(--text-subtle); }
 .pdetail .gstage .beadtag { position: absolute; top: 16px; left: 18px; font-family: var(--mono); font-size: 10px; letter-spacing: 0.12em; text-transform: uppercase; color: var(--text-subtle); }
 .pdetail .thumbs { display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; margin-top: 12px; }
+.pdetail .thumb-fig { margin: 0; min-width: 0; }
+.pdetail .thumb-fig figcaption { font-family: var(--mono); font-size: 10px; letter-spacing: 0.04em; color: var(--text-subtle); text-align: center; margin-top: 6px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 .pdetail .thumbs .t { aspect-ratio: 1; background: var(--bg-card); border: 1px solid var(--line); border-radius: 10px; display: grid; place-items: center; overflow: hidden; }
 .pdetail .thumbs .t img { width: 70%; object-fit: contain; mix-blend-mode: multiply; }
 .pdetail .thumbs .t.cover img { width: 100%; height: 100%; object-fit: cover; border-radius: 9px; mix-blend-mode: normal; }

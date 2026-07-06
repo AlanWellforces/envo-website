@@ -170,6 +170,20 @@ export function buildMergedSeriesProps(
     }
   })
 
+  // Square per-model thumbs under the stage, labelled by model code, so
+  // variants are tellable apart (user markup 2026-07-06). Only for compare-
+  // column series: single models would duplicate the stage image, and
+  // many-model (rows) catalogues would produce an absurd strip.
+  const thumbs =
+    variants.length > 1 && variants.length <= COLUMN_CAP
+      ? variants.map((v) => ({
+          src: v.image.src,
+          local: v.image.local,
+          alt: v.image.alt,
+          label: v.modelCode,
+        }))
+      : undefined
+
   // ── shared rows (only those with real data) ──
   const sharedRows: MergedSharedRow[] = []
   const ccts = uniq(products.map((p) => num(p.cct_k)).filter((k): k is number => k != null)).sort((a, b) => a - b)
@@ -306,6 +320,7 @@ export function buildMergedSeriesProps(
     checklist: checklist?.length ? checklist : undefined,
     keySpecs: keySpecs.slice(0, 6),
     datasheetUrl,
+    thumbs,
     variants,
     variantLayout: variants.length > COLUMN_CAP ? 'rows' : 'columns',
     sharedRows,

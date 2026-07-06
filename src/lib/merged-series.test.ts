@@ -266,3 +266,34 @@ describe('driver page titles', () => {
     expect(props.heroSubtitle).toBeUndefined()
   })
 })
+
+// ── per-model gallery thumbs (user markup 2026-07-06): square tiles under the
+//    combined stage, one per model, labelled by name/model code ──────────────
+describe('per-model gallery thumbs', () => {
+  it('column-layout series get one labelled thumb per model', () => {
+    const props = buildMergedSeriesProps(modulesFamily, 'envo_chromaflux', [
+      p({ sku: 'EV-BLCF03LBY-RGB', series: 'envo_chromaflux', family: 'led_module', name: 'ChromaFlux RGB', led_chip_colour: 'rgb', clean_image_url_fallback: 'https://s3/rgb.jpg', power_w: 1 }),
+      p({ sku: 'EV-BLCF03LBY-RGBW', series: 'envo_chromaflux', family: 'led_module', name: 'ChromaFlux RGBW', led_chip_colour: 'rgbw', clean_image_url_fallback: 'https://s3/rgbw.jpg', power_w: 2 }),
+    ])
+    expect(props.thumbs).toHaveLength(2)
+    expect(props.thumbs![0].label).toBe('EV-BLCF03LBY-RGB')
+    expect(props.thumbs![0].src).toBe('https://s3/rgb.jpg')
+    expect(props.thumbs![1].label).toBe('EV-BLCF03LBY-RGBW')
+  })
+
+  it('rows-layout (many-model) series get no thumb strip', () => {
+    const many = Array.from({ length: 8 }, (_, i) =>
+      p({ sku: `SC-${i}`, series: 'sc_envo', power_w: i + 1 }),
+    )
+    const props = buildMergedSeriesProps(driversFamily, 'sc_envo', many)
+    expect(props.variantLayout).toBe('rows')
+    expect(props.thumbs).toBeUndefined()
+  })
+
+  it('a single-model series needs no duplicate thumb of the stage image', () => {
+    const props = buildMergedSeriesProps(driversFamily, 'envo_sng', [
+      p({ sku: 'EV-SNG-350-12', series: 'envo_sng' }),
+    ])
+    expect(props.thumbs).toBeUndefined()
+  })
+})
