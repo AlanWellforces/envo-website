@@ -95,6 +95,7 @@ export default async function SeriesDetailPage({ params }: { params: Params }) {
         breadcrumb={{ familyName: family.name, familyHref: family.href, seriesLabel: 'MiniLux Series' }}
         eyebrow="Signage modules · Backlit"
         title="MiniLux Series"
+        heroSubtitle="Ultra-compact backlit modules for small letters and shallow, intricate depths — even spread with no hotspots."
         intro="The compact backlit module for small letters and intricate detail. A 180° × 140° Diamondback lens spreads light evenly with no hotspots, even on shallow returns — silicone-potted to IP66."
         beadtag="MiniLux range · 1–3 LED beads"
         checklist={[

@@ -110,9 +110,13 @@ export function buildMergedSeriesProps(
   const title = isDriversFamily
     ? authored?.title ?? `${label}${modeWord ? ` ${modeWord}` : ''} LED Drivers`
     : label
-  const heroSubtitle = isDriversFamily
-    ? authored?.blurb ?? (modeWord ? `${modeWord.replace('-', ' ').toLowerCase()} LED drivers` : undefined)
-    : undefined
+  // Every family gets a one-line subtitle carrying the series' character
+  // (user 2026-07-06) — authored blurb first, signage one-liners next,
+  // drivers fall back to their operation-mode wording.
+  const heroSubtitle =
+    authored?.blurb ??
+    SERIES_BLURBS[series] ??
+    (isDriversFamily && modeWord ? `${modeWord.replace('-', ' ').toLowerCase()} LED drivers` : undefined)
 
   // Column name = the LED count when it actually distinguishes the variants
   // (Single/Double/Triple). When counts collide — e.g. ChromaFlux's two "Triple

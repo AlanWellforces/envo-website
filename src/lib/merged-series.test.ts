@@ -270,12 +270,13 @@ describe('driver page titles', () => {
     expect(props.title).toBe('Zz New Constant-Voltage LED Drivers')
   })
 
-  it('signage titles and hero subtitle are untouched', () => {
-    const props = buildMergedSeriesProps(modulesFamily, 'envo_ecoglo', [
-      p({ sku: 'EV-BLEG02LBY-NW', series: 'envo_ecoglo', family: 'led_module' }),
+  it('signage keeps its title but gains a character-bearing subtitle (user 2026-07-06)', () => {
+    const props = buildMergedSeriesProps(modulesFamily, 'envo_chromaflux', [
+      p({ sku: 'EV-BLCF03LBY-RGBW', series: 'envo_chromaflux', family: 'led_module' }),
     ])
     expect(props.title.toLowerCase()).not.toContain('driver')
-    expect(props.heroSubtitle).toBeUndefined()
+    // ChromaFlux's one-liner: RGBW colour-changing modules …
+    expect(props.heroSubtitle).toMatch(/RGBW|colour-changing/i)
   })
 })
 
