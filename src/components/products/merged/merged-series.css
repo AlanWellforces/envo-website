@@ -82,12 +82,13 @@
 
 /* same face as the key-spec labels — no more mono outlier (user 2026-07-06) */
 .pdetail .p-info .eyebrow { font-size: 10.5px; letter-spacing: 0.16em; text-transform: uppercase; font-weight: 700; color: var(--lime-deep); }
-.pdetail .p-info h1 { font-size: 46px; letter-spacing: -0.04em; margin: 4px 0 8px; font-weight: 800; }
+/* tight eyebrow → title → subtitle so they read as one block (user 2026-07-06) */
+.pdetail .p-info h1 { font-size: 46px; letter-spacing: -0.04em; margin: 1px 0 3px; font-weight: 800; line-height: 1.04; }
 .pdetail .p-info .intro { font-size: 16px; color: var(--text-muted); line-height: 1.55; margin: 0 0 26px; max-width: 52ch; }
 
 /* hero key-spec grid (reference layout 2026-07-06): two columns of
    icon + LABEL-over-value rows with hairline separators */
-.pdetail .hero-sub { font-size: 14.5px; color: var(--text-muted); line-height: 1.5; margin: 0 0 14px; max-width: 52ch; }
+.pdetail .hero-sub { font-size: 14.5px; color: var(--text-muted); line-height: 1.5; margin: 0 0 18px; max-width: 52ch; }
 .pdetail .wtb-pick { appearance: none; border: 1px solid var(--line); background: var(--bg-card); border-radius: 999px;
   padding: 4px 11px; font-family: inherit; font-size: 12px; font-weight: 600; color: var(--text-muted); cursor: pointer; }
 .pdetail .wtb-pick:hover { border-color: var(--blue); color: var(--blue); }
