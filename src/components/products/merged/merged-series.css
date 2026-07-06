@@ -18,26 +18,142 @@
 }
 /* bottom padding on the wrap (not margin on the last section — it would
    collapse out of the wrapper) keeps the page clear of the footer */
-.pdetail .wrap { max-width: var(--content-max-width); margin: 0 auto; padding: 0 var(--page-gutter) 72px; }
+/* bottom padding trimmed — the full-bleed bands now follow the wrap and
+   carry their own spacing to the footer; width via #143's shared tokens */
+.pdetail .wrap { max-width: var(--content-max-width); margin: 0 auto; padding: 0 var(--page-gutter) 24px; }
 .pdetail .breadcrumb { padding: 22px 0 2px; }
 
 /* ===== hero split — gallery sticky, info wider ===== */
 .pdetail .p-hero { display: grid; grid-template-columns: 0.92fr 1.08fr; gap: 46px; padding: 14px 0 40px; align-items: start; }
 .pdetail .gallery { position: sticky; top: 24px; }
-.pdetail .gstage { width: 100%; aspect-ratio: 4 / 3; background: radial-gradient(120% 120% at 50% 32%, #fff, #e9eef5); border: 1px solid var(--line); border-radius: 18px; display: grid; place-items: center; position: relative; overflow: hidden; }
+/* square stage (user 2026-07-06; was 4/3) */
+.pdetail .gstage { width: 100%; aspect-ratio: 1 / 1; background: radial-gradient(120% 120% at 50% 32%, #fff, #e9eef5); border: 1px solid var(--line); border-radius: 18px; display: grid; place-items: center; position: relative; overflow: hidden; }
 .pdetail .collset { display: flex; align-items: center; justify-content: center; gap: 2%; width: 100%; height: 100%; padding: 30px 22px 18px; }
 .pdetail .collset figure { margin: 0; flex: 1; height: 100%; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 10px; }
 .pdetail .collset img { width: 100%; max-height: 58%; object-fit: contain; mix-blend-mode: multiply; }
-.pdetail .collset figcaption { font-family: var(--mono); font-size: 10.5px; letter-spacing: 0.06em; color: var(--text-subtle); }
-.pdetail .gstage .beadtag { position: absolute; top: 16px; left: 18px; font-family: var(--mono); font-size: 10px; letter-spacing: 0.12em; text-transform: uppercase; color: var(--text-subtle); }
-.pdetail .thumbs { display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; margin-top: 12px; }
+.pdetail .collset figcaption { font-size: 10.5px; letter-spacing: 0.06em; color: var(--text-subtle); }
+.pdetail .gstage .beadtag { position: absolute; top: 16px; left: 18px; font-size: 10px; letter-spacing: 0.12em; text-transform: uppercase; color: var(--text-subtle); }
+/* single scrolling row: ≥6 tiles fit; extras scroll horizontally, never wrap
+   (user 2026-07-06) */
+.pdetail .thumbs { display: flex; gap: 10px; margin-top: 12px; overflow-x: auto; scrollbar-width: thin;
+  padding-bottom: 4px; scroll-snap-type: x proximity; }
+.pdetail .thumb-fig { margin: 0; flex: 0 0 auto; width: calc((100% - 50px) / 6); scroll-snap-align: start; }
+/* thumbs are buttons now (click to swap into the stage) */
+.pdetail .thumbs button.t { appearance: none; width: 100%; padding: 0; cursor: pointer; font: inherit;
+  transition: border-color .15s, box-shadow .15s; }
+.pdetail .thumbs button.t:hover { border-color: var(--blue); }
+.pdetail .thumbs button.t.on { border-color: var(--blue); box-shadow: 0 0 0 2px rgba(0, 113, 188, .25); }
+
+/* stage zoom + single-image view */
+.pdetail .gstage.zoomable { cursor: default; }
+.pdetail .gzoom { position: absolute; top: 14px; right: 14px; z-index: 2; appearance: none; border: 1px solid var(--line);
+  background: var(--bg-card); width: 36px; height: 36px; border-radius: 50%; display: grid; place-items: center;
+  cursor: zoom-in; transition: border-color .15s; }
+.pdetail .gzoom svg { width: 17px; height: 17px; fill: none; stroke: var(--text-muted); stroke-width: 2;
+  stroke-linecap: round; }
+.pdetail .gzoom:hover { border-color: var(--blue); }
+.pdetail .gsingle { appearance: none; border: 0; background: none; padding: 24px; width: 100%; height: 100%;
+  display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 10px; cursor: zoom-in; }
+.pdetail .gsingle img { width: auto; max-width: 82%; max-height: 78%; object-fit: contain; mix-blend-mode: multiply; }
+.pdetail .gsingle-cap { font-size: 11px; letter-spacing: 0.06em; color: var(--text-subtle); }
+
+/* lightbox — PORTALED to <body> (so no .pdetail prefix) and above the region
+   banner's z-index 300 in envo.css */
+.glightbox { position: fixed; inset: 0; z-index: 400; background: rgba(10, 16, 26, 0.82);
+  display: grid; place-items: center; padding: 40px; cursor: zoom-out; }
+.glb-body { background: #fff; border-radius: 16px; padding: 28px; max-width: min(880px, 92vw);
+  max-height: 88vh; display: flex; flex-direction: column; align-items: center; gap: 12px; cursor: default; }
+.glb-body img { max-width: 100%; max-height: calc(88vh - 110px); object-fit: contain; }
+.glb-cap { font-size: 12px; letter-spacing: 0.06em; color: var(--fg-soft); }
+.glb-close { position: fixed; top: 18px; right: 22px; appearance: none; border: 0; background: none;
+  color: #fff; font-size: 40px; line-height: 1; cursor: pointer; z-index: 401; }
+
+/* "All models" combined tile — a mini collage of the stage figures */
+.pdetail .thumbs button.t.all { display: flex; align-items: center; justify-content: center; gap: 2px; padding: 8px; }
+.pdetail .thumbs button.t.all img { width: 30%; height: auto; max-height: 80%; object-fit: contain; mix-blend-mode: multiply; }
+/* SKU captions hidden until hover/focus (user 2026-07-06); height stays
+   reserved so the strip never jumps */
+.pdetail .thumb-fig figcaption { font-size: 10px; letter-spacing: 0.04em; color: var(--text-subtle); text-align: center; margin-top: 6px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; opacity: 0; transition: opacity .15s; }
+.pdetail .thumb-fig:hover figcaption, .pdetail .thumb-fig:focus-within figcaption { opacity: 1; }
 .pdetail .thumbs .t { aspect-ratio: 1; background: var(--bg-card); border: 1px solid var(--line); border-radius: 10px; display: grid; place-items: center; overflow: hidden; }
-.pdetail .thumbs .t img { width: 70%; object-fit: contain; mix-blend-mode: multiply; }
+/* proportionally smaller product figures inside the tiles (user 2026-07-06) */
+.pdetail .thumbs .t img { width: 52%; height: auto; object-fit: contain; mix-blend-mode: multiply; }
 .pdetail .thumbs .t.cover img { width: 100%; height: 100%; object-fit: cover; border-radius: 9px; mix-blend-mode: normal; }
 
-.pdetail .p-info .eyebrow { font-family: var(--mono); font-size: 10.5px; letter-spacing: 0.2em; text-transform: uppercase; color: var(--lime-deep); }
-.pdetail .p-info h1 { font-size: 46px; letter-spacing: -0.04em; margin: 9px 0 14px; font-weight: 800; }
+/* same face as the key-spec labels — no more mono outlier (user 2026-07-06) */
+.pdetail .p-info .eyebrow { font-size: 10px; letter-spacing: 0.14em; text-transform: uppercase; font-weight: 700; color: var(--lime-deep); }
+/* tight eyebrow → title → subtitle so they read as one block (user 2026-07-06) */
+.pdetail .p-info h1 { font-size: 40px; letter-spacing: -0.03em; margin: 2px 0 6px; font-weight: 800; line-height: 1.06; }
 .pdetail .p-info .intro { font-size: 16px; color: var(--text-muted); line-height: 1.55; margin: 0 0 26px; max-width: 52ch; }
+
+/* hero key-spec grid (reference layout 2026-07-06): two columns of
+   icon + LABEL-over-value rows with hairline separators */
+/* tighter wrapped-line leading so the two subtitle lines hug each other,
+   not the same gap as eyebrow→title→subtitle (user 2026-07-06) */
+.pdetail .hero-sub { font-size: 14px; color: var(--text-muted); line-height: 1.4; margin: 0 0 20px; max-width: 52ch; }
+/* ── unified "where to buy" block (user 2026-07-06: 统一风格): pin + label +
+   a region DROPDOWN matching the site's region switcher; no flag emoji ── */
+.pdetail .wtb-block { margin-top: 14px; }
+.pdetail .wtb-region { display: flex; align-items: center; gap: 8px; font-size: 13px; color: var(--text-muted); }
+.pdetail .wtb-region .pin { width: 15px; height: 15px; flex: none; fill: none; stroke: var(--text-subtle);
+  stroke-width: 1.7; stroke-linecap: round; stroke-linejoin: round; }
+.pdetail .wtb-lab { font-size: 10px; letter-spacing: 0.12em; text-transform: uppercase; font-weight: 700; color: var(--text-subtle); }
+/* dropdown trigger — subtle pill; the current region + caret */
+.pdetail .wtb-dd { position: relative; }
+/* borderless trigger — plain text + caret (user 2026-07-06) */
+.pdetail .wtb-dd-trigger { appearance: none; font-family: inherit; cursor: pointer; display: inline-flex; align-items: center; gap: 5px;
+  border: 0; background: none; padding: 0; font-size: 13px; color: var(--text); }
+.pdetail .wtb-dd-trigger b { font-weight: 650; }
+.pdetail .wtb-dd-trigger:hover { color: var(--blue); }
+.pdetail .wtb-dd-trigger:hover .caret { stroke: var(--blue); }
+.pdetail .wtb-dd-trigger .caret { width: 14px; height: 14px; fill: none; stroke: var(--text-subtle); stroke-width: 2;
+  stroke-linecap: round; stroke-linejoin: round; transition: transform .18s; }
+.pdetail .wtb-dd.open .wtb-dd-trigger .caret { transform: rotate(180deg); }
+/* menu */
+.pdetail .wtb-dd-menu { position: absolute; top: calc(100% + 6px); left: 0; z-index: 20; min-width: 260px;
+  background: var(--bg-card); border: 1px solid var(--line-strong); border-radius: 12px; padding: 5px;
+  box-shadow: 0 20px 44px -16px rgba(20, 40, 70, 0.28); display: none; }
+.pdetail .wtb-dd.open .wtb-dd-menu { display: block; }
+.pdetail .wtb-dd-opt { appearance: none; font-family: inherit; cursor: pointer; width: 100%; display: block;
+  border: 0; background: none; border-radius: 8px; padding: 9px 12px; font-size: 13px; color: var(--text);
+  text-align: left; transition: background .12s; }
+.pdetail .wtb-dd-opt:hover { background: var(--blue-soft); }
+.pdetail .wtb-dd-opt.on { color: var(--blue); font-weight: 650; }
+.pdetail .wtb-block .buyfine { margin-top: 4px; padding-left: 23px; }
+/* undetected fallback keeps the simple pick pills */
+.pdetail .wtb-pick-row { display: flex; flex-wrap: wrap; align-items: center; gap: 8px; }
+.pdetail .wtb-pick-row .wtb-lab { margin-right: 2px; }
+.pdetail .wtb-pick { appearance: none; font-family: inherit; cursor: pointer; border: 1px solid var(--line-strong);
+  background: var(--bg-card); border-radius: 999px; padding: 5px 13px; font-size: 12px; font-weight: 600; color: var(--text-muted);
+  transition: border-color .15s, color .15s; }
+.pdetail .wtb-pick:hover { border-color: var(--blue); color: var(--blue); }
+.pdetail .wtb-pick-row.lead + .buyfine { padding-left: 0; }
+
+/* real tabs — old-shop look; Overview / Specifications / Downloads switch,
+   one panel at a time (Where-it-works + Pairs-with stay as sections below) */
+.pdetail .spectabs { margin-top: 8px; }
+.pdetail .snav { display: flex; gap: 30px; background: var(--bg);
+  border-bottom: 1px solid var(--line); margin: 0 0 8px; padding: 2px 0 0; }
+.pdetail .snav-item { appearance: none; background: none; border: 0; cursor: pointer; font-family: inherit;
+  font-size: 11.5px; letter-spacing: 0.14em; text-transform: uppercase; font-weight: 700;
+  color: var(--text-subtle); padding: 12px 2px 11px; border-bottom: 2px solid transparent;
+  margin-bottom: -1px; transition: color .15s, border-color .15s; }
+.pdetail .snav-item:hover { color: var(--text); }
+.pdetail .snav-item.on { color: var(--text); border-bottom-color: var(--text); }
+/* the tabbed panels drop their own top margin — the tab strip provides it */
+.pdetail .spectabs .compare, .pdetail .spectabs .overview, .pdetail .spectabs .downloads { margin-top: 4px; }
+
+/* option C (buttons-first): equal-width CTA pair + region badge underneath */
+.pdetail .cta.cta-eq { max-width: 470px; }
+.pdetail .cta.cta-eq > * { flex: 1; justify-content: center; text-align: center; }
+.pdetail .kspecs { margin: 4px 0 24px; }
+.pdetail .kspecs-grid { display: grid; grid-template-columns: 1fr 1fr; column-gap: 32px; border-top: 1px solid var(--line); }
+.pdetail .ks { display: flex; align-items: center; gap: 11px; padding: 12px 0; border-bottom: 1px solid var(--line); min-width: 0; }
+.pdetail .ks-ico { width: 22px; height: 22px; flex: none; fill: none; stroke: var(--text-subtle); stroke-width: 1.6; stroke-linecap: round; stroke-linejoin: round; }
+.pdetail .ks-bd { display: flex; flex-direction: column; gap: 2px; min-width: 0; }
+.pdetail .ks-lab { font-size: 10px; letter-spacing: 0.14em; text-transform: uppercase; font-weight: 700; color: var(--text-subtle); }
+.pdetail .ks-val { font-size: 15px; font-weight: 600; color: var(--text); letter-spacing: -0.01em; line-height: 1.35; }
+@media (max-width: 560px) { .pdetail .kspecs-grid { grid-template-columns: 1fr; } }
 
 .pdetail .checklist { list-style: none; padding: 0; margin: 24px 0 26px; display: grid; gap: 9px; }
 .pdetail .checklist li { display: flex; align-items: flex-start; gap: 9px; font-size: 14px; color: var(--text); }
@@ -48,22 +164,24 @@
 .pdetail .cta-primary { display: inline-flex; align-items: center; gap: 8px; padding: 13px 22px; border-radius: 11px; background: var(--blue); color: #fff; font-size: 14px; font-weight: 600; text-decoration: none; }
 .pdetail .cta-primary span { transition: transform 0.18s; }
 .pdetail .cta-primary:hover span { transform: translateX(3px); }
-.pdetail .cta-ghost { display: inline-flex; align-items: center; padding: 13px 18px; border-radius: 11px; border: 1px solid var(--line-strong); color: var(--text-muted); font-size: 13.5px; font-weight: 600; text-decoration: none; }
+.pdetail .cta-ghost { display: inline-flex; align-items: center; padding: 13px 18px; border-radius: 11px; border: 1px solid var(--line-strong); color: var(--text-muted); font-size: 14px; font-weight: 600; text-decoration: none; }
 .pdetail .cta-ghost:hover { border-color: var(--blue); color: var(--blue); }
 .pdetail .wtb { margin-top: 18px; font-size: 13px; color: var(--text-subtle); display: flex; flex-wrap: wrap; align-items: center; gap: 9px; }
-.pdetail .wtb-lab { font-family: var(--mono); font-size: 10px; letter-spacing: 0.12em; text-transform: uppercase; }
+.pdetail .wtb-lab { font-size: 10px; letter-spacing: 0.12em; text-transform: uppercase; }
 .pdetail .wtb a { color: var(--text-muted); font-weight: 600; text-decoration: none; }
 .pdetail .wtb a:hover { color: var(--blue); }
 .pdetail .wtb-dot { color: var(--line-strong); }
 .pdetail .buyfine { margin-top: 12px; font-size: 12px; color: var(--text-subtle); }
 
 /* ===== full-width compare + spec table ===== */
-.pdetail .compare { padding: 40px 0; border-top: 1px solid var(--line); }
+.pdetail .compare { padding: 8px 0 24px; }
 .pdetail .compare .lead { margin: 0 0 18px; }
+/* unified eyebrow face across the whole page — sans, matching the hero
+   eyebrow + key-spec labels (user 2026-07-06: 字体要统一). No more mono outlier. */
 .pdetail .compare .lead .eyebrow,
 .pdetail .overview .eyebrow,
 .pdetail .solutions .eyebrow,
-.pdetail .downloads .eyebrow { font-family: var(--mono); font-size: 10.5px; letter-spacing: 0.2em; text-transform: uppercase; color: var(--lime-deep); }
+.pdetail .downloads .eyebrow { font-size: 10.5px; letter-spacing: 0.16em; text-transform: uppercase; font-weight: 700; color: var(--lime-deep); }
 .pdetail .compare .lead h2 { font-size: 23px; letter-spacing: -0.025em; margin: 6px 0 0; font-weight: 700; }
 .pdetail .cmp-tablewrap { overflow-x: auto; border: 1px solid var(--line); border-radius: 16px; background: var(--bg-card); }
 .pdetail .cmp-table { width: 100%; border-collapse: collapse; font-size: 13.5px; min-width: 640px; }
@@ -75,7 +193,7 @@
 .pdetail .cmp-table tbody th, .pdetail .cmp-table .rowhead { text-align: left; color: var(--text-subtle); font-weight: 500; padding: 13px 20px; white-space: nowrap; }
 .pdetail .cmp-table .vcol { text-align: center; padding: 18px 18px 16px; border-left: 1px solid var(--line); vertical-align: bottom; position: relative; }
 .pdetail .cmp-table .c-star { background: rgba(0, 113, 188, 0.04); }
-.pdetail .cmp-table .vcol .star { position: absolute; top: 9px; left: 0; right: 0; font-family: var(--mono); font-size: 8.5px; letter-spacing: 0.08em; text-transform: uppercase; color: var(--blue); font-weight: 700; }
+.pdetail .cmp-table .vcol .star { position: absolute; top: 9px; left: 0; right: 0; font-size: 8.5px; letter-spacing: 0.08em; text-transform: uppercase; color: var(--blue); font-weight: 700; }
 .pdetail .cmp-table .vcol .dots { display: flex; gap: 5px; justify-content: center; margin-bottom: 9px; }
 .pdetail .cmp-table .vcol .dots i { width: 9px; height: 9px; border-radius: 50%; background: var(--lime); box-shadow: 0 0 7px rgba(174, 201, 11, 0.6); }
 .pdetail .cmp-table .vcol .dots i.off { background: #d5d9e0; box-shadow: none; }
@@ -104,27 +222,50 @@
 .pdetail .spec-bestfor { margin: 14px 0 0; font-size: 13.5px; color: var(--text-muted); }
 @media (max-width: 700px) { .pdetail .shared-specs { grid-template-columns: 1fr; } }
 
-/* ===== solutions ===== */
-.pdetail .solutions { padding: 40px 0; border-top: 1px solid var(--line); }
-.pdetail .solutions .sol-head { margin-bottom: 18px; }
+/* ===== solutions — dark showcase panel (user 2026-07-06, version C) =====
+   The two lower sections leave the light tab zone: "Where it works" becomes a
+   dark rounded band so the lifestyle photos pop; "Pairs with" a light-grey
+   band. Contained (not full-bleed) — safe inside the sidebar layout. */
+/* full-bleed section bands — .band spans the content column (body is already
+   offset by the sidebar), .band-inner re-centres to the 1180 grid */
+/* zero the global envo.css `section { padding: 140px 0 }` that leaks onto
+   these bare <section> bands (known trap) — the band-inner owns the padding */
+/* Version B (user 2026-07-06): both sections on the light page bg with ONE
+   shared card language — no dark band. A hairline divides the two. The bare
+   <section> still inherits envo.css's global section padding (140px) — zero it. */
+.pdetail .band { width: 100%; padding: 0; background: var(--bg); color: var(--fg); }
+.pdetail .band-inner { max-width: var(--content-max-width); margin: 0 auto; padding: 30px var(--page-gutter); }
+.pdetail .band-related .band-inner { border-top: 1px solid var(--line); padding-bottom: 44px; }
+
+.pdetail .solutions .sol-head { margin-bottom: 16px; }
+.pdetail .solutions .eyebrow { color: var(--lime-deep); }
 .pdetail .solutions h2 { font-size: 23px; letter-spacing: -0.025em; margin: 6px 0 0; font-weight: 700; }
-.pdetail .sol-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(230px, 1fr)); gap: 12px; }
-.pdetail .sol-card { border: 1px solid var(--line); border-radius: 12px; background: var(--bg-card); overflow: hidden; }
-.pdetail .sol-card .sol-bd { padding: 14px 16px; }
-.pdetail .sol-card h3 { font-size: 14.5px; font-weight: 700; margin: 0 0 4px; }
-.pdetail .sol-card p { font-size: 12.5px; color: var(--text-muted); margin: 0; line-height: 1.45; }
+.pdetail .sol-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(230px, 1fr)); gap: 16px; }
+/* unified light card — same language as the "Pairs with" cards.
+   override envo.css's global .sol-card (aspect-ratio 16/10 + color:#fff from
+   the Solutions page) so the card grows to fit image + caption footer */
+.pdetail .sol-card { border: 1px solid var(--line); border-radius: 14px; background: var(--bg-card); overflow: hidden; aspect-ratio: auto; color: var(--fg); }
+/* KILL envo.css's global `.sol-card::after` dark scrim — it was muddying the
+   caption footer (user 2026-07-06: 场景+文字方框不好看) */
+.pdetail .sol-card::after { content: none; display: none; }
+/* clean white caption footer, hairline off the image */
+.pdetail .sol-card .sol-bd { padding: 13px 15px 15px; border-top: 1px solid var(--line); background: var(--bg-card); }
+.pdetail .sol-card h3 { font-size: 14.5px; font-weight: 700; margin: 0 0 3px; color: var(--fg); }
+.pdetail .sol-card p { font-size: 12px; color: var(--text-muted); margin: 0; line-height: 1.4; }
 /* photo-backed solution cards */
 .pdetail .sol-grid.has-img { grid-template-columns: repeat(auto-fill, minmax(250px, 1fr)); }
-.pdetail .sol-card.img .sol-img { aspect-ratio: 16 / 10; overflow: hidden; background: var(--bg-soft); }
+.pdetail .sol-card.img .sol-img { aspect-ratio: 4 / 3; overflow: hidden; background: #eef1f5; }
 .pdetail .sol-card.img .sol-img img { width: 100%; height: 100%; object-fit: cover; display: block; }
 
 /* ===== overview ===== */
-.pdetail .overview { padding: 40px 0; border-top: 1px solid var(--line); max-width: 76ch; }
+/* tab panels: no top border — the tab strip's underline is the only rule
+   (user 2026-07-06: 第二根短线 delete) */
+.pdetail .overview { padding: 8px 0 24px; max-width: 76ch; }
 .pdetail .overview h2 { font-size: 23px; letter-spacing: -0.025em; margin: 6px 0 14px; font-weight: 700; }
 .pdetail .overview p { font-size: 15px; color: var(--text-muted); line-height: 1.65; margin: 0; }
 
 /* ===== downloads ===== */
-.pdetail .downloads { padding: 40px 0; border-top: 1px solid var(--line); }
+.pdetail .downloads { padding: 8px 0 24px; }
 .pdetail .downloads .dl-head { margin-bottom: 18px; }
 .pdetail .downloads h2 { font-size: 23px; letter-spacing: -0.025em; margin: 6px 0 0; font-weight: 700; }
 .pdetail .dl-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 12px; }
@@ -134,7 +275,7 @@
 .pdetail .dl-ico svg { width: 18px; height: 18px; stroke: var(--blue); fill: none; stroke-width: 1.8; }
 .pdetail .dl-body { display: flex; flex-direction: column; flex: 1; }
 .pdetail .dl-name { font-size: 14px; font-weight: 600; }
-.pdetail .dl-meta { font-family: var(--mono); font-size: 10.5px; color: var(--text-subtle); margin-top: 2px; }
+.pdetail .dl-meta { font-size: 10.5px; color: var(--text-subtle); margin-top: 2px; }
 .pdetail .dl-arrow { color: var(--text-subtle); font-size: 16px; }
 .pdetail .dl-card:hover .dl-arrow { color: var(--blue); }
 .pdetail .dl-contact { margin: 14px 0 0; font-size: 13px; color: var(--text-subtle); }
@@ -142,23 +283,30 @@
 .pdetail .dl-contact a:hover { text-decoration: underline; }
 
 /* ===== related ===== */
-.pdetail .rel { padding: 40px 0 60px; border-top: 1px solid var(--line); }
+/* ===== related — sits inside the light band ===== */
 .pdetail .rel-head { display: flex; align-items: baseline; justify-content: space-between; margin-bottom: 18px; }
 .pdetail .rel-head h2 { font-size: 23px; letter-spacing: -0.025em; margin: 0; font-weight: 700; }
 .pdetail .rel-head a { font-size: 13px; color: var(--blue); font-weight: 600; text-decoration: none; }
-.pdetail .rel-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; }
-.pdetail .rel-card { background: var(--bg-card); border: 1px solid var(--line); border-radius: 13px; overflow: hidden; transition: transform 0.2s, border-color 0.2s; text-decoration: none; color: inherit; }
+/* compact 5-up row that scrolls when there are more — never wraps
+   (user 2026-07-06) */
+.pdetail .rel-grid { display: flex; gap: 14px; overflow-x: auto; scrollbar-width: thin;
+  padding-bottom: 6px; scroll-snap-type: x proximity; }
+.pdetail .rel-card { flex: 0 0 calc((100% - 56px) / 5); scroll-snap-align: start;
+  background: var(--bg-card); border: 1px solid var(--line); border-radius: 12px; overflow: hidden;
+  transition: transform 0.2s, border-color 0.2s; text-decoration: none; color: inherit; }
 .pdetail .rel-card:hover { transform: translateY(-2px); border-color: var(--line-strong); }
-.pdetail .rel-card .iw { height: 110px; background: radial-gradient(120% 120% at 50% 20%, #fff, #eef1f5); display: grid; place-items: center; }
-.pdetail .rel-card .iw img { width: 64%; height: 80px; object-fit: contain; mix-blend-mode: multiply; }
-.pdetail .rel-card .bd { padding: 13px 15px 15px; }
-.pdetail .rel-card .rl { font-family: var(--mono); font-size: 9px; letter-spacing: 0.1em; text-transform: uppercase; color: var(--text-subtle); }
-.pdetail .rel-card .rn { font-size: 15px; font-weight: 700; margin: 3px 0 0; }
+/* still portrait (taller than wide), just smaller in the 5-up row */
+.pdetail .rel-card .iw { aspect-ratio: 1 / 1; background: radial-gradient(120% 120% at 50% 20%, #fff, #eef1f5); display: grid; place-items: center; }
+.pdetail .rel-card .iw img { width: 74%; height: 74%; object-fit: contain; mix-blend-mode: multiply; }
+.pdetail .rel-card .bd { padding: 11px 13px 13px; }
+.pdetail .rel-card .rl { font-size: 9px; letter-spacing: 0.12em; text-transform: uppercase; font-weight: 700; color: var(--text-subtle); }
+.pdetail .rel-card .rn { font-size: 13.5px; font-weight: 700; margin: 3px 0 0; line-height: 1.25; }
 
 @media (max-width: 900px) {
   .pdetail .p-hero { grid-template-columns: 1fr; gap: 26px; }
   .pdetail .gallery { position: static; }
   .pdetail .p-info h1 { font-size: 36px; }
   .pdetail .dl-grid { grid-template-columns: 1fr; }
-  .pdetail .rel-grid { grid-template-columns: 1fr; }
+  /* narrower viewport: show ~2.2 cards and let the rest scroll */
+  .pdetail .rel-card { flex-basis: calc((100% - 28px) / 2.2); }
 }
