@@ -88,7 +88,9 @@
 
 /* hero key-spec grid (reference layout 2026-07-06): two columns of
    icon + LABEL-over-value rows with hairline separators */
-.pdetail .hero-sub { font-size: 14.5px; color: var(--text-muted); line-height: 1.5; margin: 0 0 18px; max-width: 52ch; }
+/* tighter wrapped-line leading so the two subtitle lines hug each other,
+   not the same gap as eyebrow→title→subtitle (user 2026-07-06) */
+.pdetail .hero-sub { font-size: 14.5px; color: var(--text-muted); line-height: 1.32; margin: 0 0 18px; max-width: 52ch; }
 .pdetail .wtb-pick { appearance: none; border: 1px solid var(--line); background: var(--bg-card); border-radius: 999px;
   padding: 4px 11px; font-family: inherit; font-size: 12px; font-weight: 600; color: var(--text-muted); cursor: pointer; }
 .pdetail .wtb-pick:hover { border-color: var(--blue); color: var(--blue); }
