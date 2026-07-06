@@ -7,6 +7,7 @@
 // selector is shown instead of both distributor links.
 
 import Link from 'next/link'
+import { useState } from 'react'
 import { PURCHASE_CHANNELS } from '@/data/purchase-channels'
 import { useRegion } from '@/components/region/RegionProvider'
 import {
@@ -23,6 +24,7 @@ export function FindDistributorCta({
   datasheetUrl?: string
 }) {
   const { region, regionStatus, setRegion } = useRegion()
+  const [picking, setPicking] = useState(false)
   const resolved = regionStatus === 'detected' || regionStatus === 'selected'
   const distributor = resolved ? DISTRIBUTORS[REGION_TO_DISTRIBUTOR[region]] : null
   const channel = PURCHASE_CHANNELS.find((c) => c.id === region)
@@ -37,16 +39,38 @@ export function FindDistributorCta({
     const href = links?.[distributor.id] ?? distributor.brandFallbackUrl
     return (
       <>
-        <div className="cta">
+        {/* Option C, buttons-first (user 2026-07-06): equal-width button row
+            on top, region badge underneath with its change entry point. */}
+        <div className="cta cta-eq">
           <a className="cta-primary" href={href} target="_blank" rel="noopener noreferrer">
             Find local distributor<span>→</span>
           </a>
           {datasheet}
         </div>
-        <div className="wtb" aria-live="polite">
-          <span className="wtb-lab">Where to buy</span>
-          <span>{channel?.purchaseMetaLabel}</span>
+        <div className="region-chip" aria-live="polite">
+          <span aria-hidden>{channel?.flag}</span>
+          <b>{channel?.purchaseMetaLabel}</b>
+          <button type="button" className="region-chip-change" onClick={() => setPicking(!picking)}>
+            change
+          </button>
         </div>
+        {picking && (
+          <div className="wtb">
+            {PURCHASE_CHANNELS.filter((c) => c.id !== region).map((c) => (
+              <button
+                key={c.id}
+                type="button"
+                className="wtb-pick"
+                onClick={() => {
+                  setRegion(c.id)
+                  setPicking(false)
+                }}
+              >
+                {c.flag} {c.regionLabel}
+              </button>
+            ))}
+          </div>
+        )}
         <div className="buyfine">Sold through authorised distributors</div>
       </>
     )
