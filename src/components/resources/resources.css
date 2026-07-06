@@ -4,6 +4,12 @@
    default. Brand accents via tokens; surfaces as light literals. Fonts inherit
    globals (Inter Tight + ui-mono). */
 .rd-wrap { background:#f4f5f7; color:#1a2332; }
+/* Align the Resources content column with the homepage. The global .container
+   is 1440px wide with 40px gutters, which reads noticeably wider than the home
+   page — whose sections use .v4-wrap (max 1200px + fluid clamp gutters). Match
+   those values here, scoped to .rd-wrap so the global .container (used by other
+   pages) is left untouched. */
+.rd-wrap .container { max-width:1200px; padding:0 clamp(28px,4vw,64px); }
 .rd-wrap .breadcrumb { padding:24px 0 4px; }
 
 /* ============ HEADER ============ */
