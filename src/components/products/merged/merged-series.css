@@ -31,8 +31,11 @@
 .pdetail .collset img { width: 100%; max-height: 58%; object-fit: contain; mix-blend-mode: multiply; }
 .pdetail .collset figcaption { font-family: var(--mono); font-size: 10.5px; letter-spacing: 0.06em; color: var(--text-subtle); }
 .pdetail .gstage .beadtag { position: absolute; top: 16px; left: 18px; font-family: var(--mono); font-size: 10px; letter-spacing: 0.12em; text-transform: uppercase; color: var(--text-subtle); }
-.pdetail .thumbs { display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; margin-top: 12px; }
-.pdetail .thumb-fig { margin: 0; min-width: 0; }
+/* single scrolling row: ≥6 tiles fit; extras scroll horizontally, never wrap
+   (user 2026-07-06) */
+.pdetail .thumbs { display: flex; gap: 10px; margin-top: 12px; overflow-x: auto; scrollbar-width: thin;
+  padding-bottom: 4px; scroll-snap-type: x proximity; }
+.pdetail .thumb-fig { margin: 0; flex: 0 0 auto; width: calc((100% - 50px) / 6); scroll-snap-align: start; }
 /* thumbs are buttons now (click to swap into the stage) */
 .pdetail .thumbs button.t { appearance: none; width: 100%; padding: 0; cursor: pointer; font: inherit;
   transition: border-color .15s, box-shadow .15s; }
@@ -77,12 +80,12 @@
 
 /* same face as the key-spec labels — no more mono outlier (user 2026-07-06) */
 .pdetail .p-info .eyebrow { font-size: 10.5px; letter-spacing: 0.16em; text-transform: uppercase; font-weight: 700; color: var(--lime-deep); }
-.pdetail .p-info h1 { font-size: 46px; letter-spacing: -0.04em; margin: 9px 0 14px; font-weight: 800; }
+.pdetail .p-info h1 { font-size: 46px; letter-spacing: -0.04em; margin: 4px 0 8px; font-weight: 800; }
 .pdetail .p-info .intro { font-size: 16px; color: var(--text-muted); line-height: 1.55; margin: 0 0 26px; max-width: 52ch; }
 
 /* hero key-spec grid (reference layout 2026-07-06): two columns of
    icon + LABEL-over-value rows with hairline separators */
-.pdetail .hero-sub { font-size: 14.5px; color: var(--text-muted); line-height: 1.5; margin: -4px 0 18px; max-width: 52ch; }
+.pdetail .hero-sub { font-size: 14.5px; color: var(--text-muted); line-height: 1.5; margin: 0 0 14px; max-width: 52ch; }
 .pdetail .wtb-pick { appearance: none; border: 1px solid var(--line); background: var(--bg-card); border-radius: 999px;
   padding: 4px 11px; font-family: inherit; font-size: 12px; font-weight: 600; color: var(--text-muted); cursor: pointer; }
 .pdetail .wtb-pick:hover { border-color: var(--blue); color: var(--blue); }
@@ -100,14 +103,19 @@
 /* option C (buttons-first): equal-width CTA pair + region badge underneath */
 .pdetail .cta.cta-eq { max-width: 470px; }
 .pdetail .cta.cta-eq > * { flex: 1; justify-content: center; text-align: center; }
-.pdetail .region-chip { display: inline-flex; align-items: center; gap: 8px; margin-top: 14px;
-  background: var(--bg-card); border: 1px solid var(--line); border-radius: 999px; padding: 6px 13px;
-  font-size: 12px; color: var(--text-muted); }
+/* borderless row so the pin aligns at x=0 with the fine-print below it
+   (user 2026-07-06) */
+.pdetail .region-chip { display: flex; align-items: center; gap: 8px; margin-top: 14px;
+  font-size: 12.5px; color: var(--text-muted); }
+.pdetail .region-chip .pin { width: 15px; height: 15px; flex: none; fill: none; stroke: var(--text-subtle);
+  stroke-width: 1.7; }
 .pdetail .region-chip b { color: var(--text); font-weight: 650; }
 .pdetail .region-chip-change { appearance: none; border: 0; background: none; padding: 0; font-family: inherit;
   font-size: 11px; font-weight: 700; color: var(--blue); cursor: pointer; }
 .pdetail .region-chip-change:hover { text-decoration: underline; }
 .pdetail .region-chip + .wtb { margin-top: 10px; }
+/* "Sold through…" aligns under the pin (same 23px = icon 15 + gap 8 indent) */
+.pdetail .region-chip ~ .buyfine { margin-top: 6px; padding-left: 23px; }
 .pdetail .kspecs { margin: 6px 0 26px; }
 .pdetail .kspecs-grid { display: grid; grid-template-columns: 1fr 1fr; column-gap: 30px; border-top: 1px solid var(--line); }
 .pdetail .ks { display: flex; align-items: center; gap: 12px; padding: 13px 0; border-bottom: 1px solid var(--line); min-width: 0; }

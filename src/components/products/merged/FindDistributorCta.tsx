@@ -48,7 +48,10 @@ export function FindDistributorCta({
           {datasheet}
         </div>
         <div className="region-chip" aria-live="polite">
-          <span aria-hidden>{channel?.flag}</span>
+          <svg className="pin" viewBox="0 0 24 24" aria-hidden>
+            <path d="M12 22s7-6.1 7-12a7 7 0 1 0-14 0c0 5.9 7 12 7 12z" />
+            <circle cx="12" cy="10" r="2.6" />
+          </svg>
           <b>{channel?.purchaseMetaLabel}</b>
           <button type="button" className="region-chip-change" onClick={() => setPicking(!picking)}>
             change
