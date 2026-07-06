@@ -29,8 +29,8 @@
 .pdetail .collset { display: flex; align-items: center; justify-content: center; gap: 2%; width: 100%; height: 100%; padding: 30px 22px 18px; }
 .pdetail .collset figure { margin: 0; flex: 1; height: 100%; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 10px; }
 .pdetail .collset img { width: 100%; max-height: 58%; object-fit: contain; mix-blend-mode: multiply; }
-.pdetail .collset figcaption { font-family: var(--mono); font-size: 10.5px; letter-spacing: 0.06em; color: var(--text-subtle); }
-.pdetail .gstage .beadtag { position: absolute; top: 16px; left: 18px; font-family: var(--mono); font-size: 10px; letter-spacing: 0.12em; text-transform: uppercase; color: var(--text-subtle); }
+.pdetail .collset figcaption { font-size: 10.5px; letter-spacing: 0.06em; color: var(--text-subtle); }
+.pdetail .gstage .beadtag { position: absolute; top: 16px; left: 18px; font-size: 10px; letter-spacing: 0.12em; text-transform: uppercase; color: var(--text-subtle); }
 /* single scrolling row: ≥6 tiles fit; extras scroll horizontally, never wrap
    (user 2026-07-06) */
 .pdetail .thumbs { display: flex; gap: 10px; margin-top: 12px; overflow-x: auto; scrollbar-width: thin;
@@ -53,7 +53,7 @@
 .pdetail .gsingle { appearance: none; border: 0; background: none; padding: 24px; width: 100%; height: 100%;
   display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 10px; cursor: zoom-in; }
 .pdetail .gsingle img { width: auto; max-width: 82%; max-height: 78%; object-fit: contain; mix-blend-mode: multiply; }
-.pdetail .gsingle-cap { font-family: var(--mono); font-size: 11px; letter-spacing: 0.06em; color: var(--text-subtle); }
+.pdetail .gsingle-cap { font-size: 11px; letter-spacing: 0.06em; color: var(--text-subtle); }
 
 /* lightbox — PORTALED to <body> (so no .pdetail prefix) and above the region
    banner's z-index 300 in envo.css */
@@ -62,7 +62,7 @@
 .glb-body { background: #fff; border-radius: 16px; padding: 28px; max-width: min(880px, 92vw);
   max-height: 88vh; display: flex; flex-direction: column; align-items: center; gap: 12px; cursor: default; }
 .glb-body img { max-width: 100%; max-height: calc(88vh - 110px); object-fit: contain; }
-.glb-cap { font-family: var(--font-mono); font-size: 12px; letter-spacing: 0.06em; color: var(--fg-soft); }
+.glb-cap { font-size: 12px; letter-spacing: 0.06em; color: var(--fg-soft); }
 .glb-close { position: fixed; top: 18px; right: 22px; appearance: none; border: 0; background: none;
   color: #fff; font-size: 40px; line-height: 1; cursor: pointer; z-index: 401; }
 
@@ -71,7 +71,7 @@
 .pdetail .thumbs button.t.all img { width: 30%; height: auto; max-height: 80%; object-fit: contain; mix-blend-mode: multiply; }
 /* SKU captions hidden until hover/focus (user 2026-07-06); height stays
    reserved so the strip never jumps */
-.pdetail .thumb-fig figcaption { font-family: var(--mono); font-size: 10px; letter-spacing: 0.04em; color: var(--text-subtle); text-align: center; margin-top: 6px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; opacity: 0; transition: opacity .15s; }
+.pdetail .thumb-fig figcaption { font-size: 10px; letter-spacing: 0.04em; color: var(--text-subtle); text-align: center; margin-top: 6px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; opacity: 0; transition: opacity .15s; }
 .pdetail .thumb-fig:hover figcaption, .pdetail .thumb-fig:focus-within figcaption { opacity: 1; }
 .pdetail .thumbs .t { aspect-ratio: 1; background: var(--bg-card); border: 1px solid var(--line); border-radius: 10px; display: grid; place-items: center; overflow: hidden; }
 /* proportionally smaller product figures inside the tiles (user 2026-07-06) */
@@ -141,7 +141,7 @@
 .pdetail .cta-ghost { display: inline-flex; align-items: center; padding: 13px 18px; border-radius: 11px; border: 1px solid var(--line-strong); color: var(--text-muted); font-size: 13.5px; font-weight: 600; text-decoration: none; }
 .pdetail .cta-ghost:hover { border-color: var(--blue); color: var(--blue); }
 .pdetail .wtb { margin-top: 18px; font-size: 13px; color: var(--text-subtle); display: flex; flex-wrap: wrap; align-items: center; gap: 9px; }
-.pdetail .wtb-lab { font-family: var(--mono); font-size: 10px; letter-spacing: 0.12em; text-transform: uppercase; }
+.pdetail .wtb-lab { font-size: 10px; letter-spacing: 0.12em; text-transform: uppercase; }
 .pdetail .wtb a { color: var(--text-muted); font-weight: 600; text-decoration: none; }
 .pdetail .wtb a:hover { color: var(--blue); }
 .pdetail .wtb-dot { color: var(--line-strong); }
@@ -150,10 +150,12 @@
 /* ===== full-width compare + spec table ===== */
 .pdetail .compare { padding: 40px 0; border-top: 1px solid var(--line); }
 .pdetail .compare .lead { margin: 0 0 18px; }
+/* unified eyebrow face across the whole page — sans, matching the hero
+   eyebrow + key-spec labels (user 2026-07-06: 字体要统一). No more mono outlier. */
 .pdetail .compare .lead .eyebrow,
 .pdetail .overview .eyebrow,
 .pdetail .solutions .eyebrow,
-.pdetail .downloads .eyebrow { font-family: var(--mono); font-size: 10.5px; letter-spacing: 0.2em; text-transform: uppercase; color: var(--lime-deep); }
+.pdetail .downloads .eyebrow { font-size: 10.5px; letter-spacing: 0.16em; text-transform: uppercase; font-weight: 700; color: var(--lime-deep); }
 .pdetail .compare .lead h2 { font-size: 23px; letter-spacing: -0.025em; margin: 6px 0 0; font-weight: 700; }
 .pdetail .cmp-tablewrap { overflow-x: auto; border: 1px solid var(--line); border-radius: 16px; background: var(--bg-card); }
 .pdetail .cmp-table { width: 100%; border-collapse: collapse; font-size: 13.5px; min-width: 640px; }
@@ -165,7 +167,7 @@
 .pdetail .cmp-table tbody th, .pdetail .cmp-table .rowhead { text-align: left; color: var(--text-subtle); font-weight: 500; padding: 13px 20px; white-space: nowrap; }
 .pdetail .cmp-table .vcol { text-align: center; padding: 18px 18px 16px; border-left: 1px solid var(--line); vertical-align: bottom; position: relative; }
 .pdetail .cmp-table .c-star { background: rgba(0, 113, 188, 0.04); }
-.pdetail .cmp-table .vcol .star { position: absolute; top: 9px; left: 0; right: 0; font-family: var(--mono); font-size: 8.5px; letter-spacing: 0.08em; text-transform: uppercase; color: var(--blue); font-weight: 700; }
+.pdetail .cmp-table .vcol .star { position: absolute; top: 9px; left: 0; right: 0; font-size: 8.5px; letter-spacing: 0.08em; text-transform: uppercase; color: var(--blue); font-weight: 700; }
 .pdetail .cmp-table .vcol .dots { display: flex; gap: 5px; justify-content: center; margin-bottom: 9px; }
 .pdetail .cmp-table .vcol .dots i { width: 9px; height: 9px; border-radius: 50%; background: var(--lime); box-shadow: 0 0 7px rgba(174, 201, 11, 0.6); }
 .pdetail .cmp-table .vcol .dots i.off { background: #d5d9e0; box-shadow: none; }
@@ -194,18 +196,23 @@
 .pdetail .spec-bestfor { margin: 14px 0 0; font-size: 13.5px; color: var(--text-muted); }
 @media (max-width: 700px) { .pdetail .shared-specs { grid-template-columns: 1fr; } }
 
-/* ===== solutions ===== */
-.pdetail .solutions { padding: 40px 0; border-top: 1px solid var(--line); }
+/* ===== solutions — dark showcase panel (user 2026-07-06, version C) =====
+   The two lower sections leave the light tab zone: "Where it works" becomes a
+   dark rounded band so the lifestyle photos pop; "Pairs with" a light-grey
+   band. Contained (not full-bleed) — safe inside the sidebar layout. */
+.pdetail .solutions { margin: 22px 0 0; padding: 36px 34px; border-radius: 18px;
+  background: #0a1a2e; color: #f5f7fa; }
 .pdetail .solutions .sol-head { margin-bottom: 18px; }
-.pdetail .solutions h2 { font-size: 23px; letter-spacing: -0.025em; margin: 6px 0 0; font-weight: 700; }
+.pdetail .solutions .eyebrow { color: var(--lime); }
+.pdetail .solutions h2 { font-size: 23px; letter-spacing: -0.025em; margin: 6px 0 0; font-weight: 700; color: #f5f7fa; }
 .pdetail .sol-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(230px, 1fr)); gap: 12px; }
-.pdetail .sol-card { border: 1px solid var(--line); border-radius: 12px; background: var(--bg-card); overflow: hidden; }
+.pdetail .sol-card { border: 1px solid rgba(77,195,255,.12); border-radius: 12px; background: #142d4f; overflow: hidden; }
 .pdetail .sol-card .sol-bd { padding: 14px 16px; }
-.pdetail .sol-card h3 { font-size: 14.5px; font-weight: 700; margin: 0 0 4px; }
-.pdetail .sol-card p { font-size: 12.5px; color: var(--text-muted); margin: 0; line-height: 1.45; }
+.pdetail .sol-card h3 { font-size: 14.5px; font-weight: 700; margin: 0 0 4px; color: #f5f7fa; }
+.pdetail .sol-card p { font-size: 12.5px; color: #8b9cb0; margin: 0; line-height: 1.45; }
 /* photo-backed solution cards */
 .pdetail .sol-grid.has-img { grid-template-columns: repeat(auto-fill, minmax(250px, 1fr)); }
-.pdetail .sol-card.img .sol-img { aspect-ratio: 16 / 10; overflow: hidden; background: var(--bg-soft); }
+.pdetail .sol-card.img .sol-img { aspect-ratio: 16 / 10; overflow: hidden; background: #0a1a2e; }
 .pdetail .sol-card.img .sol-img img { width: 100%; height: 100%; object-fit: cover; display: block; }
 
 /* ===== overview ===== */
@@ -224,7 +231,7 @@
 .pdetail .dl-ico svg { width: 18px; height: 18px; stroke: var(--blue); fill: none; stroke-width: 1.8; }
 .pdetail .dl-body { display: flex; flex-direction: column; flex: 1; }
 .pdetail .dl-name { font-size: 14px; font-weight: 600; }
-.pdetail .dl-meta { font-family: var(--mono); font-size: 10.5px; color: var(--text-subtle); margin-top: 2px; }
+.pdetail .dl-meta { font-size: 10.5px; color: var(--text-subtle); margin-top: 2px; }
 .pdetail .dl-arrow { color: var(--text-subtle); font-size: 16px; }
 .pdetail .dl-card:hover .dl-arrow { color: var(--blue); }
 .pdetail .dl-contact { margin: 14px 0 0; font-size: 13px; color: var(--text-subtle); }
@@ -232,7 +239,8 @@
 .pdetail .dl-contact a:hover { text-decoration: underline; }
 
 /* ===== related ===== */
-.pdetail .rel { padding: 40px 0 60px; border-top: 1px solid var(--line); }
+/* ===== related — light-grey band (version C) ===== */
+.pdetail .rel { margin: 16px 0 40px; padding: 34px; border-radius: 18px; background: var(--bg-elevated); }
 .pdetail .rel-head { display: flex; align-items: baseline; justify-content: space-between; margin-bottom: 18px; }
 .pdetail .rel-head h2 { font-size: 23px; letter-spacing: -0.025em; margin: 0; font-weight: 700; }
 .pdetail .rel-head a { font-size: 13px; color: var(--blue); font-weight: 600; text-decoration: none; }
@@ -242,7 +250,7 @@
 .pdetail .rel-card .iw { height: 110px; background: radial-gradient(120% 120% at 50% 20%, #fff, #eef1f5); display: grid; place-items: center; }
 .pdetail .rel-card .iw img { width: 64%; height: 80px; object-fit: contain; mix-blend-mode: multiply; }
 .pdetail .rel-card .bd { padding: 13px 15px 15px; }
-.pdetail .rel-card .rl { font-family: var(--mono); font-size: 9px; letter-spacing: 0.1em; text-transform: uppercase; color: var(--text-subtle); }
+.pdetail .rel-card .rl { font-size: 9.5px; letter-spacing: 0.13em; text-transform: uppercase; font-weight: 700; color: var(--text-subtle); }
 .pdetail .rel-card .rn { font-size: 15px; font-weight: 700; margin: 3px 0 0; }
 
 @media (max-width: 900px) {
