@@ -224,12 +224,16 @@
    override envo.css's global .sol-card (aspect-ratio 16/10 + color:#fff from
    the Solutions page) so the card grows to fit image + caption footer */
 .pdetail .sol-card { border: 1px solid var(--line); border-radius: 14px; background: var(--bg-card); overflow: hidden; aspect-ratio: auto; color: var(--fg); }
-.pdetail .sol-card .sol-bd { padding: 13px 15px; }
-.pdetail .sol-card h3 { font-size: 15px; font-weight: 700; margin: 0 0 3px; }
-.pdetail .sol-card p { font-size: 12.5px; color: var(--text-muted); margin: 0; line-height: 1.45; }
+/* KILL envo.css's global `.sol-card::after` dark scrim — it was muddying the
+   caption footer (user 2026-07-06: 场景+文字方框不好看) */
+.pdetail .sol-card::after { content: none; display: none; }
+/* clean white caption footer, hairline off the image */
+.pdetail .sol-card .sol-bd { padding: 13px 15px 15px; border-top: 1px solid var(--line); background: var(--bg-card); }
+.pdetail .sol-card h3 { font-size: 14.5px; font-weight: 700; margin: 0 0 3px; color: var(--fg); }
+.pdetail .sol-card p { font-size: 12px; color: var(--text-muted); margin: 0; line-height: 1.4; }
 /* photo-backed solution cards */
 .pdetail .sol-grid.has-img { grid-template-columns: repeat(auto-fill, minmax(250px, 1fr)); }
-.pdetail .sol-card.img .sol-img { aspect-ratio: 16 / 10; overflow: hidden; background: #eef1f5; }
+.pdetail .sol-card.img .sol-img { aspect-ratio: 4 / 3; overflow: hidden; background: #eef1f5; }
 .pdetail .sol-card.img .sol-img img { width: 100%; height: 100%; object-fit: cover; display: block; }
 
 /* ===== overview ===== */
