@@ -209,26 +209,27 @@
    offset by the sidebar), .band-inner re-centres to the 1180 grid */
 /* zero the global envo.css `section { padding: 140px 0 }` that leaks onto
    these bare <section> bands (known trap) — the band-inner owns the padding */
-.pdetail .band { width: 100%; padding: 0; }
-/* tighter vertical rhythm than the first pass (user 2026-07-06) */
+/* Version B (user 2026-07-06): both sections on the light page bg with ONE
+   shared card language — no dark band. A hairline divides the two. The bare
+   <section> still inherits envo.css's global section padding (140px) — zero it. */
+.pdetail .band { width: 100%; padding: 0; background: var(--bg); color: var(--fg); }
 .pdetail .band-inner { max-width: 1180px; margin: 0 auto; padding: 30px 36px; }
-/* softer separation — a dark GREY, not the heavy navy; just enough to
-   step away from the light tab zone above (user 2026-07-06) */
-.pdetail .band-dark { background: #2f343b; color: #f2f4f7; }
-.pdetail .band-light { background: var(--bg-elevated); }
-.pdetail .band-light:last-child .band-inner { padding-bottom: 40px; }
+.pdetail .band-related .band-inner { border-top: 1px solid var(--line); padding-bottom: 44px; }
 
 .pdetail .solutions .sol-head { margin-bottom: 16px; }
-.pdetail .solutions .eyebrow { color: var(--lime); }
-.pdetail .solutions h2 { font-size: 23px; letter-spacing: -0.025em; margin: 6px 0 0; font-weight: 700; color: #f2f4f7; }
-.pdetail .sol-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(230px, 1fr)); gap: 12px; }
-.pdetail .sol-card { border: 1px solid rgba(255,255,255,.1); border-radius: 12px; background: #3a4048; overflow: hidden; }
-.pdetail .sol-card .sol-bd { padding: 14px 16px; }
-.pdetail .sol-card h3 { font-size: 14.5px; font-weight: 700; margin: 0 0 4px; color: #f2f4f7; }
-.pdetail .sol-card p { font-size: 12.5px; color: #b0b8c2; margin: 0; line-height: 1.45; }
+.pdetail .solutions .eyebrow { color: var(--lime-deep); }
+.pdetail .solutions h2 { font-size: 23px; letter-spacing: -0.025em; margin: 6px 0 0; font-weight: 700; }
+.pdetail .sol-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(230px, 1fr)); gap: 16px; }
+/* unified light card — same language as the "Pairs with" cards.
+   override envo.css's global .sol-card (aspect-ratio 16/10 + color:#fff from
+   the Solutions page) so the card grows to fit image + caption footer */
+.pdetail .sol-card { border: 1px solid var(--line); border-radius: 14px; background: var(--bg-card); overflow: hidden; aspect-ratio: auto; color: var(--fg); }
+.pdetail .sol-card .sol-bd { padding: 13px 15px; }
+.pdetail .sol-card h3 { font-size: 15px; font-weight: 700; margin: 0 0 3px; }
+.pdetail .sol-card p { font-size: 12.5px; color: var(--text-muted); margin: 0; line-height: 1.45; }
 /* photo-backed solution cards */
 .pdetail .sol-grid.has-img { grid-template-columns: repeat(auto-fill, minmax(250px, 1fr)); }
-.pdetail .sol-card.img .sol-img { aspect-ratio: 16 / 10; overflow: hidden; background: #2a2f36; }
+.pdetail .sol-card.img .sol-img { aspect-ratio: 16 / 10; overflow: hidden; background: #eef1f5; }
 .pdetail .sol-card.img .sol-img img { width: 100%; height: 100%; object-fit: cover; display: block; }
 
 /* ===== overview ===== */

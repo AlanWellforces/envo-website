@@ -437,7 +437,7 @@ export default function MergedSeriesPage(p: MergedSeriesProps) {
            outside .wrap so their backgrounds span the whole content width;
            inner .band-inner re-centres the content to the 1180 column. ===== */}
       {p.solutions && p.solutions.length > 0 && (
-        <section className="band band-dark" id="solutions">
+        <section className="band band-work" id="solutions">
           <div className="band-inner">
             <div className="solutions">
               <div className="sol-head">
@@ -465,7 +465,7 @@ export default function MergedSeriesPage(p: MergedSeriesProps) {
       )}
 
       {p.related && p.related.length > 0 && (
-        <section className="band band-light" id="related">
+        <section className="band band-related" id="related">
           <div className="band-inner">
             <div className="rel">
               <div className="rel-head">
