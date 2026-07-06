@@ -15,7 +15,7 @@
   -webkit-font-smoothing:antialiased;-moz-osx-font-smoothing:grayscale;text-rendering:optimizeLegibility;
   font-feature-settings:"ss01","cv01","kern";}
 .v4 *{box-sizing:border-box;}
-.v4-wrap{max-width:1200px;margin:0 auto;padding:0 clamp(28px,4vw,64px);}
+.v4-wrap{max-width:var(--content-max-width);margin:0 auto;padding:0 var(--page-gutter);}
 .v4-eyebrow{font:600 12px/1 var(--font-sans);letter-spacing:.2em;text-transform:uppercase;}
 .v4 h2{font-size:clamp(27px,3vw,41px);line-height:1.06;font-weight:700;letter-spacing:-.022em;margin:0;}
 .v4 .lead{font-size:clamp(15px,1.25vw,18px);line-height:1.55;color:var(--v4-muted);max-width:46ch;}

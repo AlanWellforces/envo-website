@@ -151,3 +151,27 @@ body {
   --color-envo-lime-glow:     var(--color-brand-lime-glow);
   --color-envo-lime-deep:     var(--color-brand-lime-deep);
 }
+
+/* ============================================================
+   Layout tokens — shared page content width + side gutter
+   (2026-07-06). The homepage (.v4-wrap) is the reference; the
+   general page .container and the product-detail .wrap consume
+   these same values so every top-level page's content column and
+   gutters line up. Change the width/gutter here once, not per page.
+
+   1200px is the DEFAULT (marketing/content look). 1440px is an
+   explicit WIDE opt-in — NOT the global default — for genuinely
+   dense pages (product grids, gallery-heavy sections). To opt a
+   page in, add class="layout-wide" on an ancestor of its wrapper
+   (.container / .v4-wrap / .pdetail .wrap); the wider max-width
+   then cascades down via the custom property. Gutters are
+   unchanged. No page uses it yet — apply deliberately, per page.
+   ============================================================ */
+:root {
+  --content-max-width: 1200px;
+  --content-max-width-wide: 1440px;
+  --page-gutter: clamp(28px, 4vw, 64px);
+}
+
+/* Explicit wide-layout opt-in (see note above). */
+.layout-wide { --content-max-width: var(--content-max-width-wide); }
