@@ -6,9 +6,12 @@ import type { Product } from './products'
 import { groupSeriesModels } from './series-template'
 import { SERIES_EDITORIAL } from '@/data/series-editorial.generated'
 import { SERIES_BLURBS } from '@/data/series-applications'
+import { catalogueSeriesMeta } from '@/data/series-catalogue-meta'
+import { seriesPurchaseLinks } from '@/data/distributors'
 import { seriesLabel, seriesLineArt } from '@/data/family-map'
+import { formatDims, mmToIn } from './units'
 import type { ProductFamily } from '@/data/product-families'
-import type { MergedSeriesProps, MergedVariant, MergedSharedRow } from '@/components/products/merged/MergedSeriesPage'
+import type { MergedSeriesProps, MergedVariant, MergedSharedRow, MergedKeySpec } from '@/components/products/merged/MergedSeriesPage'
 
 // >6 variant columns is unreadable as a compare table (e.g. the 33-model
 // sc_envo driver catalogue) — those render variants as rows instead.
@@ -45,17 +48,28 @@ const uniq = <T,>(a: T[]) => [...new Set(a)]
 const DIMMING_LABEL: Record<string, string> = {
   triac: 'Triac', dali: 'DALI', pwm: 'PWM', '0_10v': '0–10 V', none: 'Non-dimmable',
 }
-function dimmingDisplay(p: Product): string | undefined {
+const DIMMING_ORDER = ['triac', 'dali', 'pwm', '0_10v', 'none']
+function dimmingValuesOf(p: Product): string[] {
   const vals = new Set((p.dimming_control ?? []).filter((d) => DIMMING_LABEL[d]))
   if (/triac[- ]?dim/i.test(p.name)) vals.add('triac')
   if (/non[- ]?dimmable/i.test(p.name)) vals.add('none')
   if (vals.size > 1) vals.delete('none')
-  if (!vals.size) return undefined
-  return [...vals].map((v) => DIMMING_LABEL[v]).join(' · ')
+  return [...vals].sort((a, b) => DIMMING_ORDER.indexOf(a) - DIMMING_ORDER.indexOf(b))
+}
+function dimmingDisplay(p: Product): string | undefined {
+  const vals = dimmingValuesOf(p)
+  return vals.length ? vals.map((v) => DIMMING_LABEL[v]).join(' · ') : undefined
 }
 
 function ipDisplay(p: Product): string | undefined {
   return p.waterproof && /^ip\d+$/i.test(p.waterproof) ? p.waterproof.toUpperCase() : undefined
+}
+
+// Dual-unit dimensions — metric primary, US imperial in parens (brand rule),
+// so both 国标 (mm) and 美标 (in) always show. Null-safe.
+function dualDims(p: Product | undefined): string | undefined {
+  const d = formatDims(p?.length_mm, p?.width_mm, p?.height_mm)
+  return d ? `${d.mm} (${d.in})` : undefined
 }
 
 // Protection features, from each model's own Akeneo copy (there is no
@@ -89,6 +103,28 @@ export function buildMergedSeriesProps(
   const models = groupSeriesModels(products)
   const label = copy?.label ?? seriesLabel(series)
   const lineArt = seriesLineArt(series, family.slug)
+  const isDriversFamily = family.slug === 'led-drivers'
+  const modes = uniq(products.map((p) => p.operation_mode).filter(Boolean))
+  const authored = catalogueSeriesMeta(family.slug, series)
+
+  // Driver page titles must say WHAT the power supply is, not just the series
+  // code ("SL Linear Driver", never a bare "SL"). Authored customer-facing
+  // name first; unauthored series get a type-bearing fallback from their
+  // operation mode. The authored blurb doubles as the hero subtitle.
+  const modeWord =
+    modes.length === 1 && modes[0] === 'cv' ? 'Constant-Voltage'
+    : modes.length === 1 && modes[0] === 'cc' ? 'Constant-Current'
+    : null
+  const title = isDriversFamily
+    ? authored?.title ?? `${label}${modeWord ? ` ${modeWord}` : ''} LED Drivers`
+    : label
+  // Every family gets a one-line subtitle carrying the series' character
+  // (user 2026-07-06) — authored blurb first, signage one-liners next,
+  // drivers fall back to their operation-mode wording.
+  const heroSubtitle =
+    authored?.blurb ??
+    SERIES_BLURBS[series] ??
+    (isDriversFamily && modeWord ? `${modeWord.replace('-', ' ').toLowerCase()} LED drivers` : undefined)
 
   // Column name = the LED count when it actually distinguishes the variants
   // (Single/Double/Triple). When counts collide — e.g. ChromaFlux's two "Triple
@@ -141,11 +177,36 @@ export function buildMergedSeriesProps(
             ratedCurrent: rep?.rated_current_a != null ? `${rep.rated_current_a} A` : undefined,
             dimming: rep ? dimmingDisplay(rep) : undefined,
             ip: rep ? ipDisplay(rep) : undefined,
-            dimensions: m.dimsMm ? `${m.dimsMm} mm` : undefined,
+            dimensions: dualDims(rep),
           }
-        : { size: m.dimsMm ? `${m.dimsMm} mm` : undefined }),
+        : { size: dualDims(rep) }),
     }
   })
+
+  // Square per-model thumbs under the stage, labelled by model code, so
+  // variants are tellable apart (user markup 2026-07-06). Only for compare-
+  // column series: single models would duplicate the stage image, and
+  // many-model (rows) catalogues would produce an absurd strip.
+  // Gallery order (user 2026-07-06): the combined "All models" tile is
+  // auto-prepended by SeriesGallery; here we add each product on its own,
+  // then any scene/application photos the editorial carries, last.
+  const sceneThumbs = (copy?.solutions ?? [])
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    .filter((s: any) => s.image?.src)
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    .map((s: any) => ({ src: s.image.src, local: !!s.image.local, alt: s.image.alt ?? s.title, cover: true }))
+  const thumbs =
+    variants.length > 1 && variants.length <= COLUMN_CAP
+      ? [
+          ...variants.map((v) => ({
+            src: v.image.src,
+            local: v.image.local,
+            alt: v.image.alt,
+            label: v.modelCode,
+          })),
+          ...sceneThumbs,
+        ]
+      : undefined
 
   // ── shared rows (only those with real data) ──
   const sharedRows: MergedSharedRow[] = []
@@ -167,7 +228,6 @@ export function buildMergedSeriesProps(
   const lifetime = products.map((p) => num(p.lifetime_hrs)).find(Boolean) ?? null
   if (lifetime) sharedRows.push({ label: 'Lifetime', value: `${lifetime.toLocaleString()} h` })
 
-  const modes = uniq(products.map((p) => p.operation_mode).filter(Boolean))
   if (modes.length === 1 && modes[0] !== 'cv_cc') {
     sharedRows.push({
       label: 'Operation mode',
@@ -199,6 +259,99 @@ export function buildMergedSeriesProps(
   if (warranties.length === 1)
     sharedRows.push({ label: 'Warranty', value: `${warranties[0]} year${warranties[0] === 1 ? '' : 's'}` })
 
+  // ── hero key specs (reference layout 2026-07-06): the ≤6 identity facts of
+  // the series, icon-gridded next to the product image. Derived from the same
+  // primitives as the table — a spec with no data is omitted, never invented.
+  const keySpecs: MergedKeySpec[] = []
+  const key = (icon: MergedKeySpec['icon'], specLabel: string, value: string | null | undefined) => {
+    if (value) keySpecs.push({ icon, label: specLabel, value })
+  }
+  const powers = products.map((p) => num(p.power_w)).filter((w): w is number => w != null)
+  const powerRange = powers.length
+    ? Math.min(...powers) === Math.max(...powers)
+      ? `${powers[0]} W`
+      : `${Math.min(...powers)}–${Math.max(...powers)} W`
+    : null
+  if (isDrivers) {
+    key('power', 'Power range', powerRange)
+    const outs = uniq(products.map((p) => num(p.output_voltage_v)).filter((v): v is number => v != null)).sort((a, b) => a - b)
+    key('voltage', 'Output voltage', outs.length ? `${outs.join(' / ')} V DC` : null)
+    const inMins = products.map((p) => num(p.input_voltage_min_v)).filter((v): v is number => v != null)
+    const inMaxes = products.map((p) => num(p.input_voltage_max_v)).filter((v): v is number => v != null)
+    if (inMins.length) {
+      const lo = Math.min(...inMins)
+      const hi = inMaxes.length ? Math.max(...inMaxes) : null
+      const unit = lo >= 90 ? 'V AC' : 'V DC'
+      key('input', 'Input voltage', hi && hi !== lo ? `${lo}–${hi} ${unit}` : `${lo} ${unit}`)
+    }
+    key(
+      'mode', 'Operation mode',
+      modes.length === 1 && modes[0] !== 'cv_cc'
+        ? modes[0] === 'cv' ? 'Constant voltage' : 'Constant current'
+        : modes.length ? 'CV / CC' : null,
+    )
+    const dims = uniq(products.flatMap(dimmingValuesOf))
+    const realDims = dims.filter((d) => d !== 'none')
+    key(
+      'dimming', 'Dimming',
+      realDims.length
+        ? realDims.sort((a, b) => DIMMING_ORDER.indexOf(a) - DIMMING_ORDER.indexOf(b)).map((d) => DIMMING_LABEL[d]).join(' / ')
+        : dims.includes('none') ? 'Non-dimmable' : null,
+    )
+    const ips = uniq(products.map(ipDisplay).filter((v): v is string => !!v)).sort()
+    key('ip', 'IP rating', ips.length ? ips.join(' / ') : null)
+  } else if (family.slug === 'led-signage-modules') {
+    // Old-envo "Key Specifications" set (user screenshot 2026-07-06):
+    // Power rating / Input voltage / Max series / Waterproof / Dimensions
+    // + Warranty. Voltage and IP fall back to the Akeneo SUBTITLE
+    // ("12V 0.48W IP66") — the sync drops those columns for modules.
+    key('power', 'Power rating', powerRange)
+    const volts = uniq(
+      products
+        .map((p) => num(p.output_voltage_v) ?? (Number(p.subtitle?.match(/(\d+)\s*V\b/i)?.[1]) || null))
+        .filter((v): v is number => v != null),
+    ).sort((a, b) => a - b)
+    key('vsource', 'Input voltage', volts.length ? `${volts.join(' / ')} V DC` : null)
+    const maxSeries = uniq(products.map((p) => num(p.max_in_series)).filter((v): v is number => v != null))
+      .sort((a, b) => a - b)
+    key(
+      'maxseries', 'Max series',
+      maxSeries.length
+        ? maxSeries.length === 1 ? String(maxSeries[0]) : `${maxSeries[0]}–${maxSeries[maxSeries.length - 1]}`
+        : null,
+    )
+    const ip = ipField ?? products.map((p) => p.subtitle?.match(/IP\s?(\d{2})/i)?.[1]).find(Boolean)
+    key('waterproof', 'Waterproof', ip ? (ipField ? ipField.toUpperCase() : `IP${ip}`) : null)
+    // Dimensions only when the cross-section is shared (lengths may range);
+    // mixed w×h across models would need a misleading mash-up — omit instead.
+    const whs = uniq(products.map((p) => `${p.width_mm}×${p.height_mm}`))
+    const lens = uniq(products.map((p) => num(p.length_mm)).filter((v): v is number => v != null))
+      .sort((a, b) => a - b)
+    if (whs.length === 1 && lens.length && products[0].width_mm != null && products[0].height_mm != null) {
+      const w = products[0].width_mm
+      const h = products[0].height_mm
+      const lo = lens[0]
+      const hi = lens[lens.length - 1]
+      const lMm = lo === hi ? `${lo}` : `${lo}–${hi}`
+      const lIn = lo === hi ? `${mmToIn(lo)}` : `${mmToIn(lo)}–${mmToIn(hi)}`
+      // dual units: mm (国标) primary, inches (美标) in parens
+      key('dims', 'Dimensions', `${lMm} × ${w} × ${h} mm (${lIn} × ${mmToIn(w)} × ${mmToIn(h)} in)`)
+    }
+    // Every module line carries the same warranty on the distributor sites
+    // (envo-led.com, verified 2026-07-06). Prefer the PIM column the moment
+    // the sync fills it.
+    const warrantyYears = uniq(products.map((p) => num(p.warranty_years)).filter((w): w is number => w != null))
+    key('warranty', 'Warranty', warrantyYears.length === 1 ? `${warrantyYears[0]} years` : '5 years')
+  } else {
+    // control gear / accessories — whatever identity facts the data carries
+    key('input', 'Input voltage', sharedVoltage)
+    const protoDims = uniq(products.flatMap(dimmingValuesOf)).filter((d) => d !== 'none')
+    key('dimming', 'Protocol', protoDims.length ? protoDims.map((d) => DIMMING_LABEL[d]).join(' / ') : null)
+    key('power', 'Power range', powerRange)
+    key('ip', 'IP rating', ipField ? ipField.toUpperCase() : null)
+    key('lifetime', 'Lifetime', lifetime ? `${lifetime.toLocaleString()} h` : null)
+  }
+
   const datasheetUrl = models.find((m) => m.datasheetUrl)?.datasheetUrl ?? undefined
   const checklist: string[] | undefined = copy?.strengths
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -211,6 +364,7 @@ export function buildMergedSeriesProps(
   const rep = products[0]
   const intro =
     copy?.lede ??
+    authored?.blurb ??
     SERIES_BLURBS[series] ??
     rep?.short_description?.trim() ??
     rep?.subtitle?.trim() ??
@@ -219,10 +373,14 @@ export function buildMergedSeriesProps(
   return {
     breadcrumb: { familyName: family.name, familyHref: family.href, seriesLabel: label },
     eyebrow: family.tag,
-    title: label,
+    title,
+    heroSubtitle,
     intro,
     checklist: checklist?.length ? checklist : undefined,
+    keySpecs: keySpecs.slice(0, 6),
     datasheetUrl,
+    purchaseLinks: seriesPurchaseLinks(series, label),
+    thumbs,
     variants,
     variantLayout: variants.length > COLUMN_CAP ? 'rows' : 'columns',
     sharedRows,

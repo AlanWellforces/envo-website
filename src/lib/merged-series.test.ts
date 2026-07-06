@@ -87,7 +87,7 @@ describe('driver series spec table', () => {
     expect(v.ratedCurrent).toBe('8.33 A')
     expect(v.inputVoltage).toBe('100–240 V AC')
     expect(v.ip).toBe('IP20')
-    expect(v.dimensions).toBe('280 × 30 × 21 mm')
+    expect(v.dimensions).toBe('280 × 30 × 21 mm (11.02 × 1.18 × 0.83 in)')
     // "Module size" must never render on a driver page
     expect(v.size).toBeUndefined()
   })
@@ -97,7 +97,7 @@ describe('driver series spec table', () => {
       p({ sku: 'EV-BLEG02LBY-NW', series: 'envo_ecoglo', family: 'led_module', power_w: 1, length_mm: 30, width_mm: 12, height_mm: 6 }),
     ])
     const v = props.variants[0]
-    expect(v.size).toBe('30 × 12 × 6 mm')
+    expect(v.size).toBe('30 × 12 × 6 mm (1.18 × 0.47 × 0.24 in)')
     expect(v.dimensions).toBeUndefined()
     expect(v.ratedCurrent).toBeUndefined()
     expect(v.ip).toBeUndefined()
@@ -185,5 +185,137 @@ describe('certification names', () => {
     expect(row).toBeDefined()
     const labels = ((row!.value as any).props.children as any[]).map((c) => c.props.children)
     expect(labels).toEqual(['CE', 'SAA', 'RCM'])
+  })
+})
+
+// ── hero key specs (reference layout 2026-07-06: icon grid, max 6) ──────────
+describe('hero key specs', () => {
+  it('driver series: power range, output voltage, input, mode, dimming, IP', () => {
+    const props = buildMergedSeriesProps(driversFamily, 'envo_se_us', [
+      p({ sku: 'A', name: 'Driver', series: 'envo_se_us', power_w: 15, output_voltage_v: 12, input_voltage_min_v: 90, input_voltage_max_v: 132, operation_mode: 'cv', waterproof: 'ip20' }),
+      p({ sku: 'B', name: 'Driver', series: 'envo_se_us', power_w: 75, output_voltage_v: 24, input_voltage_min_v: 90, input_voltage_max_v: 132, operation_mode: 'cv', waterproof: 'ip20' }),
+    ])
+    const byLabel = Object.fromEntries((props.keySpecs ?? []).map((s) => [s.label, s.value]))
+    expect(byLabel['Power range']).toBe('15–75 W')
+    expect(byLabel['Output voltage']).toBe('12 / 24 V DC')
+    expect(byLabel['Input voltage']).toBe('90–132 V AC')
+    expect(byLabel['Operation mode']).toBe('Constant voltage')
+    expect(byLabel['IP rating']).toBe('IP20')
+    expect((props.keySpecs ?? []).length).toBeLessThanOrEqual(6)
+  })
+
+  it('signage series: old-envo key-spec set — power, input V, max series, waterproof, dims, warranty', () => {
+    const props = buildMergedSeriesProps(modulesFamily, 'envo_minilux', [
+      p({ sku: 'EV-BLML01LBY-NW', series: 'envo_minilux', family: 'led_module', name: 'MiniLux Single', subtitle: '12V 0.24W IP66', power_w: 0.24, max_in_series: 40, length_mm: 14, width_mm: 9, height_mm: 9 }),
+      p({ sku: 'EV-BLML03LBY-NW', series: 'envo_minilux', family: 'led_module', name: 'MiniLux Triple', subtitle: '12V 0.72W IP66', power_w: 0.72, max_in_series: 40, length_mm: 38.1, width_mm: 9, height_mm: 9 }),
+    ])
+    const byLabel = Object.fromEntries((props.keySpecs ?? []).map((s) => [s.label, s.value]))
+    expect(byLabel['Power rating']).toBe('0.24–0.72 W')
+    // voltage + IP come from the Akeneo subtitle when the columns are null (sync gap)
+    expect(byLabel['Input voltage']).toBe('12 V DC')
+    expect(byLabel['Max series']).toBe('40')
+    expect(byLabel['Waterproof']).toBe('IP66')
+    expect(byLabel['Dimensions']).toBe('14–38.1 × 9 × 9 mm (0.55–1.5 × 0.35 × 0.35 in)')
+    expect(byLabel['Warranty']).toBe('5 years')
+    expect((props.keySpecs ?? []).length).toBeLessThanOrEqual(6)
+  })
+
+  it('signage max-series and dimensions honesty: ranges when models differ, omitted when w×h mixed', () => {
+    const props = buildMergedSeriesProps(modulesFamily, 'hydro_lume', [
+      p({ sku: 'A', series: 'hydro_lume', family: 'led_module', subtitle: '24V 1W IP67', power_w: 1, max_in_series: 40, length_mm: 42, width_mm: 20, height_mm: 7 }),
+      p({ sku: 'B', series: 'hydro_lume', family: 'led_module', subtitle: '24V 2W IP67', power_w: 2, max_in_series: 80, length_mm: 84, width_mm: 21, height_mm: 7 }),
+    ])
+    const byLabel = Object.fromEntries((props.keySpecs ?? []).map((s) => [s.label, s.value]))
+    expect(byLabel['Max series']).toBe('40–80')
+    expect(byLabel['Dimensions']).toBeUndefined()
+  })
+
+  it('omits key specs with no data instead of fabricating', () => {
+    const props = buildMergedSeriesProps(driversFamily, 'sc_envo', [p({ sku: 'A' })])
+    expect(props.keySpecs ?? []).toEqual([])
+  })
+
+  it('mixed dimming shows the union of real dimming values', () => {
+    const props = buildMergedSeriesProps(driversFamily, 'sc_envo', [
+      p({ sku: 'A', name: 'Triac Dimmable Driver', power_w: 10 }),
+      p({ sku: 'B', name: 'Driver', dimming_control: ['pwm'], power_w: 20 }),
+    ])
+    const dim = (props.keySpecs ?? []).find((s) => s.label === 'Dimming')
+    expect(dim?.value).toBe('Triac / PWM')
+  })
+})
+
+// ── series-page title: series + type of power supply (user 2026-07-06) ──────
+describe('driver page titles', () => {
+  it('uses the customer-facing name — series AND driver type, never a bare code', () => {
+    const props = buildMergedSeriesProps(driversFamily, 'envo_sl_us', [
+      p({ sku: 'EV-SL-100-12', series: 'envo_sl_us', operation_mode: 'cv' }),
+    ])
+    expect(props.title).toBe('SL Linear Driver')
+    expect(props.heroSubtitle).toMatch(/constant-voltage drivers/i)
+  })
+
+  it('sr_triac page is titled SR DALI CC Driver, never Triac', () => {
+    const props = buildMergedSeriesProps(driversFamily, 'sr_triac', [
+      p({ sku: 'SRP-1', series: 'sr_triac', operation_mode: 'cc' }),
+    ])
+    expect(props.title).toBe('SR DALI CC Driver')
+    expect(props.title.toLowerCase()).not.toContain('triac')
+  })
+
+  it('a driver series without authored meta still gets a type-bearing title', () => {
+    const props = buildMergedSeriesProps(driversFamily, 'zz_new', [
+      p({ sku: 'A', series: 'zz_new', operation_mode: 'cv' }),
+    ])
+    expect(props.title).toBe('Zz New Constant-Voltage LED Drivers')
+  })
+
+  it('signage keeps its title but gains a character-bearing subtitle (user 2026-07-06)', () => {
+    const props = buildMergedSeriesProps(modulesFamily, 'envo_chromaflux', [
+      p({ sku: 'EV-BLCF03LBY-RGBW', series: 'envo_chromaflux', family: 'led_module' }),
+    ])
+    expect(props.title.toLowerCase()).not.toContain('driver')
+    // ChromaFlux's one-liner: RGBW colour-changing modules …
+    expect(props.heroSubtitle).toMatch(/RGBW|colour-changing/i)
+  })
+})
+
+// ── per-model gallery thumbs (user markup 2026-07-06): square tiles under the
+//    combined stage, one per model, labelled by name/model code ──────────────
+describe('per-model gallery thumbs', () => {
+  it('column-layout series get one labelled thumb per model', () => {
+    const props = buildMergedSeriesProps(modulesFamily, 'envo_chromaflux', [
+      p({ sku: 'EV-BLCF03LBY-RGB', series: 'envo_chromaflux', family: 'led_module', name: 'ChromaFlux RGB', led_chip_colour: 'rgb', clean_image_url_fallback: 'https://s3/rgb.jpg', power_w: 1 }),
+      p({ sku: 'EV-BLCF03LBY-RGBW', series: 'envo_chromaflux', family: 'led_module', name: 'ChromaFlux RGBW', led_chip_colour: 'rgbw', clean_image_url_fallback: 'https://s3/rgbw.jpg', power_w: 2 }),
+    ])
+    expect(props.thumbs).toHaveLength(2)
+    expect(props.thumbs![0].label).toBe('EV-BLCF03LBY-RGB')
+    expect(props.thumbs![0].src).toBe('https://s3/rgb.jpg')
+    expect(props.thumbs![1].label).toBe('EV-BLCF03LBY-RGBW')
+  })
+
+  it('rows-layout (many-model) series get no thumb strip', () => {
+    const many = Array.from({ length: 8 }, (_, i) =>
+      p({ sku: `SC-${i}`, series: 'sc_envo', power_w: i + 1 }),
+    )
+    const props = buildMergedSeriesProps(driversFamily, 'sc_envo', many)
+    expect(props.variantLayout).toBe('rows')
+    expect(props.thumbs).toBeUndefined()
+  })
+
+  it('a single-model series needs no duplicate thumb of the stage image', () => {
+    const props = buildMergedSeriesProps(driversFamily, 'envo_sng', [
+      p({ sku: 'EV-SNG-350-12', series: 'envo_sng' }),
+    ])
+    expect(props.thumbs).toBeUndefined()
+  })
+})
+
+// ── regional purchase links reach the page props ─────────────────────────────
+describe('purchase links', () => {
+  it('every series carries per-distributor links (PSM collection when mapped)', () => {
+    const props = buildMergedSeriesProps(driversFamily, 'envo_sl_us', [p({ sku: 'A', series: 'envo_sl_us' })])
+    expect(props.purchaseLinks?.psm).toBe('https://powersupplymall.com/collections/envo-sl-series')
+    expect(props.purchaseLinks?.wellforces).toContain('wellforces.co.nz')
   })
 })
