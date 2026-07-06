@@ -137,6 +137,11 @@ ${iconRules}
 .app-header { border-bottom: 1px solid #e6e9ee; }
 .app-header__bg { background: #fff; opacity: 1; }
 
+/* Drop the redundant favicon "home" crumb from the header step-nav — the
+   sidebar wordmark already links home. Also hide its trailing "/" separator
+   so sub-page breadcrumbs read cleanly ("Collection / …"). */
+.step-nav__home, .step-nav__home + span { display: none; }
+
 /* Buttons — Payload exposes per-style custom properties */
 .btn--style-primary { --bg-color: ${BLUE_HEX}; --hover-bg: #005a98; --color: #fff; }
 .btn--style-secondary { --hover-color: ${BLUE_HEX}; --hover-btn-border: 1px solid ${BLUE_HEX}; }
