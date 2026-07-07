@@ -1,10 +1,14 @@
 // Data assembly for the SKU detail page (/products/[family]/[sku]) — LED
 // Drivers, Control Gear and Accessories only. Signage keeps its merged series
-// pages. See docs/superpowers/specs/2026-07-07-product-first-catalogue-design.md §3–4.
-import { resolveProductImage, type Product } from '@/lib/products'
+// pages. The page reuses the merged series-page layout for ONE product:
+// buildMergedSeriesProps([product]) derives the hero key specs + full-spec
+// panel, and the same-series comparison renders in the afterSpecs slot.
+// See docs/superpowers/specs/2026-07-07-product-first-catalogue-design.md §3–4.
+import type { Product } from '@/lib/products'
 import type { ProductFamily } from '@/data/product-families'
-import { seriesLineArt } from '@/data/family-map'
-import { datasheetHref } from '@/lib/asset-url'
+import { seriesLabel } from '@/data/family-map'
+import { buildMergedSeriesProps } from '@/lib/merged-series'
+import type { MergedSeriesProps } from '@/components/products/merged/MergedSeriesPage'
 import { formatDims } from '@/lib/units'
 
 /** Product-aware comparison-table layout, chosen by same-series product count.
@@ -18,15 +22,13 @@ export function pickCompareLayout(sameSeriesCount: number): 'none' | 'horizontal
 
 export type CompareColumn = { key: string; label: string; value: (p: Product) => string | null }
 export type CompareRow = { sku: string; name: string; href: string; isCurrent: boolean; cells: string[] }
-export type SkuDetailProps = {
-  breadcrumb: { familyName: string; familyHref: string; name: string }
-  sku: string
-  name: string
-  image: { src: string; local: boolean; alt: string }
-  coreSpecs: { label: string; value: string }[]
-  datasheetUrl?: string
-  compare: { layout: 'none' | 'horizontal' | 'rows'; columns: CompareColumn[]; rows: CompareRow[]; currentSku: string }
+export type SkuCompare = {
+  layout: 'none' | 'horizontal' | 'rows'
+  columns: CompareColumn[]
+  rows: CompareRow[]
+  currentSku: string
 }
+export type SkuDetailProps = { merged: MergedSeriesProps; compare: SkuCompare }
 
 const dimText = (p: Product): string | null => {
   if (/triac[- ]?dim/i.test(p.name) || p.dimming_control?.includes('triac')) return 'Triac'
@@ -65,14 +67,22 @@ export function compareColumnsFor(slug: string): CompareColumn[] {
   return ACCESSORY_COLUMNS
 }
 
-function coreSpecs(slug: string, p: Product): { label: string; value: string }[] {
-  return compareColumnsFor(slug)
-    .map((c) => ({ label: c.label, value: c.value(p) }))
-    .filter((s): s is { label: string; value: string } => s.value != null)
-}
-
 export function buildSkuDetailProps(family: ProductFamily, product: Product, sameSeries: Product[]): SkuDetailProps {
-  const img = resolveProductImage(product, seriesLineArt(product.series, family.slug))
+  // Merged series-page layout, scoped to this ONE product: keySpecs, the
+  // full-spec panel, datasheet download and the regional purchase CTA all
+  // derive from [product] alone — exact values, nothing series-averaged.
+  const base = buildMergedSeriesProps(family, product.series ?? '', [product])
+  const merged: MergedSeriesProps = {
+    ...base,
+    breadcrumb: { ...base.breadcrumb, seriesLabel: product.sku },
+    eyebrow: `${family.tag.split('·')[0].trim()} · ${seriesLabel(product.series)}`,
+    title: product.name,
+    heroSubtitle: base.heroSubtitle ?? product.short_description?.trim() ?? product.subtitle?.trim() ?? undefined,
+    // no stage caption on a single-product hero (the H1 already names it)
+    variants: base.variants.map((v) => ({ ...v, name: '' })),
+    downloads: base.datasheetUrl ? [{ name: `${product.sku} datasheet`, meta: 'PDF', href: base.datasheetUrl }] : [],
+  }
+
   const columns = compareColumnsFor(family.slug)
   const layout = pickCompareLayout(sameSeries.length)
   const rows: CompareRow[] = sameSeries
@@ -85,13 +95,5 @@ export function buildSkuDetailProps(family: ProductFamily, product: Product, sam
       isCurrent: p.sku === product.sku,
       cells: columns.map((c) => c.value(p) ?? '—'),
     }))
-  return {
-    breadcrumb: { familyName: family.name, familyHref: family.href, name: product.name },
-    sku: product.sku,
-    name: product.name,
-    image: { src: img.src, local: img.isLocal, alt: img.alt },
-    coreSpecs: coreSpecs(family.slug, product),
-    datasheetUrl: product.spec_sheet_url ? (datasheetHref(product.sku) ?? undefined) : undefined,
-    compare: { layout, columns, rows, currentSku: product.sku },
-  }
+  return { merged, compare: { layout, columns, rows, currentSku: product.sku } }
 }

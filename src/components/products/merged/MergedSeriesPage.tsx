@@ -77,6 +77,9 @@ export type MergedSeriesProps = {
   solutions?: MergedSolution[]
   downloads?: MergedDownload[]
   related?: MergedRelated[]
+  /** extra content appended to the Specifications panel — the SKU detail page
+   *  injects its same-series comparison table here; series pages leave it unset */
+  afterSpecs?: ReactNode
 }
 
 // Per-variant spec rows, rendered only when at least one variant carries a value.
@@ -241,6 +244,7 @@ export default function MergedSeriesPage(p: MergedSeriesProps) {
         ))}
       </dl>
       {p.variants[0].bestFor && <p className="spec-bestfor">Best for {p.variants[0].bestFor}.</p>}
+      {p.afterSpecs}
     </div>
   )
 

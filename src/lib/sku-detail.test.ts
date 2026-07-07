@@ -30,14 +30,26 @@ describe('buildSkuDetailProps', () => {
 
   it('marks the current SKU and links siblings to their SKU pages', () => {
     const props = buildSkuDetailProps(DRIVERS, current, [current, sibling])
-    expect(props.sku).toBe('EV-SNG-350-24')
+    expect(props.compare.currentSku).toBe('EV-SNG-350-24')
     expect(props.compare.layout).toBe('horizontal') // 2 products
     const cur = props.compare.rows.find((r) => r.sku === 'EV-SNG-350-24')!
     const sib = props.compare.rows.find((r) => r.sku === 'EV-SNG-350-12')!
     expect(cur.isCurrent).toBe(true)
     expect(sib.isCurrent).toBe(false)
     expect(sib.href).toBe('/products/led-drivers/EV-SNG-350-12')
-    expect(props.datasheetUrl).toBeTruthy()
+  })
+
+  it('reuses the merged series-page layout scoped to the single product', () => {
+    const props = buildSkuDetailProps(DRIVERS, current, [current, sibling])
+    expect(props.merged.title).toBe('SNG 350W 24V') // product name, never a series title
+    expect(props.merged.breadcrumb.seriesLabel).toBe('EV-SNG-350-24') // crumb ends on the SKU
+    expect(props.merged.variants).toHaveLength(1) // single full-spec panel, not a range compare
+    expect(props.merged.variants[0].modelCode).toBe('EV-SNG-350-24')
+    // exact key specs from THIS product only
+    const power = props.merged.keySpecs?.find((s) => s.label === 'Power range')
+    expect(power?.value).toBe('350 W')
+    expect(props.merged.datasheetUrl).toBeTruthy()
+    expect(props.merged.downloads?.[0]?.name).toBe('EV-SNG-350-24 datasheet')
   })
 
   it('drops the compare block for a singleton series', () => {

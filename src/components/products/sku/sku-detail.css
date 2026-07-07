@@ -1,68 +1,30 @@
-/* SKU detail page + product-aware comparison table. Light theme, catalogue
-   tokens (--line etc. come from .pcat). No Tailwind spacing utilities — the
-   unlayered global reset kills them repo-wide. */
+/* Same-series comparison table on the SKU detail page. Rendered inside the
+   merged series-page Specifications panel (afterSpecs slot, .pdetail scope) —
+   visuals follow the .cmp-table card look. No Tailwind spacing utilities. */
 
-/* ── hero ─────────────────────────────────────────────────────────────────── */
-.sku-hero {
-  display: grid;
-  grid-template-columns: minmax(0, 460px) minmax(0, 1fr);
-  gap: 36px;
-  align-items: center;
-  padding: 26px 0 8px;
-}
-.sku-hero-media {
-  display: grid;
-  place-items: center;
-  padding: 26px;
+.skc-block { margin-top: 40px; }
+
+.skc-compare { margin-top: 6px; }
+.skc-table {
+  width: 100%;
+  border-collapse: separate;
+  border-spacing: 0;
+  font-size: 14px;
+  background: #fff;
   border: 1px solid var(--line);
-  border-radius: 16px;
-  background:
-    linear-gradient(180deg, rgba(255,255,255,.92), rgba(245,248,251,.94)),
-    radial-gradient(80% 80% at 72% 18%, rgba(174,201,11,.10), transparent 68%);
+  border-radius: 14px;
+  overflow: hidden;
 }
-.sku-hero-media img { max-width: 100%; height: auto; object-fit: contain; mix-blend-mode: multiply; }
-.sku-eyebrow { font-size: 12px; font-weight: 600; letter-spacing: .08em; text-transform: uppercase; color: var(--fg-mute); }
-.sku-name { font-size: clamp(22px, 2.4vw, 30px); font-weight: 800; letter-spacing: -.02em; line-height: 1.2; margin: 8px 0 14px; color: var(--fg); }
-.sku-specs { display: grid; grid-template-columns: repeat(auto-fit, minmax(120px, max-content)); gap: 10px 28px; margin: 0 0 20px; }
-.sku-specs dt { font-size: 11px; font-weight: 600; letter-spacing: .06em; text-transform: uppercase; color: var(--fg-mute); }
-.sku-specs dd { font-size: 15px; font-weight: 650; color: var(--fg); margin: 2px 0 0; }
-.sku-cta { display: flex; flex-wrap: wrap; gap: 10px; }
-/* blue-pill buttons, matching the site-wide direction (PR #153) without the
-   .pdetail scope of merged-series.css */
-.sku-btn-blue {
-  display: inline-flex; align-items: center; gap: 8px; padding: 12px 22px;
-  border-radius: 999px; background: var(--envo-blue); color: #fff;
-  font-size: 14px; font-weight: 600; text-decoration: none;
-  box-shadow: 0 10px 26px -12px rgba(0,113,188,.95);
-  transition: transform .2s, box-shadow .2s;
-}
-.sku-btn-blue:hover { transform: translateY(-2px); box-shadow: 0 16px 34px -12px rgba(0,113,188,1); }
-.sku-btn-outline {
-  display: inline-flex; align-items: center; padding: 12px 20px;
-  border-radius: 999px; border: 1px solid var(--line-strong, var(--line));
-  color: var(--fg-mute); font-size: 14px; font-weight: 600; text-decoration: none;
-}
-.sku-btn-outline:hover { border-color: var(--envo-blue); color: var(--envo-blue); }
-
-.sku-section { margin-top: 34px; }
-.sku-section h2 { font-size: 19px; font-weight: 750; letter-spacing: -.01em; color: var(--fg); margin: 0 0 6px; }
-
-@media (max-width: 720px) {
-  .sku-hero { grid-template-columns: 1fr; gap: 18px; padding-top: 16px; }
-  .sku-hero-media { padding: 18px; }
-}
-
-/* ── comparison table ─────────────────────────────────────────────────────── */
-.skc-compare { margin: 28px 0; }
-.skc-table { width: 100%; border-collapse: collapse; font-size: 14px; }
-.skc-table th, .skc-table td { padding: 10px 12px; border-bottom: 1px solid var(--line); text-align: left; }
-.skc-table thead th { font-size: 12px; font-weight: 600; letter-spacing: .04em; text-transform: uppercase; color: var(--muted, #5c6b7a); }
+.skc-table th, .skc-table td { padding: 12px 14px; border-bottom: 1px solid var(--line); text-align: left; }
+.skc-table tbody tr:last-child th, .skc-table tbody tr:last-child td { border-bottom: 0; }
+.skc-table thead th { font-size: 11px; font-weight: 700; letter-spacing: .07em; text-transform: uppercase; color: var(--text-muted, #5c6b7a); background: rgba(20,40,70,.03); }
 .skc-table tbody th[scope='row'] { font-weight: 600; }
-.skc-table .is-current { background: rgba(0,113,188,.08); }
-.skc-current { display: inline-block; font-weight: 600; color: #0071bc; }
+.skc-rows tbody th[scope='row'] { font-family: var(--font-mono, ui-monospace, monospace); font-size: 13px; }
+.skc-table .is-current { background: rgba(0,113,188,.07); }
+.skc-current { display: inline-block; font-weight: 700; font-size: 12px; color: #0071bc; }
 .skc-horizontal thead .skc-current,
 .skc-horizontal thead .skc-view { display: block; margin-top: 4px; font-size: 12px; }
-.skc-view { color: #0071bc; text-decoration: none; white-space: nowrap; }
+.skc-view { color: #0071bc; font-weight: 600; text-decoration: none; white-space: nowrap; }
 .skc-view:hover { text-decoration: underline; }
 /* Tables scroll inside their own container — page body never scrolls sideways. */
 .skc-desktop { overflow-x: auto; }

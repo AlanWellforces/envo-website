@@ -209,7 +209,20 @@ export default async function SeriesDetailPage({ params }: { params: Params }) {
       const product = await getProduct(decoded)
       if (product && all.some((p) => p.sku === product.sku)) {
         const sameSeries = all.filter((p) => toSeriesSlug(p.series) === toSeriesSlug(product.series))
-        return <SkuDetailPage {...buildSkuDetailProps(family, product, sameSeries)} />
+        // "Pairs with" — same complementary-family picks as the series page.
+        // Sequential fetches on purpose — the dev pooler's connection cap.
+        const productsByFamily: Record<string, Product[]> = { [slug]: all }
+        for (const comp of COMPLEMENT_FAMILIES[slug] ?? []) {
+          productsByFamily[comp] = await getProductsByMarketingFamily(comp, { depth: 0 })
+        }
+        const related = pickRelatedSeries(slug, toSeriesSlug(product.series), productsByFamily)
+        const props = buildSkuDetailProps(family, product, sameSeries)
+        return (
+          <SkuDetailPage
+            {...props}
+            merged={{ ...props.merged, related: related.length ? related : undefined }}
+          />
+        )
       }
     }
     notFound()
