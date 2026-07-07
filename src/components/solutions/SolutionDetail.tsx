@@ -145,7 +145,7 @@ export function SolutionDetail({ solution: s }: { solution: Solution }) {
                       View series <span>→</span>
                     </Link>
                   ) : (
-                    <span className="kc-note">Supplied via your distributor</span>
+                    <span className="kc-note">Supplied via authorised channels</span>
                   )}
                 </div>
               </article>
@@ -155,7 +155,7 @@ export function SolutionDetail({ solution: s }: { solution: Solution }) {
             <p className="kit-legend">
               <span className="lg-dot lg-envo" /> ENVO products link to full specs.
               &nbsp;<span className="lg-dot lg-compat" /> &ldquo;Compatible&rdquo; parts aren&rsquo;t
-              ENVO-branded — we spec them and your distributor supplies them in the same order.
+              ENVO-branded — we spec them and an authorised purchasing channel supplies them in the same order.
             </p>
           )}
         </div>
