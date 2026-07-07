@@ -21,7 +21,13 @@ export default async function ProductsPage() {
   )
   const countBySlug = new Map(PRODUCT_FAMILIES.map((f, i) => [f.slug, allProducts[i].length]))
 
-  const cards = PRODUCT_FAMILIES.flatMap((f, i) => buildCards(f, allProducts[i]))
+  // Series-level cards (219 SKUs flat would be endless) in the same product-
+  // grid visual as the category pages; explicit CTA so the grid's
+  // "View product" default never appears on a series card.
+  const cards = PRODUCT_FAMILIES.flatMap((f, i) => buildCards(f, allProducts[i])).map((c) => ({
+    ...c,
+    ctaLabel: 'View series',
+  }))
   const groups = buildGroups(cards)
 
   return (
@@ -49,7 +55,7 @@ export default async function ProductsPage() {
           </div>
         </div>
 
-        <CatalogueFilter cards={cards} groups={groups} />
+        <CatalogueFilter cards={cards} groups={groups} layout="productGrid" showSections />
       </div>
     </div>
   )
