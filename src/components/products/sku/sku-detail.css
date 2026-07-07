@@ -1,0 +1,23 @@
+/* SKU detail page + product-aware comparison table. Light theme, catalogue
+   tokens (--line etc. come from .pcat). No Tailwind spacing utilities — the
+   unlayered global reset kills them repo-wide. */
+
+/* ── comparison table ─────────────────────────────────────────────────────── */
+.skc-compare { margin: 28px 0; }
+.skc-table { width: 100%; border-collapse: collapse; font-size: 14px; }
+.skc-table th, .skc-table td { padding: 10px 12px; border-bottom: 1px solid var(--line); text-align: left; }
+.skc-table thead th { font-size: 12px; font-weight: 600; letter-spacing: .04em; text-transform: uppercase; color: var(--muted, #5c6b7a); }
+.skc-table tbody th[scope='row'] { font-weight: 600; }
+.skc-table .is-current { background: rgba(0,113,188,.08); }
+.skc-current { display: inline-block; font-weight: 600; color: #0071bc; }
+.skc-horizontal thead .skc-current,
+.skc-horizontal thead .skc-view { display: block; margin-top: 4px; font-size: 12px; }
+.skc-view { color: #0071bc; text-decoration: none; white-space: nowrap; }
+.skc-view:hover { text-decoration: underline; }
+/* Tables scroll inside their own container — page body never scrolls sideways. */
+.skc-desktop { overflow-x: auto; }
+.skc-mobile { display: none; overflow-x: auto; }
+@media (max-width: 720px) {
+  .skc-desktop { display: none; }
+  .skc-mobile { display: block; }
+}
