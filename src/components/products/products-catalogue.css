@@ -9,9 +9,6 @@
 
 /* header (compact) */
 .pcat-head { padding:18px 0 14px; }
-.pcat-eyebrow { display:inline-flex; align-items:center; gap:8px; font-size:9.5px; letter-spacing:.2em;
-  text-transform:uppercase; color:var(--envo-lime-deep); font-weight:700; margin-bottom:9px; }
-.pcat-eyebrow::before { content:''; width:20px; height:1px; background:var(--envo-lime-deep); }
 .pcat-head h1 { font-size:clamp(24px,2.6vw,34px); font-weight:800; letter-spacing:-.03em; margin:0 0 7px; color:var(--fg); }
 .pcat-lede { font-size:14px; color:var(--fg-mute); max-width:64ch; margin:0 0 16px; line-height:1.5; }
 
@@ -20,10 +17,8 @@
 .pcat-pill { display:inline-flex; align-items:center; gap:7px; padding:7px 13px; border-radius:999px;
   font-size:12.5px; font-weight:600; border:1px solid var(--line-strong); color:var(--fg-mute); background:var(--bg-card);
   text-decoration:none; transition:all .15s; }
-.pcat-pill .n { font-size:10.5px; opacity:.6; font-weight:500; }
 .pcat-pill:hover { border-color:var(--envo-blue); color:var(--fg); }
 .pcat-pill.on { background:var(--envo-blue); border-color:var(--envo-blue); color:#fff; }
-.pcat-pill.on .n { opacity:.85; }
 
 /* body: filter rail + results */
 .pcat-body { display:grid; grid-template-columns:224px 1fr; align-items:start; gap:30px; padding-top:18px; }
@@ -76,11 +71,9 @@
 .pcat-clear:hover { color:var(--fg); text-decoration:underline; }
 
 /* results — note: .pcat-results is a <section>, so it must zero out the global
-   `section { padding:140px 0 }` rule in envo.css (that was pushing the count
-   ~100px below the filter rail). */
+   `section { padding:140px 0 }` rule in envo.css (that would otherwise push the
+   results ~100px below the top of the filter rail). */
 .pcat-results { min-width:0; padding:0; }
-.pcat-count { font-size:18px; font-weight:700; letter-spacing:-.01em; margin:0 0 14px; }
-.pcat-count em { color:var(--fg-soft); font-weight:500; font-style:normal; font-size:13px; margin-left:6px; }
 .pcat-empty { font-size:13.5px; color:var(--fg-mute); padding:20px 0; }
 .pcat-empty-reset { appearance:none; border:0; background:none; padding:0; cursor:pointer; font-family:inherit;
   font-size:13.5px; font-weight:600; color:var(--envo-blue); }
@@ -96,9 +89,7 @@ div:first-child > .pcat-section { margin-top:0; }
   text-decoration:none; color:inherit; transition:transform .16s, border-color .16s, box-shadow .16s; }
 .pcat-row:hover { transform:translateY(-2px); border-color:rgba(0,113,188,.4); box-shadow:0 14px 28px -20px rgba(20,40,70,.3); }
 
-.pcat-row-media { display:flex; flex-direction:column; align-items:center; gap:8px; width:184px; flex:none; }
-.pcat-beads { display:flex; gap:4px; }
-.pcat-beads i { width:6px; height:6px; border-radius:50%; background:var(--envo-lime); display:block; }
+.pcat-row-media { display:flex; flex-direction:column; align-items:center; width:184px; flex:none; }
 .pcat-row-img { width:184px; height:124px; border-radius:10px; display:grid; place-items:center; overflow:hidden;
   background:radial-gradient(120% 120% at 50% 20%, #ffffff 0%, #eef1f5 100%); }
 .pcat-row-img img { width:88%; height:104px; object-fit:contain; mix-blend-mode:multiply; transition:transform .35s; }
@@ -113,9 +104,6 @@ div:first-child > .pcat-section { margin-top:0; }
   background:rgba(0,113,188,.06); border:1px solid var(--line); padding:3px 7px; border-radius:999px; }
 
 .pcat-row-side { display:flex; flex-direction:column; align-items:flex-end; gap:8px; white-space:nowrap; flex:none; }
-.pcat-row-badge { font-size:8.5px; font-weight:700; letter-spacing:.11em; text-transform:uppercase; color:var(--envo-lime-deep);
-  background:rgba(174,201,11,.16); border:1px solid rgba(174,201,11,.4); padding:3px 8px; border-radius:5px; }
-.pcat-row-models { font-size:10.5px; color:var(--fg-soft); }
 .pcat-card-go { font-size:12.5px; font-weight:700; color:var(--envo-blue); }
 .pcat-card-go span { transition:transform .25s; display:inline-block; }
 .pcat-row:hover .pcat-card-go span { transform:translateX(4px); }

@@ -10,7 +10,6 @@ export type { CatalogueCard, FacetGroup, FacetOption } from './catalogue-data'
 type Props = {
   cards: CatalogueCard[]
   groups: FacetGroup[]
-  unit: string
   /** Group the results under their section headings (e.g. CV / CC drivers)
    *  while no filter or search is active; any active filter flattens the list. */
   showSections?: boolean
@@ -22,7 +21,7 @@ type Props = {
  * group intersect the selected set (so a card lacking a value for an active
  * facet is excluded), and the query (if any) appears in its name/family.
  */
-export function CatalogueFilter({ cards, groups, unit, showSections = false }: Props) {
+export function CatalogueFilter({ cards, groups, showSections = false }: Props) {
   const [selected, setSelected] = useState<Record<string, Set<string>>>({})
   const [query, setQuery] = useState('')
 
@@ -113,10 +112,6 @@ export function CatalogueFilter({ cards, groups, unit, showSections = false }: P
       </aside>
 
       <section className="pcat-results">
-        <p className="pcat-count">
-          {visible.length} <em>series · {visible.reduce((n, c) => n + c.modelCount, 0)} {unit}</em>
-        </p>
-
         {activeCount > 0 && (
           <div className="pcat-active">
             {query && (
@@ -166,13 +161,6 @@ export function CatalogueFilter({ cards, groups, unit, showSections = false }: P
                   {b.cards.map((c) => (
               <Link key={c.key} href={c.href} className="pcat-row">
                 <div className="pcat-row-media">
-                  {c.beads ? (
-                    <span className="pcat-beads" aria-hidden>
-                      {Array.from({ length: c.beads }).map((_, i) => (
-                        <i key={i} />
-                      ))}
-                    </span>
-                  ) : null}
                   <div className="pcat-row-img">
                     <Image
                       src={c.imgSrc}
@@ -200,10 +188,6 @@ export function CatalogueFilter({ cards, groups, unit, showSections = false }: P
                 </div>
 
                 <div className="pcat-row-side">
-                  {c.certified && <span className="pcat-row-badge">Certified</span>}
-                  <span className="pcat-row-models">
-                    {c.modelCount} {c.modelCount === 1 ? 'model' : 'models'}
-                  </span>
                   <span className="pcat-card-go">
                     View range <span>→</span>
                   </span>
