@@ -434,8 +434,16 @@ export function buildCards(family: ProductFamily, products: Product[]): Catalogu
   return cards
 }
 
+/** Series display name for the series filter — the authored catalogue title
+ *  when one exists (what the series page/cards call it), else the code label. */
+function seriesFilterName(familySlug: string, code: string | null): string {
+  return catalogueSeriesMeta(familySlug, code)?.title ?? seriesLabel(code)
+}
+
 /** Common per-SKU catalogue-card shell. Family builders supply the derived
- *  desc/facts/facets/section; image, chips, CTA and identity are shared. */
+ *  desc/facts/facets/section; image, chips, CTA and identity are shared.
+ *  Every SKU card also carries a `series` facet (BounceLED-style range
+ *  filter — first group in the sidebar). */
 function skuCard(
   family: ProductFamily,
   p: Product,
@@ -443,6 +451,7 @@ function skuCard(
 ): CatalogueCard {
   const familyLabel = family.tag.split('·')[0].trim()
   const img = resolveProductImage(p, seriesLineArt(p.series, family.slug))
+  parts.facets.series = [seriesFilterName(family.slug, p.series)]
   return {
     key: `${family.slug}:${p.sku}`,
     // SKU detail page (series-first-then-SKU route). Datasheet stays a
@@ -616,10 +625,18 @@ function group(
  * before. Driver facets must never leak onto other families.
  */
 export function buildGroups(cards: CatalogueCard[], familySlug?: string): FacetGroup[] {
+  // Series first (BounceLED-style range picker) on the per-SKU family pages.
+  // Values are display titles, so labelFor is identity; sorted alphabetically.
+  const seriesGroup = () => {
+    const g = group('series', 'Series', cards, (v) => v, () => 0)
+    if (g) g.options.sort((a, b) => a.label.localeCompare(b.label))
+    return g
+  }
   const candidates = (() => {
     switch (familySlug) {
       case 'led-drivers':
         return [
+          seriesGroup(),
           group('outv', 'Output voltage', cards, OUTV.label, OUTV.order),
           group('power', 'Power range', cards, POWER.label, POWER.order),
           group('dimming', 'Dimming', cards, DIMMING.label, DIMMING.order),
@@ -629,13 +646,14 @@ export function buildGroups(cards: CatalogueCard[], familySlug?: string): FacetG
         ]
       case 'control-gear':
         return [
+          seriesGroup(),
           group('protocol', 'Protocol', cards, PROTOCOL.label, PROTOCOL.order),
           group('function', 'Function', cards, FUNCTION.label, FUNCTION.order),
           group('controltype', 'Control type', cards, CONTROLTYPE.label, CONTROLTYPE.order),
           group('channels', 'Channels', cards, CHANNELS.label, CHANNELS.order),
         ]
       case 'accessories':
-        return []
+        return [seriesGroup()]
       case 'led-signage-modules':
         return [
           group('size', 'Size', cards, SIZE.label, SIZE.order),

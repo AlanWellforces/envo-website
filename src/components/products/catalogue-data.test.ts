@@ -158,6 +158,19 @@ describe('per-family filter groups', () => {
     expect(groups.map((g) => g.key)).toEqual(['protocol', 'function', 'controltype', 'channels'])
   })
 
+  it('per-SKU pages put the series picker first (BounceLED-style)', () => {
+    const skuCards = [
+      p({ sku: 'A1', name: 'Envo A1 LED Driver 30W 12V', series: 'envo_se_us', operation_mode: 'cv', power_w: 30, output_voltage_v: 12 }),
+      p({ sku: 'B1', name: 'Envo B1 LED Driver 300W 24V', series: 'envo_sng', operation_mode: 'cv', power_w: 300, output_voltage_v: 24 }),
+    ]
+    const groups = buildGroups(buildDriverProductCards(DRIVERS, skuCards), 'led-drivers')
+    expect(groups[0].key).toBe('series')
+    expect(groups[0].options.length).toBe(2)
+    // options are the customer-facing series titles, alphabetically ordered
+    const labels = groups[0].options.map((o) => o.label)
+    expect(labels).toEqual([...labels].sort((a, b) => a.localeCompare(b)))
+  })
+
   it('control-gear never shows size or the driver facets', () => {
     const controlProducts = [
       p({ sku: 'A', family: 'psu_led_controller', series: 'envo_zigbee', dimming_control: ['zigbee'], power_w: 96, length_mm: 20 }),
@@ -291,7 +304,7 @@ describe('accessory SKU cards', () => {
     expect(card.sku).toBe('ACC-1')
     expect(card.modelCount).toBe(1)
     expect(card.facts).toEqual(expect.arrayContaining(['Aluminium', 'IP65']))
-    expect(card.facets).toEqual({}) // accessories carry no filter facets
+    expect(card.facets).toEqual({ series: ['Other'] }) // only the series facet, no spec facets
   })
 
   it('never surfaces a price', () => {
