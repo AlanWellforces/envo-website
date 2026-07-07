@@ -26,14 +26,37 @@ describe('buildSkuDetailProps', () => {
 
   it('scopes the hero to the single product', () => {
     const props = buildSkuDetailProps(DRIVERS, current, [current, sibling])
-    expect(props.title).toBe('SNG 350W 24V') // product name, never a series title
+    expect(props.title).toBe('EV-SNG-350-24') // H1 = the SKU code, not the spec-soup name
+    expect(props.heroSubtitle).toBe('SNG 350W 24V') // descriptive name (brand/SKU stripped)
     expect(props.breadcrumb.seriesLabel).toBe('EV-SNG-350-24') // crumb ends on the SKU
-    expect(props.heroStage).toHaveLength(1) // one product image, no sibling collage
+    expect(props.heroStage).toHaveLength(1) // stage = one product image, no sibling collage
+    expect(props.thumbs?.length).toBeGreaterThan(0) // sibling thumb strip stays
     // exact key specs from THIS product only — never a series-wide range
     const power = props.keySpecs?.find((s) => s.label === 'Power range')
     expect(power?.value).toBe('350 W')
     expect(props.datasheetUrl).toBeTruthy()
     expect(props.downloads?.[0]?.name).toBe('EV-SNG-350-24 datasheet')
+  })
+
+  it('strips the brand and SKU out of the subtitle', () => {
+    const p = mk({ sku: 'EV-SNG-350-24', name: 'Envo EV-SNG-350-24 LED Driver 350W 24V Waterproof IP67 14.58A' })
+    const props = buildSkuDetailProps(DRIVERS, p, [p])
+    expect(props.title).toBe('EV-SNG-350-24')
+    expect(props.heroSubtitle).toBe('LED Driver 350W 24V Waterproof IP67 14.58A')
+  })
+
+  it('raises the hero key-spec cap to 8 for a fully-specced SKU', () => {
+    const p = mk({
+      sku: 'EV-FULL-1', name: 'Envo EV-FULL-1 Triac Dimmable LED Driver', power_w: 100, output_voltage_v: 24,
+      operation_mode: 'cv', waterproof: 'ip67', dimming_control: ['triac'],
+      input_voltage_min_v: 100, input_voltage_max_v: 240, rated_current_a: 4.16,
+      length_mm: 200, width_mm: 50, height_mm: 30,
+    })
+    const props = buildSkuDetailProps(DRIVERS, p, [p])
+    expect(props.keySpecs?.length).toBe(8)
+    expect(props.keySpecs?.map((s) => s.label)).toEqual(
+      expect.arrayContaining(['Power range', 'Output voltage', 'Input voltage', 'Operation mode', 'Dimming', 'IP rating', 'Rated current', 'Dimensions']),
+    )
   })
 
   it('falls back to a single full-spec panel for a singleton series', () => {

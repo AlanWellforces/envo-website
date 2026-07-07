@@ -97,6 +97,7 @@ export function buildMergedSeriesProps(
   family: ProductFamily,
   series: string,
   products: Product[],
+  opts?: { maxKeySpecs?: number },
 ): MergedSeriesProps {
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const copy = (SERIES_EDITORIAL as Record<string, any>)[series]
@@ -300,6 +301,15 @@ export function buildMergedSeriesProps(
     )
     const ips = uniq(products.map(ipDisplay).filter((v): v is string => !!v)).sort()
     key('ip', 'IP rating', ips.length ? ips.join(' / ') : null)
+    // Specs 7–8 (SKU detail pages raise maxKeySpecs to 8; series pages keep
+    // the first 6): exact rated current + shared dimensions only.
+    const currents = uniq(products.map((p) => num(p.rated_current_a)).filter((v): v is number => v != null))
+    key('efficacy', 'Rated current', currents.length === 1 ? `${currents[0]} A` : null)
+    const sized = products.filter((p) => p.length_mm != null && p.width_mm != null && p.height_mm != null)
+    if (uniq(sized.map((p) => `${p.length_mm}×${p.width_mm}×${p.height_mm}`)).length === 1) {
+      const d = formatDims(sized[0].length_mm, sized[0].width_mm, sized[0].height_mm)
+      if (d) key('dims', 'Dimensions', `${d.mm}\n(${d.in})`)
+    }
   } else if (family.slug === 'led-signage-modules') {
     // Old-envo "Key Specifications" set (user screenshot 2026-07-06):
     // Power rating / Input voltage / Max series / Waterproof / Dimensions
@@ -358,6 +368,14 @@ export function buildMergedSeriesProps(
     key('power', 'Power range', powerRange)
     key('ip', 'IP rating', ipField ? ipField.toUpperCase() : null)
     key('lifetime', 'Lifetime', lifetime ? `${lifetime.toLocaleString()} h` : null)
+    // Specs 6–8 (raised cap on SKU detail pages): shared dims + warranty.
+    const sized = products.filter((p) => p.length_mm != null && p.width_mm != null && p.height_mm != null)
+    if (uniq(sized.map((p) => `${p.length_mm}×${p.width_mm}×${p.height_mm}`)).length === 1) {
+      const d = formatDims(sized[0].length_mm, sized[0].width_mm, sized[0].height_mm)
+      if (d) key('dims', 'Dimensions', `${d.mm}\n(${d.in})`)
+    }
+    const cgWarranty = uniq(products.map((p) => num(p.warranty_years)).filter((w): w is number => w != null))
+    key('warranty', 'Warranty', cgWarranty.length === 1 ? `${cgWarranty[0]} year${cgWarranty[0] === 1 ? '' : 's'}` : null)
   }
 
   const datasheetUrl = models.find((m) => m.datasheetUrl)?.datasheetUrl ?? undefined
@@ -385,7 +403,7 @@ export function buildMergedSeriesProps(
     heroSubtitle,
     intro,
     checklist: checklist?.length ? checklist : undefined,
-    keySpecs: keySpecs.slice(0, 6),
+    keySpecs: keySpecs.slice(0, opts?.maxKeySpecs ?? 6),
     datasheetUrl,
     purchaseLinks: seriesPurchaseLinks(series, label),
     thumbs,

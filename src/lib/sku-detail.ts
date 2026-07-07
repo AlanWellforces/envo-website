@@ -18,8 +18,9 @@ export function buildSkuDetailProps(
   const series = product.series ?? ''
   // Series-wide assembly drives the compare table + shared rows (identical to
   // the series page); a single-product assembly supplies the exact hero facts.
+  // SKU heroes may show up to 8 key specs (user 2026-07-08); series keep 6.
   const base = buildMergedSeriesProps(family, series, sameSeries.length ? sameSeries : [product])
-  const solo = buildMergedSeriesProps(family, series, [product])
+  const solo = buildMergedSeriesProps(family, series, [product], { maxKeySpecs: 8 })
 
   // groupSeriesModels strips CCT suffixes; the spec-driven families' SKUs are
   // unsuffixed, so modelCode === sku — with a startsWith fallback just in case.
@@ -29,19 +30,30 @@ export function buildSkuDetailProps(
       : v,
   )
 
+  // H1 = the SKU code (Akeneo names are spec soup — those numbers already live
+  // in the key-spec grid). The descriptive remainder of the name, stripped of
+  // brand + SKU, becomes the one-line subtitle.
+  const skuPattern = new RegExp(`\\b${product.sku.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')}\\b`, 'i')
+  const descriptiveName = product.name
+    .replace(skuPattern, '')
+    .replace(/^\s*envo\s+/i, '')
+    .replace(/\s{2,}/g, ' ')
+    .trim()
+
   return {
     ...base,
     breadcrumb: { ...base.breadcrumb, seriesLabel: product.sku },
     eyebrow: `${family.tag.split('·')[0].trim()} · ${seriesLabel(product.series)}`,
-    title: product.name,
-    heroSubtitle: solo.heroSubtitle ?? product.short_description?.trim() ?? product.subtitle?.trim() ?? undefined,
+    title: product.sku,
+    heroSubtitle:
+      descriptiveName || (solo.heroSubtitle ?? product.short_description?.trim() ?? product.subtitle?.trim() ?? undefined),
     // exact facts for THIS SKU, never series-wide ranges
     keySpecs: solo.keySpecs,
     datasheetUrl: solo.datasheetUrl,
     downloads: solo.datasheetUrl ? [{ name: `${product.sku} datasheet`, meta: 'PDF', href: solo.datasheetUrl }] : [],
-    // hero shows only the viewed product; the compare table keeps all siblings
+    // hero stage shows only the viewed product; the sibling/scene thumb strip
+    // stays (base.thumbs) so other models are one click away
     heroStage: [solo.variants[0].image],
-    thumbs: undefined,
     variants,
   }
 }
