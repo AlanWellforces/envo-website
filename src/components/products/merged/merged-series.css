@@ -106,6 +106,9 @@
 /* borderless trigger — plain text + caret (user 2026-07-06) */
 .pdetail .wtb-dd-trigger { appearance: none; font-family: inherit; cursor: pointer; display: inline-flex; align-items: center; gap: 5px;
   border: 0; background: none; padding: 0; font-size: 13px; color: var(--text); }
+/* no lime focus box on the region picker (user 2026-07-08) — hover/caret
+   already signal interactivity; the global *:focus-visible ring is too loud here */
+.pdetail .wtb-dd-trigger:focus-visible { outline: none; color: var(--blue); }
 .pdetail .wtb-dd-trigger b { font-weight: 650; }
 .pdetail .wtb-dd-trigger:hover { color: var(--blue); }
 .pdetail .wtb-dd-trigger:hover .caret { stroke: var(--blue); }
