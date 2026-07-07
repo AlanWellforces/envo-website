@@ -51,9 +51,15 @@ export function buildSkuDetailProps(
     keySpecs: solo.keySpecs,
     datasheetUrl: solo.datasheetUrl,
     downloads: solo.datasheetUrl ? [{ name: `${product.sku} datasheet`, meta: 'PDF', href: solo.datasheetUrl }] : [],
-    // hero stage shows only the viewed product; the sibling/scene thumb strip
-    // stays (base.thumbs) so other models are one click away
+    // hero gallery shows only THIS product (user 2026-07-08): stage = its own
+    // image; thumbs keep the strip feature but drop sibling-model tiles —
+    // own tile + editorial scene photos only, and a lone tile that would just
+    // duplicate the stage is omitted entirely
     heroStage: [solo.variants[0].image],
+    thumbs: (() => {
+      const own = base.thumbs?.filter((t) => t.cover || t.label === product.sku)
+      return own && own.length > 1 ? own : undefined
+    })(),
     variants,
   }
 }

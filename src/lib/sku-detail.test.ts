@@ -30,7 +30,7 @@ describe('buildSkuDetailProps', () => {
     expect(props.heroSubtitle).toBe('SNG 350W 24V') // descriptive name (brand/SKU stripped)
     expect(props.breadcrumb.seriesLabel).toBe('EV-SNG-350-24') // crumb ends on the SKU
     expect(props.heroStage).toHaveLength(1) // stage = one product image, no sibling collage
-    expect(props.thumbs?.length).toBeGreaterThan(0) // sibling thumb strip stays
+    expect(props.thumbs).toBeUndefined() // no sibling-model tiles; strip only returns with scene photos
     // exact key specs from THIS product only — never a series-wide range
     const power = props.keySpecs?.find((s) => s.label === 'Power range')
     expect(power?.value).toBe('350 W')
