@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest'
-import { buildCards, buildGroups, buildControlGearProductCards } from './catalogue-data'
+import { buildCards, buildGroups, buildControlGearProductCards, buildDriverProductCards } from './catalogue-data'
 import { PRODUCT_FAMILIES } from '@/data/product-families'
 import type { Product } from '@/lib/products'
 
@@ -228,6 +228,48 @@ describe('control-gear SKU cards (post-refactor parity)', () => {
   })
   it('never surfaces a price', () => {
     expect(JSON.stringify(card)).not.toMatch(/nzd|price/i)
+  })
+})
+
+// ── driver SKU cards ────────────────────────────────────────────────────────
+describe('driver SKU cards', () => {
+  it('emits one card per SKU with driver facets and human-readable facts', () => {
+    const products = [
+      p({ sku: 'EV-SNG-350-24', name: 'Envo EV-SNG-350-24 LED Driver 350W 24V Waterproof IP67',
+          series: 'envo_sng', operation_mode: 'cv', power_w: 350, output_voltage_v: 24, waterproof: 'ip67' }),
+    ]
+    const [card] = buildDriverProductCards(DRIVERS, products)
+    expect(card.sku).toBe('EV-SNG-350-24')
+    expect(card.modelCount).toBe(1)
+    expect(card.facets.outv).toEqual(['24'])
+    expect(card.facets.power).toEqual(['p151'])
+    expect(card.facets.opmode).toEqual(['cv'])
+    expect(card.facets.environment).toEqual(expect.arrayContaining(['outdoor', 'ip67']))
+    expect(card.facts).toEqual(expect.arrayContaining(['350 W', '24 V', 'Constant voltage', 'IP67']))
+  })
+
+  it('derives triac dimming from the name when dimming_control is empty', () => {
+    const products = [
+      p({ sku: 'EV-SP-30-12US-TDM', name: 'ENVO EV-SP-30-12US-TDM Triac Dimmable LED Driver 30W 12V',
+          series: 'envo_sp_us', operation_mode: 'cv', power_w: 30, output_voltage_v: 12, waterproof: 'ip20' }),
+    ]
+    const [card] = buildDriverProductCards(DRIVERS, products)
+    expect(card.facets.dimming).toContain('triac')
+    expect(card.chips[0]).toBe('Triac dimmable')
+  })
+
+  it('sorts CV before CC then by name', () => {
+    const products = [
+      p({ sku: 'B-CC', name: 'B CC', series: 'sr_triac', family: 'psu_led_cc', operation_mode: 'cc' }),
+      p({ sku: 'A-CV', name: 'A CV', series: 'envo_se_us', family: 'psu_led_cv', operation_mode: 'cv' }),
+    ]
+    const cards = buildDriverProductCards(DRIVERS, products)
+    expect(cards.map((c) => c.sku)).toEqual(['A-CV', 'B-CC'])
+  })
+
+  it('never surfaces a price', () => {
+    const products = [p({ sku: 'X', series: 'envo_sng', power_w: 100, output_voltage_v: 24, price_nzd: 99 })]
+    expect(JSON.stringify(buildDriverProductCards(DRIVERS, products))).not.toMatch(/nzd|"price"/i)
   })
 })
 

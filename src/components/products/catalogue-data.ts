@@ -490,7 +490,56 @@ export function buildControlGearProductCards(family: ProductFamily, products: Pr
 function sectionOrder(section: string): number {
   const order = ['Controllers', 'Switches', 'Sensors']
   const i = order.indexOf(section)
-  return i < 0 ? order.length : i
+  if (i >= 0) return i
+  // driver sections (Constant-voltage / Constant-current) — keep CV before CC
+  return section.toLowerCase().includes('current') ? 101 : 100
+}
+
+/** Card facts for a driver SKU: power → output voltage → dimming → CV/CC → IP. */
+function driverFacts(p: Product, facets: Record<string, string[]>): string[] {
+  const facts: (string | undefined)[] = [
+    p.power_w != null ? `${p.power_w} W` : undefined,
+    p.output_voltage_v != null ? `${p.output_voltage_v} V` : undefined,
+    facets.dimming?.includes('triac') ? 'Triac dimmable'
+      : facets.dimming?.includes('dali') ? 'DALI'
+      : facets.dimming?.includes('none') ? 'Non-dimmable' : undefined,
+    facets.opmode?.includes('cv') ? 'Constant voltage' : facets.opmode?.includes('cc') ? 'Constant current' : undefined,
+    waterproofLabel(p.waterproof),
+  ]
+  return [...new Set(facts.filter((x): x is string => !!x))].slice(0, 5)
+}
+
+/** One short line describing the driver from its op-mode + IP. */
+function driverDesc(facets: Record<string, string[]>, p: Product): string {
+  const mode = facets.opmode?.includes('cc') ? 'Constant-current' : 'Constant-voltage'
+  const env = p.waterproof && p.waterproof !== 'non_waterproof' && p.waterproof !== 'ip20' ? ` · ${p.waterproof.toUpperCase()}` : ''
+  return `${mode} LED driver${env}.`
+}
+
+/** Build one visible catalogue card per LED-driver SKU. Drivers are selected by
+ * spec (wattage, voltage, dimming, IP), so the family landing exposes SKUs
+ * directly; the series page stays for range education. */
+export function buildDriverProductCards(family: ProductFamily, products: Product[]): CatalogueCard[] {
+  const authored = (code: string | null) => catalogueSeriesMeta(family.slug, code)
+  return products
+    .map((p) => {
+      const facets: Record<string, string[]> = {
+        outv: uniq([outvBand(p.output_voltage_v)]),
+        power: uniq([powerBand(p.power_w)]),
+        dimming: dimmingValues(p),
+        opmode: opmodeValues(p.operation_mode),
+        environment: environmentValues(p.waterproof),
+        formfactor: formfactorValues(p, authored(p.series)?.formFactor ?? []),
+      }
+      return skuCard(family, p, {
+        desc: driverDesc(facets, p),
+        facts: driverFacts(p, facets),
+        facets,
+        section: seriesSectionTitle(family.slug, [p]),
+        maxPowerForChips: p.power_w,
+      })
+    })
+    .sort((a, b) => (sectionOrder(a.section) - sectionOrder(b.section)) || a.name.localeCompare(b.name))
 }
 
 function group(
