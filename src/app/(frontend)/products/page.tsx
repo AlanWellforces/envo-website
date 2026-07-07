@@ -20,7 +20,6 @@ export default async function ProductsPage() {
     PRODUCT_FAMILIES.map((f) => getProductsByMarketingFamily(f.slug, { depth: 0 })),
   )
   const countBySlug = new Map(PRODUCT_FAMILIES.map((f, i) => [f.slug, allProducts[i].length]))
-  const total = [...countBySlug.values()].reduce((a, b) => a + b, 0)
 
   const cards = PRODUCT_FAMILIES.flatMap((f, i) => buildCards(f, allProducts[i]))
   const groups = buildGroups(cards)
@@ -35,25 +34,22 @@ export default async function ProductsPage() {
         </div>
 
         <div className="pcat-head">
-          <span className="pcat-eyebrow">Shop by category</span>
           <h1>Product catalogue</h1>
           <p className="pcat-lede">
             Modules, drivers, control gear and accessories — engineered to work together as one
             signage system.
           </p>
           <div className="pcat-pills">
-            <span className="pcat-pill on">
-              All <span className="n">{total}</span>
-            </span>
+            <span className="pcat-pill on">All</span>
             {PRODUCT_FAMILIES.filter((f) => (countBySlug.get(f.slug) ?? 0) > 0).map((f) => (
               <Link key={f.slug} href={f.href} className="pcat-pill">
-                {f.name} <span className="n">{countBySlug.get(f.slug)}</span>
+                {f.name}
               </Link>
             ))}
           </div>
         </div>
 
-        <CatalogueFilter cards={cards} groups={groups} unit="products" />
+        <CatalogueFilter cards={cards} groups={groups} />
       </div>
     </div>
   )
