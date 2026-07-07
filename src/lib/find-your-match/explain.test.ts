@@ -19,6 +19,6 @@ describe('templateExplanation', () => {
   })
   it('describes the driver spec when no driver product fits', () => {
     const text = templateExplanation(a, recommend(a, [catalog[0]]))
-    expect(text.toLowerCase()).toContain('distributor')
+    expect(text.toLowerCase()).toContain('authorised purchasing channel')
   })
 })
