@@ -25,8 +25,8 @@ const DEFAULT_PILLARS = [
     desc: 'Binned LEDs, validated thermal design and consistent output batch after batch.',
   },
   {
-    title: 'Fully certified',
-    desc: 'CE, UL, RoHS and TÜV across the range — specs pass review, installs clear inspection.',
+    title: 'Independently certified',
+    desc: 'CE, UL, RoHS and TÜV certifications on selected ranges — specs pass review, installs clear inspection.',
   },
   {
     title: 'End-to-end support',
@@ -34,14 +34,16 @@ const DEFAULT_PILLARS = [
   },
 ]
 
-// Verified 2026-07-03 against the product DB / Akeneo data (219 visible SKUs;
-// all 73 visible modules rate lifetime_hrs = 50,000; certs per PR #81).
+// Re-verified 2026-07-07 against the product DB (219 visible SKUs; all 73
+// visible modules rate lifetime_hrs = 50,000 → 200+ and 50,000h stand as-is).
+// Cert coverage is partial, NOT range-wide (CE 172/219, TÜV 107, RoHS 91,
+// UL 69), so the cert claims say "selected ranges", not "across the range".
 // Editable via the Homepage global (Why ENVO → Stats).
 const DEFAULT_STATS = [
   { value: '200+', label: 'catalogue SKUs' },
   { value: '50,000h', label: 'rated module lifetime' },
   { value: '4', label: 'product families' },
-  { value: 'CE·UL·TÜV', label: 'certified across the range', lime: true },
+  { value: 'CE·UL·TÜV', label: 'certified on selected ranges', lime: true },
 ]
 
 export function WhyEnvo({ data }: { data?: HomeWhyData }) {
