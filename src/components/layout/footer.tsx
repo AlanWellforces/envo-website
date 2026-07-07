@@ -40,7 +40,7 @@ export async function Footer() {
           <div className="footer-col">
             <h5>Products</h5>
             <ul>
-              <li><Link href="/products/led-signage-modules">Signage Module</Link></li>
+              <li><Link href="/products/led-signage-modules">Signage Modules</Link></li>
               <li><Link href="/products/led-drivers">LED Driver</Link></li>
               <li><Link href="/products/control-gear">Control Gear</Link></li>
               <li><Link href="/products/accessories">Accessories</Link></li>
