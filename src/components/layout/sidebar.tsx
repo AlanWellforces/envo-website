@@ -10,18 +10,15 @@ import { useRegion } from '@/components/region/RegionProvider'
 
 const STORAGE_KEY = 'envo-c-sidebar-collapsed'
 
-// Display labels for the sidebar foot channel switcher — role-based, never
-// geographic (ENVO's positioning is global supply through authorised channels).
-const REGION_LABELS: Record<PurchaseChannel['id'], { short: string; meta: string }> = {
-  'nz-ap': {
-    short: 'Primary Purchasing Channel',
-    meta: 'Authorised supply · wellforces.co.nz',
-  },
-  'us-global': {
-    short: 'Global Purchasing Channel',
-    meta: 'Authorised supply · powersupplymall.com',
-  },
-}
+// Bottom "Find local distributor" region selector is hidden for now. All its
+// markup + logic below is intact — flip this to `true` to bring it back.
+const SHOW_SUPPLY_CHANNEL = false
+
+// Category submenus (disclosure caret + series children + View all) are
+// hidden for now — categories render as plain links to their family pages.
+// All the submenu data + rendering below is intact; flip to `true` to
+// bring the dropdowns back.
+const SHOW_NAV_SUBMENUS = false
 
 const subscribeCollapsed = (cb: () => void) => {
   window.addEventListener('envo-sidebar-change', cb)
@@ -55,10 +52,15 @@ const NAVIGATE: NavItem[] = [
       </svg>
     ),
   },
+  // Product categories expand into their live series (short forms of the
+  // customer-facing titles in series-catalogue-meta.ts). Children must map to
+  // real /products/<family>/<series> pages — the route has dynamicParams:false,
+  // so a stale slug 404s. Accessories has no live series in the DB, hence no
+  // submenu. The null-series "other" buckets are reachable via View all only.
   {
-    section: 'products',
-    href: '/products',
-    label: 'Products',
+    section: 'signage-modules',
+    href: '/products/led-signage-modules',
+    label: 'Signage Modules',
     icon: (
       <svg className="sidebar-icon" viewBox="0 0 24 24" aria-hidden="true">
         <rect x="3" y="3" width="7" height="7" />
@@ -68,11 +70,67 @@ const NAVIGATE: NavItem[] = [
       </svg>
     ),
     children: [
-      { slug: 'led-signage-modules', href: '/products/led-signage-modules', label: 'Signage Modules' },
-      { slug: 'led-drivers', href: '/products/led-drivers', label: 'LED Drivers' },
-      { slug: 'control-gear', href: '/products/control-gear', label: 'Control Gear' },
-      { slug: 'accessories', href: '/products/accessories', label: 'Accessories' },
+      { slug: 'mini-series', href: '/products/led-signage-modules/mini-series', label: 'Mini Series' },
+      { slug: 'envo-ecoglo', href: '/products/led-signage-modules/envo-ecoglo', label: 'Eco Series' },
+      { slug: 'envo-ultraflare', href: '/products/led-signage-modules/envo-ultraflare', label: 'Pro Series' },
+      { slug: 'envo-chromaflux', href: '/products/led-signage-modules/envo-chromaflux', label: 'RGB Series' },
+      { slug: 'envo-optilume', href: '/products/led-signage-modules/envo-optilume', label: '24V Series' },
+      { slug: 'envo-edgelume', href: '/products/led-signage-modules/envo-edgelume', label: 'Sidelit Series' },
     ],
+  },
+  {
+    section: 'led-drivers',
+    href: '/products/led-drivers',
+    label: 'LED Drivers',
+    icon: (
+      <svg className="sidebar-icon" viewBox="0 0 24 24" aria-hidden="true">
+        <path d="M13 2L4 14h7l-1 8 9-12h-7l1-8z" />
+      </svg>
+    ),
+    // Deliberately minimal, mirroring the old envo-led.com driver menu: the
+    // three entries customers actually shop by. Everything else (SR DALI,
+    // SE / SNG / SNPV variant lines) is reachable via View all + the family
+    // page's filters. Only SP is triac (locked naming rule).
+    children: [
+      { slug: 'sc-envo', href: '/products/led-drivers/sc-envo', label: 'Standard Range' },
+      { slug: 'envo-sl-us', href: '/products/led-drivers/envo-sl-us', label: 'Linear' },
+      { slug: 'envo-sp-us', href: '/products/led-drivers/envo-sp-us', label: 'Triac Dimmable' },
+    ],
+  },
+  {
+    section: 'control-gear',
+    href: '/products/control-gear',
+    label: 'Control Gear',
+    icon: (
+      <svg className="sidebar-icon" viewBox="0 0 24 24" aria-hidden="true">
+        <line x1="4" y1="7" x2="20" y2="7" />
+        <circle cx="9" cy="7" r="2" />
+        <line x1="4" y1="12" x2="20" y2="12" />
+        <circle cx="15" cy="12" r="2" />
+        <line x1="4" y1="17" x2="20" y2="17" />
+        <circle cx="9" cy="17" r="2" />
+      </svg>
+    ),
+    // Minimal like the drivers menu: the three main control ecosystems.
+    // Single-SKU pages (DALI push-dim, PIR sensor) live under View all.
+    children: [
+      { slug: 'envo-zigbee', href: '/products/control-gear/envo-zigbee', label: 'Zigbee Smart' },
+      { slug: 'envo-casambi', href: '/products/control-gear/envo-casambi', label: 'Casambi' },
+      { slug: 'sr-triac', href: '/products/control-gear/sr-triac', label: 'DALI Modules' },
+    ],
+  },
+  {
+    section: 'accessories',
+    href: '/products/accessories',
+    label: 'Accessories',
+    icon: (
+      <svg className="sidebar-icon" viewBox="0 0 24 24" aria-hidden="true">
+        <path d="M9 2v6" />
+        <path d="M15 2v6" />
+        <path d="M6 8h12v3a6 6 0 0 1-12 0z" />
+        <path d="M12 17v5" />
+      </svg>
+    ),
   },
   {
     section: 'solutions',
@@ -85,19 +143,6 @@ const NAVIGATE: NavItem[] = [
       </svg>
     ),
   },
-  // Projects hidden until we have real installs to show (only seeded demos exist).
-  // Route + data + Payload collection remain intact — restore this entry to re-expose.
-  // {
-  //   section: 'projects',
-  //   href: '/projects',
-  //   label: 'Projects',
-  //   icon: (
-  //     <svg className="sidebar-icon" viewBox="0 0 24 24" aria-hidden="true">
-  //       <rect x="3" y="7" width="18" height="14" rx="2" />
-  //       <path d="M8 7V5a2 2 0 012-2h4a2 2 0 012 2v2" />
-  //     </svg>
-  //   ),
-  // },
   {
     section: 'resources',
     href: '/resources',
@@ -122,19 +167,17 @@ const NAVIGATE: NavItem[] = [
   },
 ]
 
-const TOOLS: NavItem[] = [
-  {
-    section: 'free-layout-design',
-    href: '/free-layout-design',
-    label: 'Free layout design',
-    icon: (
-      <svg className="sidebar-icon" viewBox="0 0 24 24" aria-hidden="true">
-        <path d="M12 19l7-7 3 3-7 7-3-3z" />
-        <path d="M18 13l-1.5-7.5L2 2l3.5 14.5L13 18l5-5z" />
-      </svg>
-    ),
-  },
-]
+// Nav is split into zones: Home sits alone at the top, the browse-the-offer
+// links sit under a "Products" eyebrow (four catalogue families = browse by
+// type, plus Solutions = browse by application), and the support links are
+// pinned to the bottom (above the CTA) so product vs. support read as
+// distinct types.
+const SUPPORT_SECTIONS = new Set(['resources', 'contact'])
+const HOME_ITEM = NAVIGATE.find((i) => i.section === 'home')!
+const PRODUCT_NAV = NAVIGATE.filter(
+  (i) => i.section !== 'home' && !SUPPORT_SECTIONS.has(i.section),
+)
+const SUPPORT_NAV = NAVIGATE.filter((i) => SUPPORT_SECTIONS.has(i.section))
 
 function isActive(pathname: string, href: string) {
   if (href === '/') return pathname === '/'
@@ -149,15 +192,26 @@ export function Sidebar() {
     getCollapsedServerSnapshot,
   )
   const [open, setOpen] = useState(false)
-  // Shared region state (localStorage-backed, broadcasts in-tab) — the hero
-  // chip, footer contact and purchase cards all update with this switcher.
+  // Region switcher (localStorage-backed, broadcasts in-tab). Picking a region
+  // here sets the shared context so the PRODUCT-page "Find local distributor"
+  // button routes to the matching distributor site. This selector does not open
+  // an external site itself — it only sets which channel is "yours".
   const { region, setRegion } = useRegion()
+  const currentChannel =
+    PURCHASE_CHANNELS.find((c) => c.id === region) ?? PURCHASE_CHANNELS[0]
   const [regionOpen, setRegionOpen] = useState(false)
-  // Track which parent groups are user-expanded. Parent groups start expanded
-  // so their sub-categories are always surfaced in the sidebar; the active
-  // route still auto-expands its group, and users can manually toggle any.
+  // Track which parent groups are expanded. A group starts expanded only when
+  // the current route is inside it — so Products is expanded on product pages
+  // but stays collapsed on content pages, keeping the nav quiet there. The
+  // active route still auto-expands its group on navigation (below), and users
+  // can manually toggle any group.
   const [openGroups, setOpenGroups] = useState<Set<string>>(
-    () => new Set(NAVIGATE.filter((i) => i.children).map((i) => i.section)),
+    () =>
+      new Set(
+        NAVIGATE.filter((i) => i.children && isActive(pathname, i.href)).map(
+          (i) => i.section,
+        ),
+      ),
   )
   const sidebarRef = useRef<HTMLElement>(null)
   const toggleRef = useRef<HTMLButtonElement>(null)
@@ -222,7 +276,9 @@ export function Sidebar() {
     return () => document.removeEventListener('click', onDocClick)
   }, [open])
 
-  const toggleCollapsed = useCallback(() => {
+  const toggleCollapsed = useCallback((e: React.MouseEvent<HTMLButtonElement>) => {
+    // Blur so the global :focus-visible ring doesn't linger on the control.
+    e.currentTarget.blur()
     const next = !getCollapsedSnapshot()
     try {
       window.localStorage.setItem(STORAGE_KEY, next ? '1' : '0')
@@ -247,10 +303,10 @@ export function Sidebar() {
 
   const renderItems = (items: NavItem[]) =>
     items.map((item) => {
-      // Leaf — no children. `data-tooltip` powers the collapsed-sidebar
-      // hover label (CSS-only ::after). Parent group links skip this since
-      // they have a richer flyout that already names the category.
-      if (!item.children) {
+      // Leaf — no children (or submenus globally hidden). `data-tooltip`
+      // powers the collapsed-sidebar hover label (CSS-only ::after). Parent
+      // group links skip this since their flyout already names the category.
+      if (!item.children || !SHOW_NAV_SUBMENUS) {
         return (
           <Link
             key={item.section}
@@ -266,9 +322,9 @@ export function Sidebar() {
         )
       }
 
-      // Parent group — link to the overview page + separate caret toggle.
-      // Parent row is "active" only when the user is on the exact /products
-      // catalog page; child links handle deeper /products/<family> highlights.
+      // Parent group — the whole row is a disclosure toggle (no direct link;
+      // the overview page is reachable via the "View all" child). Row shows
+      // "active" while the user is anywhere inside the group's routes.
       const groupOpen = openGroups.has(item.section)
       const parentActive = pathname === item.href
       return (
@@ -276,28 +332,22 @@ export function Sidebar() {
           key={item.section}
           className={cn('sidebar-group', groupOpen && 'open')}
         >
-          <div className="sidebar-group-row">
-            <Link
-              href={item.href}
-              className={cn('sidebar-link', parentActive && 'active')}
-              data-section={item.section}
-              onClick={handleNavClick}
-            >
-              {item.icon}
-              <span className="sidebar-label">{item.label}</span>
-            </Link>
-            <button
-              type="button"
-              className="sidebar-group-caret-btn"
-              aria-label={groupOpen ? `Collapse ${item.label}` : `Expand ${item.label}`}
-              aria-expanded={groupOpen}
-              onClick={() => toggleGroup(item.section)}
-            >
-              <svg className="sidebar-caret" viewBox="0 0 24 24" aria-hidden="true">
-                <path d="M9 6l6 6-6 6" />
-              </svg>
-            </button>
-          </div>
+          <button
+            type="button"
+            className={cn('sidebar-link', 'sidebar-link--parent', parentActive && 'active')}
+            data-section={item.section}
+            aria-expanded={groupOpen}
+            onClick={(e) => {
+              e.currentTarget.blur()
+              toggleGroup(item.section)
+            }}
+          >
+            {item.icon}
+            <span className="sidebar-label">{item.label}</span>
+            <svg className="sidebar-caret" viewBox="0 0 24 24" aria-hidden="true">
+              <path d="M9 6l6 6-6 6" />
+            </svg>
+          </button>
           <ul
             className="sidebar-sub"
             role="list"
@@ -314,6 +364,15 @@ export function Sidebar() {
                 </Link>
               </li>
             ))}
+            <li>
+              <Link
+                href={item.href}
+                className={cn('sidebar-sublink', parentActive && 'active')}
+                onClick={handleNavClick}
+              >
+                View all
+              </Link>
+            </li>
           </ul>
         </div>
       )
@@ -366,7 +425,7 @@ export function Sidebar() {
         aria-label="Primary navigation"
       >
         <div className="sidebar-inner">
-          <Link href="/" className="sidebar-logo" aria-label="ENVO home" onClick={() => setOpen(false)}>
+          <Link href="/" className="sidebar-logo" aria-label="ENVO home" onClick={handleNavClick}>
             <Image
               className="logo-full"
               src="/assets/images/logo-envo-darkbg.svg"
@@ -388,31 +447,61 @@ export function Sidebar() {
 
           <nav className="sidebar-nav">
             <div className="sidebar-section">
-              {renderItems(NAVIGATE)}
+              {renderItems([HOME_ITEM])}
             </div>
             <div className="sidebar-section">
-              <div className="sidebar-section-title">Tools</div>
-              {renderItems(TOOLS)}
+              <div className="sidebar-section-title">Products</div>
+              {renderItems(PRODUCT_NAV)}
             </div>
           </nav>
 
+          <div className="sidebar-support">
+            <div className="sidebar-section-title">Support</div>
+            {renderItems(SUPPORT_NAV)}
+          </div>
+
+          <Link
+            href="/free-layout-design"
+            className="sidebar-cta-card"
+            data-tooltip="Free Layout Design"
+            onClick={handleNavClick}
+          >
+            <span className="sidebar-cta-card-title">Need help specifying?</span>
+            <span className="sidebar-cta-btn">
+              <svg className="sidebar-icon" viewBox="0 0 24 24" aria-hidden="true">
+                <path d="M12 19l7-7 3 3-7 7-3-3z" />
+                <path d="M18 13l-1.5-7.5L2 2l3.5 14.5L13 18l5-5z" />
+              </svg>
+              <span className="sidebar-cta-btn-label">Free Layout Design</span>
+            </span>
+          </Link>
+
           <div className="sidebar-footer">
-            <div
-              ref={regionRef}
-              className={cn('sidebar-region-wrap', regionOpen && 'open')}
-            >
+            {SHOW_SUPPLY_CHANNEL && (
+            <div className="sidebar-channel">
+              <span className="sidebar-channel-title">Find local distributor</span>
+              <div
+                ref={regionRef}
+                className={cn('sidebar-region-wrap', regionOpen && 'open')}
+              >
               <button
                 type="button"
                 className="sidebar-region"
                 aria-haspopup="listbox"
                 aria-expanded={regionOpen}
-                aria-label={`Purchasing channel: ${REGION_LABELS[region].short}. Click to change.`}
+                aria-label={`Supply channel: ${currentChannel.channelLabel}. Click to change.`}
                 onClick={(e) => {
                   e.stopPropagation()
                   setRegionOpen((o) => !o)
                 }}
               >
-                <span className="sidebar-region-label">{REGION_LABELS[region].short}</span>
+                <svg className="sidebar-region-glyph" viewBox="0 0 24 24" aria-hidden="true">
+                  <path d="M12 22s7-6.1 7-12a7 7 0 1 0-14 0c0 5.9 7 12 7 12z" />
+                  <circle cx="12" cy="10" r="2.6" />
+                </svg>
+                <span className="sidebar-region-body">
+                  <span className="sidebar-region-value">{currentChannel.channelLabel}</span>
+                </span>
                 <svg
                   className={cn('sidebar-region-caret', regionOpen && 'flip')}
                   viewBox="0 0 24 24"
@@ -424,10 +513,9 @@ export function Sidebar() {
 
               {regionOpen && (
                 <div className="sidebar-region-dropdown" role="listbox">
-                  <div className="sidebar-region-dropdown-head">Purchasing channel</div>
+                  <div className="sidebar-region-dropdown-head">Sold through authorised distributors</div>
                   {PURCHASE_CHANNELS.map((channel) => {
                     const active = channel.id === region
-                    const labels = REGION_LABELS[channel.id]
                     return (
                       <button
                         key={channel.id}
@@ -438,30 +526,33 @@ export function Sidebar() {
                         onClick={() => pickRegion(channel.id)}
                       >
                         <span className="sidebar-region-option-body">
-                          <span className="sidebar-region-option-name">{labels.short}</span>
-                          <span className="sidebar-region-option-meta">{labels.meta}</span>
+                          <span className="sidebar-region-option-name">{channel.channelLabel}</span>
                         </span>
                         {active && (
-                          <span className="sidebar-region-option-check" aria-hidden="true">✓</span>
+                          <svg className="sidebar-region-option-check" viewBox="0 0 24 24" aria-hidden="true">
+                            <path d="M5 13l4 4L19 7" />
+                          </svg>
                         )}
                       </button>
                     )
                   })}
                 </div>
               )}
+              </div>
             </div>
+            )}
 
             <button
               type="button"
               className="sidebar-collapse-btn"
               aria-label={collapsed ? 'Expand menu' : 'Collapse menu'}
               aria-pressed={collapsed}
+              title={collapsed ? 'Expand menu' : 'Collapse menu'}
               onClick={toggleCollapsed}
             >
               <svg className="sidebar-collapse-icon" viewBox="0 0 24 24" aria-hidden="true">
                 <path d="M15 6l-6 6 6 6" />
               </svg>
-              <span className="sidebar-collapse-label">Collapse</span>
             </button>
           </div>
         </div>
