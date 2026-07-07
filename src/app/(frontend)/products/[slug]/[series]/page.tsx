@@ -7,6 +7,8 @@ import { formatDims } from '@/lib/units'
 import { getProduct, getProductsByMarketingFamily, type Product } from '@/lib/products'
 import { seriesSlug as toSeriesSlug } from '@/data/family-map'
 import { buildMergedSeriesProps } from '@/lib/merged-series'
+import SkuDetailPage from '@/components/products/sku/SkuDetailPage'
+import { buildSkuDetailProps } from '@/lib/sku-detail'
 import { COMPLEMENT_FAMILIES, pickRelatedSeries } from '@/lib/related-series'
 import { SERIES_EDITORIAL } from '@/data/series-editorial.generated'
 import { seriesPurchaseLinks } from '@/data/distributors'
@@ -19,13 +21,21 @@ function isLive(s: SeriesLink): s is LiveSeries {
   return s.href !== '#'
 }
 
+// The three spec-driven families also get one SKU detail page per product;
+// Signage stays series-only (locked: merged series pages, no per-SKU pages).
+const SKU_DETAIL_FAMILIES = new Set(['led-drivers', 'control-gear', 'accessories'])
+
 export async function generateStaticParams() {
-  // DB-driven: every series that has products, across all 4 marketing families.
+  // DB-driven: every series that has products, across all 4 marketing families —
+  // plus one SKU param per product for the spec-driven families.
   const params: { slug: string; series: string }[] = []
   for (const f of ['led-signage-modules', 'led-drivers', 'control-gear', 'accessories']) {
     const products = await getProductsByMarketingFamily(f, { depth: 0 })
     const slugs = new Set(products.map((p) => toSeriesSlug(p.series)))
     for (const s of slugs) params.push({ slug: f, series: s })
+    if (SKU_DETAIL_FAMILIES.has(f)) {
+      for (const p of products) params.push({ slug: f, series: encodeURIComponent(p.sku) })
+    }
   }
   return params
 }
@@ -45,6 +55,17 @@ export async function generateMetadata({ params }: { params: Params }): Promise<
     ([code]) => toSeriesSlug(code) === series,
   )
   if (editorial) return { title: `${editorial[1].label} — ENVO`, description: editorial[1].lede, alternates: { canonical: `/products/${slug}/${series}` } }
+  // SKU detail pages (spec-driven families): title on the product itself.
+  if (SKU_DETAIL_FAMILIES.has(slug)) {
+    const product = await getProduct(decodeURIComponent(series))
+    if (product) {
+      return {
+        title: `${product.name} — ENVO`,
+        description: product.short_description ?? `${product.name} — specifications, datasheet and where to buy.`,
+        alternates: { canonical: `/products/${slug}/${series}` },
+      }
+    }
+  }
   return { title: `${family.name} — ENVO`, description: family.longDesc, alternates: { canonical: `/products/${slug}/${series}` } }
 }
 
@@ -179,7 +200,20 @@ export default async function SeriesDetailPage({ params }: { params: Params }) {
   // ── Every other series: generic, data-driven merged page ──
   const all = await getProductsByMarketingFamily(slug, { depth: 0 })
   const products = all.filter((p) => toSeriesSlug(p.series) === series)
-  if (products.length === 0) notFound()
+
+  if (products.length === 0) {
+    // Not a series slug — try it as a SKU (spec-driven families only). Series
+    // always wins the segment; SKU is the fallback. (Design spec §3.)
+    if (SKU_DETAIL_FAMILIES.has(slug)) {
+      const decoded = decodeURIComponent(series)
+      const product = await getProduct(decoded)
+      if (product && all.some((p) => p.sku === product.sku)) {
+        const sameSeries = all.filter((p) => toSeriesSlug(p.series) === toSeriesSlug(product.series))
+        return <SkuDetailPage {...buildSkuDetailProps(family, product, sameSeries)} />
+      }
+    }
+    notFound()
+  }
 
   // "Pairs with" cards need the complementary families' series lists too.
   // Fetched sequentially on purpose — the dev pooler's connection cap.

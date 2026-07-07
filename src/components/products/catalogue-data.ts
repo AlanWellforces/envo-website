@@ -443,12 +443,11 @@ function skuCard(
 ): CatalogueCard {
   const familyLabel = family.tag.split('·')[0].trim()
   const img = resolveProductImage(p, seriesLineArt(p.series, family.slug))
-  const seriesHref = `/products/${family.slug}/${seriesSlug(p.series)}`
   return {
     key: `${family.slug}:${p.sku}`,
-    // Phase 1 interim: link to the series page (SKU detail route lands in Phase 2,
-    // which repoints this href + ctaLabel). Datasheet stays a detail-page CTA.
-    href: seriesHref,
+    // SKU detail page (series-first-then-SKU route). Datasheet stays a
+    // detail-page CTA, never the card destination.
+    href: `/products/${family.slug}/${encodeURIComponent(p.sku)}`,
     familyLabel,
     name: p.name,
     desc: parts.desc,
@@ -458,7 +457,7 @@ function skuCard(
     chips: buildChips(parts.facets, parts.maxPowerForChips ?? null),
     sku: p.sku,
     facts: parts.facts,
-    ctaLabel: 'View series',
+    ctaLabel: 'View product',
     modelCount: 1,
     section: parts.section,
     certified: (p.standards_met ?? []).length > 0,
