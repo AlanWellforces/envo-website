@@ -25,9 +25,9 @@
 
 /* buttons */
 .v4-btn{display:inline-flex;align-items:center;gap:9px;font:600 15px/1 var(--font-sans);letter-spacing:-.005em;
-  padding:15px 24px;border-radius:11px;text-decoration:none;transition:.18s;cursor:pointer;border:1px solid transparent;}
-.v4-btn-primary{background:var(--v4-blue);color:#fff;box-shadow:0 8px 28px rgba(0,113,188,.4);}
-.v4-btn-primary:hover{background:#0084dc;transform:translateY(-1px);}
+  padding:15px 26px;border-radius:999px;text-decoration:none;transition:.2s;cursor:pointer;border:1px solid transparent;}
+.v4-btn-primary{background:var(--v4-blue);color:#fff;box-shadow:0 10px 26px -12px rgba(0,113,188,.95);}
+.v4-btn-primary:hover{background:#0086e0;transform:translateY(-2px);box-shadow:0 16px 34px -12px rgba(0,113,188,1);}
 .v4-btn-ghost{background:transparent;color:#fff;border-color:rgba(255,255,255,.3);}
 .v4-btn-ghost:hover{border-color:#fff;background:rgba(255,255,255,.07);}
 /* strong secondary: clearly below primary, clearly above the text link */
@@ -336,9 +336,11 @@
 /* --- free layout CTA (split + sketch) --- */
 .flB { background: #070f1f; padding: 64px 0; }
 .flB .btns { display: flex; gap: 14px; flex-wrap: wrap; }
-.flB .fl-lime { display: inline-flex; align-items: center; gap: 10px; padding: 15px 28px; border-radius: 10px; background: var(--v4-lime); color: #1a2b06; font: 700 15px/1 var(--font-sans); text-decoration: none; }
+.flB .fl-lime { display: inline-flex; align-items: center; gap: 10px; padding: 15px 28px; border-radius: 999px; background: var(--v4-blue); color: #fff; font: 600 15px/1 var(--font-sans); text-decoration: none; box-shadow: 0 10px 26px -12px rgba(0,113,188,.95); transition: .2s; }
+.flB .fl-lime:hover { background: #0086e0; transform: translateY(-2px); }
 .flB .fl-lime svg { width: 16px; height: 16px; }
-.flB .fl-ghost { display: inline-flex; align-items: center; padding: 15px 28px; border-radius: 10px; border: 1px solid #ffffff33; color: #fff; font: 600 15px/1 var(--font-sans); text-decoration: none; }
+.flB .fl-ghost { display: inline-flex; align-items: center; padding: 15px 28px; border-radius: 999px; border: 1px solid #ffffff33; color: #fff; font: 600 15px/1 var(--font-sans); text-decoration: none; transition: .2s; }
+.flB .fl-ghost:hover { border-color: #ffffff80; background: rgba(255,255,255,.06); }
 .flB .panel { position: relative; overflow: hidden; display: grid; grid-template-columns: 1.05fr .95fr; gap: 40px; align-items: center; border: 1px solid #ffffff14; border-radius: 22px; background: linear-gradient(120deg, #0c2747, #0a1426); padding: 48px; }
 .flB .glow { position: absolute; right: -6%; top: -50%; width: 45%; height: 200%; background: radial-gradient(circle, #0071bc4d, transparent 60%); filter: blur(16px); }
 .flB .txt { position: relative; }
