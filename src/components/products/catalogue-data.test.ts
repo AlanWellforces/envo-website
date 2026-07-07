@@ -5,6 +5,7 @@ import {
   buildControlGearProductCards,
   buildDriverProductCards,
   buildAccessoryProductCards,
+  buildProductCardsFor,
 } from './catalogue-data'
 import { PRODUCT_FAMILIES } from '@/data/product-families'
 import type { Product } from '@/lib/products'
@@ -296,6 +297,33 @@ describe('accessory SKU cards', () => {
   it('never surfaces a price', () => {
     const products = [p({ sku: 'ACC-2', family: 'accessory_general', price_nzd: 5 })]
     expect(JSON.stringify(buildAccessoryProductCards(ACCESSORIES, products))).not.toMatch(/nzd|"price"/i)
+  })
+})
+
+// ── per-family card dispatcher ──────────────────────────────────────────────
+describe('per-family card dispatcher', () => {
+  const one = (over: Record<string, unknown>) => [p(over)]
+
+  it('drivers/control-gear/accessories → per-SKU productGrid', () => {
+    for (const [slug, fam] of [['led-drivers', DRIVERS], ['control-gear', CONTROL], ['accessories', ACCESSORIES]] as const) {
+      const r = buildProductCardsFor(slug, fam, one({ sku: `${slug}-1`, series: 'sc_envo', family: 'psu_led_cv' }))
+      expect(r.layout).toBe('productGrid')
+      expect(r.resultKind).toBe('products')
+      expect(r.cards[0].sku).toBe(`${slug}-1`)
+    }
+  })
+
+  it('signage → series cards in productGrid layout (no per-SKU explosion)', () => {
+    const SIGNAGE = PRODUCT_FAMILIES.find((f) => f.slug === 'led-signage-modules')!
+    const r = buildProductCardsFor('led-signage-modules', SIGNAGE, [
+      p({ sku: 'EV-A', series: 'envo_ecoglo', cct_k: 4000 }),
+      p({ sku: 'EV-B', series: 'envo_ecoglo', cct_k: 6500 }),
+    ])
+    expect(r.layout).toBe('productGrid')
+    expect(r.resultKind).toBe('series')
+    expect(r.cards).toHaveLength(1) // one series card, not two SKU cards
+    expect(r.cards[0].sku).toBeUndefined()
+    expect(r.cards[0].ctaLabel).toBe('View series') // never the grid's "View product" default
   })
 })
 

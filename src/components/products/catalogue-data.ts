@@ -543,6 +543,31 @@ export function buildDriverProductCards(family: ProductFamily, products: Product
     .sort((a, b) => (sectionOrder(a.section) - sectionOrder(b.section)) || a.name.localeCompare(b.name))
 }
 
+/** Pick the card set + layout for a family's category page.
+ *  Drivers / Control Gear / Accessories → per-SKU product cards.
+ *  Signage → series cards, but rendered in the product-grid layout. */
+export function buildProductCardsFor(
+  slug: string,
+  family: ProductFamily,
+  products: Product[],
+): { cards: CatalogueCard[]; layout: 'rows' | 'productGrid'; resultKind: 'series' | 'products' } {
+  switch (slug) {
+    case 'control-gear':
+      return { cards: buildControlGearProductCards(family, products), layout: 'productGrid', resultKind: 'products' }
+    case 'led-drivers':
+      return { cards: buildDriverProductCards(family, products), layout: 'productGrid', resultKind: 'products' }
+    case 'accessories':
+      return { cards: buildAccessoryProductCards(family, products), layout: 'productGrid', resultKind: 'products' }
+    default: // led-signage-modules: series cards, product-grid look
+      return {
+        // Series cards in the grid must not read "View product" (the grid default).
+        cards: buildCards(family, products).map((c) => ({ ...c, ctaLabel: 'View series' })),
+        layout: 'productGrid',
+        resultKind: 'series',
+      }
+  }
+}
+
 function accessoryFacts(p: Product): string[] {
   const d = formatDims(p.length_mm, p.width_mm, p.height_mm)
   const facts: (string | undefined)[] = [
