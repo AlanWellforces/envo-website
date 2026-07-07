@@ -64,6 +64,23 @@ describe('buildSkuDetailProps', () => {
     expect(props.variants).toHaveLength(1)
   })
 
+  it('fills the Overview tab from the Akeneo description, sanitised', () => {
+    const p = mk({
+      sku: 'EV-D-1',
+      description: '<p data-start="1" data-end="9">Robust driver.</p><script>alert(1)</script><ul><li onclick="x()">IP67</li></ul>',
+    })
+    const props = buildSkuDetailProps(DRIVERS, p, [p])
+    expect(props.overview?.heading).toBe('About the EV-D-1.')
+    expect(props.overview?.html).toContain('<p>Robust driver.</p>')
+    expect(props.overview?.html).toContain('<li>IP67</li>')
+    expect(props.overview?.html).not.toMatch(/script|onclick|data-start/)
+  })
+
+  it('omits the Overview tab when the PIM has no description', () => {
+    const p = mk({ sku: 'EV-D-2', description: null })
+    expect(buildSkuDetailProps(DRIVERS, p, [p]).overview).toBeUndefined()
+  })
+
   it('never includes a price field', () => {
     const props = buildSkuDetailProps(DRIVERS, mk({ sku: 'Y', price_nzd: 9 }), [mk({ sku: 'Y' })])
     expect(JSON.stringify(props)).not.toMatch(/nzd|"price"/i)

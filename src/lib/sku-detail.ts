@@ -30,6 +30,15 @@ export function buildSkuDetailProps(
       : v,
   )
 
+  // Overview tab = the product's own Akeneo description (rich HTML). Light
+  // sanitise: no scripts / inline handlers, and the authoring tool's data-*
+  // artefacts dropped. Section omitted entirely when the PIM has no copy.
+  const descriptionHtml = product.description
+    ?.replace(/<script[\s\S]*?<\/script>/gi, '')
+    .replace(/\son[a-z]+="[^"]*"/gi, '')
+    .replace(/\sdata-[a-z-]+="[^"]*"/gi, '')
+    .trim()
+
   // H1 = the SKU code (Akeneo names are spec soup — those numbers already live
   // in the key-spec grid). The descriptive remainder of the name, stripped of
   // brand + SKU, becomes the one-line subtitle.
@@ -47,6 +56,7 @@ export function buildSkuDetailProps(
     title: product.sku,
     heroSubtitle:
       descriptiveName || (solo.heroSubtitle ?? product.short_description?.trim() ?? product.subtitle?.trim() ?? undefined),
+    overview: descriptionHtml ? { heading: `About the ${product.sku}.`, html: descriptionHtml } : undefined,
     // exact facts for THIS SKU, never series-wide ranges
     keySpecs: solo.keySpecs,
     datasheetUrl: solo.datasheetUrl,

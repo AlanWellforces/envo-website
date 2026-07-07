@@ -282,6 +282,11 @@
 .pdetail .overview { padding: 8px 0 24px; max-width: 76ch; }
 .pdetail .overview h2 { font-size: 23px; letter-spacing: -0.025em; margin: 6px 0 14px; font-weight: 700; }
 .pdetail .overview p { font-size: 15px; color: var(--text-muted); line-height: 1.65; margin: 0; }
+/* Akeneo HTML descriptions (SKU pages): paragraphs + feature bullet lists */
+.pdetail .overview .ov-html p { margin: 0 0 12px; }
+.pdetail .overview .ov-html p:last-child { margin-bottom: 0; }
+.pdetail .overview .ov-html ul { list-style: disc; margin: 0 0 12px; padding-left: 20px; }
+.pdetail .overview .ov-html li { font-size: 15px; color: var(--text-muted); line-height: 1.65; margin: 4px 0; }
 
 /* ===== downloads ===== */
 .pdetail .downloads { padding: 8px 0 24px; }

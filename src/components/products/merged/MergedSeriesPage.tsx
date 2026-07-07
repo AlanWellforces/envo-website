@@ -76,7 +76,9 @@ export type MergedSeriesProps = {
    *  as table rows — for series with too many models for a column table. */
   variantLayout?: 'columns' | 'rows'
   sharedRows?: MergedSharedRow[]
-  overview?: { heading: string; body: string }
+  /** Overview tab: plain `body` paragraph, or trusted Akeneo/PIM `html`
+   *  (product descriptions) — exactly one of the two */
+  overview?: { heading: string; body?: string; html?: string }
   solutions?: MergedSolution[]
   downloads?: MergedDownload[]
   related?: MergedRelated[]
@@ -221,7 +223,12 @@ export default function MergedSeriesPage(p: MergedSeriesProps) {
   const overviewPanel: ReactNode = p.overview && (
     <div className="overview">
       <h2>{p.overview.heading}</h2>
-      <p>{p.overview.body}</p>
+      {p.overview.html ? (
+        // Trusted internal copy (Akeneo PIM description), sanitised upstream.
+        <div className="ov-html" dangerouslySetInnerHTML={{ __html: p.overview.html }} />
+      ) : (
+        <p>{p.overview.body}</p>
+      )}
     </div>
   )
 
