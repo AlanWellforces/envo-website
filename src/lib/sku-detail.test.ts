@@ -30,7 +30,8 @@ describe('buildSkuDetailProps', () => {
     expect(props.heroSubtitle).toBe('SNG 350W 24V') // descriptive name (brand/SKU stripped)
     expect(props.breadcrumb.seriesLabel).toBe('EV-SNG-350-24') // crumb ends on the SKU
     expect(props.heroStage).toHaveLength(1) // stage = one product image, no sibling collage
-    expect(props.thumbs).toBeUndefined() // no sibling-model tiles; strip only returns with scene photos
+    expect(props.thumbs?.[0]?.label).toBe('EV-SNG-350-24') // own tile only — never sibling-model tiles
+    expect(props.thumbs?.some((t) => t.label === 'EV-SNG-350-12')).toBe(false)
     // exact key specs from THIS product only — never a series-wide range
     const power = props.keySpecs?.find((s) => s.label === 'Power range')
     expect(power?.value).toBe('350 W')
@@ -79,6 +80,27 @@ describe('buildSkuDetailProps', () => {
   it('omits the Overview tab when the PIM has no description', () => {
     const p = mk({ sku: 'EV-D-2', description: null })
     expect(buildSkuDetailProps(DRIVERS, p, [p]).overview).toBeUndefined()
+  })
+
+  it("derives 'Where it works' from the product's copy and specs", () => {
+    const p = mk({
+      sku: 'EV-D-3', name: 'Envo EV-D-3 LED Driver', operation_mode: 'cv', output_voltage_v: 24, waterproof: 'ip67',
+      description: '<p>Well-suited for street lighting, floodlights, architectural illumination, and commercial LED systems.</p>',
+    })
+    const sols = buildSkuDetailProps(DRIVERS, p, [p]).solutions!
+    expect(sols.length).toBeLessThanOrEqual(4)
+    expect(sols.map((s) => s.title)).toEqual(
+      expect.arrayContaining(['Street & area lighting', 'Floodlighting', 'Architectural illumination']),
+    )
+  })
+
+  it('derives control-gear applications from the unit type and protocol', () => {
+    const CONTROL = PRODUCT_FAMILIES.find((f) => f.slug === 'control-gear')!
+    const p = mk({ sku: 'ZB-R1', name: 'ENVO ZigBee Self-powered Remote', family: 'psu_led_controller', series: 'envo_zigbee', dimming_control: ['zigbee'] })
+    const sols = buildSkuDetailProps(CONTROL, p, [p]).solutions!
+    expect(sols.map((s) => s.title)).toEqual(
+      expect.arrayContaining(['Handheld scene control', 'Zigbee lighting systems']),
+    )
   })
 
   it('never includes a price field', () => {

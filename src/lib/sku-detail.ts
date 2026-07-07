@@ -8,7 +8,61 @@ import type { Product } from '@/lib/products'
 import type { ProductFamily } from '@/data/product-families'
 import { seriesLabel } from '@/data/family-map'
 import { buildMergedSeriesProps } from '@/lib/merged-series'
-import type { MergedSeriesProps } from '@/components/products/merged/MergedSeriesPage'
+import type { MergedSeriesProps, MergedSolution } from '@/components/products/merged/MergedSeriesPage'
+
+// ── "Where it works" derived from the product itself ────────────────────────
+// Editorial solutions exist only for signage series, so spec-driven SKUs
+// derive their application cards from their own Akeneo copy + spec fields.
+// Two evidence tiers: (1) applications the description NAMES, (2) what the
+// specs imply (IP, dimming, CV rail, protocol, unit type). Nothing invented.
+const DESCRIPTION_APPS: [RegExp, MergedSolution][] = [
+  [/street ?light/i, { title: 'Street & area lighting', pick: 'outdoor duty' }],
+  [/flood ?light/i, { title: 'Floodlighting', pick: 'high-output installs' }],
+  [/architectural/i, { title: 'Architectural illumination', pick: 'façades & feature lighting' }],
+  [/channel letter/i, { title: 'Channel letters', pick: 'sign-cabinet duty' }],
+  [/light ?box/i, { title: 'Light boxes', pick: 'even backlighting' }],
+  [/\bsignage\b/i, { title: 'Signage systems', pick: 'sign-duty rated' }],
+  [/led strip|strip light|tape light/i, { title: 'LED strip runs', pick: 'constant-voltage rails' }],
+  [/cabinet|showcase|display case/i, { title: 'Display & cabinet lighting', pick: 'compact low-profile' }],
+  [/commercial/i, { title: 'Commercial LED systems', pick: 'continuous-duty use' }],
+  [/residential|home/i, { title: 'Residential lighting', pick: 'home installations' }],
+]
+
+function deriveSolutions(slug: string, p: Product): MergedSolution[] {
+  const out: MergedSolution[] = []
+  const add = (s: MergedSolution) => {
+    if (out.length < 4 && !out.some((x) => x.title === s.title)) out.push(s)
+  }
+  const text = `${p.description ?? ''} ${p.short_description ?? ''}`
+
+  // Tier 1 — applications the product copy names outright.
+  for (const [re, sol] of DESCRIPTION_APPS) if (re.test(text)) add(sol)
+
+  // Tier 2 — what the spec sheet implies.
+  const ip = p.waterproof && /^ip\d+$/i.test(p.waterproof) ? p.waterproof.toUpperCase() : null
+  if (slug === 'led-drivers') {
+    if (ip && Number(ip.slice(2)) >= 65) add({ title: 'Outdoor installations', pick: `${ip} sealed enclosure` })
+    else add({ title: 'Indoor installations', pick: 'compact indoor enclosure' })
+    if (p.dimming_control?.includes('triac') || /triac[- ]?dim/i.test(p.name))
+      add({ title: 'Dimmed retail & hospitality', pick: 'Triac phase dimming' })
+    if (p.dimming_control?.includes('dali')) add({ title: 'DALI-controlled buildings', pick: 'DALI dimming' })
+    if (p.operation_mode !== 'cc' && (p.output_voltage_v === 12 || p.output_voltage_v === 24))
+      add({ title: 'Signage modules & LED strip', pick: `${p.output_voltage_v} V constant voltage` })
+  } else {
+    const n = p.name
+    const proto = /casambi/i.test(n) || p.dimming_control?.includes('casambi') ? 'Casambi'
+      : /zig.?bee/i.test(n) || p.dimming_control?.includes('zigbee') ? 'Zigbee'
+      : /dali/i.test(n) || p.dimming_control?.includes('dali') ? 'DALI' : null
+    if (/sensor/i.test(n)) add({ title: 'Occupancy & daylight automation', pick: 'sensor-driven control' })
+    if (/remote/i.test(n)) add({ title: 'Handheld scene control', pick: 'wireless remote' })
+    if (/gateway|smart hub/i.test(n)) add({ title: 'Smart-building integration', pick: 'gateway / hub' })
+    if (/wall panel|in-?wall|push button|rotary|switch/i.test(n))
+      add({ title: 'Wall-point scene switching', pick: 'wall-mounted control' })
+    if (proto) add({ title: `${proto} lighting systems`, pick: `${proto} protocol` })
+    if (ip && Number(ip.slice(2)) >= 65) add({ title: 'Outdoor installations', pick: `${ip} sealed` })
+  }
+  return out
+}
 
 export function buildSkuDetailProps(
   family: ProductFamily,
@@ -61,15 +115,17 @@ export function buildSkuDetailProps(
     keySpecs: solo.keySpecs,
     datasheetUrl: solo.datasheetUrl,
     downloads: solo.datasheetUrl ? [{ name: `${product.sku} datasheet`, meta: 'PDF', href: solo.datasheetUrl }] : [],
+    // 'Where it works' — editorial when authored, else derived from the
+    // product's own copy + specs (user 2026-07-08).
+    solutions: base.solutions?.length ? base.solutions : deriveSolutions(family.slug, product),
     // hero gallery shows only THIS product (user 2026-07-08): stage = its own
-    // image; thumbs keep the strip feature but drop sibling-model tiles —
-    // own tile + editorial scene photos only, and a lone tile that would just
-    // duplicate the stage is omitted entirely
+    // image; the thumb strip stays — own tile + any editorial scene photos,
+    // never sibling-model tiles
     heroStage: [solo.variants[0].image],
-    thumbs: (() => {
-      const own = base.thumbs?.filter((t) => t.cover || t.label === product.sku)
-      return own && own.length > 1 ? own : undefined
-    })(),
+    thumbs: [
+      { ...solo.variants[0].image, label: product.sku },
+      ...(base.thumbs?.filter((t) => t.cover) ?? []),
+    ],
     variants,
   }
 }
