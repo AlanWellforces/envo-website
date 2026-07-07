@@ -53,7 +53,9 @@ export function Hero({ data = {} }: { data?: HomeHeroData }) {
             <span className="v4-chip cert-chip">
               <Image src="/assets/images/certs/ce.png" alt="CE" width={25} height={20} priority />
               <Image src="/assets/images/certs/ul.png" alt="UL" width={20} height={20} priority />
-              <Image src="/assets/images/certs/rohs.png" alt="RoHS" width={35} height={20} priority />
+              {/* props match the file's true 528×300 ratio (44:25 = 1.76) so
+                  Next's aspect-ratio check passes; CSS sizes it to 20px tall */}
+              <Image src="/assets/images/certs/rohs.png" alt="RoHS" width={44} height={25} priority />
               <Image src="/assets/images/certs/tuv.png" alt="TÜV" width={20} height={20} priority />
             </span>
           </div>
