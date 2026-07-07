@@ -77,10 +77,10 @@ export default async function ResourcesPage() {
                 <path d="M21 11.5a8.38 8.38 0 0 1-9 8.5 8.5 8.5 0 0 1-3.8-.9L3 21l1.9-5.7A8.38 8.38 0 0 1 12 3a8.5 8.5 0 0 1 9 8.5z" />
               </svg>
             </span>
-            <h3>Chat with support</h3>
-            <p>Spec help, compatibility and lead-time questions — talk to our technical team.</p>
+            <h3>Ask our engineers</h3>
+            <p>Spec help, compatibility and lead-time questions — our technical team can help.</p>
             <Link className="rd-go" href="/contact">
-              Start a chat <span>→</span>
+              Contact us <span>→</span>
             </Link>
           </div>
         </div>
