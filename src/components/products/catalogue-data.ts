@@ -407,6 +407,7 @@ export function buildCards(family: ProductFamily, products: Product[]): Catalogu
         (mx, p) => (p.power_w != null && (mx == null || p.power_w > mx) ? p.power_w : mx),
         null,
       )
+      facets.family = [family.name] // Category picker on the all-families index
       const signage = family.slug === 'led-signage-modules'
       cards.push({
         key: `${family.slug}:${g.code ?? 'other'}`,
@@ -661,9 +662,15 @@ export function buildGroups(cards: CatalogueCard[], familySlug?: string): FacetG
           group('brightness', 'Brightness', cards, BRIGHTNESS.label, BRIGHTNESS.order),
           group('cct', 'Colour temp (CCT)', cards, (v) => `${v} K`, (v) => Number(v)),
         ]
-      default:
-        // /products (all families) — the original generic, adaptive set.
+      default: {
+        // /products (all families) — category picker first (BounceLED-style),
+        // then the generic adaptive set. Family order follows the site nav.
+        const FAMILY_ORDER = ['Signage Modules', 'LED Drivers', 'Control Gear', 'Accessories']
         return [
+          group('family', 'Category', cards, (v) => v, (v) => {
+            const i = FAMILY_ORDER.indexOf(v)
+            return i < 0 ? 99 : i
+          }),
           group('size', 'Size', cards, SIZE.label, SIZE.order),
           group('ledconfig', 'LED configuration', cards, LED.label, LED.order),
           group('brightness', 'Brightness', cards, BRIGHTNESS.label, BRIGHTNESS.order),
@@ -671,6 +678,7 @@ export function buildGroups(cards: CatalogueCard[], familySlug?: string): FacetG
           group('voltage', 'Voltage', cards, VOLTAGE.label, VOLTAGE.order),
           group('opmode', 'Driver type', cards, OPMODE.label, OPMODE.order),
         ]
+      }
     }
   })()
   return candidates.filter((g): g is FacetGroup => g !== null)

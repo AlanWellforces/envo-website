@@ -194,6 +194,16 @@ describe('per-family filter groups', () => {
     expect(keys).not.toContain('power')
     expect(keys).not.toContain('environment')
   })
+
+  it('the all-families view puts the Category picker first, in nav order', () => {
+    const cards = [
+      ...buildCards(DRIVERS, driverProducts),
+      ...buildCards(CONTROL, [p({ sku: 'Z1', family: 'psu_led_controller', series: 'envo_zigbee', dimming_control: ['zigbee'] })]),
+    ]
+    const groups = buildGroups(cards)
+    expect(groups[0].key).toBe('family')
+    expect(groups[0].options.map((o) => o.label)).toEqual(['LED Drivers', 'Control Gear'])
+  })
 })
 
 // ── control-gear facet derivations ──────────────────────────────────────────
