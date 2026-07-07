@@ -10,7 +10,6 @@ import {
 import { seriesSlug, seriesLabel, seriesLineArt, seriesSectionTitle } from '@/data/family-map'
 import { SERIES_BLURBS, LED_CONFIG_OPTIONS } from '@/data/series-applications'
 import { catalogueSeriesMeta } from '@/data/series-catalogue-meta'
-import { datasheetHref } from '@/lib/asset-url'
 
 export type FacetOption = { value: string; label: string; count: number }
 export type FacetGroup = { key: string; label: string; options: FacetOption[] }
@@ -434,52 +433,58 @@ export function buildCards(family: ProductFamily, products: Product[]): Catalogu
   return cards
 }
 
+/** Common per-SKU catalogue-card shell. Family builders supply the derived
+ *  desc/facts/facets/section; image, chips, CTA and identity are shared. */
+function skuCard(
+  family: ProductFamily,
+  p: Product,
+  parts: { desc: string; facts: string[]; facets: Record<string, string[]>; section: string; maxPowerForChips?: number | null },
+): CatalogueCard {
+  const familyLabel = family.tag.split('·')[0].trim()
+  const img = resolveProductImage(p, seriesLineArt(p.series, family.slug))
+  const seriesHref = `/products/${family.slug}/${seriesSlug(p.series)}`
+  return {
+    key: `${family.slug}:${p.sku}`,
+    // Phase 1 interim: link to the series page (SKU detail route lands in Phase 2,
+    // which repoints this href + ctaLabel). Datasheet stays a detail-page CTA.
+    href: seriesHref,
+    familyLabel,
+    name: p.name,
+    desc: parts.desc,
+    imgSrc: img.src,
+    imgLocal: img.isLocal,
+    imgAlt: img.alt,
+    chips: buildChips(parts.facets, parts.maxPowerForChips ?? null),
+    sku: p.sku,
+    facts: parts.facts,
+    ctaLabel: 'View series',
+    modelCount: 1,
+    section: parts.section,
+    certified: (p.standards_met ?? []).length > 0,
+    facets: parts.facets,
+  }
+}
+
 /** Build one visible catalogue card per control-gear SKU. Controllers, remotes,
  * gateways, switches and sensors are bought as individual units, so the family
  * landing should expose products directly instead of hiding them behind broad
  * "range" rows. */
 export function buildControlGearProductCards(family: ProductFamily, products: Product[]): CatalogueCard[] {
-  const familyLabel = family.tag.split('·')[0].trim()
-
   return products
     .map((p) => {
-      const img = resolveProductImage(p, seriesLineArt(p.series, family.slug))
       const protocol = protocolValues(p)
       const fn = functionValue(p)
       const controlTypes = controlTypeValues(p)
       const channel = channelsValue(p)
-      const facets: Record<string, string[]> = {
-        protocol,
-        function: uniq([fn]),
-        controltype: controlTypes,
-        channels: uniq([channel]),
-      }
-      const seriesHref = `/products/${family.slug}/${seriesSlug(p.series)}`
-      const sheetHref = p.spec_sheet_url ? datasheetHref(p.sku) : null
-
-      return {
-        key: `${family.slug}:${p.sku}`,
-        href: sheetHref ?? seriesHref,
-        familyLabel,
-        name: p.name,
+      const facets = { protocol, function: uniq([fn]), controltype: controlTypes, channels: uniq([channel]) }
+      return skuCard(family, p, {
         desc: controlGearDesc(protocol, fn, controlTypes),
-        imgSrc: img.src,
-        imgLocal: img.isLocal,
-        imgAlt: img.alt,
-        chips: buildChips(facets, null),
-        sku: p.sku,
         facts: controlGearFacts(p, fn, controlTypes, channel),
-        ctaLabel: sheetHref ? 'Datasheet' : 'View series',
-        modelCount: 1,
-        section: seriesSectionTitle(family.slug, [p]),
-        certified: (p.standards_met ?? []).length > 0,
         facets,
-      } satisfies CatalogueCard
+        section: seriesSectionTitle(family.slug, [p]),
+      })
     })
-    .sort((a, b) => {
-      const section = sectionOrder(a.section) - sectionOrder(b.section)
-      return section || a.name.localeCompare(b.name)
-    })
+    .sort((a, b) => (sectionOrder(a.section) - sectionOrder(b.section)) || a.name.localeCompare(b.name))
 }
 
 function sectionOrder(section: string): number {

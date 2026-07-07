@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest'
-import { buildCards, buildGroups } from './catalogue-data'
+import { buildCards, buildGroups, buildControlGearProductCards } from './catalogue-data'
 import { PRODUCT_FAMILIES } from '@/data/product-families'
 import type { Product } from '@/lib/products'
 
@@ -207,6 +207,27 @@ describe('control-gear derivations', () => {
     expect(card1({ sku: 'A', controller_type: ['ct', 'dimming', 'rgb', 'rgb_cct', 'rgbw'] }).facets.controltype)
       .toEqual(expect.arrayContaining(['ct', 'single', 'rgb', 'rgb_cct', 'rgbw']))
     expect(card1({ sku: 'B', name: 'ENVO PRO DALI2 DT8 LED Controller RGBWW 5 CH' }).facets.controltype).toEqual(['rgb_cct'])
+  })
+})
+
+// ── control-gear SKU cards (post-refactor parity) ───────────────────────────
+describe('control-gear SKU cards (post-refactor parity)', () => {
+  const products = [
+    p({ sku: 'CA-1', name: 'ENVO Casambi Low Voltage Controller, 12-48V 5 Channel',
+        family: 'psu_led_controller', series: 'envo_casambi', dimming_control: ['casambi'],
+        controller_type: ['rgbw'], output_channel: '5_channel', spec_sheet_url: 'x.pdf' }),
+  ]
+  const [card] = buildControlGearProductCards(CONTROL, products)
+
+  it('is one card per SKU carrying the SKU and per-unit facts', () => {
+    expect(card.sku).toBe('CA-1')
+    expect(card.modelCount).toBe(1)
+    expect(card.facts?.length).toBeGreaterThan(0)
+    expect(card.facets.protocol).toEqual(['casambi'])
+    expect(card.facets.channels).toEqual(['5'])
+  })
+  it('never surfaces a price', () => {
+    expect(JSON.stringify(card)).not.toMatch(/nzd|price/i)
   })
 })
 
