@@ -15,6 +15,9 @@ export type MergedVariant = {
   beads?: number
   image: Img
   star?: boolean
+  /** marks THIS column/row as the SKU being viewed (SKU detail pages) —
+   *  tinted background + "Current model" tag */
+  current?: boolean
   modelCode?: string
   ledBeads?: string
   output?: string
@@ -77,9 +80,9 @@ export type MergedSeriesProps = {
   solutions?: MergedSolution[]
   downloads?: MergedDownload[]
   related?: MergedRelated[]
-  /** extra content appended to the Specifications panel — the SKU detail page
-   *  injects its same-series comparison table here; series pages leave it unset */
-  afterSpecs?: ReactNode
+  /** hero stage override — SKU detail pages show ONLY the viewed product's
+   *  image while the compare table still carries every sibling model */
+  heroStage?: Img[]
 }
 
 // Per-variant spec rows, rendered only when at least one variant carries a value.
@@ -244,7 +247,6 @@ export default function MergedSeriesPage(p: MergedSeriesProps) {
         ))}
       </dl>
       {p.variants[0].bestFor && <p className="spec-bestfor">Best for {p.variants[0].bestFor}.</p>}
-      {p.afterSpecs}
     </div>
   )
 
@@ -267,8 +269,11 @@ export default function MergedSeriesPage(p: MergedSeriesProps) {
             </thead>
             <tbody>
               {p.variants.map((v) => (
-                <tr key={v.name}>
-                  <th className="mono">{v.modelCode ?? v.name}</th>
+                <tr key={v.modelCode ?? v.name} className={v.current ? 'is-current' : undefined}>
+                  <th className="mono">
+                    {v.modelCode ?? v.name}
+                    {v.current && <span className="cur-tag">Current model</span>}
+                  </th>
                   {specRows.map((r) => (
                     <td key={r.key} className={r.cls}>
                       {(v[r.key] as string) ?? '—'}
@@ -301,8 +306,12 @@ export default function MergedSeriesPage(p: MergedSeriesProps) {
               <tr>
                 <th className="rowhead" />
                 {p.variants.map((v) => (
-                  <th key={v.name} className={`vcol${v.star ? ' c-star' : ''}`}>
-                    {v.star && <span className="star">★ most specified</span>}
+                  <th key={v.modelCode ?? v.name} className={`vcol${v.star ? ' c-star' : ''}${v.current ? ' c-cur' : ''}`}>
+                    {v.current ? (
+                      <span className="star cur">● Current model</span>
+                    ) : (
+                      v.star && <span className="star">★ most specified</span>
+                    )}
                     <div className="vimg">
                       <Picture img={v.image} sizes="110px" />
                     </div>
@@ -323,7 +332,7 @@ export default function MergedSeriesPage(p: MergedSeriesProps) {
                 <tr key={row.key}>
                   <th>{row.label}</th>
                   {p.variants.map((v) => (
-                    <td key={v.name} className={row.cls}>
+                    <td key={v.modelCode ?? v.name} className={[row.cls, v.current ? 'cur' : undefined].filter(Boolean).join(' ') || undefined}>
                       {(v[row.key] as string) ?? '—'}
                     </td>
                   ))}
@@ -394,10 +403,13 @@ export default function MergedSeriesPage(p: MergedSeriesProps) {
               squished figures. ≤4 variants show the full collection set. */}
           <SeriesGallery
             beadtag={p.beadtag}
-            stage={(p.variantLayout === 'rows' ? p.variants.slice(0, 1) : p.variants.slice(0, 4)).map((v) => ({
-              ...v.image,
-              caption: p.variantLayout !== 'rows' ? v.name : undefined,
-            }))}
+            stage={
+              p.heroStage ??
+              (p.variantLayout === 'rows' ? p.variants.slice(0, 1) : p.variants.slice(0, 4)).map((v) => ({
+                ...v.image,
+                caption: p.variantLayout !== 'rows' ? v.name : undefined,
+              }))
+            }
             thumbs={p.thumbs}
           />
 

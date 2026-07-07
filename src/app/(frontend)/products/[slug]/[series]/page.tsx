@@ -7,7 +7,6 @@ import { formatDims } from '@/lib/units'
 import { getProduct, getProductsByMarketingFamily, type Product } from '@/lib/products'
 import { seriesSlug as toSeriesSlug } from '@/data/family-map'
 import { buildMergedSeriesProps } from '@/lib/merged-series'
-import SkuDetailPage from '@/components/products/sku/SkuDetailPage'
 import { buildSkuDetailProps } from '@/lib/sku-detail'
 import { COMPLEMENT_FAMILIES, pickRelatedSeries } from '@/lib/related-series'
 import { SERIES_EDITORIAL } from '@/data/series-editorial.generated'
@@ -216,11 +215,10 @@ export default async function SeriesDetailPage({ params }: { params: Params }) {
           productsByFamily[comp] = await getProductsByMarketingFamily(comp, { depth: 0 })
         }
         const related = pickRelatedSeries(slug, toSeriesSlug(product.series), productsByFamily)
-        const props = buildSkuDetailProps(family, product, sameSeries)
         return (
-          <SkuDetailPage
-            {...props}
-            merged={{ ...props.merged, related: related.length ? related : undefined }}
+          <MergedSeriesPage
+            {...buildSkuDetailProps(family, product, sameSeries)}
+            related={related.length ? related : undefined}
           />
         )
       }

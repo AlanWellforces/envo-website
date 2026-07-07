@@ -199,6 +199,10 @@
 .pdetail .cmp-table .vcol { text-align: center; padding: 18px 18px 16px; border-left: 1px solid var(--line); vertical-align: bottom; position: relative; }
 .pdetail .cmp-table .c-star { background: rgba(0, 113, 188, 0.04); }
 .pdetail .cmp-table .vcol .star { position: absolute; top: 9px; left: 0; right: 0; font-size: 8.5px; letter-spacing: 0.08em; text-transform: uppercase; color: var(--blue); font-weight: 700; }
+/* SKU detail pages — the column/row of the SKU being viewed: tinted + tagged */
+.pdetail .cmp-table .vcol.c-cur, .pdetail .cmp-table tbody td.cur { background: rgba(0, 113, 188, 0.07); }
+.pdetail .cmp-table.rows tr.is-current th, .pdetail .cmp-table.rows tr.is-current td { background: rgba(0, 113, 188, 0.07); }
+.pdetail .cmp-table .cur-tag { display: block; margin-top: 3px; font-size: 8.5px; letter-spacing: 0.08em; text-transform: uppercase; color: var(--blue); font-weight: 700; }
 .pdetail .cmp-table .vcol .dots { display: flex; gap: 5px; justify-content: center; margin-bottom: 9px; }
 .pdetail .cmp-table .vcol .dots i { width: 9px; height: 9px; border-radius: 50%; background: var(--lime); box-shadow: 0 0 7px rgba(174, 201, 11, 0.6); }
 .pdetail .cmp-table .vcol .dots i.off { background: #d5d9e0; box-shadow: none; }
