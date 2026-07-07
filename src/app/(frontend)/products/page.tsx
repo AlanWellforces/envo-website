@@ -2,7 +2,7 @@ import Link from 'next/link'
 import type { Metadata } from 'next'
 import { PRODUCT_FAMILIES } from '@/data/product-families'
 import { getProductsByMarketingFamily } from '@/lib/products'
-import { buildCards, buildGroups } from '@/components/products/catalogue-data'
+import { buildProductCardsFor, buildGroups } from '@/components/products/catalogue-data'
 import { CatalogueFilter } from '@/components/products/CatalogueFilter'
 import '@/components/products/products-catalogue.css'
 
@@ -21,13 +21,10 @@ export default async function ProductsPage() {
   )
   const countBySlug = new Map(PRODUCT_FAMILIES.map((f, i) => [f.slug, allProducts[i].length]))
 
-  // Series-level cards (219 SKUs flat would be endless) in the same product-
-  // grid visual as the category pages; explicit CTA so the grid's
-  // "View product" default never appears on a series card.
-  const cards = PRODUCT_FAMILIES.flatMap((f, i) => buildCards(f, allProducts[i])).map((c) => ({
-    ...c,
-    ctaLabel: 'View series',
-  }))
+  // Same granularity as the category pages (user 2026-07-08): drivers /
+  // control gear / accessories list actual models, signage keeps series
+  // cards — all in one product grid, Category filter first.
+  const cards = PRODUCT_FAMILIES.flatMap((f, i) => buildProductCardsFor(f.slug, f, allProducts[i]).cards)
   const groups = buildGroups(cards)
 
   return (
@@ -55,7 +52,7 @@ export default async function ProductsPage() {
           </div>
         </div>
 
-        <CatalogueFilter cards={cards} groups={groups} layout="productGrid" showSections />
+        <CatalogueFilter cards={cards} groups={groups} resultKind="products" layout="productGrid" showSections />
       </div>
     </div>
   )

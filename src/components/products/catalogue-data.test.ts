@@ -314,7 +314,7 @@ describe('accessory SKU cards', () => {
     expect(card.sku).toBe('ACC-1')
     expect(card.modelCount).toBe(1)
     expect(card.facts).toEqual(expect.arrayContaining(['Aluminium', 'IP65']))
-    expect(card.facets).toEqual({ series: ['Other'] }) // only the series facet, no spec facets
+    expect(card.facets).toEqual({ series: ['Other'], family: ['Accessories'] }) // no spec facets
   })
 
   it('never surfaces a price', () => {
