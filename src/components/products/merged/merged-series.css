@@ -165,10 +165,11 @@
 
 /* brand-style CTA — service-first, not a shop checkout */
 .pdetail .cta { display: flex; flex-wrap: wrap; gap: 12px; align-items: center; }
-.pdetail .cta-primary { display: inline-flex; align-items: center; gap: 8px; padding: 13px 22px; border-radius: 11px; background: var(--blue); color: #fff; font-size: 14px; font-weight: 600; text-decoration: none; }
+.pdetail .cta-primary { display: inline-flex; align-items: center; gap: 8px; padding: 13px 24px; border-radius: 999px; background: var(--blue); color: #fff; font-size: 14px; font-weight: 600; text-decoration: none; box-shadow: 0 10px 26px -12px rgba(0,113,188,.95); transition: transform .2s, box-shadow .2s, background .2s; }
 .pdetail .cta-primary span { transition: transform 0.18s; }
+.pdetail .cta-primary:hover { transform: translateY(-2px); box-shadow: 0 16px 34px -12px rgba(0,113,188,1); }
 .pdetail .cta-primary:hover span { transform: translateX(3px); }
-.pdetail .cta-ghost { display: inline-flex; align-items: center; padding: 13px 18px; border-radius: 11px; border: 1px solid var(--line-strong); color: var(--text-muted); font-size: 14px; font-weight: 600; text-decoration: none; }
+.pdetail .cta-ghost { display: inline-flex; align-items: center; padding: 13px 20px; border-radius: 999px; border: 1px solid var(--line-strong); color: var(--text-muted); font-size: 14px; font-weight: 600; text-decoration: none; }
 .pdetail .cta-ghost:hover { border-color: var(--blue); color: var(--blue); }
 .pdetail .wtb { margin-top: 18px; font-size: 13px; color: var(--text-subtle); display: flex; flex-wrap: wrap; align-items: center; gap: 9px; }
 .pdetail .wtb-lab { font-size: 10px; letter-spacing: 0.12em; text-transform: uppercase; }

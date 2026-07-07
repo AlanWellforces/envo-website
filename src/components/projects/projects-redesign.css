@@ -47,7 +47,7 @@
 .pj-specs{ display:flex; gap:28px; margin-bottom:18px; flex-wrap:wrap; }
 .pj-specs .v{ font-size:21px; font-weight:700; color:#fff; }
 .pj-specs .l{ font-size:10px; letter-spacing:.1em; color:#aeb9c7; margin-top:3px; text-transform:uppercase; }
-.pj-cta{ color:var(--pj-lime); font-size:13px; font-weight:600; }
+.pj-cta{ color:var(--envo-blue); font-size:13px; font-weight:600; }
 
 /* grid — compact image-fill cards, text on a near-solid band, hover white ring */
 .pj-grid{ display:grid; grid-template-columns:repeat(3,1fr); gap:16px; }
@@ -92,8 +92,9 @@
 .pj-specbar .v{ font-size:22px; font-weight:700; color:var(--d-ink); }
 .pj-specbar .l{ font-size:10px; letter-spacing:.1em; color:var(--d-ink3); margin-top:3px; text-transform:uppercase; }
 .pj-specbar .pj-actions{ margin-left:auto; display:flex; gap:10px; }
-.pj-btn{ padding:11px 18px; border-radius:10px; font-size:13px; font-weight:600; cursor:pointer; display:inline-block; }
-.pj-btn.primary{ background:var(--d-lime); color:#0a0d14; }
+.pj-btn{ padding:11px 20px; border-radius:999px; font-size:13px; font-weight:600; cursor:pointer; display:inline-block; transition:transform .2s, box-shadow .2s, background .2s; }
+.pj-btn.primary{ background:var(--envo-blue); color:#fff; box-shadow:0 10px 26px -12px rgba(0,113,188,.95); }
+.pj-btn.primary:hover{ background:#0086e0; transform:translateY(-2px); box-shadow:0 16px 34px -12px rgba(0,113,188,1); }
 .pj-btn.ghost{ border:1px solid #d4dbe5; color:var(--d-ink); }
 
 .pj-cols{ display:grid; grid-template-columns:1fr 300px; gap:46px; margin:42px 0; }

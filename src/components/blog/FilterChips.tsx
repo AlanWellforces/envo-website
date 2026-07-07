@@ -43,9 +43,9 @@ export function FilterChips({
               fontSize: '13.5px',
               letterSpacing: '-0.005em',
               transition: 'all 0.15s',
-              background: isActive ? '#1a2332' : '#ffffff',
+              background: isActive ? '#0071bc' : '#ffffff',
               color: isActive ? '#ffffff' : '#4a5568',
-              border: isActive ? '1px solid #1a2332' : '1px solid #e2e5ea',
+              border: isActive ? '1px solid #0071bc' : '1px solid #e2e5ea',
             }}
           >
             {chip.label}

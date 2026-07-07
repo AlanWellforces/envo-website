@@ -202,11 +202,11 @@
     .header-cta {
       display: inline-flex; align-items: center; gap: 6px;
       padding: 9px 18px; border-radius: 999px;
-      background: var(--envo-lime); color: #050b1a;
+      background: var(--envo-blue); color: #fff;
       font-size: 13px; font-weight: 600;
       transition: all .2s;
     }
-    .header-cta:hover { background: var(--envo-lime-glow); box-shadow: 0 0 20px rgba(174,201,11,.5); }
+    .header-cta:hover { background: #0086e0; box-shadow: 0 10px 22px -10px rgba(0,113,188,.9); }
     .header-right { display: flex; align-items: center; gap: 14px; }
 
     /* Region selector — header 右侧小工具，类似 v6 region.js 简化版 */
@@ -395,12 +395,13 @@
       cursor: pointer; border: none; font-family: inherit;
     }
     .btn-primary {
-      background: var(--envo-lime); color: #050b1a; font-weight: 600;
+      background: var(--envo-blue); color: #fff; font-weight: 600;
+      box-shadow: 0 10px 26px -12px rgba(0,113,188,.95);
     }
     .btn-primary:hover {
-      background: var(--envo-lime-glow);
-      box-shadow: 0 0 32px rgba(174,201,11,.5);
-      transform: translateY(-1px);
+      background: #0086e0;
+      box-shadow: 0 16px 34px -12px rgba(0,113,188,1);
+      transform: translateY(-2px);
     }
     .btn-ghost { background: transparent; color: #fff; border: 1px solid rgba(255,255,255,.25); }
     .btn-ghost:hover { background: rgba(255,255,255,.06); border-color: rgba(255,255,255,.5); }
