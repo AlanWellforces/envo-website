@@ -1948,11 +1948,14 @@
       transition: width .32s cubic-bezier(.4, 0, .2, 1);
       will-change: width;
     }
-    /* Atmospheric overlay — blue glow top-right, lime tint bottom-left */
+    /* Atmospheric overlay — blue glow top-right, lime tint bottom-left.
+       Glow kept small + high (hugging the logo band) so it never washes over
+       the first nav row — at full strength it made the active Home pill read
+       as a full-width bar. */
     .sidebar::before {
       content: ''; position: absolute; inset: 0; pointer-events: none;
       background:
-        radial-gradient(ellipse 400px 300px at 70% 5%, rgba(77,195,255,.18) 0%, transparent 65%),
+        radial-gradient(ellipse 340px 200px at 78% -6%, rgba(77,195,255,.14) 0%, transparent 65%),
         radial-gradient(ellipse 300px 400px at 30% 100%, rgba(174,201,11,.06) 0%, transparent 60%);
     }
     /* Restore the lime scan line as a sibling layer above the overlay */
@@ -1965,16 +1968,18 @@
       width: 100%; height: 100%;
       display: flex; flex-direction: column;
       /* Top trimmed to 8px so the logo sits ~26px from the top — matches the
-         logo's own 26px left padding for symmetric framing. Bottom stays 22px
-         so the footer keeps its breathing room above the sidebar's edge. */
-      padding: 8px 0 22px;
+         logo's own 26px left padding. Bottom kept small so the CTA card + the
+         collapse control sit lower, closer to the sidebar's edge. */
+      padding: 8px 0 10px;
       position: relative; z-index: 1;        /* sit above ::before overlay */
     }
 
     /* ===== Logo（完整 ENVO wordmark + tagline 小字 + 缓慢 lime 脉冲） ===== */
     .sidebar-logo {
       display: flex; align-items: center; justify-content: flex-start;
-      padding: 18px 26px;
+      /* 24px side inset — the shared content-column edge for the whole
+         sidebar (logo, nav pills, support zone, CTA card, collapse btn). */
+      padding: 18px 24px;
       position: relative;
       transition: padding .32s cubic-bezier(.4, 0, .2, 1);
     }
@@ -1987,7 +1992,9 @@
       transition: height .32s cubic-bezier(.4, 0, .2, 1);
     }
     body.sidebar-collapsed .sidebar-logo {
-      padding: 18px 0;
+      /* 11+36+11 = 58px — identical band height to the expanded 18+22+18,
+         so the nav below doesn't jump vertically on toggle. */
+      padding: 11px 0;
       justify-content: center;
     }
     body.sidebar-collapsed .sidebar-logo .logo-full {
@@ -2050,21 +2057,20 @@
       color: #fff;
     }
     .sidebar-link.active {
-      background: linear-gradient(90deg, rgba(0,113,188,.22), rgba(0,113,188,.05));
+      background: rgba(255,255,255,.055);
       color: #fff;
     }
-    /* v3 lime left bar marker for active */
+    /* Clean ENVO-green left indicator for active — no glow, rounded ends */
     .sidebar-link.active::before {
       content: '';
       position: absolute;
-      left: 0; top: 8px; bottom: 8px;
-      width: 2px;
+      left: 0; top: 7px; bottom: 7px;
+      width: 3px;
+      border-radius: 0 3px 3px 0;
       background: var(--envo-lime);
-      box-shadow: 0 0 6px var(--envo-lime);
     }
     .sidebar-link.active .sidebar-icon {
-      filter: drop-shadow(0 0 6px rgba(77,195,255,.6))
-              drop-shadow(0 0 16px rgba(77,195,255,.22));
+      color: #fff;
     }
     .sidebar-icon {
       flex-shrink: 0;
@@ -2073,6 +2079,11 @@
       stroke-linecap: round; stroke-linejoin: round;
       transition: transform .25s cubic-bezier(.34,1.56,.64,1),
                   filter .25s ease;
+    }
+    /* Signage grid glyph fills its viewBox edge-to-edge, so at 18px it reads
+       a touch heavier than its siblings — pull it back one step. */
+    .sidebar-link[data-section='signage-modules'] .sidebar-icon {
+      width: 17px; height: 17px;
     }
     /* Duotone fill layer — sits behind the stroke detail */
     .sidebar-icon .duotone-fill {
@@ -2101,14 +2112,6 @@
     .sidebar-label {
       font-size: 13px;
       flex: 1;
-      overflow: hidden;
-      white-space: nowrap;
-      max-width: 200px;
-      transition: max-width .28s cubic-bezier(.4, 0, .2, 1),
-                  opacity .18s cubic-bezier(.4, 0, .2, 1);
-    }
-    .sidebar-region-label,
-    .sidebar-collapse-label {
       overflow: hidden;
       white-space: nowrap;
       max-width: 200px;
@@ -2155,12 +2158,15 @@
 
     .sidebar-sublink {
       display: block;
-      padding: 6px 10px;
-      border-left: 1px solid rgba(255,255,255,.08);
+      padding: 5px 12px;
+      border-left: 1.5px solid rgba(255,255,255,.10);
       border-radius: 0 6px 6px 0;
-      color: var(--fg-mute);
-      font-size: 11.5px;
-      letter-spacing: .005em;
+      /* Clearer than the muted token so children read as legible, not faded —
+         hierarchy comes from the indent rail + the 13px parent contrast, so
+         12px keeps the short (3–4 item) lists comfortably readable. */
+      color: rgba(210,220,232,.80);
+      font-size: 12px;
+      font-weight: 450;
       transition: background .2s ease, color .2s ease, border-color .2s ease;
       white-space: nowrap;
     }
@@ -2169,10 +2175,12 @@
       color: #fff;
       border-left-color: var(--envo-lime);
     }
+    /* Active child — ENVO-green text + green indent rail, no card background */
     .sidebar-sublink.active {
       color: var(--envo-lime);
       border-left-color: var(--envo-lime);
-      background: rgba(174,201,11,.08);
+      background: transparent;
+      font-weight: 500;
     }
     .sidebar-sub-desc {
       color: var(--fg-soft);
@@ -2181,35 +2189,16 @@
     }
     .sidebar-sublink:hover .sidebar-sub-desc { color: rgba(255,255,255,.7); }
 
-    /* Group row — link on the left, caret-toggle button on the right.
-       The link itself still navigates to the parent overview page (e.g.
-       /products); only the caret toggles the child list. */
+    /* Group — the whole parent row is one disclosure button; the caret sits
+       right after the label (label hugs its content instead of stretching). */
     .sidebar-group { display: flex; flex-direction: column; }
-    .sidebar-group-row {
-      display: flex; align-items: stretch;
-      position: relative;
-    }
-    .sidebar-group-row > .sidebar-link { flex: 1; min-width: 0; }
-    .sidebar-group-caret-btn {
-      display: flex; align-items: center; justify-content: center;
-      width: 28px; flex-shrink: 0;
-      background: none; border: none; padding: 0;
-      color: rgba(245,247,250,.55);
-      cursor: pointer;
-      border-radius: 5px;
-      transition: background .15s ease, color .15s ease;
-    }
-    .sidebar-group-caret-btn:hover { background: rgba(77,195,255,.08); color: #f5f7fa; }
-    .sidebar-group-caret-btn:focus-visible {
-      outline: 2px solid var(--envo-lime);
-      outline-offset: 1px;
-    }
-    .sidebar-group-caret-btn .sidebar-caret { opacity: 1; }
+    .sidebar-link--parent .sidebar-label { flex: 0 1 auto; }
+    .sidebar-link--parent .sidebar-caret { margin-left: 2px; }
 
     /* Collapsed (64px) sidebar — caret has nowhere to fit, so hide it.
        Sub list converts from inline accordion to a right-side flyout that
        shows on hover/focus of the Products group. Apple Sidebar pattern. */
-    body.sidebar-collapsed .sidebar-group-caret-btn { display: none; }
+    body.sidebar-collapsed .sidebar-link--parent .sidebar-caret { display: none; }
     body.sidebar-collapsed .sidebar-group { position: relative; }
     body.sidebar-collapsed .sidebar-sub {
       display: block;
@@ -2274,10 +2263,12 @@
        Projects / Blog / Support / Find your match / Free layout design).
        Parent groups (Products) use the flyout above instead, which already
        names the category in its eyebrow. ===== */
-    body.sidebar-collapsed .sidebar-link[data-tooltip] {
+    body.sidebar-collapsed .sidebar-link[data-tooltip],
+    body.sidebar-collapsed .sidebar-cta-card[data-tooltip] {
       position: relative;
     }
-    body.sidebar-collapsed .sidebar-link[data-tooltip]::after {
+    body.sidebar-collapsed .sidebar-link[data-tooltip]::after,
+    body.sidebar-collapsed .sidebar-cta-card[data-tooltip]::after {
       content: attr(data-tooltip);
       position: absolute;
       left: calc(100% + 12px);
@@ -2301,7 +2292,9 @@
       z-index: 250;
     }
     body.sidebar-collapsed .sidebar-link[data-tooltip]:hover::after,
-    body.sidebar-collapsed .sidebar-link[data-tooltip]:focus-visible::after {
+    body.sidebar-collapsed .sidebar-link[data-tooltip]:focus-visible::after,
+    body.sidebar-collapsed .sidebar-cta-card[data-tooltip]:hover::after,
+    body.sidebar-collapsed .sidebar-cta-card[data-tooltip]:focus-visible::after {
       opacity: 1;
       visibility: visible;
       transform: translateY(-50%) translateX(0);
@@ -2310,34 +2303,154 @@
       transition-delay: 0.35s, 0.35s, 0s;
     }
 
-    /* ===== v3 sidebar footer — region row + status pill ===== */
+    /* ===== Support zone — pinned below the scrolling nav so support links
+       read as a distinct type from the product catalogue. A hairline divider
+       separates the two zones; the links reuse .sidebar-link but sit at a
+       lighter default weight so products stay the primary focus. ===== */
+    .sidebar-support {
+      /* Same 24px content-column edge as the nav pills; V3's slim 7px rows. */
+      padding: 8px 24px 4px;
+      margin-top: 4px;
+      position: relative;
+    }
+    /* Divider above — same treatment as the logo's underline (edge-faded
+       gradient, 18px inset) so the two zone breaks read as one family. */
+    .sidebar-support::before {
+      content: ''; position: absolute; top: -6px; left: 18px; right: 18px;
+      height: 1px;
+      background: linear-gradient(90deg, transparent 0%, rgba(77,195,255,.32) 50%, transparent 100%);
+    }
+    .sidebar-support .sidebar-link { padding: 7px 12px; }
+    .sidebar-support .sidebar-icon { width: 17px; height: 17px; }
+    body.sidebar-collapsed .sidebar-support .sidebar-icon { width: 18px; height: 18px; }
+    /* Links keep the standard .sidebar-link type treatment (same size, weight
+       and colour as the product rows) — only the PLACEMENT is the V3 bottom
+       zone; the divider above carries the separation. */
+    body.sidebar-collapsed .sidebar-support {
+      margin: 4px 8px 0;
+      padding: 6px 8px 2px;
+    }
+
+    /* ===== Bottom CTA card — one bordered card CONTAINING both the
+       "Need help specifying?" caption and the Free Layout Design action row
+       (mockup spec). The card itself is the button; the inner row is plain. */
+    .sidebar-cta-card {
+      display: flex; flex-direction: column; gap: 8px;
+      /* Framed box on the shared 24px content column — left/right edges line
+         up exactly with the nav pills and support rows above. Bottom margin
+         matches the visual gap above the card so the footer stack (support →
+         card → collapse) breathes evenly. */
+      margin: 6px 24px 16px;
+      padding: 10px 14px;
+      background: linear-gradient(135deg, rgba(77,195,255,.10), rgba(174,201,11,.06));
+      border: 1px solid rgba(77,195,255,.22);
+      border-radius: 10px;
+      text-decoration: none;
+      transition: border-color .16s ease, box-shadow .16s ease;
+    }
+    .sidebar-cta-card-title {
+      font-size: 11px; font-weight: 400; letter-spacing: .01em;
+      color: #9fb0c4;
+      white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+      transition: max-height .28s cubic-bezier(.4, 0, .2, 1),
+                  opacity .18s cubic-bezier(.4, 0, .2, 1);
+    }
+    .sidebar-cta-btn {
+      display: flex; align-items: center; gap: 8px;
+      color: #fff; font-size: 12px; font-weight: 600; letter-spacing: .005em;
+      white-space: nowrap; overflow: hidden;
+    }
+    .sidebar-cta-btn .sidebar-icon { width: 16px; height: 16px; color: var(--envo-blue-glow, #4dc3ff); flex-shrink: 0; }
+    .sidebar-cta-btn-label {
+      overflow: hidden; white-space: nowrap; text-overflow: ellipsis;
+      transition: max-width .28s cubic-bezier(.4, 0, .2, 1),
+                  opacity .18s cubic-bezier(.4, 0, .2, 1);
+    }
+    .sidebar-cta-card:hover {
+      border-color: rgba(77,195,255,.42);
+      box-shadow: 0 10px 22px -14px rgba(0,113,188,.55);
+    }
+    /* Collapsed: hide caption + label, the bordered card becomes an icon tile
+       the exact size/shape of the collapse button below it (34px, radius 8). */
+    body.sidebar-collapsed .sidebar-cta-card {
+      align-self: center;
+      width: 34px; height: 34px;
+      margin: 4px 0 12px;
+      padding: 0;
+      gap: 0;
+      border-radius: 8px;
+      justify-content: center;
+    }
+    body.sidebar-collapsed .sidebar-cta-card-title {
+      max-height: 0; opacity: 0; overflow: hidden; pointer-events: none;
+    }
+    body.sidebar-collapsed .sidebar-cta-btn { justify-content: center; gap: 0; }
+    body.sidebar-collapsed .sidebar-cta-btn-label {
+      max-width: 0; opacity: 0; overflow: hidden; pointer-events: none;
+    }
+
+    /* ===== v3 sidebar footer — distributor selector block + collapse ===== */
+    /* V3 footer: no divider above (the CTA card carries its own frame);
+       just a quiet zone holding the collapse control bottom-left. */
     .sidebar-footer {
-      padding: 14px;
-      display: flex; flex-direction: column; gap: 10px;
-      border-top: 1px solid rgba(77,195,255,.10);
+      padding: 0 12px 4px;
+      display: flex; flex-direction: column; gap: 8px;
+    }
+    /* Distributor selector block — a small labelled control at the foot, kept
+       visually distinct from the primary nav so it never reads as a menu item. */
+    .sidebar-channel {
+      display: flex; flex-direction: column; gap: 7px;
+    }
+    /* Small block title — an informational hint (not a button); same size &
+       colour as the fine-print note below. The actual jump-to-site links are
+       the dropdown options. */
+    .sidebar-channel-title {
+      font-size: 10px;
+      line-height: 1.35;
+      letter-spacing: .01em;
+      color: var(--fg-soft);
+      padding: 0 2px;
+      white-space: nowrap;
+      overflow: hidden;
+      transition: max-height .28s cubic-bezier(.4, 0, .2, 1),
+                  opacity .18s cubic-bezier(.4, 0, .2, 1);
     }
     .sidebar-region {
-      display: flex; align-items: center; gap: 8px;
-      padding: 8px 10px;
-      background: rgba(77,195,255,.06);
-      border: 1px solid rgba(77,195,255,.10);
-      border-radius: 7px;
-      color: #f5f7fa;
+      display: flex; align-items: center; gap: 7px;
+      padding: 8px 9px;
+      background: rgba(255,255,255,.03);
+      border: 1px solid rgba(255,255,255,.08);
+      border-radius: 8px;
+      color: #dbe3ec;
       font-family: inherit;
       cursor: pointer;
       text-align: left;
       transition: border-color .15s ease, background .15s ease;
     }
+    .sidebar-region-glyph {
+      width: 14px; height: 14px; flex-shrink: 0;
+      stroke: rgba(255,255,255,.55); stroke-width: 1.6; fill: none;
+      stroke-linecap: round; stroke-linejoin: round;
+      transition: max-width .28s cubic-bezier(.4, 0, .2, 1);
+    }
     .sidebar-region:not(:disabled):hover {
-      border-color: rgba(77,195,255,.30);
-      background: rgba(77,195,255,.12);
+      border-color: rgba(255,255,255,.16);
+      background: rgba(255,255,255,.06);
     }
     .sidebar-region:disabled { cursor: default; opacity: .85; }
-    .sidebar-region-label {
-      flex: 1;
-      font-size: 12.5px; font-weight: 500;
-      letter-spacing: 0; text-transform: none;
-      color: #f5f7fa;
+    /* Value = the coverage region this channel serves — that's how a visitor
+       identifies their channel, not by distributor domain/brand. */
+    .sidebar-region-body {
+      flex: 1; min-width: 0;
+      display: flex; align-items: center;
+      overflow: hidden;
+      transition: max-width .28s cubic-bezier(.4, 0, .2, 1),
+                  opacity .18s cubic-bezier(.4, 0, .2, 1);
+    }
+    .sidebar-region-value {
+      font-size: 11px; font-weight: 400;
+      color: #dbe3ec;
+      white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
     }
     .sidebar-region-caret {
       width: 12px; height: 12px;
@@ -2377,11 +2490,10 @@
     }
     .sidebar-region-dropdown-head {
       padding: 8px 10px 6px;
-      font-family: var(--font-inter-tight, 'Inter Tight'), -apple-system, BlinkMacSystemFont, sans-serif;
-      font-size: 9.5px;
-      color: rgba(139,156,176,.85);
-      letter-spacing: .2em;
-      text-transform: uppercase;
+      font-size: 10px;
+      line-height: 1.35;
+      color: var(--fg-soft);
+      letter-spacing: .01em;
       border-bottom: 1px solid rgba(77,195,255,.10);
       margin-bottom: 4px;
     }
@@ -2399,17 +2511,15 @@
       transition: background .15s ease;
     }
     .sidebar-region-option:hover { background: rgba(77,195,255,.10); }
-    .sidebar-region-option.active { background: rgba(174,201,11,.10); }
-    .sidebar-region-option-body { display: flex; flex-direction: column; gap: 2px; flex: 1; min-width: 0; }
-    .sidebar-region-option-name { font-size: 12.5px; font-weight: 600; color: #f5f7fa; }
-    .sidebar-region-option-meta {
-      font-family: var(--font-inter-tight, 'Inter Tight'), -apple-system, BlinkMacSystemFont, sans-serif;
-      font-size: 9.5px;
-      color: rgba(139,156,176,.85);
-      letter-spacing: .04em;
-      white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+    .sidebar-region-option.active { background: rgba(255,255,255,.06); }
+    .sidebar-region-option-body { display: flex; flex: 1; min-width: 0; }
+    .sidebar-region-option.active .sidebar-region-option-name { color: #fff; }
+    .sidebar-region-option-name { font-size: 11px; font-weight: 400; color: #dbe3ec; }
+    .sidebar-region-option-check {
+      width: 13px; height: 13px; flex-shrink: 0;
+      stroke: rgba(255,255,255,.8); stroke-width: 2.2; fill: none;
+      stroke-linecap: round; stroke-linejoin: round;
     }
-    .sidebar-region-option-check { color: var(--envo-lime); font-weight: 700; flex-shrink: 0; }
 
     /* When collapsed, the dropdown still pops out at full width to the right
        so the metadata strings remain readable. */
@@ -2425,31 +2535,28 @@
       .sidebar-link.active::before { animation: none !important; }
     }
 
-    /* ===== Sidebar collapse toggle button ===== */
+    /* ===== Sidebar collapse toggle — small icon-only control, low weight ===== */
     .sidebar-collapse-btn {
-      display: flex; align-items: center; justify-content: flex-end; gap: 8px;
-      width: 100%;
-      padding: 12px 14px;
-      margin-top: 0;
+      display: flex; align-items: center; justify-content: center;
+      /* V3 spec: bottom-left, 34px tile with a hairline ring */
+      align-self: flex-start;
+      width: 34px; height: 34px;
+      padding: 0;
+      margin: 0 0 0 12px;
       background: transparent;
-      border: none;
-      border-top: 1px solid rgba(77,195,255,.10);
-      border-radius: 0;
-      color: var(--fg-soft);
-      font-family: inherit;
-      font-size: 11.5px;
-      font-weight: 500;
-      letter-spacing: 0;
+      border: 1px solid rgba(255,255,255,.08);
+      border-radius: 8px;
+      color: var(--fg-mute);
       cursor: pointer;
-      transition: color .15s ease, background .15s ease;
+      transition: color .15s ease, background .15s ease, border-color .15s ease;
     }
     .sidebar-collapse-btn:hover {
-      color: var(--envo-lime, #aec90b);
-      background: rgba(174,201,11,0.04);
-      border-color: rgba(77,195,255,.10);
+      color: #fff;
+      border-color: rgba(77,195,255,.3);
+      background: rgba(255,255,255,.04);
     }
     .sidebar-collapse-icon {
-      width: 14px; height: 14px;
+      width: 15px; height: 15px;
       stroke: currentColor; stroke-width: 1.8; fill: none;
       stroke-linecap: round; stroke-linejoin: round;
       flex-shrink: 0;
@@ -2461,9 +2568,14 @@
 
     /* Collapsed: shrink labels' width AND fade — frees space so icons truly center */
     body.sidebar-collapsed .sidebar-label,
-    body.sidebar-collapsed .sidebar-region-label,
-    body.sidebar-collapsed .sidebar-collapse-label {
+    body.sidebar-collapsed .sidebar-region-body {
       max-width: 0;
+      opacity: 0;
+      pointer-events: none;
+    }
+    /* Collapsed: block title collapses fully (like the fine-print note) */
+    body.sidebar-collapsed .sidebar-channel-title {
+      max-height: 0;
       opacity: 0;
       pointer-events: none;
     }
@@ -2481,6 +2593,8 @@
       pointer-events: none;
     }
     /* Eliminate flex gap so icons sit dead-center, not offset by ghost-label gap */
+    /* Centering + padding for collapsed links lives with the collapsed-state
+       rules further down (same 9px vertical padding as expanded). */
     body.sidebar-collapsed .sidebar-link { gap: 0; }
     body.sidebar-collapsed .sidebar-region { gap: 0; padding: 8px 0; justify-content: center; }
     body.sidebar-collapsed .sidebar-collapse-btn { gap: 0; }
@@ -2496,17 +2610,24 @@
     body.sidebar-collapsed .sidebar-inner { overflow: visible; }
     body.sidebar-collapsed .sidebar-logo::after { opacity: 0; }
     .sidebar-logo::after { transition: opacity .2s ease; }
-    body.sidebar-collapsed .sidebar-nav { padding: 4px 8px 12px; }
-    body.sidebar-collapsed .sidebar-section { padding: 16px 8px 6px; }
+    /* 18px top = the 4px nav padding + the 14px section padding dropped from
+       the collapsed sections, so the gap below the logo matches expanded. */
+    body.sidebar-collapsed .sidebar-nav { padding: 18px 8px 12px; }
+    /* Collapsed rail: drop the section paddings + eyebrow box entirely so
+       Home and the five category icons stack as ONE group with the same
+       1px rhythm the icons have between themselves. */
+    body.sidebar-collapsed .sidebar-section { padding: 0 8px; }
     body.sidebar-collapsed .sidebar-section-title {
       opacity: 0;
-      height: 4px;
+      height: 0;
       padding: 0;
       margin: 0;
       overflow: hidden;
     }
     .sidebar-section-title { transition: opacity .2s ease; }
-    body.sidebar-collapsed .sidebar-link { justify-content: center; padding: 10px 0; }
+    /* Keep the expanded 9px vertical padding so rows stay on the same
+       baseline across expand/collapse. */
+    body.sidebar-collapsed .sidebar-link { justify-content: center; padding: 9px 0; }
 
     /* Collapsed: lime left bar → centered 36×36 blue square (per mockup) */
     body.sidebar-collapsed .sidebar-link.active { background: transparent; }
@@ -2521,7 +2642,7 @@
       box-shadow: none;
     }
     body.sidebar-collapsed .sidebar-link .sidebar-icon { position: relative; z-index: 1; }
-    body.sidebar-collapsed .sidebar-collapse-btn { justify-content: center; padding: 9px 0; }
+    body.sidebar-collapsed .sidebar-collapse-btn { align-self: center; margin-left: 0; }
     body.sidebar-collapsed .sidebar-collapse-icon { transform: rotate(180deg); }
     body.sidebar-collapsed .top-subnav { left: var(--sidebar-w-collapsed); }
     /* Match the sidebar's slide curve */
@@ -2539,27 +2660,9 @@
     }
     .sidebar-collapse-icon { transition: transform .32s cubic-bezier(.4, 0, .2, 1); }
 
-    /* Tooltip on hover when collapsed */
-    body.sidebar-collapsed .sidebar-link { position: relative; }
-    body.sidebar-collapsed .sidebar-link:hover::after {
-      content: attr(data-section);
-      position: absolute;
-      left: calc(100% + 8px); top: 50%;
-      transform: translateY(-50%);
-      padding: 5px 10px;
-      background: var(--bg-card);
-      color: var(--fg);
-      font-size: 11px;
-      font-weight: 500;
-      letter-spacing: .08em;
-      text-transform: uppercase;
-      border: 1px solid var(--line-strong);
-      border-radius: 5px;
-      white-space: nowrap;
-      pointer-events: none;
-      z-index: 200;
-      box-shadow: 0 6px 18px rgba(0,0,0,.4);
-    }
+    /* Collapsed-state hover tooltips are handled by the data-tooltip rules
+       above (proper-case labels). A legacy attr(data-section) tooltip used to
+       live here and fought them with UPPERCASED slugs — removed. */
 
     /* ===== TOP BAR: product sub-nav (left) + utility (right) ===== */
     .top-subnav {
@@ -2772,8 +2875,12 @@
       }
       /* Restore label visibility inside open drawer even if collapsed flag is set */
       .sidebar.open .sidebar-label,
-      .sidebar.open .sidebar-region-label,
-      .sidebar.open .sidebar-collapse-label {
+      .sidebar.open .sidebar-region-body,
+      .sidebar.open .sidebar-cta-card-title,
+      .sidebar.open .sidebar-cta-btn-label,
+      .sidebar.open .sidebar-cta-btn-arrow {
+        max-width: none;
+        max-height: none;
         opacity: 1;
         pointer-events: auto;
       }
