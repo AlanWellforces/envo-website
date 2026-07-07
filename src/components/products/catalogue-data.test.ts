@@ -1,5 +1,11 @@
 import { describe, it, expect } from 'vitest'
-import { buildCards, buildGroups, buildControlGearProductCards, buildDriverProductCards } from './catalogue-data'
+import {
+  buildCards,
+  buildGroups,
+  buildControlGearProductCards,
+  buildDriverProductCards,
+  buildAccessoryProductCards,
+} from './catalogue-data'
 import { PRODUCT_FAMILIES } from '@/data/product-families'
 import type { Product } from '@/lib/products'
 
@@ -270,6 +276,26 @@ describe('driver SKU cards', () => {
   it('never surfaces a price', () => {
     const products = [p({ sku: 'X', series: 'envo_sng', power_w: 100, output_voltage_v: 24, price_nzd: 99 })]
     expect(JSON.stringify(buildDriverProductCards(DRIVERS, products))).not.toMatch(/nzd|"price"/i)
+  })
+})
+
+// ── accessory SKU cards ─────────────────────────────────────────────────────
+describe('accessory SKU cards', () => {
+  it('emits one card per SKU with material/IP facts and no forced facets', () => {
+    const products = [
+      p({ sku: 'ACC-1', name: 'ENVO Aluminium Mounting Clip', family: 'accessory_general',
+          series: null, material: 'Aluminium', waterproof: 'ip65' }),
+    ]
+    const [card] = buildAccessoryProductCards(ACCESSORIES, products)
+    expect(card.sku).toBe('ACC-1')
+    expect(card.modelCount).toBe(1)
+    expect(card.facts).toEqual(expect.arrayContaining(['Aluminium', 'IP65']))
+    expect(card.facets).toEqual({}) // accessories carry no filter facets
+  })
+
+  it('never surfaces a price', () => {
+    const products = [p({ sku: 'ACC-2', family: 'accessory_general', price_nzd: 5 })]
+    expect(JSON.stringify(buildAccessoryProductCards(ACCESSORIES, products))).not.toMatch(/nzd|"price"/i)
   })
 })
 

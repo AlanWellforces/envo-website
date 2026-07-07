@@ -10,6 +10,7 @@ import {
 import { seriesSlug, seriesLabel, seriesLineArt, seriesSectionTitle } from '@/data/family-map'
 import { SERIES_BLURBS, LED_CONFIG_OPTIONS } from '@/data/series-applications'
 import { catalogueSeriesMeta } from '@/data/series-catalogue-meta'
+import { formatDims } from '@/lib/units'
 
 export type FacetOption = { value: string; label: string; count: number }
 export type FacetGroup = { key: string; label: string; options: FacetOption[] }
@@ -540,6 +541,31 @@ export function buildDriverProductCards(family: ProductFamily, products: Product
       })
     })
     .sort((a, b) => (sectionOrder(a.section) - sectionOrder(b.section)) || a.name.localeCompare(b.name))
+}
+
+function accessoryFacts(p: Product): string[] {
+  const d = formatDims(p.length_mm, p.width_mm, p.height_mm)
+  const facts: (string | undefined)[] = [
+    p.material ?? undefined,
+    d ? d.mm : undefined,
+    waterproofLabel(p.waterproof),
+  ]
+  return [...new Set(facts.filter((x): x is string => !!x))].slice(0, 3)
+}
+
+/** Build one visible catalogue card per accessory SKU — individually purchasable
+ * items with no filter facets (buildGroups returns [] for this family). */
+export function buildAccessoryProductCards(family: ProductFamily, products: Product[]): CatalogueCard[] {
+  return products
+    .map((p) =>
+      skuCard(family, p, {
+        desc: p.short_description ?? '',
+        facts: accessoryFacts(p),
+        facets: {}, // accessories: no filter facets (buildGroups returns [] for this family)
+        section: seriesSectionTitle(family.slug, [p]),
+      }),
+    )
+    .sort((a, b) => a.name.localeCompare(b.name))
 }
 
 function group(
