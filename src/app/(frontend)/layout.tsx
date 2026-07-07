@@ -4,7 +4,6 @@ import '../globals.css'
 import { PageViewBeacon } from '@/components/analytics/PageViewBeacon'
 import { Sidebar } from '@/components/layout/sidebar'
 import { RegionProvider } from '@/components/region/RegionProvider'
-import { RegionBanner } from '@/components/region/RegionBanner'
 import { TopSubnav } from '@/components/layout/top-subnav'
 import { Footer } from '@/components/layout/footer'
 import { CursorGlow } from '@/components/layout/cursor-glow'
@@ -41,7 +40,9 @@ export default function RootLayout({
       <body>
         <PageViewBeacon />
         <RegionProvider>
-          <RegionBanner />
+          {/* Region/channel banner hidden for now (user 2026-07-08) — the
+              region picker under each purchase CTA still covers the choice.
+              Re-enable by restoring <RegionBanner />. */}
           <Sidebar />
           <TopSubnav />
           <CursorGlow />
