@@ -42,6 +42,8 @@ export type MergedKeySpec = {
     | 'power' | 'voltage' | 'input' | 'mode' | 'dimming' | 'ip' | 'beam' | 'cct' | 'efficacy' | 'lifetime'
     | 'vsource' | 'maxseries' | 'waterproof' | 'dims' | 'warranty'
   label: string
+  /** may contain "\n" — continuation lines render as regular-weight
+   *  .ks-val-alt blocks (dims: bold mm line, plain imperial line) */
   value: string
 }
 export type MergedSolution = { title: string; pick: string; image?: Img }
@@ -413,7 +415,11 @@ export default function MergedSeriesPage(p: MergedSeriesProps) {
                       </svg>
                       <span className="ks-bd">
                         <span className="ks-lab">{s.label}</span>
-                        <span className="ks-val">{s.value}</span>
+                        <span className="ks-val">
+                          {s.value.split('\n').map((ln, i) =>
+                            i === 0 ? ln : <span key={i} className="ks-val-alt">{ln}</span>,
+                          )}
+                        </span>
                       </span>
                     </div>
                   ))}
