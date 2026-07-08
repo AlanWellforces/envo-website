@@ -244,6 +244,9 @@
 .pdetail .cmp-table.rows .shared-item { display: inline-flex; align-items: baseline; gap: 10px; }
 .pdetail .cmp-table.rows .shared-item .lbl { color: var(--text-subtle); font-weight: 500; white-space: nowrap; }
 .pdetail .cmp-table.rows .shared-item .val { color: var(--text); font-weight: 600; }
+/* Model code → its own SKU page */
+.pdetail .cmp-table.rows .mlink { color: var(--blue); text-decoration: none; }
+.pdetail .cmp-table.rows .mlink:hover { text-decoration: underline; }
 /* Per-model spec-sheet download link — self-coloured red PDF file mark */
 .pdetail .cmp-table.rows .ds-head,
 .pdetail .cmp-table.rows td.ds { white-space: nowrap; }
