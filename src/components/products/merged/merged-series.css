@@ -292,7 +292,7 @@
 .pdetail .sol-card p { font-size: 12px; color: var(--text-muted); margin: 0; line-height: 1.4; }
 /* photo-backed solution cards */
 .pdetail .sol-grid.has-img { grid-template-columns: repeat(auto-fill, minmax(250px, 1fr)); }
-.pdetail .sol-card.img .sol-img { aspect-ratio: 4 / 3; overflow: hidden; background: #eef1f5; }
+.pdetail .sol-card.img .sol-img { aspect-ratio: 16 / 9; overflow: hidden; background: #eef1f5; }
 .pdetail .sol-card.img .sol-img img { width: 100%; height: 100%; object-fit: cover; display: block; }
 
 /* ===== overview ===== */

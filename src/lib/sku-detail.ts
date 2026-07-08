@@ -8,6 +8,7 @@ import type { Product } from '@/lib/products'
 import type { ProductFamily } from '@/data/product-families'
 import { seriesLabel } from '@/data/family-map'
 import { buildMergedSeriesProps } from '@/lib/merged-series'
+import { SKU_WHERE_IT_WORKS } from '@/data/sku-where-it-works.generated'
 import type { MergedSeriesProps, MergedSolution } from '@/components/products/merged/MergedSeriesPage'
 
 // ── "Where it works" derived from the product itself ────────────────────────
@@ -288,9 +289,13 @@ export function buildSkuDetailProps(
     .replace(/\s{2,}/g, ' ')
     .trim()
 
-  // 'Where it works' — editorial when authored, else derived from the
-  // product's own copy + specs; also anchors the Overview's application prose.
-  const solutions = base.solutions?.length ? base.solutions : deriveSolutions(family.slug, product)
+  // 'Where it works' — the per-SKU scene pack (image + concrete copy) when
+  // imported, else series editorial, else derived from the product's own
+  // copy + specs. Overview prose keeps anchoring on the text-only selection:
+  // scene titles ("Bakery fascia lightbox") don't weave into sentences.
+  const proseSolutions = base.solutions?.length ? base.solutions : deriveSolutions(family.slug, product)
+  const pack = SKU_WHERE_IT_WORKS[product.sku]
+  const solutions = pack?.solutions.length ? pack.solutions : proseSolutions
 
   return {
     ...base,
@@ -302,7 +307,7 @@ export function buildSkuDetailProps(
     overview: overviewContent
       ? {
           heading: overviewContent.headline ?? `About the ${product.sku}.`,
-          paragraphs: overviewParagraphs(overviewContent, { familySlug: family.slug, product, solutions }),
+          paragraphs: overviewParagraphs(overviewContent, { familySlug: family.slug, product, solutions: proseSolutions }),
         }
       : undefined,
     // exact facts for THIS SKU, never series-wide ranges
@@ -315,6 +320,7 @@ export function buildSkuDetailProps(
       ? [{ name: `${product.sku.replace(/-(NW|WW|CW)$/, '')} datasheet`, meta: 'PDF', href: solo.datasheetUrl }]
       : [],
     solutions,
+    solutionsHeading: pack?.sectionTitle,
     // hero gallery shows only THIS product (user 2026-07-08): stage = its own
     // image; the thumb strip stays — own tile + any editorial scene photos,
     // never sibling-model tiles

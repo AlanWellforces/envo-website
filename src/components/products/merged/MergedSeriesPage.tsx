@@ -97,6 +97,8 @@ export type MergedSeriesProps = {
     html?: string
   }
   solutions?: MergedSolution[]
+  /** overrides the "Built for the job." heading (per-SKU editorial packs) */
+  solutionsHeading?: string
   downloads?: MergedDownload[]
   related?: MergedRelated[]
   /** hero stage override — SKU detail pages show ONLY the viewed product's
@@ -554,7 +556,7 @@ export default function MergedSeriesPage(p: MergedSeriesProps) {
             <div className="solutions">
               <div className="sol-head">
                 <div className="eyebrow">Where it works</div>
-                <h2>Built for the job.</h2>
+                <h2>{p.solutionsHeading ?? 'Built for the job.'}</h2>
               </div>
               <div className={`sol-grid${p.solutions.some((s) => s.image) ? ' has-img' : ''}`}>
                 {p.solutions.map((s) => (
