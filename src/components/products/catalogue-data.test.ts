@@ -347,17 +347,23 @@ describe('per-family card dispatcher', () => {
     }
   })
 
-  it('signage → series cards in productGrid layout (no per-SKU explosion)', () => {
+  it('signage → per-MODEL cards: CCT suffix variants collapse into one card', () => {
     const SIGNAGE = PRODUCT_FAMILIES.find((f) => f.slug === 'led-signage-modules')!
     const r = buildProductCardsFor('led-signage-modules', SIGNAGE, [
-      p({ sku: 'EV-A', series: 'envo_ecoglo', cct_k: 4000 }),
-      p({ sku: 'EV-B', series: 'envo_ecoglo', cct_k: 6500 }),
+      p({ sku: 'EV-X01-WW', name: 'ENVO EcoGlo Single 3000K', series: 'envo_ecoglo', cct_k: 3000, brightness_lm: 33, power_w: 0.65 }),
+      p({ sku: 'EV-X01-NW', name: 'ENVO EcoGlo Single 4000K', series: 'envo_ecoglo', cct_k: 4000, brightness_lm: 33, power_w: 0.65 }),
+      p({ sku: 'EV-Y02-NW', name: 'ENVO EcoGlo Duo 4000K', series: 'envo_ecoglo', cct_k: 4000, brightness_lm: 55, power_w: 0.96 }),
     ])
     expect(r.layout).toBe('productGrid')
-    expect(r.resultKind).toBe('series')
-    expect(r.cards).toHaveLength(1) // one series card, not two SKU cards
-    expect(r.cards[0].sku).toBeUndefined()
-    expect(r.cards[0].ctaLabel).toBe('View series') // never the grid's "View product" default
+    expect(r.resultKind).toBe('products')
+    expect(r.cards).toHaveLength(2) // -WW/-NW are ONE product
+    const x = r.cards.find((c) => c.sku === 'EV-X01')!
+    expect(x.modelCount).toBe(2)
+    expect(x.name).toBe('ENVO EcoGlo Single') // CCT is an option, not identity
+    expect(x.facets.cct).toEqual(['3000', '4000'])
+    expect(x.facts).toEqual(expect.arrayContaining(['~ 33 lm', '0.65 W', '3000 / 4000 K']))
+    expect(x.href).toBe('/products/led-signage-modules/EV-X01-NW') // canonical NW variant
+    expect(x.ctaLabel).toBe('View product')
   })
 })
 

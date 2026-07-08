@@ -20,9 +20,10 @@ function isLive(s: SeriesLink): s is LiveSeries {
   return s.href !== '#'
 }
 
-// The three spec-driven families also get one SKU detail page per product;
-// Signage stays series-only (locked: merged series pages, no per-SKU pages).
-const SKU_DETAIL_FAMILIES = new Set(['led-drivers', 'control-gear', 'accessories'])
+// Every family gets one SKU detail page per product (signage joined
+// 2026-07-08 — its category cards are per-SKU too). Series pages stay and
+// always win the URL segment; SKU is the fallback.
+const SKU_DETAIL_FAMILIES = new Set(['led-drivers', 'control-gear', 'accessories', 'led-signage-modules'])
 
 export async function generateStaticParams() {
   // DB-driven: every series that has products, across all 4 marketing families —

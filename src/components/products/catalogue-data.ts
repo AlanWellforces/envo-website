@@ -7,7 +7,7 @@ import {
   groupSeriesIntoSections,
   type Product,
 } from '@/lib/products'
-import { seriesSlug, seriesLabel, seriesLineArt, seriesSectionTitle } from '@/data/family-map'
+import { seriesSlug, seriesLabel, seriesLineArt, seriesSectionTitle, sectionOrderIndex } from '@/data/family-map'
 import { SERIES_BLURBS, LED_CONFIG_OPTIONS } from '@/data/series-applications'
 import { catalogueSeriesMeta } from '@/data/series-catalogue-meta'
 import { formatDims } from '@/lib/units'
@@ -557,9 +557,70 @@ export function buildDriverProductCards(family: ProductFamily, products: Product
     .sort((a, b) => (sectionOrder(a.section) - sectionOrder(b.section)) || a.name.localeCompare(b.name))
 }
 
+/** Card facts for a signage model: output → power → CCT options → IP → size. */
+function signageFacts(rep: Product, ccts: number[]): string[] {
+  const ip = rep.waterproof && /^ip\d+$/i.test(rep.waterproof)
+    ? rep.waterproof.toUpperCase()
+    : rep.subtitle?.match(/IP\s?\d{2}/i)?.[0].toUpperCase().replace(/\s/, '')
+  const facts: (string | undefined)[] = [
+    rep.brightness_lm != null ? `~ ${rep.brightness_lm} lm` : undefined,
+    rep.power_w != null ? `${rep.power_w} W` : undefined,
+    ccts.length ? `${ccts.join(' / ')} K` : undefined,
+    ip,
+    rep.length_mm != null ? `${rep.length_mm} mm` : undefined,
+  ]
+  return [...new Set(facts.filter((x): x is string => !!x))].slice(0, 5)
+}
+
+/** CCT suffix variants (-WW/-NW/-CW) are ONE product (user 2026-07-08). */
+const stripCctSuffix = (sku: string) => sku.replace(/-(WW|NW|CW)$/i, '')
+
+/** Build one catalogue card per signage MODEL (user 2026-07-08 — signage
+ * joins the product-first grid; CCT variants collapse into one card whose
+ * CCT options become a fact + facet). */
+export function buildSignageProductCards(family: ProductFamily, products: Product[]): CatalogueCard[] {
+  const byModel = new Map<string, Product[]>()
+  for (const p of products) {
+    const code = stripCctSuffix(p.sku)
+    if (!byModel.has(code)) byModel.set(code, [])
+    byModel.get(code)!.push(p)
+  }
+  return [...byModel.entries()]
+    .map(([code, variants]) => {
+      // neutral-white variant is the canonical face of a model
+      const rep = variants.find((v) => /-NW$/i.test(v.sku)) ?? variants[0]
+      const ccts = uniq(variants.map((v) => (v.cct_k != null ? String(v.cct_k) : undefined)))
+        .map(Number)
+        .sort((a, b) => a - b)
+      const facets: Record<string, string[]> = {
+        size: uniq(variants.map((v) => sizeBand(v.length_mm))),
+        ledconfig: ledConfigFromSkus(variants.map((v) => v.sku)),
+        brightness: uniq(variants.map((v) => brightnessBand(v.brightness_lm))),
+        cct: ccts.map(String),
+      }
+      const card = skuCard(family, rep, {
+        desc: catalogueSeriesMeta(family.slug, rep.series)?.blurb ?? (rep.series ? SERIES_BLURBS[rep.series] : undefined) ?? '',
+        facts: signageFacts(rep, ccts),
+        facets,
+        section: seriesSectionTitle(family.slug, [rep]),
+      })
+      return {
+        ...card,
+        key: `${family.slug}:${code}`,
+        sku: code, // model code, never a CCT-suffixed variant
+        name: rep.name.replace(/\s*[,·]?\s*\d{4}\s*K\b/i, '').trim(), // CCT is an option, not identity
+        modelCount: variants.length,
+      }
+    })
+    .sort(
+      (a, b) =>
+        (sectionOrderIndex(family.slug, a.section) - sectionOrderIndex(family.slug, b.section)) ||
+        a.name.localeCompare(b.name),
+    )
+}
+
 /** Pick the card set + layout for a family's category page.
- *  Drivers / Control Gear / Accessories → per-SKU product cards.
- *  Signage → series cards, but rendered in the product-grid layout. */
+ *  Every family → per-SKU product cards (signage joined 2026-07-08). */
 export function buildProductCardsFor(
   slug: string,
   family: ProductFamily,
@@ -572,13 +633,8 @@ export function buildProductCardsFor(
       return { cards: buildDriverProductCards(family, products), layout: 'productGrid', resultKind: 'products' }
     case 'accessories':
       return { cards: buildAccessoryProductCards(family, products), layout: 'productGrid', resultKind: 'products' }
-    default: // led-signage-modules: series cards, product-grid look
-      return {
-        // Series cards in the grid must not read "View product" (the grid default).
-        cards: buildCards(family, products).map((c) => ({ ...c, ctaLabel: 'View series' })),
-        layout: 'productGrid',
-        resultKind: 'series',
-      }
+    default: // led-signage-modules
+      return { cards: buildSignageProductCards(family, products), layout: 'productGrid', resultKind: 'products' }
   }
 }
 
