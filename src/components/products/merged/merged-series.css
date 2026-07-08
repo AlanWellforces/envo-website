@@ -352,8 +352,7 @@
 .pdetail .rel-card .rn { font-size: 13.5px; font-weight: 700; margin: 3px 0 0; line-height: 1.25; }
 
 @media (max-width: 980px) {
-  /* clear the fixed hamburger (40px @ 16px inset) now the TopSubnav is gone */
-  .pdetail .breadcrumb { padding-left: 52px; min-height: 40px; display: flex; align-items: center; flex-wrap: wrap; }
+  .pdetail .breadcrumb { display: flex; align-items: center; flex-wrap: wrap; }
 }
 @media (max-width: 900px) {
   .pdetail .p-hero { grid-template-columns: 1fr; gap: 26px; }

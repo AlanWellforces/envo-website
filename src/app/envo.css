@@ -2851,25 +2851,52 @@
 
     /* ===== Mobile sidebar: full-width drawer ===== */
     @media (max-width: 980px) {
-      body { padding-left: 0; }
+      /* Fixed mobile header (menu + logo + search) is 56px under the 3px
+         light-bin bar — every page reserves that 59px strip. */
+      body { padding-left: 0; padding-top: 59px; }
       body.sidebar-collapsed { padding-left: 0; }
+      body.has-topsubnav { padding-top: 99px; }      /* 59px header strip + 40px sub-nav */
       .container { padding: 0 24px; }
       .sig-stats { padding: 0 24px; }
       /* While the first-visit region banner (fixed overlay, z 300) is up it
          publishes its height as --region-banner-h on <html>; every fixed
-         top element shifts below it so the hamburger stays tappable and the
-         open drawer's logo isn't covered. Falls back to 0px once dismissed. */
-      .top-subnav { left: 0; padding-left: 56px; /* room for hamburger */ top: calc(3px + var(--region-banner-h, 0px)); }
+         top element shifts below it so the header stays tappable and the
+         drawer isn't covered. Falls back to 0px once dismissed. */
+      .mobile-header {
+        position: fixed;
+        top: calc(3px + var(--region-banner-h, 0px));
+        left: 0; right: 0;
+        height: 56px;
+        z-index: 60;
+        display: flex; align-items: center; gap: 12px;
+        padding: 0 16px;
+        background: var(--sidebar-bg);
+        border-bottom: 1px solid var(--line);
+        transition: top .32s cubic-bezier(.4, 0, .2, 1);
+      }
+      .mobile-header-logo { display: flex; align-items: center; }
+      .mobile-header-logo img { display: block; }
+      .mobile-header-search {
+        margin-left: auto;
+        width: 40px; height: 40px;
+        display: flex; align-items: center; justify-content: center;
+        color: #fff;
+        border: 1px solid var(--line);
+        border-radius: 8px;
+      }
+      .top-subnav { left: 0; top: calc(59px + var(--region-banner-h, 0px)); }
       body.sidebar-collapsed .top-subnav { left: 0; }
       .top-subnav-inner { padding: 0 16px; gap: 16px; }
       .top-subnav-eyebrow { display: none; }
       .sidebar {
         width: 0;
         border-right: none;
-        top: calc(3px + var(--region-banner-h, 0px));
+        top: calc(59px + var(--region-banner-h, 0px));
         transition: width .32s cubic-bezier(.4, 0, .2, 1),
                     top .32s cubic-bezier(.4, 0, .2, 1);
       }
+      /* Brand lives in the mobile header — drop the drawer's duplicate logo */
+      .sidebar .sidebar-logo { display: none; }
       .sidebar.open {
         width: 280px;
         box-shadow: 12px 0 32px -8px rgba(0,0,0,.6);
@@ -2888,27 +2915,17 @@
       /* Hide collapse button on mobile — irrelevant in drawer mode */
       .sidebar-collapse-btn { display: none; }
       .mobile-menu-toggle {
-        position: fixed;
-        top: calc(14px + var(--region-banner-h, 0px)); left: 16px;
-        z-index: 60;
         width: 40px; height: 40px;
-        background: var(--sidebar-bg);
+        background: transparent;
         color: #fff;
         border: 1px solid var(--line);
         border-radius: 8px;
         display: flex; align-items: center; justify-content: center;
         cursor: pointer;
-        transition: left .32s cubic-bezier(.4, 0, .2, 1),
-                    top .32s cubic-bezier(.4, 0, .2, 1);
-      }
-      /* Drawer open: ride along to the drawer's top-right corner (280px wide,
-         40px button, 16px inset) so the button clears the ENVO logo */
-      .mobile-menu-toggle[aria-expanded="true"] {
-        left: 224px;
       }
     }
     @media (min-width: 981px) {
-      .mobile-menu-toggle { display: none; }
+      .mobile-header { display: none; }
     }
 
     /* ===== 右侧竖向 panel-dot 指示器

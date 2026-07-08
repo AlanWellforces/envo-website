@@ -261,8 +261,7 @@ div:first-child > .pcat-section { margin-top:0; }
 @media (max-width:1000px) {
   .pcat-body { grid-template-columns:1fr; gap:16px; }
   .pcat-filters { position:static; padding:0 0 6px; max-height:none; overflow:visible; }
-  /* clear the fixed hamburger (40px @ 16px inset) now the TopSubnav is gone */
-  .pcat .breadcrumb { padding-left:52px; min-height:40px; display:flex; align-items:center; flex-wrap:wrap; }
+  .pcat .breadcrumb { display:flex; align-items:center; flex-wrap:wrap; }
 }
 @media (max-width:680px) {
   .pcat-results { order:1; }
