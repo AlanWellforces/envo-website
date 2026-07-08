@@ -3,7 +3,7 @@ import Link from 'next/link'
 import { notFound } from 'next/navigation'
 import { PRODUCT_FAMILIES } from '@/data/product-families'
 import { getProductsByMarketingFamily, countProductsByMarketingFamily } from '@/lib/products'
-import { buildCards, buildGroups } from '@/components/products/catalogue-data'
+import { buildCards, buildControlGearProductCards, buildGroups } from '@/components/products/catalogue-data'
 import { CatalogueFilter } from '@/components/products/CatalogueFilter'
 import '@/components/products/products-catalogue.css'
 
@@ -39,7 +39,8 @@ export default async function ProductFamilyPage({ params }: { params: Params }) 
   )
   const countBySlug = new Map(countEntries)
 
-  const cards = buildCards(family, products)
+  const productFirst = slug === 'control-gear'
+  const cards = productFirst ? buildControlGearProductCards(family, products) : buildCards(family, products)
   const groups = buildGroups(cards, slug)
 
   return (
@@ -74,7 +75,13 @@ export default async function ProductFamilyPage({ params }: { params: Params }) 
           </div>
         </div>
 
-        <CatalogueFilter cards={cards} groups={groups} showSections />
+        <CatalogueFilter
+          cards={cards}
+          groups={groups}
+          resultKind={productFirst ? 'products' : 'series'}
+          layout={productFirst ? 'productGrid' : 'rows'}
+          showSections
+        />
       </div>
     </div>
   )

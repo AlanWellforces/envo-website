@@ -155,7 +155,7 @@ export function SolutionDetail({ solution: s }: { solution: Solution }) {
             <p className="kit-legend">
               <span className="lg-dot lg-envo" /> ENVO products link to full specs.
               &nbsp;<span className="lg-dot lg-compat" /> &ldquo;Compatible&rdquo; parts aren&rsquo;t
-              ENVO-branded — we spec them and an authorised purchasing channel supplies them in the same order.
+              ENVO-branded — we spec them and an authorised channel supplies them in the same order.
             </p>
           )}
         </div>
@@ -212,9 +212,9 @@ export function SolutionDetail({ solution: s }: { solution: Solution }) {
           <div className="dist-cta">
             <div className="dist-cta-inner">
               <div>
-                <h2>Source the complete kit through authorised purchasing channels</h2>
+                <h2>Source the complete kit through authorised supply channels</h2>
                 <p>
-                  ENVO products are supplied through authorised purchasing channels worldwide, which
+                  ENVO products are supplied through authorised channels worldwide, which
                   hold pricing and stock and ship the ENVO products and the compatible parts together
                   in one order. Choose a channel to get started.
                 </p>
@@ -229,9 +229,7 @@ export function SolutionDetail({ solution: s }: { solution: Solution }) {
                     rel="noopener noreferrer"
                   >
                     <span>
-                      <span className="dist-region">{c.channelLabel}</span>
-                      <br />
-                      <span className="dist-name">{c.urlLabel}</span>
+                      <span className="dist-region">{c.regionLabel}</span>
                     </span>
                     <span className="dist-arrow">→</span>
                   </a>

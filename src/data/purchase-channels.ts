@@ -1,36 +1,33 @@
 // Brand-wide "Where to buy" config. ENVO is supplied worldwide through two
-// authorised purchasing channels (the site sells nothing direct — no checkout):
-//   - Primary channel  →  wellforces.co.nz     (ENVO's parent company)
-//   - Global channel   →  powersupplymall.com  (international service partner)
+// authorised supply channels (the site sells nothing direct — no checkout):
+//   - wellforces.co.nz     → New Zealand & Asia-Pacific
+//   - powersupplymall.com  → United States & global
 //
-// Copy here is deliberately non-geographic: ENVO's positioning is global
-// supply, so channels are named by role, not country. The `id` values are
-// historical region ids kept only for localStorage / geo-routing compatibility
-// (see RegionProvider + data/distributors.ts) — they are never shown to users.
+// Both are equally authorised — there is no primary/secondary channel. So the
+// two are NOT ranked ("Primary"/"Global"); instead each carries a `regionLabel`
+// stating the coverage it serves, and users pick by their region + domain. The
+// `id` values are historical region codes kept only for localStorage / geo-
+// routing (see RegionProvider + data/distributors.ts) — never shown to users.
 // Update this file when a channel is added; pages should not hardcode URLs.
 
 export type PurchaseChannel = {
   /** Stable channel id (historical region code). Internal only — never shown. */
   id: 'nz-ap' | 'us-global'
-  /** User-facing channel name — role-based, never country/region. */
-  channelLabel: string
-  /** Primary "View product on …" URL (full https). */
+  /** Coverage this channel serves, so users pick the right one for their region. */
+  regionLabel: string
+  /** Destination URL for this channel (full https) — used as a link href only. */
   url: string
-  /** Short display label for the primary CTA, e.g. "wellforces.co.nz". */
-  urlLabel: string
 }
 
 export const PURCHASE_CHANNELS: PurchaseChannel[] = [
   {
     id: 'nz-ap',
-    channelLabel: 'Primary Purchasing Channel',
+    regionLabel: 'New Zealand & Asia-Pacific',
     url: 'https://wellforces.co.nz',
-    urlLabel: 'wellforces.co.nz',
   },
   {
     id: 'us-global',
-    channelLabel: 'Global Purchasing Channel',
+    regionLabel: 'United States & Global',
     url: 'https://powersupplymall.com',
-    urlLabel: 'powersupplymall.com',
   },
 ]

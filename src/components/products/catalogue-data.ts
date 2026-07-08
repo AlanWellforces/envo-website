@@ -7,9 +7,10 @@ import {
   groupSeriesIntoSections,
   type Product,
 } from '@/lib/products'
-import { seriesSlug, seriesLabel, seriesLineArt } from '@/data/family-map'
+import { seriesSlug, seriesLabel, seriesLineArt, seriesSectionTitle } from '@/data/family-map'
 import { SERIES_BLURBS, LED_CONFIG_OPTIONS } from '@/data/series-applications'
 import { catalogueSeriesMeta } from '@/data/series-catalogue-meta'
+import { datasheetHref } from '@/lib/asset-url'
 
 export type FacetOption = { value: string; label: string; count: number }
 export type FacetGroup = { key: string; label: string; options: FacetOption[] }
@@ -26,6 +27,9 @@ export type CatalogueCard = {
   imgAlt: string
   badge?: string
   chips: string[]
+  sku?: string
+  facts?: string[]
+  ctaLabel?: string
   modelCount: number
   /** Section heading this card belongs to (e.g. "Constant-voltage drivers"). */
   section: string
@@ -244,6 +248,48 @@ function channelsValue(p: Product): string | undefined {
   return p.name.match(/(\d+)\s*ch(annel)?s?\b/i)?.[1]
 }
 
+function controlGearDesc(
+  protocol: string[],
+  fn: string | undefined,
+  controlTypes: string[],
+): string {
+  const protocolText = protocol.length ? protocol.map(PROTOCOL.label).join(' / ') : 'Lighting'
+  const typeText = fn ? FUNCTION.label(fn).toLowerCase() : 'control gear'
+  const colourText = controlTypes[0] ? ` for ${CONTROLTYPE.label(controlTypes[0]).toLowerCase()} loads` : ''
+  return `${protocolText} ${typeText}${colourText}.`
+}
+
+function voltageRange(label: string, min: number | null, max: number | null): string | null {
+  if (min == null && max == null) return null
+  if (min != null && max != null) return min === max ? `${label} ${min} V` : `${label} ${min}-${max} V`
+  return `${label} ${min ?? max} V`
+}
+
+function waterproofLabel(value: string | null): string | undefined {
+  if (!value || value === 'non_waterproof') return undefined
+  return value.toUpperCase()
+}
+
+function controlGearFacts(
+  p: Product,
+  fn: string | undefined,
+  controlTypes: string[],
+  channel: string | undefined,
+): string[] {
+  const facts = [
+    fn ? FUNCTION.label(fn) : undefined,
+    controlTypes[0] ? CONTROLTYPE.label(controlTypes[0]) : undefined,
+    channel ? `${channel} channel${channel === '1' ? '' : 's'}` : undefined,
+    voltageRange('Input', p.input_voltage_min_v, p.input_voltage_max_v),
+    p.output_voltage_v != null ? `Output ${p.output_voltage_v} V` : undefined,
+    p.power_w != null ? `Load ${p.power_w} W` : undefined,
+    p.maximum_detection_range ? `Range ${p.maximum_detection_range}` : undefined,
+    waterproofLabel(p.waterproof),
+  ].filter((x): x is string => !!x)
+
+  return [...new Set(facts)].slice(0, 5)
+}
+
 /** value → label / sort-order accessors for an options list. */
 function maps(opts: readonly { value: string; label: string }[]) {
   return {
@@ -386,6 +432,60 @@ export function buildCards(family: ProductFamily, products: Product[]): Catalogu
     }
   }
   return cards
+}
+
+/** Build one visible catalogue card per control-gear SKU. Controllers, remotes,
+ * gateways, switches and sensors are bought as individual units, so the family
+ * landing should expose products directly instead of hiding them behind broad
+ * "range" rows. */
+export function buildControlGearProductCards(family: ProductFamily, products: Product[]): CatalogueCard[] {
+  const familyLabel = family.tag.split('·')[0].trim()
+
+  return products
+    .map((p) => {
+      const img = resolveProductImage(p, seriesLineArt(p.series, family.slug))
+      const protocol = protocolValues(p)
+      const fn = functionValue(p)
+      const controlTypes = controlTypeValues(p)
+      const channel = channelsValue(p)
+      const facets: Record<string, string[]> = {
+        protocol,
+        function: uniq([fn]),
+        controltype: controlTypes,
+        channels: uniq([channel]),
+      }
+      const seriesHref = `/products/${family.slug}/${seriesSlug(p.series)}`
+      const sheetHref = p.spec_sheet_url ? datasheetHref(p.sku) : null
+
+      return {
+        key: `${family.slug}:${p.sku}`,
+        href: sheetHref ?? seriesHref,
+        familyLabel,
+        name: p.name,
+        desc: controlGearDesc(protocol, fn, controlTypes),
+        imgSrc: img.src,
+        imgLocal: img.isLocal,
+        imgAlt: img.alt,
+        chips: buildChips(facets, null),
+        sku: p.sku,
+        facts: controlGearFacts(p, fn, controlTypes, channel),
+        ctaLabel: sheetHref ? 'Datasheet' : 'View series',
+        modelCount: 1,
+        section: seriesSectionTitle(family.slug, [p]),
+        certified: (p.standards_met ?? []).length > 0,
+        facets,
+      } satisfies CatalogueCard
+    })
+    .sort((a, b) => {
+      const section = sectionOrder(a.section) - sectionOrder(b.section)
+      return section || a.name.localeCompare(b.name)
+    })
+}
+
+function sectionOrder(section: string): number {
+  const order = ['Controllers', 'Switches', 'Sensors']
+  const i = order.indexOf(section)
+  return i < 0 ? order.length : i
 }
 
 function group(

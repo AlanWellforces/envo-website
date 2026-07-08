@@ -76,6 +76,10 @@ in code, Payload, or anywhere else. These override any draft copy.
   like "Contact us" / "Ask our engineers".
 - **No prices.** Lead-generation site, no ecommerce. Never surface a price (incl.
   `price_nzd`). Talk lead-time and channel routing instead.
+- **The site sells nothing directly.** No checkout / cart / "buy now" / "purchasing
+  channel" wording that implies you can order on-site. ENVO is supplied through
+  **authorised supply channels** (external distributors) — use "supply channel" /
+  "where to buy" / "authorised channels" and route to `/contact` or the distributor.
 - **No response-time promises.** Never promise a numeric turnaround ("within 24h",
   "same-day reply"). Vague qualitative wording is fine.
 - **ENVO-only branding.** Brand as ENVO only; legal entity Envo; contact email

@@ -60,7 +60,7 @@ function selectDriver(a: FymAnswers, module: Product | null, catalog: Product[],
   return {
     kind: 'spec',
     spec: { powerW: Math.ceil(estimatedLoadW), voltageV, ip: outdoor ? 'ip67' : 'ip20', mode: 'cv' },
-    reason: `You need roughly a ${Math.ceil(estimatedLoadW)} W · ${voltageV} V${outdoor ? ' · IP67' : ''} constant-voltage driver — available through authorised purchasing channels`,
+    reason: `You need roughly a ${Math.ceil(estimatedLoadW)} W · ${voltageV} V${outdoor ? ' · IP67' : ''} constant-voltage driver — available through authorised supply channels`,
   }
 }
 
@@ -75,12 +75,12 @@ function selectControl(a: FymAnswers, catalog: Product[]): ControlPick {
     ))
     return ctrl
       ? { kind: 'product', product: ctrl, reason: 'Smart controller for app / Zigbee control' }
-      : { kind: 'note', reason: 'Add a Zigbee or Casambi controller for smart control — ask an authorised purchasing channel for the current model' }
+      : { kind: 'note', reason: 'Add a Zigbee or Casambi controller for smart control — ask an authorised supply channel for the current model' }
   }
   const dim = catalog.find((p) => (isCvDriver(p) || isController(p)) && live(p) && (p.dimming_control ?? []).length > 0)
   return dim
     ? { kind: 'product', product: dim, reason: 'Supports dimming' }
-    : { kind: 'note', reason: 'Pair with a dimmable (triac / 0–10 V) driver — an authorised purchasing channel can supply one' }
+    : { kind: 'note', reason: 'Pair with a dimmable (triac / 0–10 V) driver — an authorised channel can supply one' }
 }
 
 export function recommend(answers: FymAnswers, catalog: Product[]): Recommendation {

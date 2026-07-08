@@ -69,21 +69,21 @@ export function RegionBanner() {
   const confirm = () => setRegion(selected)
 
   return (
-    <div ref={bannerRef} className="region-banner" role="region" aria-label="Choose your purchasing channel">
+    <div ref={bannerRef} className="region-banner" role="region" aria-label="Choose your supply channel">
       <p className="region-banner-text">
-        ENVO is supplied through authorised purchasing channels worldwide — choose a channel for
+        ENVO is supplied through authorised channels worldwide — choose a channel for
         availability and support details.
       </p>
       <div className="region-banner-controls">
         <select
           className="region-banner-select"
-          aria-label="Purchasing channel"
+          aria-label="Supply channel"
           value={selected}
           onChange={(e) => setChoice(e.target.value as RegionId)}
         >
           {PURCHASE_CHANNELS.map((c) => (
             <option key={c.id} value={c.id}>
-              {c.channelLabel}
+              {c.regionLabel}
             </option>
           ))}
         </select>
