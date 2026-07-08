@@ -13,8 +13,12 @@ type Img = { src: string; local: boolean; alt: string }
 export type GalleryStageItem = Img & { caption?: string }
 export type GalleryThumb = Img & { cover?: boolean; label?: string }
 
+// Everything in the gallery (stage + thumbs) sits above the fold — the stage
+// is usually the page's LCP. All instances must be eager: Next tracks LCP
+// candidates by src, and a lazy thumb of the same file would shadow the eager
+// stage entry and re-trigger the dev LCP warning.
 function Pic({ img, sizes }: { img: Img; sizes: string }) {
-  return <Image src={img.src} alt={img.alt} width={300} height={220} sizes={sizes} />
+  return <Image src={img.src} alt={img.alt} width={300} height={220} sizes={sizes} loading="eager" />
 }
 
 const ZoomIcon = () => (

@@ -300,6 +300,8 @@ export function CatalogueFilter({
             const buckets = sections.length > 1
               ? sections.map((s) => ({ title: s, cards: sorted.filter((c) => c.section === s) }))
               : [{ title: null as string | null, cards: sorted }]
+            // First grid row is above the fold — eager-load those images (LCP).
+            const eager = new Set(sorted.slice(0, 4).map((c) => c.key))
             return buckets.map((b) => (
               <div key={b.title ?? 'all'}>
                 {b.title && <h2 className="pcat-section">{b.title}</h2>}
@@ -314,6 +316,7 @@ export function CatalogueFilter({
                             width={320}
                             height={240}
                             sizes="(max-width: 680px) 100vw, (max-width: 1100px) 50vw, 280px"
+                            loading={eager.has(c.key) ? 'eager' : undefined}
                           />
                         </div>
                         <div className="pcat-product-body">
@@ -356,6 +359,7 @@ export function CatalogueFilter({
                               width={300}
                               height={200}
                               sizes="160px"
+                              loading={eager.has(c.key) ? 'eager' : undefined}
                             />
                           </div>
                         </div>

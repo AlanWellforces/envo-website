@@ -163,24 +163,28 @@ export async function getPostCounts(): Promise<{
 }> {
   const p = await payload()
   const cats: PostCategory[] = ['guides', 'tech_insights', 'company_news', 'industry']
-  const queries = [
-    p.find({ collection: 'posts', where: dateFilter(), limit: 0, depth: 0 }),
-    ...cats.map((c) =>
-      p.find({
-        collection: 'posts',
-        where: { and: [{ category: { equals: c } }, dateFilter()] },
-        limit: 0,
-        depth: 0,
-      }),
-    ),
-  ]
-  const [all, guides, tech, news, industry] = await Promise.all(queries)
+  // Sequential on purpose — the dev/prod DB sits behind a small shared
+  // connection pool, and firing 5 count queries at once (on top of the page's
+  // getPosts) has produced transient connection errors. Counts are tiny and
+  // ISR-cached, so latency is a non-issue.
+  const all = await p.find({ collection: 'posts', where: dateFilter(), limit: 0, depth: 0 })
+  const byCat: number[] = []
+  for (const c of cats) {
+    const r = await p.find({
+      collection: 'posts',
+      where: { and: [{ category: { equals: c } }, dateFilter()] },
+      limit: 0,
+      depth: 0,
+    })
+    byCat.push(r.totalDocs)
+  }
+  const [guides, tech, news, industry] = byCat
   return {
     all: all.totalDocs,
-    guides: guides.totalDocs,
-    tech_insights: tech.totalDocs,
-    company_news: news.totalDocs,
-    industry: industry.totalDocs,
+    guides,
+    tech_insights: tech,
+    company_news: news,
+    industry,
   }
 }
 

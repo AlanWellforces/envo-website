@@ -25,7 +25,7 @@ function formatDate(iso: string): string {
   })
 }
 
-export function PostCard({ post }: { post: Post }) {
+export function PostCard({ post, eager }: { post: Post; eager?: boolean }) {
   const img = coverData(post.cover)
   return (
     <Link href={`/blog/${post.slug}`} className="bi-card">
@@ -37,6 +37,7 @@ export function PostCard({ post }: { post: Post }) {
             fill
             sizes="(min-width: 1080px) 33vw, (min-width: 720px) 50vw, 100vw"
             style={{ objectFit: 'cover' }}
+            loading={eager ? 'eager' : undefined}
           />
         )}
         <span className="bi-badge">{CATEGORY_LABEL[post.category] ?? post.category}</span>

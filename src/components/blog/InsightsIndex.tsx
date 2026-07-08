@@ -38,7 +38,7 @@ const TABS: { label: string; value: PostCategory | 'all'; href: string }[] = [
   { label: 'Company News', value: 'company_news', href: '/blog/category/company_news' },
 ]
 
-function Card({ post }: { post: InsightPost }) {
+function Card({ post, eager }: { post: InsightPost; eager?: boolean }) {
   return (
     <Link href={`/blog/${post.slug}`} className="bi-card">
       <div className="bi-card-img">
@@ -49,6 +49,7 @@ function Card({ post }: { post: InsightPost }) {
             fill
             sizes="(min-width: 1080px) 33vw, (min-width: 720px) 50vw, 100vw"
             style={{ objectFit: 'cover' }}
+            loading={eager ? 'eager' : undefined}
           />
         )}
         <span className="bi-badge">{post.categoryLabel}</span>
@@ -131,8 +132,9 @@ export function InsightsIndex({
         <p className="bi-empty">No articles found. Try another category or search term.</p>
       ) : (
         <div className="bi-grid">
-          {gridPosts.map((post) => (
-            <Card key={post.id} post={post} />
+          {gridPosts.map((post, i) => (
+            // first grid row reaches into the fold — eager-load its covers (LCP)
+            <Card key={post.id} post={post} eager={i < 3} />
           ))}
         </div>
       )}
