@@ -2538,11 +2538,12 @@
     /* ===== Sidebar collapse toggle — small icon-only control, low weight ===== */
     .sidebar-collapse-btn {
       display: flex; align-items: center; justify-content: center;
-      /* V3 spec: bottom-left, 34px tile with a hairline ring */
-      align-self: flex-start;
+      /* bottom-RIGHT (user 2026-07-08): flush with the Layout-Design card's
+         right edge (the card spans the footer's padded width) */
+      align-self: flex-end;
       width: 34px; height: 34px;
       padding: 0;
-      margin: 0 0 0 12px;
+      margin: 0 12px 0 0; /* the CTA card sits 12px in from the footer edge */
       background: transparent;
       border: 1px solid rgba(255,255,255,.08);
       border-radius: 8px;
