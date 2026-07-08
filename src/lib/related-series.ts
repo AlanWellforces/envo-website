@@ -1,8 +1,11 @@
-// Data-driven "Pairs with" cards for series + SKU detail pages, at the grain
-// customers actually browse: the old-site menu CATEGORIES (#161 taxonomy —
-// Eco Series / Screw Terminal / Zigbee & Smart…), NOT internal range codenames
-// (EcoGlo / SE / SL). Cards deep-link to the pre-filtered catalogue view
-// (?series=<category>), the exact targets the sidebar submenus use.
+// Data-driven "Pairs with" cards for series + SKU detail pages: CONCRETE
+// paired products (user 2026-07-09 — not series, not categories), linking to
+// their SKU detail pages. Matching is spec-based and deterministic:
+//   · modules ↔ drivers on the CV rail (24 V OptiLume ↔ 24 V drivers)
+//   · RGB context ↔ 5C zigbee receivers
+//   · sibling card = the adjacent model in the product's own series
+// Kickers carry the old-site customer category (#161 taxonomy) so the card
+// still says which menu bucket the pick lives in.
 import type { MergedRelated } from '@/components/products/merged/MergedSeriesPage'
 import type { Product } from './products'
 import { resolveProductImage } from './products'
@@ -28,8 +31,8 @@ const CATEGORY_ORDER: Record<string, readonly string[]> = {
   'control-gear': CONTROL_GEAR_CATEGORY_ORDER,
 }
 
-/** Customer categories a product belongs to (empty for unmapped/gated series
-    — those never surface as a card). */
+/** Customer categories a product belongs to — empty for unmapped/gated series,
+    which therefore never surface as a pick. */
 function categoriesOf(familySlug: string, p: Product): string[] {
   if (familySlug === 'led-signage-modules') {
     const c = signageSeriesCategory(p.series)
@@ -44,60 +47,99 @@ function familyName(slug: string): string {
   return PRODUCT_FAMILIES.find((f) => f.slug === slug)?.name ?? slug
 }
 
-/** Card for one category — image from its first member product. Null when the
-    category has no live products. */
-function categoryCard(
-  familySlug: string,
-  category: string,
-  products: Product[],
-  kicker: string,
-): MergedRelated | null {
-  const member = products.find((p) => categoriesOf(familySlug, p).includes(category))
-  if (!member) return null
-  const img = resolveProductImage(member, seriesLineArt(member.series, familySlug))
+const bySku = (a: Product, b: Product) => a.sku.localeCompare(b.sku)
+const byPowerThenSku = (a: Product, b: Product) =>
+  (a.power_w ?? Number.MAX_SAFE_INTEGER) - (b.power_w ?? Number.MAX_SAFE_INTEGER) || bySku(a, b)
+// siblings walk voltage-mates first, so a 24 V model's neighbour stays 24 V
+const byVoltagePowerSku = (a: Product, b: Product) =>
+  (a.output_voltage_v ?? 0) - (b.output_voltage_v ?? 0) || byPowerThenSku(a, b)
+
+/** Deterministic representative: the (lower) median of a sorted list — a
+    mid-range pick, not the smallest or biggest model. */
+const mid = <T,>(arr: T[]): T | null => (arr.length ? arr[Math.floor((arr.length - 1) / 2)] : null)
+
+const isZigbee = (p: Product | null) => !!p && (p.series === 'envo_zigbee' || /zigbee/i.test(p.name ?? ''))
+const isRgb = (p: Product | null) => !!p && (p.series === 'envo_chromaflux' || /\brgb\b/i.test(p.name ?? ''))
+
+/** The CV rail voltage of the page being viewed (modules: 12 V except the
+    24 V OptiLume line — PIM voltage is nulled by the sync, so series decides). */
+function railVoltage(familySlug: string, current: Product | null): number {
+  if (familySlug === 'led-signage-modules') return current?.series === 'envo_optilume' ? 24 : 12
+  return 12
+}
+
+function pickDriver(current: Product | null, currentFamily: string, drivers: Product[]): Product | null {
+  const eligible = drivers.filter((p) => categoriesOf('led-drivers', p).length)
+  const v = currentFamily === 'led-drivers' ? null : railVoltage(currentFamily, current)
+  const matching = eligible.filter((p) => p.operation_mode !== 'cc' && p.output_voltage_v === v)
+  return mid((matching.length ? matching : eligible).sort(byPowerThenSku))
+}
+
+function pickModule(current: Product | null, currentFamily: string, modules: Product[]): Product | null {
+  const eligible = modules.filter((p) => categoriesOf('led-signage-modules', p).length)
+  const preferred =
+    currentFamily === 'led-drivers' && current?.output_voltage_v === 24
+      ? eligible.filter((p) => p.series === 'envo_optilume')
+      : isZigbee(current) || isRgb(current)
+        ? eligible.filter((p) => p.series === 'envo_chromaflux')
+        : eligible.filter((p) => p.series === 'envo_ecoglo')
+  return mid((preferred.length ? preferred : eligible).sort(bySku))
+}
+
+function pickControl(current: Product | null, controls: Product[]): Product | null {
+  const eligible = controls.filter((p) => categoriesOf('control-gear', p).length)
+  const zigs = eligible.filter(isZigbee)
+  let pool = zigs.length ? zigs : eligible
+  // a receiver/dimmer sits in the module's power chain — a motion sensor
+  // doesn't; only fall back to sensors when nothing else exists
+  const inChain = pool.filter((p) => p.family !== 'sensor' && !/sensor/i.test(p.name ?? ''))
+  if (inChain.length) pool = inChain
+  if (isRgb(current)) {
+    const fiveC = pool.filter((p) => /5c/i.test(p.sku))
+    if (fiveC.length) pool = fiveC
+  }
+  return mid(pool.sort(bySku))
+}
+
+function card(familySlug: string, chosen: Product, kicker?: string): MergedRelated {
+  const cat = categoriesOf(familySlug, chosen)[0]
+  const img = resolveProductImage(chosen, seriesLineArt(chosen.series, familySlug))
   return {
-    kicker,
-    name: category,
-    href: `/products/${familySlug}?series=${encodeURIComponent(category)}`,
+    kicker: kicker ?? `${familyName(familySlug)}${cat ? ` · ${cat}` : ''}`,
+    name: chosen.sku,
+    href: `/products/${familySlug}/${encodeURIComponent(chosen.sku)}`,
     image: { src: img.src, local: img.isLocal, alt: img.alt },
   }
 }
 
-/** First category from `preferred` (then the family's full order) that has
-    live products and isn't excluded. */
-function firstNonEmpty(
-  familySlug: string,
-  preferred: string[],
-  products: Product[],
-  kicker: string,
-  exclude: string[] = [],
-): MergedRelated | null {
-  const order = [...preferred, ...(CATEGORY_ORDER[familySlug] ?? [])]
-  for (const cat of order) {
-    if (exclude.includes(cat)) continue
-    const card = categoryCard(familySlug, cat, products, kicker)
-    if (card) return card
+/** The adjacent model in the product's own series (wrapping); when the series
+    has no other models, the mid pick of the next customer category that does. */
+function pickSibling(familySlug: string, current: Product, own: Product[]): Product | null {
+  const series = own
+    .filter((p) => categoriesOf(familySlug, p).length && p.series === current.series)
+    .sort(byVoltagePowerSku)
+  if (series.length > 1) {
+    const i = series.findIndex((p) => p.sku === current.sku)
+    return series[(Math.max(i, 0) + 1) % series.length]
+  }
+  const order = CATEGORY_ORDER[familySlug] ?? []
+  const currentCats = categoriesOf(familySlug, current)
+  const start = Math.max(order.indexOf(currentCats[0] ?? ''), 0) + 1
+  const rotated = [...order.slice(start), ...order.slice(0, start)]
+  for (const cat of rotated) {
+    if (currentCats.includes(cat)) continue
+    const members = own.filter((p) => p.sku !== current.sku && categoriesOf(familySlug, p).includes(cat))
+    const pick = mid(members.sort(bySku))
+    if (pick) return pick
   }
   return null
 }
 
-/** The complementary category most relevant to the product being viewed. */
-function preferredCategories(compFamily: string, cur: Product | null): string[] {
-  if (compFamily === 'led-drivers') return ['Screw Terminal']
-  if (compFamily === 'control-gear') return ['Zigbee & Smart']
-  // signage modules: match the driver's rail (24 V drivers ↔ 24V Series);
-  // colour controllers sell the colour story
-  if (cur?.output_voltage_v === 24) return ['24V Series']
-  if (cur && (cur.series === 'envo_zigbee' || /zigbee/i.test(cur.name ?? ''))) return ['RGB Series']
-  return ['Eco Series']
-}
-
 /**
- * Up to three cards: the most relevant customer category of each complementary
- * family, then the next sibling category in the current family (wrapping,
- * skipping every category the current product itself belongs to).
+ * Up to three cards: the concrete product of each complementary family that
+ * best matches the one being viewed, then its series sibling.
  */
-export function pickRelatedCategories(
+export function pickRelatedProducts(
   currentFamilySlug: string,
   current: Product | null,
   productsByFamily: Record<string, Product[]>,
@@ -107,21 +149,17 @@ export function pickRelatedCategories(
   for (const comp of COMPLEMENT_FAMILIES[currentFamilySlug] ?? []) {
     const products = productsByFamily[comp] ?? []
     if (!products.length) continue
-    const card = firstNonEmpty(comp, preferredCategories(comp, current), products, familyName(comp))
-    if (card) cards.push(card)
+    const chosen =
+      comp === 'led-drivers' ? pickDriver(current, currentFamilySlug, products)
+      : comp === 'led-signage-modules' ? pickModule(current, currentFamilySlug, products)
+      : pickControl(current, products)
+    if (chosen) cards.push(card(comp, chosen))
   }
 
   const own = productsByFamily[currentFamilySlug] ?? []
-  const currentCats = current ? categoriesOf(currentFamilySlug, current) : []
-  const order = CATEGORY_ORDER[currentFamilySlug] ?? []
-  if (own.length && order.length) {
-    // start scanning right after the product's first category, wrap around
-    const start = Math.max(order.indexOf(currentCats[0] ?? ''), 0) + 1
-    const rotated = [...order.slice(start), ...order.slice(0, start)]
-    const sibling = firstNonEmpty(
-      currentFamilySlug, rotated, own, `Also in ${familyName(currentFamilySlug)}`, currentCats,
-    )
-    if (sibling) cards.push(sibling)
+  if (current && own.length) {
+    const sibling = pickSibling(currentFamilySlug, current, own)
+    if (sibling) cards.push(card(currentFamilySlug, sibling, `Also in ${familyName(currentFamilySlug)}`))
   }
 
   return cards.slice(0, 3)

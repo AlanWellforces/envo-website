@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest'
-import { pickRelatedCategories } from './related-series'
+import { pickRelatedProducts } from './related-series'
 import type { Product } from './products'
 
 const p = (over: Partial<Product> & Record<string, unknown>): Product => ({
@@ -11,23 +11,27 @@ const p = (over: Partial<Product> & Record<string, unknown>): Product => ({
 } as unknown as Product)
 
 const modules = [
-  p({ sku: 'EV-BLML01LBY-NW', series: 'envo_minilux', clean_image_url_fallback: 'https://s3/minilux.jpg' }),
-  p({ sku: 'EV-BLEG02LBY-NW', series: 'envo_ecoglo', clean_image_url_fallback: 'https://s3/ecoglo.jpg' }),
-  p({ sku: 'EV-BLEG03LBY-NW', series: 'envo_ecoglo' }),
+  p({ sku: 'EV-BLML01LBY-NW', series: 'envo_minilux' }),
+  p({ sku: 'EV-BLEG02LBY-NW', series: 'envo_ecoglo', clean_image_url_fallback: 'https://s3/ecoglo2.jpg' }),
+  p({ sku: 'EV-BLEG03LBY-NW', series: 'envo_ecoglo', clean_image_url_fallback: 'https://s3/ecoglo3.jpg' }),
   p({ sku: 'EV-BLUF02LBY-NW', series: 'envo_ultraflare' }),
-  p({ sku: 'EV-BLCF03LBY-RGB', series: 'envo_chromaflux' }),
-  p({ sku: 'EV-BLOL06LBY-NW', series: 'envo_optilume', clean_image_url_fallback: 'https://s3/optilume.jpg' }),
+  p({ sku: 'EV-BLCF03LBY-RGB', series: 'envo_chromaflux', clean_image_url_fallback: 'https://s3/rgb.jpg' }),
+  p({ sku: 'EV-BLOL06LBY-NW', series: 'envo_optilume' }),
 ]
 const drivers = [
-  p({ sku: 'EV-SE-15-12US', series: 'envo_se_us', family: 'psu_led_cv', output_voltage_v: 12, clean_image_url_fallback: 'https://s3/se.jpg' }),
-  p({ sku: 'EV-SE-15-24US', series: 'envo_se_us', family: 'psu_led_cv', output_voltage_v: 24 }),
-  p({ sku: 'EV-SL-100-12US', series: 'envo_sl_us', family: 'psu_led_cv', output_voltage_v: 12 }),
-  p({ sku: 'EV-SP-30-12US', series: 'envo_sp_us', family: 'psu_led_cv', output_voltage_v: 12 }),
-  // unmapped/gated series never surface as a category card
-  p({ sku: 'SC-10-12', series: 'sc_envo', family: 'psu_led_cv' }),
+  p({ sku: 'EV-SE-15-12US', series: 'envo_se_us', family: 'psu_led_cv', power_w: 15, output_voltage_v: 12 }),
+  p({ sku: 'EV-SE-15-24US', series: 'envo_se_us', family: 'psu_led_cv', power_w: 15, output_voltage_v: 24 }),
+  p({ sku: 'EV-SE-20-24US', series: 'envo_se_us', family: 'psu_led_cv', power_w: 20, output_voltage_v: 24 }),
+  p({ sku: 'EV-SL-100-12US', series: 'envo_sl_us', family: 'psu_led_cv', power_w: 100, output_voltage_v: 12 }),
+  p({ sku: 'EV-SP-30-12US', series: 'envo_sp_us', family: 'psu_led_cv', power_w: 30, output_voltage_v: 12, clean_image_url_fallback: 'https://s3/sp.jpg' }),
+  // unmapped/gated series must never surface
+  p({ sku: 'SC-10-12', series: 'sc_envo', family: 'psu_led_cv', power_w: 10, output_voltage_v: 12 }),
 ]
 const controls = [
-  p({ sku: 'SR-2309PRO-5C', name: 'Zigbee Remote 5C', series: 'envo_zigbee', family: 'psu_led_controller', clean_image_url_fallback: 'https://s3/zb.jpg' }),
+  p({ sku: 'SR-2309PRO-5C', name: 'Zigbee Remote 5C', series: 'envo_zigbee', family: 'psu_led_controller' }),
+  p({ sku: 'EV-ZBDIM-01', name: 'Zigbee Dimmer', series: 'envo_zigbee', family: 'psu_led_controller' }),
+  // zigbee-series SENSOR: must never beat in-chain gear as the control pick
+  p({ sku: 'EV-ZB9032A-PIR', name: 'Zigbee PIR Motion Sensor', series: 'envo_zigbee', family: 'sensor' }),
   p({ sku: 'EV-PIR-01', name: 'PIR Motion Sensor', series: null, family: 'sensor' }),
 ]
 
@@ -39,55 +43,71 @@ const byFamily = {
 
 const current = (arr: Product[], sku: string) => arr.find((x) => x.sku === sku)!
 
-describe('pickRelatedCategories', () => {
-  it('module page: driver + control categories as filter deep links, then sibling category', () => {
-    const rel = pickRelatedCategories('led-signage-modules', current(modules, 'EV-BLEG02LBY-NW'), byFamily)
+describe('pickRelatedProducts', () => {
+  it('module page: concrete driver + control SKUs linking to their detail pages, then a series sibling', () => {
+    const rel = pickRelatedProducts('led-signage-modules', current(modules, 'EV-BLEG02LBY-NW'), byFamily)
     expect(rel).toHaveLength(3)
-    expect(rel[0]).toMatchObject({ name: 'Screw Terminal', href: '/products/led-drivers?series=Screw%20Terminal', kicker: 'LED Drivers' })
-    expect(rel[1]).toMatchObject({ name: 'Zigbee & Smart', href: '/products/control-gear?series=Zigbee%20%26%20Smart' })
-    // sibling = next signage category after Eco Series
-    expect(rel[2]).toMatchObject({ name: 'Pro Series', href: '/products/led-signage-modules?series=Pro%20Series', kicker: 'Also in Signage Modules' })
+    // 12 V modules → median of the 12 V CV drivers (15/30/100 W → 30 W)
+    expect(rel[0]).toMatchObject({ name: 'EV-SP-30-12US', href: '/products/led-drivers/EV-SP-30-12US' })
+    expect(rel[0].kicker).toBe('LED Drivers · Screw Terminal')
+    expect(rel[1].href).toMatch(/^\/products\/control-gear\//)
+    // sibling = next model in the same series
+    expect(rel[2]).toMatchObject({ name: 'EV-BLEG03LBY-NW', href: '/products/led-signage-modules/EV-BLEG03LBY-NW', kicker: 'Also in Signage Modules' })
   })
 
-  it('sibling category wraps around the order and skips the current one', () => {
-    const rel = pickRelatedCategories('led-signage-modules', current(modules, 'EV-BLOL06LBY-NW'), byFamily)
-    // 24V Series → Sidelit has no products → wraps to Mini Series
-    expect(rel[2].name).toBe('Mini Series')
+  it('24 V driver pairs with a 24 V-rail module (OptiLume); 12 V driver with an Eco module', () => {
+    const rel24 = pickRelatedProducts('led-drivers', current(drivers, 'EV-SE-15-24US'), byFamily)
+    expect(rel24[0].name).toBe('EV-BLOL06LBY-NW')
+    const rel12 = pickRelatedProducts('led-drivers', current(drivers, 'EV-SE-15-12US'), byFamily)
+    expect(rel12[0].name).toMatch(/^EV-BLEG/)
   })
 
-  it('24 V driver pairs with the 24V Series modules; 12 V with Eco Series', () => {
-    const rel24 = pickRelatedCategories('led-drivers', current(drivers, 'EV-SE-15-24US'), byFamily)
-    expect(rel24[0]).toMatchObject({ name: '24V Series', href: '/products/led-signage-modules?series=24V%20Series' })
-    const rel12 = pickRelatedCategories('led-drivers', current(drivers, 'EV-SE-15-12US'), byFamily)
-    expect(rel12[0].name).toBe('Eco Series')
+  it('driver sibling = adjacent model on the SAME voltage rail, wrapping', () => {
+    // 15-24 → 20-24 (stays 24 V), never the 12 V twin
+    const rel = pickRelatedProducts('led-drivers', current(drivers, 'EV-SE-15-24US'), byFamily)
+    expect(rel[2]).toMatchObject({ name: 'EV-SE-20-24US', kicker: 'Also in LED Drivers' })
+    // last 24 V model wraps back to the head of the series list
+    const relLast = pickRelatedProducts('led-drivers', current(drivers, 'EV-SE-20-24US'), byFamily)
+    expect(relLast[2].name).toBe('EV-SE-15-12US')
   })
 
-  it('driver sibling skips every category the product itself belongs to', () => {
-    // SP is Screw Terminal AND Triac Dimmable → sibling must be Linear
-    const rel = pickRelatedCategories('led-drivers', current(drivers, 'EV-SP-30-12US'), byFamily)
-    expect(rel[2]).toMatchObject({ name: 'Linear', kicker: 'Also in LED Drivers' })
+  it('control pick prefers in-chain gear (receiver/dimmer) over sensors', () => {
+    const rel = pickRelatedProducts('led-signage-modules', current(modules, 'EV-BLEG02LBY-NW'), byFamily)
+    expect(rel[1].name).toMatch(/^(SR-2309PRO-5C|EV-ZBDIM-01)$/)
   })
 
-  it('zigbee control page pairs with RGB Series modules; sensor with Eco Series', () => {
-    const relZb = pickRelatedCategories('control-gear', current(controls, 'SR-2309PRO-5C'), byFamily)
-    expect(relZb.map((r) => r.name)).toContain('RGB Series')
-    const relSensor = pickRelatedCategories('control-gear', current(controls, 'EV-PIR-01'), byFamily)
-    expect(relSensor.map((r) => r.name)).toContain('Eco Series')
+  it('RGB context prefers the 5C zigbee receiver; zigbee control pairs with an RGB module', () => {
+    const relRgb = pickRelatedProducts('led-signage-modules', current(modules, 'EV-BLCF03LBY-RGB'), byFamily)
+    expect(relRgb[1].name).toBe('SR-2309PRO-5C')
+    const relZb = pickRelatedProducts('control-gear', current(controls, 'SR-2309PRO-5C'), byFamily)
+    expect(relZb.map((r) => r.name)).toContain('EV-BLCF03LBY-RGB')
   })
 
-  it('uses a category member product image, never emits empty categories or Other', () => {
-    const rel = pickRelatedCategories('led-signage-modules', current(modules, 'EV-BLEG02LBY-NW'), byFamily)
-    expect(rel[0].image.src).toBe('https://s3/se.jpg')
-    expect(rel[0].image.local).toBe(false)
-    const all = pickRelatedCategories('control-gear', current(controls, 'SR-2309PRO-5C'), byFamily)
-    expect(all.every((r) => r.name !== 'Other')).toBe(true)
+  it('single-product series falls back to the next category for the sibling card', () => {
+    // SR-2309PRO-5C shares envo_zigbee with the dimmer → sibling is the dimmer;
+    // the PIR sensor (its own category, single product) falls back across categories
+    const relSensor = pickRelatedProducts('control-gear', current(controls, 'EV-PIR-01'), byFamily)
+    expect(relSensor[2].name).toMatch(/^(SR-2309PRO-5C|EV-ZBDIM-01)$/)
   })
 
-  it('skips families with no products', () => {
-    const rel = pickRelatedCategories('control-gear', current(controls, 'SR-2309PRO-5C'), {
+  it('never surfaces gated/unmapped series and encodes special characters in hrefs', () => {
+    const rel12 = pickRelatedProducts('led-drivers', current(drivers, 'EV-SE-15-12US'), byFamily)
+    expect(rel12.map((r) => r.name)).not.toContain('SC-10-12')
+    const rel = pickRelatedProducts('led-signage-modules', current(modules, 'EV-BLEG02LBY-NW'), {
+      ...byFamily,
+      'control-gear': [p({ sku: 'EV-ZB2835PAC(US)', name: 'Zigbee Receiver', series: 'envo_zigbee', family: 'psu_led_controller' })],
+    })
+    // encodeURIComponent leaves () raw — same shape the catalogue grid links use
+    expect(rel[1].href).toBe('/products/control-gear/EV-ZB2835PAC(US)')
+  })
+
+  it('uses the paired product own image and skips families with no products', () => {
+    const rel = pickRelatedProducts('led-signage-modules', current(modules, 'EV-BLEG02LBY-NW'), byFamily)
+    expect(rel[0].image.src).toBe('https://s3/sp.jpg')
+    const noModules = pickRelatedProducts('control-gear', current(controls, 'SR-2309PRO-5C'), {
       'control-gear': controls,
       'led-drivers': drivers,
     })
-    expect(rel.every((r) => !r.href.includes('led-signage-modules'))).toBe(true)
+    expect(noModules.every((r) => !r.href.includes('led-signage-modules'))).toBe(true)
   })
 })

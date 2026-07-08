@@ -584,7 +584,9 @@ export default function MergedSeriesPage(p: MergedSeriesProps) {
             <div className="rel">
               <div className="rel-head">
                 <h2>Pairs with</h2>
-                <Link href={p.breadcrumb.familyHref}>All {p.breadcrumb.familyName.toLowerCase()} →</Link>
+                {/* the cards cross families, so "view all" goes to the whole
+                     catalogue — not the current family (user 2026-07-09) */}
+                <Link href="/products">All products →</Link>
               </div>
               <div className="rel-grid">
                 {p.related.map((r) => (

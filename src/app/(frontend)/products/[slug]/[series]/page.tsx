@@ -8,7 +8,7 @@ import { getProduct, getProductsByMarketingFamily, type Product } from '@/lib/pr
 import { seriesSlug as toSeriesSlug } from '@/data/family-map'
 import { buildMergedSeriesProps } from '@/lib/merged-series'
 import { buildSkuDetailProps } from '@/lib/sku-detail'
-import { COMPLEMENT_FAMILIES, pickRelatedCategories } from '@/lib/related-series'
+import { COMPLEMENT_FAMILIES, pickRelatedProducts } from '@/lib/related-series'
 import { SERIES_EDITORIAL } from '@/data/series-editorial.generated'
 import { seriesPurchaseLinks } from '@/data/distributors'
 
@@ -84,6 +84,13 @@ export default async function SeriesDetailPage({ params }: { params: Params }) {
     // see memory project_envo-minilux-real-specs / mini-compare-shared-rows-wiring).
     const variantSkus = ['EV-BLML01LBY-NW', 'EV-BLML02LBY-NW', 'EV-BLML03LBY-NW']
     const live = await Promise.all(variantSkus.map((s) => getProduct(s)))
+    // "Pairs with" — same concrete-product picks as every other detail page.
+    // Sequential fetches on purpose — the dev pooler's connection cap.
+    const productsByFamily: Record<string, Product[]> = {}
+    for (const f of [slug, ...(COMPLEMENT_FAMILIES[slug] ?? [])]) {
+      productsByFamily[f] = await getProductsByMarketingFamily(f, { depth: 0 })
+    }
+    const related = pickRelatedProducts(slug, live[2] ?? live.find(Boolean) ?? null, productsByFamily)
     // dual units — mm (国标) primary, inches (美标) in parens
     const dims = (pr: Product | null) => {
       const d = formatDims(pr?.length_mm, pr?.width_mm, pr?.height_mm)
@@ -188,13 +195,7 @@ export default async function SeriesDetailPage({ params }: { params: Params }) {
           { title: 'Outdoor signage', pick: 'IP66 · −25 to +60 °C', image: img('app-mini-hospitality-facade.jpg', 'Hospitality facade', true) },
         ]}
         downloads={[{ name: 'MiniLux datasheet', meta: 'PDF', href: datasheetUrl }]}
-        related={[
-          // same category-grain cards as pickRelatedCategories — this curated
-          // branch doesn't fetch the complementary families, so hand-built
-          { kicker: 'LED Drivers', name: 'Screw Terminal', href: '/products/led-drivers?series=Screw%20Terminal', image: img('cat-drivers-line.png', 'Screw terminal LED drivers') },
-          { kicker: 'Control Gear', name: 'Zigbee & Smart', href: '/products/control-gear?series=Zigbee%20%26%20Smart', image: img('cat-controllers-line.png', 'Zigbee & Smart control gear') },
-          { kicker: 'Also in Signage Modules', name: 'Eco Series', href: '/products/led-signage-modules?series=Eco%20Series', image: img('series/envo_ecoglo.jpg', 'Eco Series modules') },
-        ]}
+        related={related.length ? related : undefined}
       />
     )
   }
@@ -217,7 +218,7 @@ export default async function SeriesDetailPage({ params }: { params: Params }) {
         for (const comp of COMPLEMENT_FAMILIES[slug] ?? []) {
           productsByFamily[comp] = await getProductsByMarketingFamily(comp, { depth: 0 })
         }
-        const related = pickRelatedCategories(slug, product, productsByFamily)
+        const related = pickRelatedProducts(slug, product, productsByFamily)
         return (
           <MergedSeriesPage
             {...buildSkuDetailProps(family, product, sameSeries)}
@@ -235,7 +236,7 @@ export default async function SeriesDetailPage({ params }: { params: Params }) {
   for (const comp of COMPLEMENT_FAMILIES[slug] ?? []) {
     productsByFamily[comp] = await getProductsByMarketingFamily(comp, { depth: 0 })
   }
-  const related = pickRelatedCategories(slug, products[0], productsByFamily)
+  const related = pickRelatedProducts(slug, products[0], productsByFamily)
 
   return (
     <MergedSeriesPage
