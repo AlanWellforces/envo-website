@@ -150,6 +150,11 @@ export function buildMergedSeriesProps(
   // other families keep the shared-row-when-uniform behaviour.
   const isDrivers = family.slug === 'led-drivers'
   const sharedVoltage = !isDrivers && voltageValues.length === 1 ? voltageValues[0] : null
+  // Rows-layout driver tables follow the sales guide's column set: Type
+  // (operation mode) and Warranty repeat per model row instead of living in
+  // the shared strip below.
+  const isRowsLayout = models.length > COLUMN_CAP
+  const columnisedShared = isDrivers && isRowsLayout
 
   const variants: MergedVariant[] = models.map((m) => {
     const beads = LED_BEADS[m.leds]
@@ -180,6 +185,19 @@ export function buildMergedSeriesProps(
             dimming: rep ? dimmingDisplay(rep) : undefined,
             ip: rep ? ipDisplay(rep) : undefined,
             dimensions: dualDims(rep),
+            ...(columnisedShared
+              ? {
+                  type:
+                    rep?.operation_mode === 'cv' ? 'CV'
+                    : rep?.operation_mode === 'cc' ? 'CC'
+                    : rep?.operation_mode === 'cv_cc' ? 'CV & CC'
+                    : undefined,
+                  warranty:
+                    num(rep?.warranty_years) != null
+                      ? `${rep!.warranty_years} year${rep!.warranty_years === 1 ? '' : 's'}`
+                      : undefined,
+                }
+              : {}),
           }
         : { size: dualDims(rep) }),
     }
@@ -230,13 +248,16 @@ export function buildMergedSeriesProps(
   const lifetime = products.map((p) => num(p.lifetime_hrs)).find(Boolean) ?? null
   if (lifetime) sharedRows.push({ label: 'Lifetime', value: `${lifetime.toLocaleString()} h` })
 
-  if (modes.length === 1 && modes[0] !== 'cv_cc') {
-    sharedRows.push({
-      label: 'Operation mode',
-      value: modes[0] === 'cv' ? 'Constant voltage (CV)' : 'Constant current (CC)',
-    })
-  } else if (modes.length > 1 || modes[0] === 'cv_cc') {
-    sharedRows.push({ label: 'Operation mode', value: 'CV & CC — varies by model' })
+  // Skipped when the rows-layout driver table carries mode per row ("Type").
+  if (!columnisedShared) {
+    if (modes.length === 1 && modes[0] !== 'cv_cc') {
+      sharedRows.push({
+        label: 'Operation mode',
+        value: modes[0] === 'cv' ? 'Constant voltage (CV)' : 'Constant current (CC)',
+      })
+    } else if (modes.length > 1 || modes[0] === 'cv_cc') {
+      sharedRows.push({ label: 'Operation mode', value: 'CV & CC — varies by model' })
+    }
   }
 
   const certs = uniq(products.flatMap((p) => p.standards_met ?? [])).map((c) => CERT_NAME[c] ?? c)
@@ -258,7 +279,7 @@ export function buildMergedSeriesProps(
   if (protections) sharedRows.push({ label: 'Protections', value: protections })
 
   const warranties = uniq(products.map((p) => num(p.warranty_years)).filter((w): w is number => w != null))
-  if (warranties.length === 1)
+  if (warranties.length === 1 && !columnisedShared)
     sharedRows.push({ label: 'Warranty', value: `${warranties[0]} year${warranties[0] === 1 ? '' : 's'}` })
 
   // ── hero key specs (reference layout 2026-07-06): the ≤6 identity facts of

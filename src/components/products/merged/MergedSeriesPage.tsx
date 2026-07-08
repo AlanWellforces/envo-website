@@ -32,6 +32,10 @@ export type MergedVariant = {
   dimming?: string
   /** driver column: per-model ingress rating, e.g. "IP67" */
   ip?: string
+  /** driver rows-table column: operation mode per model, e.g. "CV" (guide's "Type") */
+  type?: string
+  /** driver rows-table column: per-model warranty, e.g. "5 years" */
+  warranty?: string
   /** signage: rendered as "Module size" */
   size?: string
   /** drivers: the same physical dims rendered as "Dimensions" */
@@ -98,10 +102,12 @@ const VARIANT_ROWS: { label: string; key: keyof MergedVariant; cls?: string }[] 
   { label: 'Output voltage', key: 'outputVoltage' },
   { label: 'Rated current', key: 'ratedCurrent' },
   { label: 'Input voltage', key: 'inputVoltage' },
+  { label: 'Type', key: 'type' },
   { label: 'Dimming', key: 'dimming' },
   { label: 'IP rating', key: 'ip' },
   { label: 'Module size', key: 'size' },
   { label: 'Dimensions', key: 'dimensions' },
+  { label: 'Warranty', key: 'warranty' },
   { label: 'Best for', key: 'bestFor', cls: 'best' },
 ]
 
@@ -113,6 +119,32 @@ const FileIcon = () => (
   <svg viewBox="0 0 24 24" aria-hidden>
     <path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z" />
     <path d="M14 2v6h6" />
+  </svg>
+)
+
+// Generic red "PDF file" mark — dog-eared sheet + PDF letters. Deliberately
+// NOT Adobe's trademarked Acrobat loop glyph; a plain file-type symbol.
+const PdfIcon = () => (
+  <svg viewBox="0 0 24 24" aria-hidden className="pdf-ico">
+    <path
+      d="M6 2h8.5L20 7.5V20a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2z"
+      fill="none"
+      stroke="#e5252a"
+      strokeWidth="1.7"
+      strokeLinejoin="round"
+    />
+    <path d="M14.5 2v5.5H20" fill="none" stroke="#e5252a" strokeWidth="1.7" strokeLinejoin="round" />
+    <text
+      x="12"
+      y="17.5"
+      textAnchor="middle"
+      fontSize="6.5"
+      fontWeight="800"
+      fill="#e5252a"
+      style={{ letterSpacing: '0.02em' }}
+    >
+      PDF
+    </text>
   </svg>
 )
 
@@ -300,8 +332,9 @@ export default function MergedSeriesPage(p: MergedSeriesProps) {
                           target="_blank"
                           rel="noopener noreferrer"
                           aria-label={`Spec sheet PDF — ${v.modelCode ?? v.name}`}
+                          title="Spec sheet (PDF)"
                         >
-                          PDF ↓
+                          <PdfIcon />
                         </a>
                       ) : (
                         '—'
@@ -310,16 +343,23 @@ export default function MergedSeriesPage(p: MergedSeriesProps) {
                   )}
                 </tr>
               ))}
-              {/* Shared specs live INSIDE the same table card (like the column
-                  layout) instead of a loose list floating below it. */}
-              {p.sharedRows?.map((row, i) => (
-                <tr key={row.label} className={`shared-row${i === 0 ? ' first' : ''}`}>
-                  <th>{row.label}</th>
-                  <td className="shared" colSpan={rowsColCount - 1}>
-                    {row.value}
+              {/* Shared specs live INSIDE the same table card, compacted onto
+                  one horizontal strip (they're short values — three stacked
+                  full-width rows read as wasted space). */}
+              {p.sharedRows && p.sharedRows.length > 0 && (
+                <tr className="shared-row first">
+                  <td className="shared" colSpan={rowsColCount}>
+                    <div className="shared-strip">
+                      {p.sharedRows.map((row) => (
+                        <span key={row.label} className="shared-item">
+                          <span className="lbl">{row.label}</span>
+                          <span className="val">{row.value}</span>
+                        </span>
+                      ))}
+                    </div>
                   </td>
                 </tr>
-              ))}
+              )}
             </tbody>
           </table>
         </div>

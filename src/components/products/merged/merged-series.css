@@ -235,18 +235,21 @@
 .pdetail .cmp-table.rows tbody th { text-align: left; font-weight: 600; }
 .pdetail .cmp-table.rows tbody td { text-align: left; font-weight: 500; color: var(--text-muted); }
 .pdetail .cmp-table.rows tbody tr:hover { background: rgba(0, 113, 188, 0.03); }
-/* Shared-spec footer band: label column stays subtle like thead, values keep
-   full text colour; first band row carries a heavier rule so per-model grid
-   and common section scan as two zones of one card. */
-.pdetail .cmp-table.rows .shared-row th { color: var(--text-subtle); font-weight: 500; }
-.pdetail .cmp-table.rows td.shared { text-align: left; font-weight: 600; color: var(--text); }
-.pdetail .cmp-table.rows .shared-row.first th,
+/* Shared-spec footer band — ONE horizontal strip inside the table card
+   (three stacked full-width rows read as wasted space); heavier top rule
+   separates the per-model grid from the common section. */
+.pdetail .cmp-table.rows td.shared { text-align: left; }
 .pdetail .cmp-table.rows .shared-row.first td { border-top: 2px solid var(--line); }
-/* Per-model spec-sheet download link */
+.pdetail .cmp-table.rows .shared-strip { display: flex; flex-wrap: wrap; gap: 10px 44px; padding: 2px 0; }
+.pdetail .cmp-table.rows .shared-item { display: inline-flex; align-items: baseline; gap: 10px; }
+.pdetail .cmp-table.rows .shared-item .lbl { color: var(--text-subtle); font-weight: 500; white-space: nowrap; }
+.pdetail .cmp-table.rows .shared-item .val { color: var(--text); font-weight: 600; }
+/* Per-model spec-sheet download link — self-coloured red PDF file mark */
 .pdetail .cmp-table.rows .ds-head,
 .pdetail .cmp-table.rows td.ds { white-space: nowrap; }
-.pdetail .cmp-table.rows td.ds a { color: var(--blue); font-weight: 600; text-decoration: none; }
-.pdetail .cmp-table.rows td.ds a:hover { text-decoration: underline; }
+.pdetail .cmp-table.rows td.ds a { display: inline-flex; }
+.pdetail .cmp-table.rows td.ds a .pdf-ico { width: 20px; height: 20px; transition: transform .12s ease; }
+.pdetail .cmp-table.rows td.ds a:hover .pdf-ico { transform: translateY(-1px) scale(1.06); }
 .pdetail .shared-specs { margin: 16px 0 0; display: grid; grid-template-columns: repeat(2, 1fr); gap: 0 28px; }
 .pdetail .shared-specs > div { display: flex; justify-content: space-between; gap: 16px; padding: 11px 2px; border-bottom: 1px solid var(--line); }
 .pdetail .shared-specs dt { color: var(--text-subtle); font-size: 13.5px; }
