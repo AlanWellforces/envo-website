@@ -34,6 +34,10 @@ export type MergedVariant = {
   ip?: string
   /** driver rows-table column: operation mode per model, e.g. "CV" (guide's "Type") */
   type?: string
+  /** driver rows-table column: per-model certifications, e.g. "cUL · UL" */
+  certifications?: string
+  /** driver rows-table column: per-model protections, e.g. "Short-circuit · Overload" */
+  protections?: string
   /** driver rows-table column: per-model warranty, e.g. "5 years" */
   warranty?: string
   /** signage: rendered as "Module size" */
@@ -107,6 +111,8 @@ const VARIANT_ROWS: { label: string; key: keyof MergedVariant; cls?: string }[] 
   { label: 'IP rating', key: 'ip' },
   { label: 'Module size', key: 'size' },
   { label: 'Dimensions', key: 'dimensions' },
+  { label: 'Certifications', key: 'certifications' },
+  { label: 'Protections', key: 'protections' },
   { label: 'Warranty', key: 'warranty' },
   { label: 'Best for', key: 'bestFor', cls: 'best' },
 ]
@@ -268,9 +274,7 @@ export default function MergedSeriesPage(p: MergedSeriesProps) {
 
   const specSingle: ReactNode = (
     <div className="compare">
-      <div className="lead">
-        <h2>Full specification.</h2>
-      </div>
+      {/* no heading — the SPECIFICATIONS tab already names the panel (user 2026-07-08) */}
       <dl className="shared-specs">
         {activeVariantRows
           .filter((r) => r.key !== 'bestFor')
