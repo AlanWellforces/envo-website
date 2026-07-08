@@ -39,6 +39,19 @@ describe('buildSkuDetailProps', () => {
     expect(props.downloads?.[0]?.name).toBe('EV-SNG-350-24 datasheet')
   })
 
+  it('drops the CCT suffix (-NW/-WW/-CW) from the datasheet download name', () => {
+    const p = mk({ sku: 'EV-BLPG01LBY-NW', name: 'ENVO ProGlo LED Module Backlit - Single LED', spec_sheet_url: 's.pdf' })
+    const props = buildSkuDetailProps(DRIVERS, p, [p])
+    expect(props.downloads?.[0]?.name).toBe('EV-BLPG01LBY datasheet')
+    expect(props.title).toBe('EV-BLPG01LBY-NW') // H1 keeps the full SKU — only the download label is shared
+  })
+
+  it('keeps functional SKU suffixes in the datasheet download name', () => {
+    const p = mk({ sku: 'EV-SE-15-TDM', name: 'Envo Sensor TDM', spec_sheet_url: 's.pdf' })
+    const props = buildSkuDetailProps(DRIVERS, p, [p])
+    expect(props.downloads?.[0]?.name).toBe('EV-SE-15-TDM datasheet')
+  })
+
   it('strips the brand and SKU out of the subtitle', () => {
     const p = mk({ sku: 'EV-SNG-350-24', name: 'Envo EV-SNG-350-24 LED Driver 350W 24V Waterproof IP67 14.58A' })
     const props = buildSkuDetailProps(DRIVERS, p, [p])
