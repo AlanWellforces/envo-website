@@ -1224,7 +1224,7 @@
     }
     .section-head p { font-size: 17px; color: var(--fg-mute); max-width: 580px; }
 
-    /* ========== PRODUCT TABS + CAROUSEL — bounceled signature
+    /* ========== PRODUCT TABS + CAROUSEL
        【节奏 break #1】整段 LIGHT 反差，从深暗跳到 #f5f7fa
     ========== */
     .product-section {
@@ -1432,7 +1432,7 @@
     }
     .carousel-btn:disabled { opacity: .3; cursor: not-allowed; }
 
-    /* ========== CASES SHOWCASE — bounceled "in action" 借鉴 ========== */
+    /* ========== CASES SHOWCASE — "in action" band ========== */
     .cases-section { background: var(--bg-elevated); }
     .cases-grid {
       display: grid; grid-template-columns: 1.5fr 1fr 1fr; gap: 16px;
@@ -1490,7 +1490,7 @@
       background: rgba(255,255,255,.05);
     }
 
-    /* ========== FEATURED + USED PRODUCTS — bounceled "products used" 借鉴 ========== */
+    /* ========== FEATURED + USED PRODUCTS — "products used" band ========== */
     .featured-detail { background: var(--bg); }
     .featured-grid {
       display: grid; grid-template-columns: 1.4fr 1fr; gap: 64px;

@@ -44,6 +44,76 @@ const SERIES_LABELS: Record<string, string> = {
   archilight_pure_lume: 'Pure Lume',
 }
 
+// Old-envo customer-facing signage CATEGORIES (the menu sign-makers know:
+// Mini / Eco / Pro / RGB / 24V / Sidelit). A category can span several
+// internal series — verified against envo-led.com collections 2026-07-08:
+// Pro = ProGlo + UltraFlare; Sidelit = EdgeBlade + EdgeFlare + EdgeLume.
+// Used by the catalogue Series filter so customers pick by category, not by
+// internal range codenames.
+const SIGNAGE_SERIES_CATEGORY: Record<string, string> = {
+  envo_minilux: 'Mini Series',
+  envo_ecoglo: 'Eco Series',
+  envo_proglo: 'Pro Series',
+  envo_ultraflare: 'Pro Series',
+  envo_chromaflux: 'RGB Series',
+  envo_optilume: '24V Series',
+  envo_edgeblade: 'Sidelit',
+  envo_edgeflare: 'Sidelit',
+  envo_edgelume: 'Sidelit',
+  edge_blade_2: 'Sidelit',
+}
+export const SIGNAGE_CATEGORY_ORDER = [
+  'Mini Series', 'Eco Series', 'Pro Series', 'RGB Series', '24V Series', 'Sidelit',
+]
+export function signageSeriesCategory(code: string | null | undefined): string | null {
+  return code ? SIGNAGE_SERIES_CATEGORY[code] ?? null : null
+}
+
+// Old-envo LED DRIVER categories (Screw Terminal / Linear / Triac Dimmable)
+// — the old menu splits by connection/dimming TYPE, not by model line, and a
+// series can belong to TWO types: SP is screw-terminal AND triac-dimmable
+// (multi-value facet: ticking either shows it). Verified SKU-for-SKU against
+// envo-led.com collections 2026-07-08 (SE 10 + SNPV 4 + SP 6 = Screw
+// Terminal 20; SL 8 = Linear; SP 6 = Triac Dimmable). Unmapped series (e.g.
+// gated ranges when they return) fall back to their authored series title.
+export const DRIVER_CATEGORY_ORDER = ['Screw Terminal', 'Linear', 'Triac Dimmable']
+const DRIVER_SERIES_CATEGORIES: Record<string, string[]> = {
+  envo_se_us: ['Screw Terminal'],
+  envo_snpv_us: ['Screw Terminal'],
+  envo_sp_us: ['Screw Terminal', 'Triac Dimmable'],
+  envo_sl_us: ['Linear'],
+}
+export function driverCategories(code: string | null | undefined): string[] | null {
+  return code ? DRIVER_SERIES_CATEGORIES[code] ?? null : null
+}
+
+// Old-envo CONTROL GEAR categories (Remote & Receiver / Signal Converter /
+// Sensor / Zigbee & Smart). On the old site the first three split the range
+// by FUNCTION (name-based — the PIM has no structured attribute), while
+// "Zigbee & Smart" (collection handle `zigbee-controller`) is the WHOLE
+// zigbee range — a superset view, so a product carries it IN ADDITION to
+// its function category. Rule order matters: "Blinds Controller" is a
+// converter, not a remote. "conveter" covers a live PIM typo (EV-ZBDA-2421).
+export const CONTROL_GEAR_CATEGORY_ORDER = [
+  'Remote & Receiver', 'Signal Converter', 'Sensor', 'Zigbee & Smart',
+]
+export function controlGearCategories(p: {
+  name?: string | null
+  family?: string | null
+  series?: string | null
+}): string[] {
+  const n = p.name ?? ''
+  const fn =
+    p.family === 'sensor' || /sensor/i.test(n) ? 'Sensor'
+    : /switch|dimmer|convert|conveter|blinds/i.test(n) ? 'Signal Converter'
+    : /remote|controller|gateway|hub|receiver/i.test(n) ? 'Remote & Receiver'
+    : null
+  const zigbee = p.series === 'envo_zigbee' || /zigbee/i.test(n)
+  const cats = fn ? [fn] : []
+  if (zigbee) cats.push('Zigbee & Smart')
+  return cats.length ? cats : ['Zigbee & Smart']
+}
+
 export function seriesSlug(code: string | null | undefined): string {
   if (!code) return 'other'
   return SERIES_SLUG_OVERRIDES[code] ?? code.replace(/_/g, '-')
@@ -54,7 +124,7 @@ export function seriesCodeFromSlug(slug: string): string | null {
   return SLUG_TO_CODE[slug] ?? slug.replace(/-/g, '_')
 }
 
-// Brand line-art tile per series (matches the original BOUNCE family-card look).
+// Brand line-art tile per series (uniform brand tile per series).
 // Per-series art where it exists; otherwise the family's category line-art.
 const SERIES_LINE_ART: Record<string, string> = {
   envo_minilux: '/assets/images/mod-mini-line.png',

@@ -1,8 +1,9 @@
 'use client'
 
-import { useMemo, useState } from 'react'
+import { useEffect, useMemo, useState } from 'react'
 import Image from 'next/image'
 import Link from 'next/link'
+import { useSearchParams } from 'next/navigation'
 import type { CatalogueCard, FacetGroup } from './catalogue-data'
 
 export type { CatalogueCard, FacetGroup, FacetOption } from './catalogue-data'
@@ -15,6 +16,25 @@ type Props = {
   /** Group the results under their section headings (e.g. CV / CC drivers)
    *  while no filter or search is active; any active filter flattens the list. */
   showSections?: boolean
+}
+
+/** Stable key for a selection state (preset-vs-user comparison). */
+const serializeSelection = (sel: Record<string, Set<string>>): string =>
+  Object.keys(sel)
+    .sort()
+    .map((k) => `${k}=${[...sel[k]].sort().join(',')}`)
+    .join('&')
+
+// Sort options are adaptive: a metric appears only when ≥2 visible cards
+// carry it. Never price — this is a lead-gen catalogue.
+type SortKey = 'default' | 'name' | 'power-asc' | 'power-desc' | 'brightness-asc' | 'brightness-desc'
+const SORT_LABELS: Record<SortKey, string> = {
+  default: 'Featured',
+  name: 'Name (A–Z)',
+  'power-asc': 'Power: low to high',
+  'power-desc': 'Power: high to low',
+  'brightness-asc': 'Brightness: low to high',
+  'brightness-desc': 'Brightness: high to low',
 }
 
 /**
@@ -32,6 +52,35 @@ export function CatalogueFilter({
 }: Props) {
   const [selected, setSelected] = useState<Record<string, Set<string>>>({})
   const [query, setQuery] = useState('')
+  // Deep-linkable filters: any facet group can be pre-selected via a URL
+  // param named after its key (e.g. /products/led-signage-modules?series=
+  // Mini+Series, comma-separated for multiple) — what the sidebar submenu
+  // "collections" link to. useSearchParams is reactive, so clicking another
+  // collection link while already on the page re-applies the filter (the
+  // consumer pages wrap this component in <Suspense> as Next requires).
+  // Unknown keys/values are ignored; hand-toggling filters afterwards works
+  // as normal.
+  const searchParams = useSearchParams()
+  // Serialized snapshot of the URL-preset selection: while the user hasn't
+  // deviated from it, the page is in "collection browse" mode and keeps its
+  // section headings (user 2026-07-08).
+  const [preset, setPreset] = useState('')
+  useEffect(() => {
+    const fromUrl: Record<string, Set<string>> = {}
+    for (const g of groups) {
+      const raw = searchParams.get(g.key)
+      if (!raw) continue
+      const valid = new Set(g.options.map((o) => o.value))
+      const picks = raw.split(',').filter((v) => valid.has(v))
+      if (picks.length) fromUrl[g.key] = new Set(picks)
+    }
+    if (Object.keys(fromUrl).length) {
+      setSelected(fromUrl)
+      setPreset(serializeSelection(fromUrl))
+    }
+    // groups are stable per page; re-sync whenever the URL params change.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [searchParams])
   // Accordion rail (user 2026-07-08): only the lead group (Series/Category)
   // opens by default — the rest collapse so the rail stays short. A group
   // with picks stays visible via its count badge even while closed.
@@ -77,6 +126,39 @@ export function CatalogueFilter({
       return Object.entries(selected).every(([gk, set]) => (card.facets[gk] ?? []).some((v) => set.has(v)))
     })
   }, [cards, selected, query])
+
+  // ── sort (user 2026-07-08): Featured keeps the curated order ──
+  const [sortBy, setSortBy] = useState<SortKey>('default')
+  const sortOptions = useMemo(() => {
+    const opts: SortKey[] = ['default', 'name']
+    if (cards.filter((c) => c.metrics?.power != null).length >= 2) opts.push('power-asc', 'power-desc')
+    if (cards.filter((c) => c.metrics?.brightness != null).length >= 2) opts.push('brightness-asc', 'brightness-desc')
+    return opts
+  }, [cards])
+  const sorted = useMemo(() => {
+    if (sortBy === 'default') return visible
+    const arr = [...visible]
+    const by = (get: (c: CatalogueCard) => number | null | undefined, dir: 1 | -1) =>
+      arr.sort((a, b) => {
+        const av = get(a)
+        const bv = get(b)
+        if (av == null && bv == null) return a.name.localeCompare(b.name)
+        if (av == null) return 1 // metric-less cards sink to the end either way
+        if (bv == null) return -1
+        return (av - bv) * dir || a.name.localeCompare(b.name)
+      })
+    if (sortBy === 'name') return arr.sort((a, b) => a.name.localeCompare(b.name))
+    if (sortBy === 'power-asc') return by((c) => c.metrics?.power, 1)
+    if (sortBy === 'power-desc') return by((c) => c.metrics?.power, -1)
+    if (sortBy === 'brightness-asc') return by((c) => c.metrics?.brightness, 1)
+    return by((c) => c.metrics?.brightness, -1)
+  }, [visible, sortBy])
+
+  // Section headings stay while browsing the untouched page OR a sidebar
+  // "collection" deep link (preset filter) — they drop once the user narrows
+  // further or re-sorts.
+  const atPreset = !query && serializeSelection(selected) === preset
+  const sectioned = showSections && sortBy === 'default' && (activeCount === 0 || atPreset)
 
   return (
     <div className="pcat-body">
@@ -142,26 +224,43 @@ export function CatalogueFilter({
       </aside>
 
       <section className="pcat-results">
-        {activeCount > 0 && (
-          <div className="pcat-active">
-            {query && (
-              <button type="button" className="pcat-chip" onClick={() => setQuery('')}>
-                “{query.trim()}” <span aria-hidden>×</span>
-              </button>
-            )}
-            {activeChips.map(({ gk, v, label }) => (
-              <button
-                key={`${gk}:${v}`}
-                type="button"
-                className="pcat-chip"
-                onClick={() => toggle(gk, v)}
-              >
-                {label} <span aria-hidden>×</span>
-              </button>
-            ))}
-            <button type="button" className="pcat-clear" onClick={reset}>
-              Clear all
-            </button>
+        {(activeCount > 0 || cards.length > 0) && (
+          <div className="pcat-toolbar">
+            <div className="pcat-active">
+              {query && (
+                <button type="button" className="pcat-chip" onClick={() => setQuery('')}>
+                  “{query.trim()}” <span aria-hidden>×</span>
+                </button>
+              )}
+              {activeChips.map(({ gk, v, label }) => (
+                <button
+                  key={`${gk}:${v}`}
+                  type="button"
+                  className="pcat-chip"
+                  onClick={() => toggle(gk, v)}
+                >
+                  {label} <span aria-hidden>×</span>
+                </button>
+              ))}
+              {activeCount > 0 && (
+                <button type="button" className="pcat-clear" onClick={reset}>
+                  Clear all
+                </button>
+              )}
+            </div>
+            {/* sort — adaptive options, never price */}
+            <select
+              className="pcat-sort"
+              aria-label="Sort results"
+              value={sortBy}
+              onChange={(e) => setSortBy(e.target.value as SortKey)}
+            >
+              {sortOptions.map((k) => (
+                <option key={k} value={k}>
+                  {SORT_LABELS[k]}
+                </option>
+              ))}
+            </select>
           </div>
         )}
 
@@ -176,14 +275,12 @@ export function CatalogueFilter({
           </p>
         ) : (
           (() => {
-            // Sectioned view only while nothing is filtered — an active filter
-            // must not scatter its results across headings.
-            const sections = showSections && activeCount === 0
-              ? [...new Set(visible.map((c) => c.section))]
-              : []
+            // Sectioned while the page is untouched OR still at a sidebar
+            // collection preset; user narrowing/sorting flattens the list.
+            const sections = sectioned ? [...new Set(sorted.map((c) => c.section))] : []
             const buckets = sections.length > 1
-              ? sections.map((s) => ({ title: s, cards: visible.filter((c) => c.section === s) }))
-              : [{ title: null as string | null, cards: visible }]
+              ? sections.map((s) => ({ title: s, cards: sorted.filter((c) => c.section === s) }))
+              : [{ title: null as string | null, cards: sorted }]
             return buckets.map((b) => (
               <div key={b.title ?? 'all'}>
                 {b.title && <h2 className="pcat-section">{b.title}</h2>}

@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest'
-import { buildSkuDetailProps } from './sku-detail'
+import { buildSkuDetailProps, parseOverview } from './sku-detail'
 import { PRODUCT_FAMILIES } from '@/data/product-families'
 import type { Product } from '@/lib/products'
 
@@ -33,7 +33,7 @@ describe('buildSkuDetailProps', () => {
     expect(props.thumbs?.[0]?.label).toBe('EV-SNG-350-24') // own tile only — never sibling-model tiles
     expect(props.thumbs?.some((t) => t.label === 'EV-SNG-350-12')).toBe(false)
     // exact key specs from THIS product only — never a series-wide range
-    const power = props.keySpecs?.find((s) => s.label === 'Power range')
+    const power = props.keySpecs?.find((s) => s.label === 'Power')
     expect(power?.value).toBe('350 W')
     expect(props.datasheetUrl).toBeTruthy()
     expect(props.downloads?.[0]?.name).toBe('EV-SNG-350-24 datasheet')
@@ -56,7 +56,7 @@ describe('buildSkuDetailProps', () => {
     const props = buildSkuDetailProps(DRIVERS, p, [p])
     expect(props.keySpecs?.length).toBe(8)
     expect(props.keySpecs?.map((s) => s.label)).toEqual(
-      expect.arrayContaining(['Power range', 'Output voltage', 'Input voltage', 'Operation mode', 'Dimming', 'IP rating', 'Rated current', 'Dimensions']),
+      expect.arrayContaining(['Power', 'Output voltage', 'Input voltage', 'Operation mode', 'Dimming', 'IP rating', 'Rated current', 'Dimensions']),
     )
   })
 
@@ -65,16 +65,22 @@ describe('buildSkuDetailProps', () => {
     expect(props.variants).toHaveLength(1)
   })
 
-  it('fills the Overview tab from the Akeneo description, sanitised', () => {
+  it('distils the Overview from the Akeneo description', () => {
     const p = mk({
       sku: 'EV-D-1',
-      description: '<p data-start="1" data-end="9">Robust driver.</p><script>alert(1)</script><ul><li onclick="x()">IP67</li></ul>',
+      description:
+        '<p data-start="1">The EV-D-1 is a robust driver built for signage. It runs cool and quiet. It also suits street lighting projects everywhere.</p>' +
+        '<ul><li>Maximum conversion efficiency of 86%</li><li>Input voltage range is 90-132Vac</li><li>5 years warranty</li><li>DO NOT install with power applied.</li></ul>',
     })
-    const props = buildSkuDetailProps(DRIVERS, p, [p])
-    expect(props.overview?.heading).toBe('About the EV-D-1.')
-    expect(props.overview?.html).toContain('<p>Robust driver.</p>')
-    expect(props.overview?.html).toContain('<li>IP67</li>')
-    expect(props.overview?.html).not.toMatch(/script|onclick|data-start/)
+    const ov = buildSkuDetailProps(DRIVERS, p, [p]).overview!
+    expect(ov.heading).toBe('About the EV-D-1.')
+    // title + short application-led paragraphs (user 2026-07-08) — no check-grid
+    expect(ov.paragraphs).toEqual([
+      'The EV-D-1 is a robust driver built for signage. It runs cool and quiet.', // lede = first 2 sentences
+      'It is built for street and area lighting, signage systems and indoor installations.', // application angle
+      'Backing that up: maximum conversion efficiency of 86%.', // spec repeats dropped
+      'Installation notes: do not install with power applied.',
+    ])
   })
 
   it('omits the Overview tab when the PIM has no description', () => {
@@ -110,6 +116,27 @@ describe('buildSkuDetailProps', () => {
     const props = buildSkuDetailProps(CONTROL, a, [a, b])
     expect(props.variants).toHaveLength(1) // single "Full specification" panel
     expect(props.variants[0].modelCode).toBe('ZB-A')
+  })
+
+  it('parseOverview handles the ZB shape: spec dump cut, headline lifted', () => {
+    const ov = parseOverview(
+      '<h2 id="features">Features:</h2><ul><li>Zigbee 3.0 compliant</li><li>Daylight harvesting</li></ul>' +
+        '<h2 id="general-specification">General Specification</h2><p><strong>Input Voltage</strong></p><p>100-240V</p>',
+    )!
+    expect(ov.headline).toBeUndefined() // "Features:" is not a headline
+    expect(ov.features?.map((f) => f.text)).toEqual(['Zigbee 3.0 compliant', 'Daylight harvesting'])
+    expect(JSON.stringify(ov)).not.toContain('100-240V') // spec dump gone
+  })
+
+  it('parseOverview handles the signage shape: nested markup, bold label features, marketing headline', () => {
+    const ov = parseOverview(
+      '<h2 id="x"><p><span style="font-weight: bold;">Exceptional Materials: 99.99% pure gold thread for durability.</span></p></h2>' +
+        '<h2 id="x">Compact and Brilliant Illumination</h2>' +
+        '<p>The MiniLux LED Modules by ENVO are designed to deliver efficient and precise lighting for compact signage.</p>',
+    )!
+    expect(ov.headline).toBe('Compact and Brilliant Illumination')
+    expect(ov.features?.[0]).toEqual({ label: 'Exceptional Materials', text: '99.99% pure gold thread for durability' })
+    expect(ov.lede).toContain('MiniLux LED Modules')
   })
 
   it('never includes a price field', () => {

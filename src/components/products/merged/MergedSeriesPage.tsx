@@ -32,11 +32,23 @@ export type MergedVariant = {
   dimming?: string
   /** driver column: per-model ingress rating, e.g. "IP67" */
   ip?: string
+  /** driver rows-table column: operation mode per model, e.g. "CV" (guide's "Type") */
+  type?: string
+  /** driver rows-table column: per-model certifications, e.g. "cUL · UL" */
+  certifications?: string
+  /** driver rows-table column: per-model protections, e.g. "Short-circuit · Overload" */
+  protections?: string
+  /** driver rows-table column: per-model warranty, e.g. "5 years" */
+  warranty?: string
   /** signage: rendered as "Module size" */
   size?: string
   /** drivers: the same physical dims rendered as "Dimensions" */
   dimensions?: string
   bestFor?: string
+  /** per-model spec sheet (PDF) — rows layout renders a download link column */
+  datasheetUrl?: string
+  /** the model's own SKU detail page — rows layout renders the code as a link */
+  href?: string
 }
 
 export type MergedSharedRow = { label: string; value: ReactNode }
@@ -76,9 +88,14 @@ export type MergedSeriesProps = {
    *  as table rows — for series with too many models for a column table. */
   variantLayout?: 'columns' | 'rows'
   sharedRows?: MergedSharedRow[]
-  /** Overview tab: plain `body` paragraph, or trusted Akeneo/PIM `html`
-   *  (product descriptions) — exactly one of the two */
-  overview?: { heading: string; body?: string; html?: string }
+  /** Overview tab: title + a few short SEO-friendly paragraphs (distilled
+   *  from the PIM copy), or a plain `body` paragraph, or trusted PIM `html` */
+  overview?: {
+    heading: string
+    paragraphs?: string[]
+    body?: string
+    html?: string
+  }
   solutions?: MergedSolution[]
   downloads?: MergedDownload[]
   related?: MergedRelated[]
@@ -91,15 +108,19 @@ export type MergedSeriesProps = {
 const VARIANT_ROWS: { label: string; key: keyof MergedVariant; cls?: string }[] = [
   { label: 'Model code', key: 'modelCode', cls: 'mono' },
   { label: 'LED beads', key: 'ledBeads' },
-  { label: 'Output', key: 'output' },
+  { label: 'Light output', key: 'output' },
   { label: 'Power', key: 'power' },
   { label: 'Output voltage', key: 'outputVoltage' },
   { label: 'Rated current', key: 'ratedCurrent' },
   { label: 'Input voltage', key: 'inputVoltage' },
+  { label: 'Type', key: 'type' },
   { label: 'Dimming', key: 'dimming' },
   { label: 'IP rating', key: 'ip' },
-  { label: 'Module size', key: 'size' },
+  { label: 'Dimensions', key: 'size' },
   { label: 'Dimensions', key: 'dimensions' },
+  { label: 'Certifications', key: 'certifications' },
+  { label: 'Protections', key: 'protections' },
+  { label: 'Warranty', key: 'warranty' },
   { label: 'Best for', key: 'bestFor', cls: 'best' },
 ]
 
@@ -111,6 +132,32 @@ const FileIcon = () => (
   <svg viewBox="0 0 24 24" aria-hidden>
     <path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z" />
     <path d="M14 2v6h6" />
+  </svg>
+)
+
+// Generic red "PDF file" mark — dog-eared sheet + PDF letters. Deliberately
+// NOT Adobe's trademarked Acrobat loop glyph; a plain file-type symbol.
+const PdfIcon = () => (
+  <svg viewBox="0 0 24 24" aria-hidden className="pdf-ico">
+    <path
+      d="M6 2h8.5L20 7.5V20a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2z"
+      fill="none"
+      stroke="#e5252a"
+      strokeWidth="1.7"
+      strokeLinejoin="round"
+    />
+    <path d="M14.5 2v5.5H20" fill="none" stroke="#e5252a" strokeWidth="1.7" strokeLinejoin="round" />
+    <text
+      x="12"
+      y="17.5"
+      textAnchor="middle"
+      fontSize="6.5"
+      fontWeight="800"
+      fill="#e5252a"
+      style={{ letterSpacing: '0.02em' }}
+    >
+      PDF
+    </text>
   </svg>
 )
 
@@ -220,23 +267,26 @@ export default function MergedSeriesPage(p: MergedSeriesProps) {
   // ── Tab panels (Overview / Specifications / Downloads). Built here so the
   //    tab wiring below stays readable. "Where it works" + "Pairs with" are
   //    NOT tabbed — they render as always-visible sections after the tabs. ──
-  const overviewPanel: ReactNode = p.overview && (
+  const ov = p.overview
+  const overviewPanel: ReactNode = ov && (
     <div className="overview">
-      <h2>{p.overview.heading}</h2>
-      {p.overview.html ? (
+      <h2>{ov.heading}</h2>
+      {ov.paragraphs?.map((para) => (
+        <p key={para} className="ov-para">
+          {para}
+        </p>
+      ))}
+      {ov.html && (
         // Trusted internal copy (Akeneo PIM description), sanitised upstream.
-        <div className="ov-html" dangerouslySetInnerHTML={{ __html: p.overview.html }} />
-      ) : (
-        <p>{p.overview.body}</p>
+        <div className="ov-html" dangerouslySetInnerHTML={{ __html: ov.html }} />
       )}
+      {ov.body && <p>{ov.body}</p>}
     </div>
   )
 
   const specSingle: ReactNode = (
     <div className="compare">
-      <div className="lead">
-        <h2>Full specification.</h2>
-      </div>
+      {/* no heading — the SPECIFICATIONS tab already names the panel (user 2026-07-08) */}
       <dl className="shared-specs">
         {activeVariantRows
           .filter((r) => r.key !== 'bestFor')
@@ -258,12 +308,15 @@ export default function MergedSeriesPage(p: MergedSeriesProps) {
   )
 
   const specRows = activeVariantRows.filter((r) => r.key !== 'modelCode' && r.key !== 'bestFor')
+  // Per-model spec-sheet PDFs get their own trailing column (rows layout only).
+  const hasDatasheets = p.variants.some((v) => v.datasheetUrl)
+  const rowsColCount = 1 + specRows.length + (hasDatasheets ? 1 : 0)
   const specMulti: ReactNode =
     p.variantLayout === 'rows' ? (
+      // No lead heading — the table sits inside the SPECIFICATIONS tab, so a
+      // "N models — full spec reference" banner was pure repetition (user
+      // crossed it out, 2026-07-08).
       <div className="compare">
-        <div className="lead">
-          <h2>{p.variants.length} models — full spec reference.</h2>
-        </div>
         <div className="cmp-tablewrap">
           <table className="cmp-table rows">
             <thead>
@@ -272,13 +325,21 @@ export default function MergedSeriesPage(p: MergedSeriesProps) {
                 {specRows.map((r) => (
                   <th key={r.key}>{r.label}</th>
                 ))}
+                {hasDatasheets && <th className="ds-head">Spec sheet</th>}
               </tr>
             </thead>
             <tbody>
               {p.variants.map((v) => (
                 <tr key={v.modelCode ?? v.name} className={v.current ? 'is-current' : undefined}>
                   <th className="mono">
-                    {v.modelCode ?? v.name}
+                    {/* model code links to its own SKU page (never self-links) */}
+                    {v.href && !v.current ? (
+                      <Link href={v.href} className="mlink">
+                        {v.modelCode ?? v.name}
+                      </Link>
+                    ) : (
+                      v.modelCode ?? v.name
+                    )}
                     {v.current && <span className="cur-tag">Current model</span>}
                   </th>
                   {specRows.map((r) => (
@@ -286,27 +347,49 @@ export default function MergedSeriesPage(p: MergedSeriesProps) {
                       {(v[r.key] as string) ?? '—'}
                     </td>
                   ))}
+                  {hasDatasheets && (
+                    <td className="ds">
+                      {v.datasheetUrl ? (
+                        <a
+                          href={v.datasheetUrl}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          aria-label={`Spec sheet PDF — ${v.modelCode ?? v.name}`}
+                          title="Spec sheet (PDF)"
+                        >
+                          <PdfIcon />
+                        </a>
+                      ) : (
+                        '—'
+                      )}
+                    </td>
+                  )}
                 </tr>
               ))}
+              {/* Shared specs live INSIDE the same table card, compacted onto
+                  one horizontal strip (they're short values — three stacked
+                  full-width rows read as wasted space). */}
+              {p.sharedRows && p.sharedRows.length > 0 && (
+                <tr className="shared-row first">
+                  <td className="shared" colSpan={rowsColCount}>
+                    <div className="shared-strip">
+                      {p.sharedRows.map((row) => (
+                        <span key={row.label} className="shared-item">
+                          <span className="lbl">{row.label}</span>
+                          <span className="val">{row.value}</span>
+                        </span>
+                      ))}
+                    </div>
+                  </td>
+                </tr>
+              )}
             </tbody>
           </table>
         </div>
-        {p.sharedRows && p.sharedRows.length > 0 && (
-          <dl className="shared-specs">
-            {p.sharedRows.map((row) => (
-              <div key={row.label}>
-                <dt>{row.label}</dt>
-                <dd>{row.value}</dd>
-              </div>
-            ))}
-          </dl>
-        )}
       </div>
     ) : (
       <div className="compare">
-        <div className="lead">
-          <h2>Compare the range — and every shared spec.</h2>
-        </div>
+        {/* no heading — the SPECIFICATIONS tab already names the panel (user 2026-07-08) */}
         <div className="cmp-tablewrap">
           <table className="cmp-table">
             <thead>

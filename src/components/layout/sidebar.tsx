@@ -14,11 +14,11 @@ const STORAGE_KEY = 'envo-c-sidebar-collapsed'
 // markup + logic below is intact — flip this to `true` to bring it back.
 const SHOW_SUPPLY_CHANNEL = false
 
-// Category submenus (disclosure caret + series children + View all) are
-// hidden for now — categories render as plain links to their family pages.
-// All the submenu data + rendering below is intact; flip to `true` to
-// bring the dropdowns back.
-const SHOW_NAV_SUBMENUS = false
+// Category submenus (disclosure caret + series children + View all).
+// Children mirror each family page's Series FILTER options and deep-link to
+// the pre-filtered "collection" view (?series=<option> — CatalogueFilter
+// reads it). Update children when the filter options change (range gating).
+const SHOW_NAV_SUBMENUS = true
 
 const subscribeCollapsed = (cb: () => void) => {
   window.addEventListener('envo-sidebar-change', cb)
@@ -52,11 +52,14 @@ const NAVIGATE: NavItem[] = [
       </svg>
     ),
   },
-  // Product categories expand into their live series (short forms of the
-  // customer-facing titles in series-catalogue-meta.ts). Children must map to
-  // real /products/<family>/<series> pages — the route has dynamicParams:false,
-  // so a stale slug 404s. Accessories has no live series in the DB, hence no
-  // submenu. The null-series "other" buckets are reachable via View all only.
+  // Product categories expand into the SAME options their family page's
+  // Series filter shows, deep-linking to the pre-filtered collection view
+  // (?series=<exact filter value>). Keep labels/values in lockstep with
+  // the filter (family-map SIGNAGE_SERIES_CATEGORY / series-catalogue-meta
+  // titles, minus range-gated series) — a mismatched value simply doesn't
+  // pre-select anything. Control Gear has a single visible series after
+  // range gating, so it stays a direct link for now; Accessories has no
+  // live products at all (see docs/superpowers/plans/2026-07-08-hidden-features.md).
   {
     section: 'signage-modules',
     href: '/products/led-signage-modules',
@@ -70,12 +73,12 @@ const NAVIGATE: NavItem[] = [
       </svg>
     ),
     children: [
-      { slug: 'mini-series', href: '/products/led-signage-modules/mini-series', label: 'Mini Series' },
-      { slug: 'envo-ecoglo', href: '/products/led-signage-modules/envo-ecoglo', label: 'Eco Series' },
-      { slug: 'envo-ultraflare', href: '/products/led-signage-modules/envo-ultraflare', label: 'Pro Series' },
-      { slug: 'envo-chromaflux', href: '/products/led-signage-modules/envo-chromaflux', label: 'RGB Series' },
-      { slug: 'envo-optilume', href: '/products/led-signage-modules/envo-optilume', label: '24V Series' },
-      { slug: 'envo-edgelume', href: '/products/led-signage-modules/envo-edgelume', label: 'Sidelit Series' },
+      { slug: 'mini', href: '/products/led-signage-modules?series=Mini%20Series', label: 'Mini Series' },
+      { slug: 'eco', href: '/products/led-signage-modules?series=Eco%20Series', label: 'Eco Series' },
+      { slug: 'pro', href: '/products/led-signage-modules?series=Pro%20Series', label: 'Pro Series' },
+      { slug: 'rgb', href: '/products/led-signage-modules?series=RGB%20Series', label: 'RGB Series' },
+      { slug: '24v', href: '/products/led-signage-modules?series=24V%20Series', label: '24V Series' },
+      { slug: 'sidelit', href: '/products/led-signage-modules?series=Sidelit', label: 'Sidelit' },
     ],
   },
   {
@@ -87,14 +90,12 @@ const NAVIGATE: NavItem[] = [
         <path d="M13 2L4 14h7l-1 8 9-12h-7l1-8z" />
       </svg>
     ),
-    // Deliberately minimal, mirroring the old envo-led.com driver menu: the
-    // three entries customers actually shop by. Everything else (SR DALI,
-    // SE / SNG / SNPV variant lines) is reachable via View all + the family
-    // page's filters. Only SP is triac (locked naming rule).
+    // Old-menu TYPE categories (driverCategories in family-map): SP belongs
+    // to BOTH Screw Terminal and Triac Dimmable — ticking either shows it.
     children: [
-      { slug: 'sc-envo', href: '/products/led-drivers/sc-envo', label: 'Standard Range' },
-      { slug: 'envo-sl-us', href: '/products/led-drivers/envo-sl-us', label: 'Linear' },
-      { slug: 'envo-sp-us', href: '/products/led-drivers/envo-sp-us', label: 'Triac Dimmable' },
+      { slug: 'screw-terminal', href: '/products/led-drivers?series=Screw%20Terminal', label: 'Screw Terminal' },
+      { slug: 'linear', href: '/products/led-drivers?series=Linear', label: 'Linear' },
+      { slug: 'triac', href: '/products/led-drivers?series=Triac%20Dimmable', label: 'Triac Dimmable' },
     ],
   },
   {
@@ -111,12 +112,15 @@ const NAVIGATE: NavItem[] = [
         <circle cx="9" cy="17" r="2" />
       </svg>
     ),
-    // Minimal like the drivers menu: the three main control ecosystems.
-    // Single-SKU pages (DALI push-dim, PIR sensor) live under View all.
+    // Old-menu categories (controlGearCategories in family-map): three
+    // FUNCTION splits + "Zigbee & Smart" = the whole zigbee range (the old
+    // site's zigbee-controller collection), which every zigbee product
+    // carries in addition to its function category.
     children: [
-      { slug: 'envo-zigbee', href: '/products/control-gear/envo-zigbee', label: 'Zigbee Smart' },
-      { slug: 'envo-casambi', href: '/products/control-gear/envo-casambi', label: 'Casambi' },
-      { slug: 'sr-triac', href: '/products/control-gear/sr-triac', label: 'DALI Modules' },
+      { slug: 'remote', href: '/products/control-gear?series=Remote%20%26%20Receiver', label: 'Remote & Receiver' },
+      { slug: 'converter', href: '/products/control-gear?series=Signal%20Converter', label: 'Signal Converter' },
+      { slug: 'sensor', href: '/products/control-gear?series=Sensor', label: 'Sensor' },
+      { slug: 'zigbee', href: '/products/control-gear?series=Zigbee%20%26%20Smart', label: 'Zigbee & Smart' },
     ],
   },
   {
@@ -173,9 +177,17 @@ const NAVIGATE: NavItem[] = [
 // pinned to the bottom (above the CTA) so product vs. support read as
 // distinct types.
 const SUPPORT_SECTIONS = new Set(['resources', 'contact'])
+// Hidden for now (user 2026-07-08): the DB has no live accessory products, so
+// the family page is an empty state. Remove from this set to restore the link
+// once accessories are stocked/synced. All hidden features are tracked in
+// docs/superpowers/plans/2026-07-08-hidden-features.md.
+const HIDDEN_SECTIONS = new Set(['accessories'])
 const HOME_ITEM = NAVIGATE.find((i) => i.section === 'home')!
 const PRODUCT_NAV = NAVIGATE.filter(
-  (i) => i.section !== 'home' && !SUPPORT_SECTIONS.has(i.section),
+  (i) =>
+    i.section !== 'home' &&
+    !SUPPORT_SECTIONS.has(i.section) &&
+    !HIDDEN_SECTIONS.has(i.section),
 )
 const SUPPORT_NAV = NAVIGATE.filter((i) => SUPPORT_SECTIONS.has(i.section))
 
@@ -301,6 +313,25 @@ export function Sidebar() {
     e.currentTarget.blur()
   }
 
+  // Query string of the current location, for highlighting the collection
+  // children (?series=…). Synced on route change; same-path query navigations
+  // don't change `pathname`, so collection clicks record it directly.
+  const [navSearch, setNavSearch] = useState('')
+  useEffect(() => {
+    setNavSearch(window.location.search)
+  }, [pathname])
+  const handleCollectionClick = (e: React.MouseEvent<HTMLAnchorElement>) => {
+    handleNavClick(e)
+    setNavSearch(new URL(e.currentTarget.href).search)
+  }
+  /** Active when both the path and the query match the child link exactly. */
+  const collectionActive = (href: string) => {
+    const q = href.indexOf('?')
+    const base = q === -1 ? href : href.slice(0, q)
+    const search = q === -1 ? '' : decodeURIComponent(href.slice(q))
+    return pathname === base && decodeURIComponent(navSearch) === search
+  }
+
   const renderItems = (items: NavItem[]) =>
     items.map((item) => {
       // Leaf — no children (or submenus globally hidden). `data-tooltip`
@@ -357,8 +388,8 @@ export function Sidebar() {
               <li key={c.slug}>
                 <Link
                   href={c.href}
-                  className={cn('sidebar-sublink', isActive(pathname, c.href) && 'active')}
-                  onClick={handleNavClick}
+                  className={cn('sidebar-sublink', collectionActive(c.href) && 'active')}
+                  onClick={handleCollectionClick}
                 >
                   {c.label}
                 </Link>
@@ -367,8 +398,8 @@ export function Sidebar() {
             <li>
               <Link
                 href={item.href}
-                className={cn('sidebar-sublink', parentActive && 'active')}
-                onClick={handleNavClick}
+                className={cn('sidebar-sublink', collectionActive(item.href) && 'active')}
+                onClick={handleCollectionClick}
               >
                 View all
               </Link>

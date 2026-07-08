@@ -77,8 +77,18 @@
 .pcat-check.on .lab { color:var(--fg); font-weight:600; }
 .pcat-check input:focus-visible + .box { outline:2px solid var(--envo-blue); outline-offset:2px; }
 
-/* active-filter chips above results */
-.pcat-active { display:flex; flex-wrap:wrap; align-items:center; gap:7px; margin:0 0 16px; }
+/* toolbar above results: active-filter chips (left) + sort (right) */
+.pcat-toolbar { display:flex; align-items:flex-start; gap:12px; margin:0 0 16px; }
+.pcat-sort { appearance:none; -webkit-appearance:none; margin-left:auto; flex:none; cursor:pointer;
+  font-family:inherit; font-size:12px; font-weight:600; color:var(--fg-mute);
+  background:var(--bg-card) url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%235c6b7a' stroke-width='2.4' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M6 9l6 6 6-6'/%3E%3C/svg%3E") right 10px center/12px no-repeat;
+  border:1px solid var(--line-strong); border-radius:9px; padding:8px 30px 8px 12px; }
+.pcat-sort:hover { border-color:var(--envo-blue); color:var(--fg); }
+/* selects hold focus while open — swap the global lime ring for a quiet blue border */
+.pcat-sort:focus, .pcat-sort:focus-visible { outline:none; border-color:var(--envo-blue); box-shadow:0 0 0 3px rgba(0,113,188,.12); }
+
+/* active-filter chips */
+.pcat-active { display:flex; flex-wrap:wrap; align-items:center; gap:7px; }
 .pcat-chip { appearance:none; font-family:inherit; cursor:pointer; display:inline-flex; align-items:center; gap:6px;
   font-size:12px; font-weight:600; padding:5px 7px 5px 11px; border-radius:999px; border:1px solid var(--envo-blue);
   color:var(--envo-blue); background:rgba(0,113,188,.07); transition:background .12s; }

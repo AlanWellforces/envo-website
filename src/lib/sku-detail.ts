@@ -64,6 +64,190 @@ function deriveSolutions(slug: string, p: Product): MergedSolution[] {
   return out
 }
 
+// ── Overview distillation (user 2026-07-08) ─────────────────────────────────
+// The Akeneo descriptions arrive in five shapes (plain bullet lists, marketing
+// paragraphs, Features + "General Specification" dumps, authoring-tool nested
+// markup, long technical bullets). Distil them all to marketing content:
+// a lede, a Highlights list, installation notes — with every spec repeat
+// dropped (the spec table already carries that data).
+export type OverviewContent = {
+  /** marketing headline lifted from the copy's own <h2>, when it has one */
+  headline?: string
+  lede?: string
+  features?: { label?: string; text: string }[]
+  cautions?: string[]
+}
+
+/** Bullets that merely restate the spec table get no second airing. */
+const SPEC_REPEAT_PATTERNS: RegExp[] = [
+  /^output constant (voltage|current)$/i,
+  /^(wide )?(ac )?input voltage( range)?\b/i,
+  /^dimensions?\b/i,
+  /^weight\b/i,
+  /^ip\s?\d{2}\b.{0,20}(indoor|outdoor|installation)/i,
+  /^\d+ years? warranty$/i,
+  /^constant (voltage|current) led driver\b/i, // model summary repeats W/V/A
+  /(compliance|conform|meets?).{0,30}(safety regulations|standards)/i,
+  /^in compliance with iec/i, // standards row carries certifications
+]
+
+const decode = (s: string) =>
+  s
+    .replace(/&amp;/g, '&').replace(/&lt;/g, '<').replace(/&gt;/g, '>')
+    .replace(/&nbsp;/g, ' ').replace(/&#39;|&apos;/g, "'").replace(/&quot;/g, '"')
+    .replace(/\s+/g, ' ')
+    .trim()
+
+export function parseOverview(description: string | null | undefined): OverviewContent | null {
+  if (!description?.trim()) return null
+  // Everything from "General Specification" on is a spec-table repeat — cut it.
+  const html = description.split(/<h2[^>]*>\s*General Specification/i)[0]
+
+  // Block-split on closing tags, keeping which block each text came from.
+  const blocks: { tag: string; text: string }[] = []
+  const re = /<(h2|p|li|div)\b[^>]*>([\s\S]*?)<\/\1>/gi
+  // innermost-first: strip nested block wrappers inside a match before decoding
+  let m: RegExpExecArray | null
+  while ((m = re.exec(html))) {
+    const inner = m[2]
+    // nested authoring garbage (<h2><p>…</p></h2>): recurse into inner blocks
+    if (/<(h2|p|li|div)\b/i.test(inner)) {
+      const innerRe = /<(h2|p|li|div)\b[^>]*>([\s\S]*?)<\/\1>/gi
+      let im: RegExpExecArray | null
+      while ((im = innerRe.exec(inner))) {
+        const text = decode(im[2].replace(/<[^>]+>/g, ''))
+        if (text) blocks.push({ tag: im[1].toLowerCase(), text })
+      }
+      continue
+    }
+    const text = decode(inner.replace(/<[^>]+>/g, ''))
+    if (text) blocks.push({ tag: m[1].toLowerCase(), text })
+  }
+  if (!blocks.length) return null
+
+  const out: OverviewContent = {}
+  const features: { label?: string; text: string }[] = []
+  const cautions: string[] = []
+
+  const pushFeature = (raw: string) => {
+    const text = raw.replace(/[.;\s]+$/, '')
+    if (!text) return
+    // cautions route BEFORE the feature cap — DO-NOTs often sit last in the list
+    if (/^do not\b|^warning\b|^caution\b/i.test(text)) {
+      if (cautions.length < 4) cautions.push(text)
+      return
+    }
+    if (features.length >= 8) return
+    if (SPEC_REPEAT_PATTERNS.some((p) => p.test(text))) return
+    if (features.some((f) => (f.label ? `${f.label}: ${f.text}` : f.text) === text)) return
+    // "Label: detail" bullets keep the label bold in the grid
+    const lm = text.match(/^([A-Z][^:]{2,38}):\s+(.{3,})$/)
+    if (lm) features.push({ label: lm[1], text: lm[2] })
+    else features.push({ text })
+  }
+
+  for (const b of blocks) {
+    if (b.tag === 'h2') {
+      if (!out.headline && !/^features:?$/i.test(b.text) && b.text.length <= 60) out.headline = b.text
+      continue
+    }
+    if (b.tag === 'li') {
+      pushFeature(b.text)
+      continue
+    }
+    // paragraphs: "Label: detail" boilerplate reads as a feature; the first
+    // substantial prose paragraph becomes the lede (first two sentences)
+    if (/^[A-Z][^:]{2,38}:\s+\S/.test(b.text) && b.text.length < 220) {
+      pushFeature(b.text)
+    } else if (!out.lede && b.text.length > 60) {
+      out.lede = (b.text.match(/[^.!?]+[.!?]+/g)?.slice(0, 2).map((s) => s.trim()).join(' ') ?? b.text).trim()
+    }
+  }
+
+  if (features.length) out.features = features
+  if (cautions.length) out.cautions = cautions
+  return out.lede || out.features || out.cautions ? out : null
+}
+
+/** First words that must keep their capital when a bullet joins a sentence. */
+const PROPER_START =
+  /^(IP\d|LED|OTA|DALI|DALI-2|DT8|PF\b|THD|PFC|DO\b|AC\b|DC\b|Zigbee|ZigBee|Casambi|Bluetooth|Philips|Osram|ENVO|USB|RGB|CCT|SMD|UL\b|CE\b|EN\d|IEC)/
+const clause = (t: string) => (PROPER_START.test(t) ? t : t.charAt(0).toLowerCase() + t.slice(1))
+const sentence = (parts: string[], lead: string) =>
+  `${lead} ${parts.slice(0, -1).join(', ')}${parts.length > 1 ? ' and ' : ''}${parts[parts.length - 1]}.`
+
+/** Weave the distilled content into short application-led paragraphs (user
+ *  2026-07-08, reference: old-trade-site product descriptions — "if you need
+ *  a lot of light, this is the module for the job"). Composed strictly from
+ *  PIM copy + spec fields; nothing invented. */
+export function overviewParagraphs(
+  ov: OverviewContent,
+  ctx: { familySlug: string; product: Product; solutions: MergedSolution[] },
+): string[] {
+  const { familySlug, product: p, solutions } = ctx
+  const paras: string[] = []
+  const ip = p.waterproof && /^ip\d+$/i.test(p.waterproof) ? p.waterproof.toUpperCase() : null
+
+  // P1 — positioning: the PIM's own lede when it has one, else composed from
+  // what the product IS.
+  if (ov.lede) {
+    paras.push(ov.lede)
+  } else if (familySlug === 'led-drivers') {
+    const mode = p.operation_mode === 'cc' ? 'constant-current' : 'constant-voltage'
+    const sealed = ip && Number(ip.slice(2)) >= 65 // "sealed" claims need real sealing
+    const bits = [
+      p.power_w != null ? `${p.power_w} W` : null,
+      `${mode} LED driver`,
+      p.output_voltage_v != null ? `with a ${p.output_voltage_v} V DC output` : null,
+    ].filter(Boolean)
+    paras.push(`The ${p.sku} is a ${bits.join(' ')}${sealed ? `, sealed to ${ip}` : ''}.`)
+  } else if (familySlug === 'control-gear') {
+    const n = p.name
+    const job = /sensor/i.test(n) ? 'occupancy and daylight automation'
+      : /remote/i.test(n) ? 'wireless scene control'
+      : /gateway|smart hub/i.test(n) ? 'connecting your lighting to the wider network'
+      : /dimmer/i.test(n) ? 'smooth dimming control'
+      : /switch|panel/i.test(n) ? 'wall-point lighting control'
+      : 'precise lighting control'
+    paras.push(`Use the ${p.sku} to bring ${job} to your installation.`)
+  }
+
+  // P2 — where it earns its keep: the same applications the Where-it-works
+  // band derives, woven into one sentence with the strongest spec as anchor.
+  // Applications the positioning sentence already named get no encore.
+  const said = (paras[0] ?? '').toLowerCase()
+  const fresh = solutions.filter((s) => !said.includes(s.title.replace(/\s*&\s*/g, ' and ').toLowerCase()))
+  if (fresh.length) {
+    const apps = fresh.slice(0, 4).map((s) => clause(s.title.replace(/\s*&\s*/g, ' and ')))
+    const anchor = ip && Number(ip.slice(2)) >= 65 ? `With its ${ip}-sealed build, it`
+      : p.dimming_control?.includes('triac') || /triac[- ]?dim/i.test(p.name) ? 'With Triac phase dimming on board, it'
+      : p.operation_mode !== 'cc' && (p.output_voltage_v === 12 || p.output_voltage_v === 24)
+        ? `Running on ${p.output_voltage_v} V constant voltage, it`
+        : 'It'
+    paras.push(`${anchor} is built for ${apps.slice(0, -1).join(', ')}${apps.length > 1 ? ' and ' : ''}${apps[apps.length - 1]}.`)
+  }
+
+  // P3 — what backs that up: the genuine differentiators in one flowing line.
+  const plain = (ov.features ?? []).filter((f) => !f.label).map((f) => clause(f.text))
+  if (plain.length) {
+    const first = plain.slice(0, 4)
+    const rest = plain.slice(4)
+    let para = sentence(first, 'Backing that up:')
+    if (rest.length) para += ` ${sentence(rest, 'It also offers')}`
+    paras.push(para)
+  }
+
+  // "Label: detail" boilerplate reads naturally as its own short sentences.
+  const labelled = (ov.features ?? []).filter((f) => f.label)
+  if (labelled.length) paras.push(labelled.map((f) => `${f.label}: ${f.text}.`).join(' '))
+
+  if (ov.cautions?.length)
+    paras.push(
+      `Installation notes: ${ov.cautions.map((c) => clause(c.replace(/^DO NOT/i, 'do not'))).join('; ')}.`,
+    )
+  return paras
+}
+
 export function buildSkuDetailProps(
   family: ProductFamily,
   product: Product,
@@ -88,14 +272,11 @@ export function buildSkuDetailProps(
       : v,
   )
 
-  // Overview tab = the product's own Akeneo description (rich HTML). Light
-  // sanitise: no scripts / inline handlers, and the authoring tool's data-*
-  // artefacts dropped. Section omitted entirely when the PIM has no copy.
-  const descriptionHtml = product.description
-    ?.replace(/<script[\s\S]*?<\/script>/gi, '')
-    .replace(/\son[a-z]+="[^"]*"/gi, '')
-    .replace(/\sdata-[a-z-]+="[^"]*"/gi, '')
-    .trim()
+  // Overview tab: the Akeneo description distilled to marketing content
+  // (parseOverview) — spec repeats and the "General Specification" dump are
+  // dropped (that data lives in the spec table), DO-NOTs become installation
+  // notes. Section omitted entirely when the PIM has no copy.
+  const overviewContent = parseOverview(product.description)
 
   // H1 = the SKU code (Akeneo names are spec soup — those numbers already live
   // in the key-spec grid). The descriptive remainder of the name, stripped of
@@ -107,6 +288,10 @@ export function buildSkuDetailProps(
     .replace(/\s{2,}/g, ' ')
     .trim()
 
+  // 'Where it works' — editorial when authored, else derived from the
+  // product's own copy + specs; also anchors the Overview's application prose.
+  const solutions = base.solutions?.length ? base.solutions : deriveSolutions(family.slug, product)
+
   return {
     ...base,
     breadcrumb: { ...base.breadcrumb, seriesLabel: product.sku },
@@ -114,14 +299,17 @@ export function buildSkuDetailProps(
     title: product.sku,
     heroSubtitle:
       descriptiveName || (solo.heroSubtitle ?? product.short_description?.trim() ?? product.subtitle?.trim() ?? undefined),
-    overview: descriptionHtml ? { heading: `About the ${product.sku}.`, html: descriptionHtml } : undefined,
+    overview: overviewContent
+      ? {
+          heading: overviewContent.headline ?? `About the ${product.sku}.`,
+          paragraphs: overviewParagraphs(overviewContent, { familySlug: family.slug, product, solutions }),
+        }
+      : undefined,
     // exact facts for THIS SKU, never series-wide ranges
     keySpecs: solo.keySpecs,
     datasheetUrl: solo.datasheetUrl,
     downloads: solo.datasheetUrl ? [{ name: `${product.sku} datasheet`, meta: 'PDF', href: solo.datasheetUrl }] : [],
-    // 'Where it works' — editorial when authored, else derived from the
-    // product's own copy + specs (user 2026-07-08).
-    solutions: base.solutions?.length ? base.solutions : deriveSolutions(family.slug, product),
+    solutions,
     // hero gallery shows only THIS product (user 2026-07-08): stage = its own
     // image; the thumb strip stays — own tile + any editorial scene photos,
     // never sibling-model tiles

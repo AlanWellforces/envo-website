@@ -19,12 +19,14 @@ const SIDE_CATEGORIES = [
     href: '/products/control-gear',
     desc: 'Receivers, sensors and smart controllers for dynamic lighting.',
   },
-  {
-    name: 'Accessories',
-    img: '/assets/images/home-categories/accessories-scene.png',
-    href: '/products/accessories',
-    desc: 'Connectors and cables for clean installations.',
-  },
+  // Accessories hidden until it has live products — see
+  // docs/superpowers/plans/2026-07-08-hidden-features.md
+  // {
+  //   name: 'Accessories',
+  //   img: '/assets/images/home-categories/accessories-scene.png',
+  //   href: '/products/accessories',
+  //   desc: 'Connectors and cables for clean installations.',
+  // },
 ]
 
 const MODULE_TAGS = ['Mini', 'Eco', 'Pro', 'RGB', '24V', 'Sidelit']

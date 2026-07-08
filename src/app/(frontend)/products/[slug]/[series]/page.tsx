@@ -128,10 +128,10 @@ export default async function SeriesDetailPage({ params }: { params: Params }) {
           '50,000-hour L70 rated life',
         ]}
         keySpecs={[
-          { icon: 'power', label: 'Power rating', value: '0.24–0.72 W' },
+          { icon: 'power', label: 'Power', value: '0.24–0.72 W' },
           { icon: 'vsource', label: 'Input voltage', value: '12 V DC' },
           { icon: 'maxseries', label: 'Max series', value: '40' },
-          { icon: 'waterproof', label: 'Waterproof', value: 'IP66' },
+          { icon: 'waterproof', label: 'IP rating', value: 'IP66' },
           // mm line + imperial twin line — shared 9×9 profile once, the
           // varying lengths slash-listed
           { icon: 'dims', label: 'Dimensions', value: 'W9 × H9 × L14/26/38 mm\n(0.35 × 0.35 × 0.55/1.02/1.5 in)' },
@@ -154,7 +154,7 @@ export default async function SeriesDetailPage({ params }: { params: Params }) {
           { label: 'Input voltage', value: '12 V DC · constant voltage' },
           { label: 'Beam angle', value: '180° × 140° · Diamondback optic' },
           { label: 'Efficacy', value: '~ 125 lm / W' },
-          { label: 'Ingress protection', value: 'IP66 · silicone-potted' },
+          { label: 'IP rating', value: 'IP66 · silicone-potted' },
           {
             label: 'Operating temp',
             value: (

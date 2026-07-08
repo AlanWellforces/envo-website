@@ -150,6 +150,11 @@ export function buildMergedSeriesProps(
   // other families keep the shared-row-when-uniform behaviour.
   const isDrivers = family.slug === 'led-drivers'
   const sharedVoltage = !isDrivers && voltageValues.length === 1 ? voltageValues[0] : null
+  // Rows-layout driver tables follow the sales guide's column set: Type
+  // (operation mode) and Warranty repeat per model row instead of living in
+  // the shared strip below.
+  const isRowsLayout = models.length > COLUMN_CAP
+  const columnisedShared = isDrivers && isRowsLayout
 
   const variants: MergedVariant[] = models.map((m) => {
     const beads = LED_BEADS[m.leds]
@@ -165,6 +170,14 @@ export function buildMergedSeriesProps(
         alt: m.image.alt || m.code,
       },
       modelCode: m.code,
+      datasheetUrl: m.datasheetUrl ?? undefined,
+      // Rows layout: the code IS a live SKU (drivers/control gear have no CCT
+      // grouping) — link it to its own detail page. Guarded on an exact-SKU
+      // match so a grouped/stripped code can never emit a 404 link.
+      href:
+        isRowsLayout && rep?.sku === m.code
+          ? `/products/${family.slug}/${m.code}`
+          : undefined,
       ledBeads: beads ? String(beads) : undefined,
       output: m.lumens ? `~ ${m.lumens} lm` : undefined,
       power: m.powerW != null ? `${m.powerW} W` : undefined,
@@ -179,6 +192,23 @@ export function buildMergedSeriesProps(
             dimming: rep ? dimmingDisplay(rep) : undefined,
             ip: rep ? ipDisplay(rep) : undefined,
             dimensions: dualDims(rep),
+            ...(columnisedShared
+              ? {
+                  type:
+                    rep?.operation_mode === 'cv' ? 'CV'
+                    : rep?.operation_mode === 'cc' ? 'CC'
+                    : rep?.operation_mode === 'cv_cc' ? 'CV & CC'
+                    : undefined,
+                  certifications: rep?.standards_met?.length
+                    ? uniq(rep.standards_met.map((c) => CERT_NAME[c] ?? c)).join(' · ')
+                    : undefined,
+                  protections: rep ? protectionsOf(rep).join(' · ') || undefined : undefined,
+                  warranty:
+                    num(rep?.warranty_years) != null
+                      ? `${rep!.warranty_years} year${rep!.warranty_years === 1 ? '' : 's'}`
+                      : undefined,
+                }
+              : {}),
           }
         : { size: dualDims(rep) }),
     }
@@ -224,22 +254,25 @@ export function buildMergedSeriesProps(
 
   // Drivers carry IP in the per-model column instead of a shared row.
   const ipField = products.map((p) => p.waterproof).find((w) => w && /^ip\d+$/i.test(w))
-  if (ipField && !isDrivers) sharedRows.push({ label: 'Ingress protection', value: ipField.toUpperCase() })
+  if (ipField && !isDrivers) sharedRows.push({ label: 'IP rating', value: ipField.toUpperCase() })
 
   const lifetime = products.map((p) => num(p.lifetime_hrs)).find(Boolean) ?? null
   if (lifetime) sharedRows.push({ label: 'Lifetime', value: `${lifetime.toLocaleString()} h` })
 
-  if (modes.length === 1 && modes[0] !== 'cv_cc') {
-    sharedRows.push({
-      label: 'Operation mode',
-      value: modes[0] === 'cv' ? 'Constant voltage (CV)' : 'Constant current (CC)',
-    })
-  } else if (modes.length > 1 || modes[0] === 'cv_cc') {
-    sharedRows.push({ label: 'Operation mode', value: 'CV & CC — varies by model' })
+  // Skipped when the rows-layout driver table carries mode per row ("Type").
+  if (!columnisedShared) {
+    if (modes.length === 1 && modes[0] !== 'cv_cc') {
+      sharedRows.push({
+        label: 'Operation mode',
+        value: modes[0] === 'cv' ? 'Constant voltage (CV)' : 'Constant current (CC)',
+      })
+    } else if (modes.length > 1 || modes[0] === 'cv_cc') {
+      sharedRows.push({ label: 'Operation mode', value: 'CV & CC — varies by model' })
+    }
   }
 
   const certs = uniq(products.flatMap((p) => p.standards_met ?? [])).map((c) => CERT_NAME[c] ?? c)
-  if (certs.length)
+  if (certs.length && !columnisedShared)
     sharedRows.push({
       label: 'Certifications',
       value: (
@@ -254,10 +287,10 @@ export function buildMergedSeriesProps(
     })
 
   const protections = sharedProtections(products)
-  if (protections) sharedRows.push({ label: 'Protections', value: protections })
+  if (protections && !columnisedShared) sharedRows.push({ label: 'Protections', value: protections })
 
   const warranties = uniq(products.map((p) => num(p.warranty_years)).filter((w): w is number => w != null))
-  if (warranties.length === 1)
+  if (warranties.length === 1 && !columnisedShared)
     sharedRows.push({ label: 'Warranty', value: `${warranties[0]} year${warranties[0] === 1 ? '' : 's'}` })
 
   // ── hero key specs (reference layout 2026-07-06): the ≤6 identity facts of
@@ -274,7 +307,7 @@ export function buildMergedSeriesProps(
       : `${Math.min(...powers)}–${Math.max(...powers)} W`
     : null
   if (isDrivers) {
-    key('power', 'Power range', powerRange)
+    key('power', 'Power', powerRange)
     const outs = uniq(products.map((p) => num(p.output_voltage_v)).filter((v): v is number => v != null)).sort((a, b) => a - b)
     key('voltage', 'Output voltage', outs.length ? `${outs.join(' / ')} V DC` : null)
     const inMins = products.map((p) => num(p.input_voltage_min_v)).filter((v): v is number => v != null)
@@ -315,7 +348,7 @@ export function buildMergedSeriesProps(
     // Power rating / Input voltage / Max series / Waterproof / Dimensions
     // + Warranty. Voltage and IP fall back to the Akeneo SUBTITLE
     // ("12V 0.48W IP66") — the sync drops those columns for modules.
-    key('power', 'Power rating', powerRange)
+    key('power', 'Power', powerRange)
     const volts = uniq(
       products
         .map((p) => num(p.output_voltage_v) ?? (Number(p.subtitle?.match(/(\d+)\s*V\b/i)?.[1]) || null))
@@ -331,7 +364,7 @@ export function buildMergedSeriesProps(
         : null,
     )
     const ip = ipField ?? products.map((p) => p.subtitle?.match(/IP\s?(\d{2})/i)?.[1]).find(Boolean)
-    key('waterproof', 'Waterproof', ip ? (ipField ? ipField.toUpperCase() : `IP${ip}`) : null)
+    key('waterproof', 'IP rating', ip ? (ipField ? ipField.toUpperCase() : `IP${ip}`) : null)
     // Dimensions: a single size shows exact — anything more collapses to a
     // count + length span (a merged L×W×H list reads like number soup; the
     // compare table below carries exact per-model dims). "Lengths" when the
@@ -365,7 +398,7 @@ export function buildMergedSeriesProps(
     key('input', 'Input voltage', sharedVoltage)
     const protoDims = uniq(products.flatMap(dimmingValuesOf)).filter((d) => d !== 'none')
     key('dimming', 'Protocol', protoDims.length ? protoDims.map((d) => DIMMING_LABEL[d]).join(' / ') : null)
-    key('power', 'Power range', powerRange)
+    key('power', 'Power', powerRange)
     key('ip', 'IP rating', ipField ? ipField.toUpperCase() : null)
     key('lifetime', 'Lifetime', lifetime ? `${lifetime.toLocaleString()} h` : null)
     // Specs 6–8 (raised cap on SKU detail pages): shared dims + warranty.

@@ -8,6 +8,7 @@ import { Footer } from '@/components/layout/footer'
 import { CursorGlow } from '@/components/layout/cursor-glow'
 import { RevealOnScroll } from '@/components/layout/reveal-on-scroll'
 import { BackToTop } from '@/components/layout/back-to-top'
+import { PointerBlur } from '@/components/layout/PointerBlur'
 
 // Vendored variable font (latin subset) — builds must not depend on
 // fonts.googleapis.com being reachable.
@@ -52,6 +53,7 @@ export default function RootLayout({
           <Footer />
           <RevealOnScroll />
           <BackToTop />
+          <PointerBlur />
         </RegionProvider>
       </body>
     </html>

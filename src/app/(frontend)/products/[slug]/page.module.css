@@ -1,6 +1,6 @@
 /* Family page (/products/[slug]) + series detail (../[series]) — shared local
    styles. Hero / sig-* / breadcrumb / sig-cta-banner come from envo.css.
-   The family landing renders a series-card grid (BOUNCE /signage/ style); the
+   The family landing renders a series-card grid; the
    series detail page reuses the section frame + applications grid. */
 
 /* ============================================================
@@ -46,7 +46,7 @@
 }
 
 /* ============================================================
-   SERIES CARD GRID — family landing (BOUNCE /signage/ style):
+   SERIES CARD GRID — family landing:
    technical line-art render on a brand-tinted tile · name · short
    description · View Range. Live series link to their detail page;
    unpublished series show a muted "Coming soon".
