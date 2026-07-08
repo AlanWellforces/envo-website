@@ -43,7 +43,9 @@ export async function Footer() {
               <li><Link href="/products/led-signage-modules">Signage Modules</Link></li>
               <li><Link href="/products/led-drivers">LED Driver</Link></li>
               <li><Link href="/products/control-gear">Control Gear</Link></li>
-              <li><Link href="/products/accessories">Accessories</Link></li>
+              {/* Accessories hidden until it has live products — see
+                  docs/superpowers/plans/2026-07-08-hidden-features.md
+              <li><Link href="/products/accessories">Accessories</Link></li> */}
             </ul>
           </div>
 

@@ -175,7 +175,8 @@ const NAVIGATE: NavItem[] = [
 const SUPPORT_SECTIONS = new Set(['resources', 'contact'])
 // Hidden for now (user 2026-07-08): the DB has no live accessory products, so
 // the family page is an empty state. Remove from this set to restore the link
-// once accessories are stocked/synced.
+// once accessories are stocked/synced. All hidden features are tracked in
+// docs/superpowers/plans/2026-07-08-hidden-features.md.
 const HIDDEN_SECTIONS = new Set(['accessories'])
 const HOME_ITEM = NAVIGATE.find((i) => i.section === 'home')!
 const PRODUCT_NAV = NAVIGATE.filter(
