@@ -165,6 +165,7 @@ export function buildMergedSeriesProps(
         alt: m.image.alt || m.code,
       },
       modelCode: m.code,
+      datasheetUrl: m.datasheetUrl ?? undefined,
       ledBeads: beads ? String(beads) : undefined,
       output: m.lumens ? `~ ${m.lumens} lm` : undefined,
       power: m.powerW != null ? `${m.powerW} W` : undefined,

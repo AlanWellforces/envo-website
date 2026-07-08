@@ -37,6 +37,8 @@ export type MergedVariant = {
   /** drivers: the same physical dims rendered as "Dimensions" */
   dimensions?: string
   bestFor?: string
+  /** per-model spec sheet (PDF) — rows layout renders a download link column */
+  datasheetUrl?: string
 }
 
 export type MergedSharedRow = { label: string; value: ReactNode }
@@ -258,6 +260,9 @@ export default function MergedSeriesPage(p: MergedSeriesProps) {
   )
 
   const specRows = activeVariantRows.filter((r) => r.key !== 'modelCode' && r.key !== 'bestFor')
+  // Per-model spec-sheet PDFs get their own trailing column (rows layout only).
+  const hasDatasheets = p.variants.some((v) => v.datasheetUrl)
+  const rowsColCount = 1 + specRows.length + (hasDatasheets ? 1 : 0)
   const specMulti: ReactNode =
     p.variantLayout === 'rows' ? (
       <div className="compare">
@@ -272,6 +277,7 @@ export default function MergedSeriesPage(p: MergedSeriesProps) {
                 {specRows.map((r) => (
                   <th key={r.key}>{r.label}</th>
                 ))}
+                {hasDatasheets && <th className="ds-head">Spec sheet</th>}
               </tr>
             </thead>
             <tbody>
@@ -286,21 +292,37 @@ export default function MergedSeriesPage(p: MergedSeriesProps) {
                       {(v[r.key] as string) ?? '—'}
                     </td>
                   ))}
+                  {hasDatasheets && (
+                    <td className="ds">
+                      {v.datasheetUrl ? (
+                        <a
+                          href={v.datasheetUrl}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          aria-label={`Spec sheet PDF — ${v.modelCode ?? v.name}`}
+                        >
+                          PDF ↓
+                        </a>
+                      ) : (
+                        '—'
+                      )}
+                    </td>
+                  )}
+                </tr>
+              ))}
+              {/* Shared specs live INSIDE the same table card (like the column
+                  layout) instead of a loose list floating below it. */}
+              {p.sharedRows?.map((row, i) => (
+                <tr key={row.label} className={`shared-row${i === 0 ? ' first' : ''}`}>
+                  <th>{row.label}</th>
+                  <td className="shared" colSpan={rowsColCount - 1}>
+                    {row.value}
+                  </td>
                 </tr>
               ))}
             </tbody>
           </table>
         </div>
-        {p.sharedRows && p.sharedRows.length > 0 && (
-          <dl className="shared-specs">
-            {p.sharedRows.map((row) => (
-              <div key={row.label}>
-                <dt>{row.label}</dt>
-                <dd>{row.value}</dd>
-              </div>
-            ))}
-          </dl>
-        )}
       </div>
     ) : (
       <div className="compare">

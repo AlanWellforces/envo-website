@@ -228,12 +228,25 @@
 .pdetail .certs .c { font-weight: 500; }
 .pdetail .certs .c:not(:last-child)::after { content: " · "; color: var(--text-subtle); font-weight: 400; }
 
-/* rows layout (many-model series) — variants as rows + shared specs as a list */
+/* rows layout (many-model series) — variants as rows; shared specs sit INSIDE
+   the same table card as a footer band (matches the column layout's fold-in) */
 .pdetail .cmp-table.rows { min-width: 520px; }
 .pdetail .cmp-table.rows thead th { text-align: left; color: var(--text-subtle); font-weight: 500; font-size: 11.5px; letter-spacing: 0.02em; padding: 12px 18px; border-bottom: 1px solid var(--line); }
 .pdetail .cmp-table.rows tbody th { text-align: left; font-weight: 600; }
 .pdetail .cmp-table.rows tbody td { text-align: left; font-weight: 500; color: var(--text-muted); }
 .pdetail .cmp-table.rows tbody tr:hover { background: rgba(0, 113, 188, 0.03); }
+/* Shared-spec footer band: label column stays subtle like thead, values keep
+   full text colour; first band row carries a heavier rule so per-model grid
+   and common section scan as two zones of one card. */
+.pdetail .cmp-table.rows .shared-row th { color: var(--text-subtle); font-weight: 500; }
+.pdetail .cmp-table.rows td.shared { text-align: left; font-weight: 600; color: var(--text); }
+.pdetail .cmp-table.rows .shared-row.first th,
+.pdetail .cmp-table.rows .shared-row.first td { border-top: 2px solid var(--line); }
+/* Per-model spec-sheet download link */
+.pdetail .cmp-table.rows .ds-head,
+.pdetail .cmp-table.rows td.ds { white-space: nowrap; }
+.pdetail .cmp-table.rows td.ds a { color: var(--blue); font-weight: 600; text-decoration: none; }
+.pdetail .cmp-table.rows td.ds a:hover { text-decoration: underline; }
 .pdetail .shared-specs { margin: 16px 0 0; display: grid; grid-template-columns: repeat(2, 1fr); gap: 0 28px; }
 .pdetail .shared-specs > div { display: flex; justify-content: space-between; gap: 16px; padding: 11px 2px; border-bottom: 1px solid var(--line); }
 .pdetail .shared-specs dt { color: var(--text-subtle); font-size: 13.5px; }
