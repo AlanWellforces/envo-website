@@ -169,6 +169,39 @@ export function parseOverview(description: string | null | undefined): OverviewC
   return out.lede || out.features || out.cautions ? out : null
 }
 
+/** First words that must keep their capital when a bullet joins a sentence. */
+const PROPER_START =
+  /^(IP\d|LED|OTA|DALI|DALI-2|DT8|PF\b|THD|PFC|DO\b|AC\b|DC\b|Zigbee|ZigBee|Casambi|Bluetooth|Philips|Osram|ENVO|USB|RGB|CCT|SMD|UL\b|CE\b|EN\d|IEC)/
+const clause = (t: string) => (PROPER_START.test(t) ? t : t.charAt(0).toLowerCase() + t.slice(1))
+const sentence = (parts: string[], lead: string) =>
+  `${lead} ${parts.slice(0, -1).join(', ')}${parts.length > 1 ? ' and ' : ''}${parts[parts.length - 1]}.`
+
+/** Weave the distilled content into short natural paragraphs (SEO prose —
+ *  user 2026-07-08: the check-grid read as a second key-spec block). */
+export function overviewParagraphs(ov: OverviewContent): string[] {
+  const paras: string[] = []
+  if (ov.lede) paras.push(ov.lede)
+
+  const plain = (ov.features ?? []).filter((f) => !f.label).map((f) => clause(f.text))
+  if (plain.length) {
+    const first = plain.slice(0, 4)
+    const rest = plain.slice(4)
+    let p = sentence(first, 'Key advantages include')
+    if (rest.length) p += ` ${sentence(rest, 'It also offers')}`
+    paras.push(p)
+  }
+
+  // "Label: detail" boilerplate reads naturally as its own short sentences.
+  const labelled = (ov.features ?? []).filter((f) => f.label)
+  if (labelled.length) paras.push(labelled.map((f) => `${f.label}: ${f.text}.`).join(' '))
+
+  if (ov.cautions?.length)
+    paras.push(
+      `Installation notes: ${ov.cautions.map((c) => clause(c.replace(/^DO NOT/i, 'do not'))).join('; ')}.`,
+    )
+  return paras
+}
+
 export function buildSkuDetailProps(
   family: ProductFamily,
   product: Product,
@@ -217,7 +250,10 @@ export function buildSkuDetailProps(
     heroSubtitle:
       descriptiveName || (solo.heroSubtitle ?? product.short_description?.trim() ?? product.subtitle?.trim() ?? undefined),
     overview: overviewContent
-      ? { heading: overviewContent.headline ?? `About the ${product.sku}.`, ...overviewContent }
+      ? {
+          heading: overviewContent.headline ?? `About the ${product.sku}.`,
+          paragraphs: overviewParagraphs(overviewContent),
+        }
       : undefined,
     // exact facts for THIS SKU, never series-wide ranges
     keySpecs: solo.keySpecs,

@@ -74,9 +74,12 @@ describe('buildSkuDetailProps', () => {
     })
     const ov = buildSkuDetailProps(DRIVERS, p, [p]).overview!
     expect(ov.heading).toBe('About the EV-D-1.')
-    expect(ov.lede).toBe('The EV-D-1 is a robust driver built for signage. It runs cool and quiet.') // first 2 sentences
-    expect(ov.features?.map((f) => f.text)).toEqual(['Maximum conversion efficiency of 86%']) // spec repeats dropped
-    expect(ov.cautions).toEqual(['DO NOT install with power applied'])
+    // title + short natural paragraphs (user 2026-07-08) — no check-grid
+    expect(ov.paragraphs).toEqual([
+      'The EV-D-1 is a robust driver built for signage. It runs cool and quiet.', // lede = first 2 sentences
+      'Key advantages include maximum conversion efficiency of 86%.', // spec repeats dropped
+      'Installation notes: do not install with power applied.',
+    ])
   })
 
   it('omits the Overview tab when the PIM has no description', () => {

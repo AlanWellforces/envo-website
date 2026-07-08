@@ -88,13 +88,11 @@ export type MergedSeriesProps = {
    *  as table rows — for series with too many models for a column table. */
   variantLayout?: 'columns' | 'rows'
   sharedRows?: MergedSharedRow[]
-  /** Overview tab: distilled marketing content (lede / Highlights / notes,
-   *  see parseOverview), or a plain `body` paragraph, or trusted PIM `html` */
+  /** Overview tab: title + a few short SEO-friendly paragraphs (distilled
+   *  from the PIM copy), or a plain `body` paragraph, or trusted PIM `html` */
   overview?: {
     heading: string
-    lede?: string
-    features?: { label?: string; text: string }[]
-    cautions?: string[]
+    paragraphs?: string[]
     body?: string
     html?: string
   }
@@ -273,33 +271,11 @@ export default function MergedSeriesPage(p: MergedSeriesProps) {
   const overviewPanel: ReactNode = ov && (
     <div className="overview">
       <h2>{ov.heading}</h2>
-      {ov.lede && <p className="ov-lede">{ov.lede}</p>}
-      {ov.features && ov.features.length > 0 && (
-        <>
-          <div className="ov-eyebrow">Highlights</div>
-          <ul className="ov-features">
-            {ov.features.map((f) => (
-              <li key={f.label ?? f.text}>
-                <svg className="ov-check" viewBox="0 0 24 24" aria-hidden>
-                  <path d="M5 13l4 4L19 7" />
-                </svg>
-                <span>
-                  {f.label && <b>{f.label} — </b>}
-                  {f.text}
-                </span>
-              </li>
-            ))}
-          </ul>
-        </>
-      )}
-      {ov.cautions && ov.cautions.length > 0 && (
-        <div className="ov-notes">
-          <div className="ov-eyebrow">Installation notes</div>
-          {ov.cautions.map((c) => (
-            <p key={c}>{c}</p>
-          ))}
-        </div>
-      )}
+      {ov.paragraphs?.map((para) => (
+        <p key={para} className="ov-para">
+          {para}
+        </p>
+      ))}
       {ov.html && (
         // Trusted internal copy (Akeneo PIM description), sanitised upstream.
         <div className="ov-html" dangerouslySetInnerHTML={{ __html: ov.html }} />
