@@ -8,7 +8,7 @@ import { getProduct, getProductsByMarketingFamily, type Product } from '@/lib/pr
 import { seriesSlug as toSeriesSlug } from '@/data/family-map'
 import { buildMergedSeriesProps } from '@/lib/merged-series'
 import { buildSkuDetailProps } from '@/lib/sku-detail'
-import { COMPLEMENT_FAMILIES, pickRelatedSeries } from '@/lib/related-series'
+import { COMPLEMENT_FAMILIES, pickRelatedCategories } from '@/lib/related-series'
 import { SERIES_EDITORIAL } from '@/data/series-editorial.generated'
 import { seriesPurchaseLinks } from '@/data/distributors'
 
@@ -189,9 +189,11 @@ export default async function SeriesDetailPage({ params }: { params: Params }) {
         ]}
         downloads={[{ name: 'MiniLux datasheet', meta: 'PDF', href: datasheetUrl }]}
         related={[
-          { kicker: 'Driver · constant voltage', name: 'EV-SL Linear Driver', href: '/products/led-drivers/envo-sl-us', image: img('mod-eco-line.png', 'EV-SL Linear Driver') },
-          { kicker: 'Control gear', name: 'ZigBee Controller', href: '/products/control-gear/envo-zigbee', image: img('cat-controllers-line.png', 'ZigBee Controller') },
-          { kicker: 'Step up · larger faces', name: 'EcoGlo Series', href: '/products/led-signage-modules/envo-ecoglo', image: img('series/envo_ecoglo.jpg', 'EcoGlo Series') },
+          // same category-grain cards as pickRelatedCategories — this curated
+          // branch doesn't fetch the complementary families, so hand-built
+          { kicker: 'LED Drivers', name: 'Screw Terminal', href: '/products/led-drivers?series=Screw%20Terminal', image: img('cat-drivers-line.png', 'Screw terminal LED drivers') },
+          { kicker: 'Control Gear', name: 'Zigbee & Smart', href: '/products/control-gear?series=Zigbee%20%26%20Smart', image: img('cat-controllers-line.png', 'Zigbee & Smart control gear') },
+          { kicker: 'Also in Signage Modules', name: 'Eco Series', href: '/products/led-signage-modules?series=Eco%20Series', image: img('series/envo_ecoglo.jpg', 'Eco Series modules') },
         ]}
       />
     )
@@ -215,7 +217,7 @@ export default async function SeriesDetailPage({ params }: { params: Params }) {
         for (const comp of COMPLEMENT_FAMILIES[slug] ?? []) {
           productsByFamily[comp] = await getProductsByMarketingFamily(comp, { depth: 0 })
         }
-        const related = pickRelatedSeries(slug, toSeriesSlug(product.series), productsByFamily)
+        const related = pickRelatedCategories(slug, product, productsByFamily)
         return (
           <MergedSeriesPage
             {...buildSkuDetailProps(family, product, sameSeries)}
@@ -233,7 +235,7 @@ export default async function SeriesDetailPage({ params }: { params: Params }) {
   for (const comp of COMPLEMENT_FAMILIES[slug] ?? []) {
     productsByFamily[comp] = await getProductsByMarketingFamily(comp, { depth: 0 })
   }
-  const related = pickRelatedSeries(slug, series, productsByFamily)
+  const related = pickRelatedCategories(slug, products[0], productsByFamily)
 
   return (
     <MergedSeriesPage
