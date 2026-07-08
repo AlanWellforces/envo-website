@@ -2,8 +2,8 @@
 
 import Image from 'next/image'
 import Link from 'next/link'
-import { usePathname } from 'next/navigation'
-import { useCallback, useEffect, useRef, useState, useSyncExternalStore } from 'react'
+import { usePathname, useSearchParams } from 'next/navigation'
+import { Suspense, useCallback, useEffect, useRef, useState, useSyncExternalStore } from 'react'
 import { cn } from '@/lib/utils'
 import { PURCHASE_CHANNELS, type PurchaseChannel } from '@/data/purchase-channels'
 import { useRegion } from '@/components/region/RegionProvider'
@@ -196,6 +196,67 @@ function isActive(pathname: string, href: string) {
   return pathname === href || pathname.startsWith(href + '/')
 }
 
+/** Canonical form of a query string (sorted keys, uniform encoding) so href
+ *  authoring differences ('%20' vs '+', param order) can't break a match. */
+const canonicalQuery = (qs: string) => {
+  const sp = new URLSearchParams(qs)
+  sp.sort()
+  return sp.toString()
+}
+
+type SubLinksProps = {
+  item: NavItem
+  pathname: string
+  /** Current query string; '' in the static shell / Suspense fallback. */
+  search: string
+  onNavClick: (e: React.MouseEvent<HTMLAnchorElement>) => void
+}
+
+/** A group's collection child links + "View all". Presentational — the live
+ *  query string arrives as a prop so the Suspense fallback can render the
+ *  identical markup before the client query is known. A link is active when
+ *  both the path and the full query match it exactly. */
+function SidebarSubLinks({ item, pathname, search, onNavClick }: SubLinksProps) {
+  const current = canonicalQuery(search)
+  const collectionActive = (href: string) => {
+    const q = href.indexOf('?')
+    const base = q === -1 ? href : href.slice(0, q)
+    return pathname === base && current === canonicalQuery(q === -1 ? '' : href.slice(q + 1))
+  }
+  return (
+    <>
+      {(item.children ?? []).map((c) => (
+        <li key={c.slug}>
+          <Link
+            href={c.href}
+            className={cn('sidebar-sublink', collectionActive(c.href) && 'active')}
+            onClick={onNavClick}
+          >
+            {c.label}
+          </Link>
+        </li>
+      ))}
+      <li>
+        <Link
+          href={item.href}
+          className={cn('sidebar-sublink', collectionActive(item.href) && 'active')}
+          onClick={onNavClick}
+        >
+          View all
+        </Link>
+      </li>
+    </>
+  )
+}
+
+/** useSearchParams is reactive to every query navigation — same-path
+ *  collection clicks included — so the highlight tracks the URL with no
+ *  synced state. */
+function SidebarSubLinksLive(props: Omit<SubLinksProps, 'search'>) {
+  const search = useSearchParams().toString()
+  return <SidebarSubLinks {...props} search={search} />
+}
+
 export function Sidebar() {
   const pathname = usePathname()
   const collapsed = useSyncExternalStore(
@@ -313,25 +374,6 @@ export function Sidebar() {
     e.currentTarget.blur()
   }
 
-  // Query string of the current location, for highlighting the collection
-  // children (?series=…). Synced on route change; same-path query navigations
-  // don't change `pathname`, so collection clicks record it directly.
-  const [navSearch, setNavSearch] = useState('')
-  useEffect(() => {
-    setNavSearch(window.location.search)
-  }, [pathname])
-  const handleCollectionClick = (e: React.MouseEvent<HTMLAnchorElement>) => {
-    handleNavClick(e)
-    setNavSearch(new URL(e.currentTarget.href).search)
-  }
-  /** Active when both the path and the query match the child link exactly. */
-  const collectionActive = (href: string) => {
-    const q = href.indexOf('?')
-    const base = q === -1 ? href : href.slice(0, q)
-    const search = q === -1 ? '' : decodeURIComponent(href.slice(q))
-    return pathname === base && decodeURIComponent(navSearch) === search
-  }
-
   const renderItems = (items: NavItem[]) =>
     items.map((item) => {
       // Leaf — no children (or submenus globally hidden). `data-tooltip`
@@ -384,26 +426,17 @@ export function Sidebar() {
             role="list"
             data-parent-label={item.label}
           >
-            {item.children.map((c) => (
-              <li key={c.slug}>
-                <Link
-                  href={c.href}
-                  className={cn('sidebar-sublink', collectionActive(c.href) && 'active')}
-                  onClick={handleCollectionClick}
-                >
-                  {c.label}
-                </Link>
-              </li>
-            ))}
-            <li>
-              <Link
-                href={item.href}
-                className={cn('sidebar-sublink', collectionActive(item.href) && 'active')}
-                onClick={handleCollectionClick}
-              >
-                View all
-              </Link>
-            </li>
+            {/* Query-aware child links need useSearchParams, which must sit
+                under its own <Suspense> for statically prerendered pages.
+                The fallback is the identical list with an empty query — the
+                same HTML the pre-hydration shell always had. */}
+            <Suspense
+              fallback={
+                <SidebarSubLinks item={item} pathname={pathname} search="" onNavClick={handleNavClick} />
+              }
+            >
+              <SidebarSubLinksLive item={item} pathname={pathname} onNavClick={handleNavClick} />
+            </Suspense>
           </ul>
         </div>
       )
