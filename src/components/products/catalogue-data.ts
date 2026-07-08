@@ -7,7 +7,7 @@ import {
   groupSeriesIntoSections,
   type Product,
 } from '@/lib/products'
-import { seriesSlug, seriesLabel, seriesLineArt, seriesSectionTitle, signageSeriesCategory, SIGNAGE_CATEGORY_ORDER, controlGearCategories, CONTROL_GEAR_CATEGORY_ORDER } from '@/data/family-map'
+import { seriesSlug, seriesLabel, seriesLineArt, seriesSectionTitle, signageSeriesCategory, SIGNAGE_CATEGORY_ORDER, controlGearCategories, CONTROL_GEAR_CATEGORY_ORDER, driverCategories, DRIVER_CATEGORY_ORDER } from '@/data/family-map'
 import { SERIES_BLURBS, LED_CONFIG_OPTIONS } from '@/data/series-applications'
 import { catalogueSeriesMeta } from '@/data/series-catalogue-meta'
 import { formatDims } from '@/lib/units'
@@ -39,6 +39,8 @@ export type CatalogueCard = {
   certified: boolean
   /** facet key -> values this card carries */
   facets: Record<string, string[]>
+  /** sortable numeric metrics (adaptive sort dropdown; never price) */
+  metrics?: { power?: number | null; brightness?: number | null }
 }
 
 // Series codes with a unified-tone main image under public/assets/images/series/.
@@ -473,6 +475,8 @@ function skuCard(
   // even the null-series sensors. Elsewhere: no series → no series facet
   // (an "Other" option makes no sense in the picker).
   if (family.slug === 'control-gear') parts.facets.series = controlGearCategories(p)
+  else if (family.slug === 'led-drivers' && driverCategories(p.series))
+    parts.facets.series = driverCategories(p.series)!
   else if (p.series) parts.facets.series = [seriesFilterName(family.slug, p.series)]
   parts.facets.family = [family.name] // Category picker on the all-families index
   return {
@@ -494,6 +498,7 @@ function skuCard(
     section: parts.section,
     certified: (p.standards_met ?? []).length > 0,
     facets: parts.facets,
+    metrics: { power: p.power_w, brightness: p.brightness_lm },
   }
 }
 
@@ -733,15 +738,19 @@ export function buildGroups(cards: CatalogueCard[], familySlug?: string): FacetG
   const CATEGORY_ORDERS: Record<string, string[]> = {
     'led-signage-modules': SIGNAGE_CATEGORY_ORDER,
     'control-gear': CONTROL_GEAR_CATEGORY_ORDER,
+    'led-drivers': DRIVER_CATEGORY_ORDER,
   }
+  // Drivers pick by connection/dimming TYPE (Screw Terminal / Linear /
+  // Triac Dimmable), so the group heading says so; elsewhere "Series".
   const seriesGroup = () => {
+    const label = familySlug === 'led-drivers' ? 'Type' : 'Series'
     const order = familySlug ? CATEGORY_ORDERS[familySlug] : undefined
     return order
-      ? group('series', 'Series', cards, (v) => v, (v) => {
+      ? group('series', label, cards, (v) => v, (v) => {
           const i = order.indexOf(v)
           return i === -1 ? 999 : i
         })
-      : group('series', 'Series', cards, (v) => v, () => 0)
+      : group('series', label, cards, (v) => v, () => 0)
   }
   const candidates = (() => {
     switch (familySlug) {

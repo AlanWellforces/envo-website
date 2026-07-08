@@ -69,6 +69,24 @@ export function signageSeriesCategory(code: string | null | undefined): string |
   return code ? SIGNAGE_SERIES_CATEGORY[code] ?? null : null
 }
 
+// Old-envo LED DRIVER categories (Screw Terminal / Linear / Triac Dimmable)
+// — the old menu splits by connection/dimming TYPE, not by model line, and a
+// series can belong to TWO types: SP is screw-terminal AND triac-dimmable
+// (multi-value facet: ticking either shows it). Verified SKU-for-SKU against
+// envo-led.com collections 2026-07-08 (SE 10 + SNPV 4 + SP 6 = Screw
+// Terminal 20; SL 8 = Linear; SP 6 = Triac Dimmable). Unmapped series (e.g.
+// gated ranges when they return) fall back to their authored series title.
+export const DRIVER_CATEGORY_ORDER = ['Screw Terminal', 'Linear', 'Triac Dimmable']
+const DRIVER_SERIES_CATEGORIES: Record<string, string[]> = {
+  envo_se_us: ['Screw Terminal'],
+  envo_snpv_us: ['Screw Terminal'],
+  envo_sp_us: ['Screw Terminal', 'Triac Dimmable'],
+  envo_sl_us: ['Linear'],
+}
+export function driverCategories(code: string | null | undefined): string[] | null {
+  return code ? DRIVER_SERIES_CATEGORIES[code] ?? null : null
+}
+
 // Old-envo CONTROL GEAR categories (Remote & Receiver / Signal Converter /
 // Sensor / Zigbee & Smart). On the old site the first three split the range
 // by FUNCTION (name-based — the PIM has no structured attribute), while

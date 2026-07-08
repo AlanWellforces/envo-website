@@ -90,11 +90,12 @@ const NAVIGATE: NavItem[] = [
         <path d="M13 2L4 14h7l-1 8 9-12h-7l1-8z" />
       </svg>
     ),
+    // Old-menu TYPE categories (driverCategories in family-map): SP belongs
+    // to BOTH Screw Terminal and Triac Dimmable — ticking either shows it.
     children: [
-      { slug: 'se', href: '/products/led-drivers?series=SE%20Slim%20Indoor%20Driver', label: 'SE Slim Indoor' },
-      { slug: 'sl', href: '/products/led-drivers?series=SL%20Linear%20Driver', label: 'SL Linear' },
-      { slug: 'snpv', href: '/products/led-drivers?series=SNPV%20Class%202%20Driver', label: 'SNPV Class 2' },
-      { slug: 'sp', href: '/products/led-drivers?series=SP%20Triac%20Dimmable%20Driver', label: 'SP Triac Dimmable' },
+      { slug: 'screw-terminal', href: '/products/led-drivers?series=Screw%20Terminal', label: 'Screw Terminal' },
+      { slug: 'linear', href: '/products/led-drivers?series=Linear', label: 'Linear' },
+      { slug: 'triac', href: '/products/led-drivers?series=Triac%20Dimmable', label: 'Triac Dimmable' },
     ],
   },
   {
