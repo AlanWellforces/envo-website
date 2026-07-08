@@ -301,7 +301,21 @@
 .pdetail .overview { padding: 8px 0 24px; max-width: 76ch; }
 .pdetail .overview h2 { font-size: 23px; letter-spacing: -0.025em; margin: 6px 0 14px; font-weight: 700; }
 .pdetail .overview p { font-size: 15px; color: var(--text-muted); line-height: 1.65; margin: 0; }
-/* Akeneo HTML descriptions (SKU pages): paragraphs + feature bullet lists */
+/* distilled overview (SKU pages): lede → Highlights grid → install notes */
+.pdetail .overview .ov-lede { font-size: 16.5px; color: var(--text); line-height: 1.7; margin: 0 0 24px; }
+.pdetail .overview .ov-eyebrow { font-size: 10px; letter-spacing: .16em; text-transform: uppercase; color: var(--text-subtle); font-weight: 700; margin: 0 0 4px; }
+.pdetail .overview .ov-features { list-style: none; margin: 0 0 8px; padding: 0;
+  display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 0 36px; }
+.pdetail .overview .ov-features li { display: flex; gap: 10px; align-items: flex-start;
+  font-size: 14px; color: var(--text-muted); line-height: 1.55; padding: 11px 0; border-bottom: 1px solid var(--line); }
+.pdetail .overview .ov-features li b { color: var(--text); font-weight: 650; }
+.pdetail .overview .ov-check { flex: none; width: 15px; height: 15px; margin-top: 3px;
+  fill: none; stroke: var(--blue); stroke-width: 2.4; stroke-linecap: round; stroke-linejoin: round; }
+.pdetail .overview .ov-notes { margin-top: 26px; }
+.pdetail .overview .ov-notes p { font-size: 12.5px; color: var(--text-subtle); line-height: 1.6; margin: 0 0 4px; }
+@media (max-width: 700px) { .pdetail .overview .ov-features { grid-template-columns: 1fr; } }
+
+/* Akeneo HTML descriptions (fallback rendering): paragraphs + bullet lists */
 .pdetail .overview .ov-html p { margin: 0 0 12px; }
 .pdetail .overview .ov-html p:last-child { margin-bottom: 0; }
 .pdetail .overview .ov-html ul { list-style: disc; margin: 0 0 12px; padding-left: 20px; }
