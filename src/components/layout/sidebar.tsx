@@ -173,9 +173,16 @@ const NAVIGATE: NavItem[] = [
 // pinned to the bottom (above the CTA) so product vs. support read as
 // distinct types.
 const SUPPORT_SECTIONS = new Set(['resources', 'contact'])
+// Hidden for now (user 2026-07-08): the DB has no live accessory products, so
+// the family page is an empty state. Remove from this set to restore the link
+// once accessories are stocked/synced.
+const HIDDEN_SECTIONS = new Set(['accessories'])
 const HOME_ITEM = NAVIGATE.find((i) => i.section === 'home')!
 const PRODUCT_NAV = NAVIGATE.filter(
-  (i) => i.section !== 'home' && !SUPPORT_SECTIONS.has(i.section),
+  (i) =>
+    i.section !== 'home' &&
+    !SUPPORT_SECTIONS.has(i.section) &&
+    !HIDDEN_SECTIONS.has(i.section),
 )
 const SUPPORT_NAV = NAVIGATE.filter((i) => SUPPORT_SECTIONS.has(i.section))
 
