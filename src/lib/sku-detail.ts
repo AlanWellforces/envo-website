@@ -73,7 +73,11 @@ export function buildSkuDetailProps(
   // Series-wide assembly drives the compare table + shared rows (identical to
   // the series page); a single-product assembly supplies the exact hero facts.
   // SKU heroes may show up to 8 key specs (user 2026-07-08); series keep 6.
-  const base = buildMergedSeriesProps(family, series, sameSeries.length ? sameSeries : [product])
+  // Control gear has no real ranges (its "series" mixes dimmers, remotes,
+  // gateways, sensors…), so a compare table is noise — those SKUs render the
+  // plain "Full specification" panel instead (user 2026-07-08).
+  const comparable = family.slug !== 'control-gear' && sameSeries.length > 1
+  const base = buildMergedSeriesProps(family, series, comparable ? sameSeries : [product])
   const solo = buildMergedSeriesProps(family, series, [product], { maxKeySpecs: 8 })
 
   // groupSeriesModels strips CCT suffixes; the spec-driven families' SKUs are

@@ -103,6 +103,15 @@ describe('buildSkuDetailProps', () => {
     )
   })
 
+  it('control gear never gets a compare table — plain full-spec panel instead', () => {
+    const CONTROL = PRODUCT_FAMILIES.find((f) => f.slug === 'control-gear')!
+    const a = mk({ sku: 'ZB-A', name: 'ENVO ZigBee Smart Dimmer', family: 'psu_led_controller', series: 'envo_zigbee', dimming_control: ['zigbee'] })
+    const b = mk({ sku: 'ZB-B', name: 'ENVO ZigBee Gateway', family: 'psu_led_controller', series: 'envo_zigbee', dimming_control: ['zigbee'] })
+    const props = buildSkuDetailProps(CONTROL, a, [a, b])
+    expect(props.variants).toHaveLength(1) // single "Full specification" panel
+    expect(props.variants[0].modelCode).toBe('ZB-A')
+  })
+
   it('never includes a price field', () => {
     const props = buildSkuDetailProps(DRIVERS, mk({ sku: 'Y', price_nzd: 9 }), [mk({ sku: 'Y' })])
     expect(JSON.stringify(props)).not.toMatch(/nzd|"price"/i)
