@@ -595,7 +595,7 @@ function signageFacts(rep: Product, ccts: number[]): string[] {
 }
 
 /** CCT suffix variants (-WW/-NW/-CW) are ONE product (user 2026-07-08). */
-const stripCctSuffix = (sku: string) => sku.replace(/-(WW|NW|CW)$/i, '')
+export const stripCctSuffix = (sku: string) => sku.replace(/-(WW|NW|CW)$/i, '')
 
 /** Signage collection order = the old envo-led.com menu (user 2026-07-08):
  *  Mini → Eco → Pro (ProGlo then UltraFlare) → RGB → 24V → Sidelit. */

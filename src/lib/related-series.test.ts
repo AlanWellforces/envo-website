@@ -13,7 +13,11 @@ const p = (over: Partial<Product> & Record<string, unknown>): Product => ({
 const modules = [
   p({ sku: 'EV-BLML01LBY-NW', series: 'envo_minilux' }),
   p({ sku: 'EV-BLEG02LBY-NW', series: 'envo_ecoglo', clean_image_url_fallback: 'https://s3/ecoglo2.jpg' }),
+  // CCT twins of the models above — must collapse into the NW representative
+  p({ sku: 'EV-BLEG02LBY-WW', series: 'envo_ecoglo' }),
+  p({ sku: 'EV-BLEG02LBY-CW', series: 'envo_ecoglo' }),
   p({ sku: 'EV-BLEG03LBY-NW', series: 'envo_ecoglo', clean_image_url_fallback: 'https://s3/ecoglo3.jpg' }),
+  p({ sku: 'EV-BLEG03LBY-WW', series: 'envo_ecoglo' }),
   p({ sku: 'EV-BLUF02LBY-NW', series: 'envo_ultraflare' }),
   p({ sku: 'EV-BLCF03LBY-RGB', series: 'envo_chromaflux', clean_image_url_fallback: 'https://s3/rgb.jpg' }),
   p({ sku: 'EV-BLOL06LBY-NW', series: 'envo_optilume' }),
@@ -74,6 +78,18 @@ describe('pickRelatedProducts', () => {
   it('control pick prefers in-chain gear (receiver/dimmer) over sensors', () => {
     const rel = pickRelatedProducts('led-signage-modules', current(modules, 'EV-BLEG02LBY-NW'), byFamily)
     expect(rel[1].name).toMatch(/^(SR-2309PRO-5C|EV-ZBDIM-01)$/)
+  })
+
+  it('never recommends a CCT variant: module picks are the NW model face, siblings skip CCT twins', () => {
+    // 12 V driver → Eco module: the -WW/-CW twins collapse into the NW face
+    const rel12 = pickRelatedProducts('led-drivers', current(drivers, 'EV-SE-15-12US'), byFamily)
+    expect(rel12[0].name).toMatch(/-NW$/)
+    // module sibling = the next MODEL, never the same model's -WW twin
+    const rel = pickRelatedProducts('led-signage-modules', current(modules, 'EV-BLEG02LBY-NW'), byFamily)
+    expect(rel[2].name).toBe('EV-BLEG03LBY-NW')
+    // …even when the page itself is a -WW variant
+    const relWw = pickRelatedProducts('led-signage-modules', current(modules, 'EV-BLEG02LBY-WW'), byFamily)
+    expect(relWw[2].name).toBe('EV-BLEG03LBY-NW')
   })
 
   it('RGB context prefers the 5C zigbee receiver; zigbee control pairs with an RGB module', () => {

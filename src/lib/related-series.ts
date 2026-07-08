@@ -1,4 +1,4 @@
-// Data-driven "Pairs with" cards for series + SKU detail pages: CONCRETE
+// Data-driven "Related products" cards for series + SKU detail pages: CONCRETE
 // paired products (user 2026-07-09 — not series, not categories), linking to
 // their SKU detail pages. Matching is spec-based and deterministic:
 //   · modules ↔ drivers on the CV rail (24 V OptiLume ↔ 24 V drivers)
@@ -16,6 +16,7 @@ import {
   seriesLineArt,
 } from '@/data/family-map'
 import { PRODUCT_FAMILIES } from '@/data/product-families'
+import { stripCctSuffix } from '@/components/products/catalogue-data'
 
 /** Complementary families to cross-sell from each family's detail pages. */
 export const COMPLEMENT_FAMILIES: Record<string, string[]> = {
@@ -58,6 +59,23 @@ const byVoltagePowerSku = (a: Product, b: Product) =>
     mid-range pick, not the smallest or biggest model. */
 const mid = <T,>(arr: T[]): T | null => (arr.length ? arr[Math.floor((arr.length - 1) / 2)] : null)
 
+/** Signage CCT variants (-WW/-NW/-CW) are one model — collapse each model to
+    its NW representative, the same canonical face the catalogue grid links.
+    Never recommend a specific colour temperature (user 2026-07-09). */
+function signageRepresentatives(products: Product[]): Product[] {
+  const byModel = new Map<string, Product[]>()
+  for (const p of products) {
+    const code = stripCctSuffix(p.sku)
+    if (!byModel.has(code)) byModel.set(code, [])
+    byModel.get(code)!.push(p)
+  }
+  return [...byModel.values()].map((v) => v.find((x) => /-NW$/i.test(x.sku)) ?? v[0])
+}
+const collapseModels = (familySlug: string, list: Product[]) =>
+  familySlug === 'led-signage-modules' ? signageRepresentatives(list) : list
+const modelOf = (familySlug: string, sku: string) =>
+  familySlug === 'led-signage-modules' ? stripCctSuffix(sku) : sku
+
 const isZigbee = (p: Product | null) => !!p && (p.series === 'envo_zigbee' || /zigbee/i.test(p.name ?? ''))
 const isRgb = (p: Product | null) => !!p && (p.series === 'envo_chromaflux' || /\brgb\b/i.test(p.name ?? ''))
 
@@ -76,7 +94,7 @@ function pickDriver(current: Product | null, currentFamily: string, drivers: Pro
 }
 
 function pickModule(current: Product | null, currentFamily: string, modules: Product[]): Product | null {
-  const eligible = modules.filter((p) => categoriesOf('led-signage-modules', p).length)
+  const eligible = signageRepresentatives(modules.filter((p) => categoriesOf('led-signage-modules', p).length))
   const preferred =
     currentFamily === 'led-drivers' && current?.output_voltage_v === 24
       ? eligible.filter((p) => p.series === 'envo_optilume')
@@ -115,11 +133,12 @@ function card(familySlug: string, chosen: Product, kicker?: string): MergedRelat
 /** The adjacent model in the product's own series (wrapping); when the series
     has no other models, the mid pick of the next customer category that does. */
 function pickSibling(familySlug: string, current: Product, own: Product[]): Product | null {
-  const series = own
-    .filter((p) => categoriesOf(familySlug, p).length && p.series === current.series)
-    .sort(byVoltagePowerSku)
+  const series = collapseModels(
+    familySlug,
+    own.filter((p) => categoriesOf(familySlug, p).length && p.series === current.series),
+  ).sort(byVoltagePowerSku)
   if (series.length > 1) {
-    const i = series.findIndex((p) => p.sku === current.sku)
+    const i = series.findIndex((p) => modelOf(familySlug, p.sku) === modelOf(familySlug, current.sku))
     return series[(Math.max(i, 0) + 1) % series.length]
   }
   const order = CATEGORY_ORDER[familySlug] ?? []
@@ -128,7 +147,14 @@ function pickSibling(familySlug: string, current: Product, own: Product[]): Prod
   const rotated = [...order.slice(start), ...order.slice(0, start)]
   for (const cat of rotated) {
     if (currentCats.includes(cat)) continue
-    const members = own.filter((p) => p.sku !== current.sku && categoriesOf(familySlug, p).includes(cat))
+    const members = collapseModels(
+      familySlug,
+      own.filter(
+        (p) =>
+          modelOf(familySlug, p.sku) !== modelOf(familySlug, current.sku) &&
+          categoriesOf(familySlug, p).includes(cat),
+      ),
+    )
     const pick = mid(members.sort(bySku))
     if (pick) return pick
   }

@@ -583,7 +583,10 @@ export default function MergedSeriesPage(p: MergedSeriesProps) {
           <div className="band-inner">
             <div className="rel">
               <div className="rel-head">
-                <h2>Pairs with</h2>
+                {/* "Related products", not "Pairs with" — the picks are
+                     spec-based suggestions, not a certified pairing (user
+                     2026-07-09) */}
+                <h2>Related products</h2>
                 {/* the cards cross families, so "view all" goes to the whole
                      catalogue — not the current family (user 2026-07-09) */}
                 <Link href="/products">All products →</Link>
