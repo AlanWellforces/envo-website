@@ -192,6 +192,10 @@ export function buildMergedSeriesProps(
                     : rep?.operation_mode === 'cc' ? 'CC'
                     : rep?.operation_mode === 'cv_cc' ? 'CV & CC'
                     : undefined,
+                  certifications: rep?.standards_met?.length
+                    ? uniq(rep.standards_met.map((c) => CERT_NAME[c] ?? c)).join(' · ')
+                    : undefined,
+                  protections: rep ? protectionsOf(rep).join(' · ') || undefined : undefined,
                   warranty:
                     num(rep?.warranty_years) != null
                       ? `${rep!.warranty_years} year${rep!.warranty_years === 1 ? '' : 's'}`
@@ -261,7 +265,7 @@ export function buildMergedSeriesProps(
   }
 
   const certs = uniq(products.flatMap((p) => p.standards_met ?? [])).map((c) => CERT_NAME[c] ?? c)
-  if (certs.length)
+  if (certs.length && !columnisedShared)
     sharedRows.push({
       label: 'Certifications',
       value: (
@@ -276,7 +280,7 @@ export function buildMergedSeriesProps(
     })
 
   const protections = sharedProtections(products)
-  if (protections) sharedRows.push({ label: 'Protections', value: protections })
+  if (protections && !columnisedShared) sharedRows.push({ label: 'Protections', value: protections })
 
   const warranties = uniq(products.map((p) => num(p.warranty_years)).filter((w): w is number => w != null))
   if (warranties.length === 1 && !columnisedShared)
