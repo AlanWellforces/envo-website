@@ -32,6 +32,13 @@ export function CatalogueFilter({
 }: Props) {
   const [selected, setSelected] = useState<Record<string, Set<string>>>({})
   const [query, setQuery] = useState('')
+  // Accordion rail (user 2026-07-08): only the lead group (Series/Category)
+  // opens by default — the rest collapse so the rail stays short. A group
+  // with picks stays visible via its count badge even while closed.
+  const [open, setOpen] = useState<Record<string, boolean>>(() =>
+    groups[0] ? { [groups[0].key]: true } : {},
+  )
+  const toggleOpen = (key: string) => setOpen((prev) => ({ ...prev, [key]: !prev[key] }))
   const noun = resultKind === 'products' ? 'products' : 'series'
 
   const toggle = (groupKey: string, value: string) =>
@@ -93,29 +100,42 @@ export function CatalogueFilter({
 
         {groups.map((g) => {
           const picked = selected[g.key]?.size ?? 0
+          const isOpen = open[g.key] ?? false
           return (
-            <div key={g.key} className="pcat-fgroup">
+            <div key={g.key} className={`pcat-fgroup${isOpen ? '' : ' closed'}`}>
               <h4>
-                {g.label}
-                {picked > 0 && <span className="picked">{picked}</span>}
+                <button
+                  type="button"
+                  className="pcat-fgroup-toggle"
+                  aria-expanded={isOpen}
+                  onClick={() => toggleOpen(g.key)}
+                >
+                  {g.label}
+                  {picked > 0 && <span className="picked">{picked}</span>}
+                  <svg className="caret" viewBox="0 0 24 24" aria-hidden>
+                    <path d="M6 9l6 6 6-6" />
+                  </svg>
+                </button>
               </h4>
-              <div className="pcat-fopts">
-                {g.options.map((o) => {
-                  const on = selected[g.key]?.has(o.value) ?? false
-                  return (
-                    <label key={o.value} className={`pcat-check${on ? ' on' : ''}`}>
-                      <input
-                        type="checkbox"
-                        checked={on}
-                        onChange={() => toggle(g.key, o.value)}
-                      />
-                      <span className="box" aria-hidden />
-                      <span className="lab">{o.label}</span>
-                      <span className="ct" title={`${o.count} matching series`}>{o.count}</span>
-                    </label>
-                  )
-                })}
-              </div>
+              {isOpen && (
+                <div className="pcat-fopts">
+                  {g.options.map((o) => {
+                    const on = selected[g.key]?.has(o.value) ?? false
+                    return (
+                      <label key={o.value} className={`pcat-check${on ? ' on' : ''}`}>
+                        <input
+                          type="checkbox"
+                          checked={on}
+                          onChange={() => toggle(g.key, o.value)}
+                        />
+                        <span className="box" aria-hidden />
+                        <span className="lab">{o.label}</span>
+                        <span className="ct" title={`${o.count} matching series`}>{o.count}</span>
+                      </label>
+                    )
+                  })}
+                </div>
+              )}
             </div>
           )
         })}

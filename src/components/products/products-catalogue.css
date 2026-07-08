@@ -29,6 +29,7 @@
   position:sticky; top:26px; align-self:start; padding:0 6px 20px 0;
   max-height:calc(100vh - 46px);
   overflow-y:auto;
+  overflow-x:hidden; /* vertical rail only — never a horizontal drag bar */
   overscroll-behavior:contain;
   scrollbar-width:thin;
   scrollbar-color:var(--line-strong) transparent;
@@ -46,6 +47,14 @@
 .pcat-fgroup { padding:13px 0; border-bottom:1px solid var(--line); }
 .pcat-fgroup:last-child { border-bottom:0; }
 .pcat-fgroup h4 { display:flex; align-items:center; gap:7px; font-size:12px; font-weight:700; margin:0 0 6px; color:var(--fg); }
+/* accordion header (user 2026-07-08): whole title row toggles the group */
+.pcat-fgroup-toggle { appearance:none; border:0; background:none; padding:0; cursor:pointer;
+  display:flex; align-items:center; gap:7px; width:100%; font:inherit; color:inherit; text-align:left; }
+.pcat-fgroup-toggle .caret { width:13px; height:13px; margin-left:auto; fill:none; stroke:var(--fg-soft);
+  stroke-width:2; stroke-linecap:round; stroke-linejoin:round; transition:transform .16s; }
+.pcat-fgroup:not(.closed) .pcat-fgroup-toggle .caret { transform:rotate(180deg); }
+.pcat-fgroup.closed h4 { margin-bottom:0; }
+.pcat-fgroup-toggle:hover .caret { stroke:var(--envo-blue); }
 .pcat-fgroup h4 .picked { font-size:9.5px; font-weight:700; line-height:1; color:#fff; background:var(--envo-blue);
   min-width:15px; height:15px; padding:0 4px; border-radius:999px; display:inline-flex; align-items:center; justify-content:center; }
 
