@@ -740,10 +740,11 @@ export function buildGroups(cards: CatalogueCard[], familySlug?: string): FacetG
     'control-gear': CONTROL_GEAR_CATEGORY_ORDER,
     'led-drivers': DRIVER_CATEGORY_ORDER,
   }
-  // Drivers pick by connection/dimming TYPE (Screw Terminal / Linear /
-  // Triac Dimmable), so the group heading says so; elsewhere "Series".
+  // Drivers pick by connection/dimming TYPE and control gear by FUNCTION
+  // type, so those group headings say "Type"; signage keeps "Series"
+  // (Mini/Eco/Pro… genuinely are series).
   const seriesGroup = () => {
-    const label = familySlug === 'led-drivers' ? 'Type' : 'Series'
+    const label = familySlug === 'led-drivers' || familySlug === 'control-gear' ? 'Type' : 'Series'
     const order = familySlug ? CATEGORY_ORDERS[familySlug] : undefined
     return order
       ? group('series', label, cards, (v) => v, (v) => {
