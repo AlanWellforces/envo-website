@@ -2643,7 +2643,9 @@
       box-shadow: none;
     }
     body.sidebar-collapsed .sidebar-link .sidebar-icon { position: relative; z-index: 1; }
-    body.sidebar-collapsed .sidebar-collapse-btn { align-self: center; margin-left: 0; }
+    /* margin: 0 kills the expanded state's 12px right margin too — leaving
+       it shifts the "centered" button 6px left of the icon column. */
+    body.sidebar-collapsed .sidebar-collapse-btn { align-self: center; margin: 0; }
     body.sidebar-collapsed .sidebar-collapse-icon { transform: rotate(180deg); }
     body.sidebar-collapsed .top-subnav { left: var(--sidebar-w-collapsed); }
     /* Match the sidebar's slide curve */
