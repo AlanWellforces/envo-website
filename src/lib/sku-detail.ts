@@ -308,7 +308,12 @@ export function buildSkuDetailProps(
     // exact facts for THIS SKU, never series-wide ranges
     keySpecs: solo.keySpecs,
     datasheetUrl: solo.datasheetUrl,
-    downloads: solo.datasheetUrl ? [{ name: `${product.sku} datasheet`, meta: 'PDF', href: solo.datasheetUrl }] : [],
+    // One datasheet covers every CCT variant of a model, so the download label
+    // drops the -NW/-WW/-CW suffix (H1/crumb keep the full SKU). Functional
+    // suffixes (-TDM, -RGB, …) are distinct products and stay.
+    downloads: solo.datasheetUrl
+      ? [{ name: `${product.sku.replace(/-(NW|WW|CW)$/, '')} datasheet`, meta: 'PDF', href: solo.datasheetUrl }]
+      : [],
     solutions,
     // hero gallery shows only THIS product (user 2026-07-08): stage = its own
     // image; the thumb strip stays — own tile + any editorial scene photos,
