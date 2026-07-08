@@ -70,20 +70,30 @@ export function signageSeriesCategory(code: string | null | undefined): string |
 }
 
 // Old-envo CONTROL GEAR categories (Remote & Receiver / Signal Converter /
-// Sensor / Zigbee & Smart). On the old site these split the range by
-// FUNCTION, not by series (all four collections are EV-ZB* zigbee SKUs;
-// "Zigbee & Smart" is an empty catch-all there) — so classification is
-// name/family-based. Rule order matters: "Blinds Controller" is a converter,
-// not a remote. "conveter" covers a live PIM typo (EV-ZBDA-2421).
+// Sensor / Zigbee & Smart). On the old site the first three split the range
+// by FUNCTION (name-based — the PIM has no structured attribute), while
+// "Zigbee & Smart" (collection handle `zigbee-controller`) is the WHOLE
+// zigbee range — a superset view, so a product carries it IN ADDITION to
+// its function category. Rule order matters: "Blinds Controller" is a
+// converter, not a remote. "conveter" covers a live PIM typo (EV-ZBDA-2421).
 export const CONTROL_GEAR_CATEGORY_ORDER = [
   'Remote & Receiver', 'Signal Converter', 'Sensor', 'Zigbee & Smart',
 ]
-export function controlGearCategory(p: { name?: string | null; family?: string | null }): string {
+export function controlGearCategories(p: {
+  name?: string | null
+  family?: string | null
+  series?: string | null
+}): string[] {
   const n = p.name ?? ''
-  if (p.family === 'sensor' || /sensor/i.test(n)) return 'Sensor'
-  if (/switch|dimmer|convert|conveter|blinds/i.test(n)) return 'Signal Converter'
-  if (/remote|controller|gateway|hub|receiver/i.test(n)) return 'Remote & Receiver'
-  return 'Zigbee & Smart'
+  const fn =
+    p.family === 'sensor' || /sensor/i.test(n) ? 'Sensor'
+    : /switch|dimmer|convert|conveter|blinds/i.test(n) ? 'Signal Converter'
+    : /remote|controller|gateway|hub|receiver/i.test(n) ? 'Remote & Receiver'
+    : null
+  const zigbee = p.series === 'envo_zigbee' || /zigbee/i.test(n)
+  const cats = fn ? [fn] : []
+  if (zigbee) cats.push('Zigbee & Smart')
+  return cats.length ? cats : ['Zigbee & Smart']
 }
 
 export function seriesSlug(code: string | null | undefined): string {

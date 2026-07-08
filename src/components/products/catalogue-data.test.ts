@@ -169,7 +169,7 @@ describe('per-family filter groups', () => {
     expect(groups[0].options).toHaveLength(2)
   })
 
-  it('per-SKU pages put the series picker first (BounceLED-style)', () => {
+  it('per-SKU pages put the series picker first', () => {
     const skuCards = [
       p({ sku: 'A1', name: 'Envo A1 LED Driver 30W 12V', series: 'envo_se_us', operation_mode: 'cv', power_w: 30, output_voltage_v: 12 }),
       p({ sku: 'B1', name: 'Envo B1 LED Driver 300W 24V', series: 'envo_sng', operation_mode: 'cv', power_w: 300, output_voltage_v: 24 }),

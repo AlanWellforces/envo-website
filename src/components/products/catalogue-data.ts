@@ -7,7 +7,7 @@ import {
   groupSeriesIntoSections,
   type Product,
 } from '@/lib/products'
-import { seriesSlug, seriesLabel, seriesLineArt, seriesSectionTitle, signageSeriesCategory, SIGNAGE_CATEGORY_ORDER, controlGearCategory, CONTROL_GEAR_CATEGORY_ORDER } from '@/data/family-map'
+import { seriesSlug, seriesLabel, seriesLineArt, seriesSectionTitle, signageSeriesCategory, SIGNAGE_CATEGORY_ORDER, controlGearCategories, CONTROL_GEAR_CATEGORY_ORDER } from '@/data/family-map'
 import { SERIES_BLURBS, LED_CONFIG_OPTIONS } from '@/data/series-applications'
 import { catalogueSeriesMeta } from '@/data/series-catalogue-meta'
 import { formatDims } from '@/lib/units'
@@ -467,11 +467,12 @@ function skuCard(
 ): CatalogueCard {
   const familyLabel = family.tag.split('·')[0].trim()
   const img = resolveProductImage(p, seriesLineArt(p.series, family.slug))
-  // Control gear groups by FUNCTION category (old-menu Remote & Receiver /
-  // Signal Converter / Sensor…) — every product classifies, even the
-  // null-series sensors. Elsewhere: no series → no series facet (an "Other"
-  // option makes no sense in the picker).
-  if (family.slug === 'control-gear') parts.facets.series = [controlGearCategory(p)]
+  // Control gear groups by the old-menu categories: a FUNCTION category
+  // (Remote & Receiver / Signal Converter / Sensor) PLUS the range-wide
+  // "Zigbee & Smart" on every zigbee product — every product classifies,
+  // even the null-series sensors. Elsewhere: no series → no series facet
+  // (an "Other" option makes no sense in the picker).
+  if (family.slug === 'control-gear') parts.facets.series = controlGearCategories(p)
   else if (p.series) parts.facets.series = [seriesFilterName(family.slug, p.series)]
   parts.facets.family = [family.name] // Category picker on the all-families index
   return {

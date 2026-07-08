@@ -111,13 +111,15 @@ const NAVIGATE: NavItem[] = [
         <circle cx="9" cy="17" r="2" />
       </svg>
     ),
-    // Old-menu FUNCTION categories (controlGearCategory in family-map). The
-    // old site's 4th entry "Zigbee & Smart" is an empty catch-all there and
-    // classifies zero visible products here — it joins when it has stock.
+    // Old-menu categories (controlGearCategories in family-map): three
+    // FUNCTION splits + "Zigbee & Smart" = the whole zigbee range (the old
+    // site's zigbee-controller collection), which every zigbee product
+    // carries in addition to its function category.
     children: [
       { slug: 'remote', href: '/products/control-gear?series=Remote%20%26%20Receiver', label: 'Remote & Receiver' },
       { slug: 'converter', href: '/products/control-gear?series=Signal%20Converter', label: 'Signal Converter' },
       { slug: 'sensor', href: '/products/control-gear?series=Sensor', label: 'Sensor' },
+      { slug: 'zigbee', href: '/products/control-gear?series=Zigbee%20%26%20Smart', label: 'Zigbee & Smart' },
     ],
   },
   {
