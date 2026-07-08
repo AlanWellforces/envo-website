@@ -1,5 +1,6 @@
 import type { Metadata } from 'next'
 import Link from 'next/link'
+import { Suspense } from 'react'
 import { notFound } from 'next/navigation'
 import { PRODUCT_FAMILIES } from '@/data/product-families'
 import { getProductsByMarketingFamily, countProductsByMarketingFamily } from '@/lib/products'
@@ -74,13 +75,16 @@ export default async function ProductFamilyPage({ params }: { params: Params }) 
           </div>
         </div>
 
-        <CatalogueFilter
-          cards={cards}
-          groups={groups}
-          resultKind={resultKind}
-          layout={layout}
-          showSections
-        />
+        {/* Suspense: CatalogueFilter reads useSearchParams (deep-linkable filters) */}
+        <Suspense>
+          <CatalogueFilter
+            cards={cards}
+            groups={groups}
+            resultKind={resultKind}
+            layout={layout}
+            showSections
+          />
+        </Suspense>
       </div>
     </div>
   )

@@ -1,4 +1,5 @@
 import Link from 'next/link'
+import { Suspense } from 'react'
 import type { Metadata } from 'next'
 import { PRODUCT_FAMILIES } from '@/data/product-families'
 import { getProductsByMarketingFamily } from '@/lib/products'
@@ -55,7 +56,10 @@ export default async function ProductsPage() {
           </div>
         </div>
 
-        <CatalogueFilter cards={cards} groups={groups} resultKind="products" layout="productGrid" showSections />
+        {/* Suspense: CatalogueFilter reads useSearchParams (deep-linkable filters) */}
+        <Suspense>
+          <CatalogueFilter cards={cards} groups={groups} resultKind="products" layout="productGrid" showSections />
+        </Suspense>
       </div>
     </div>
   )

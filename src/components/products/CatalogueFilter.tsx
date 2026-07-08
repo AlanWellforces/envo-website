@@ -1,8 +1,9 @@
 'use client'
 
-import { useMemo, useState } from 'react'
+import { useEffect, useMemo, useState } from 'react'
 import Image from 'next/image'
 import Link from 'next/link'
+import { useSearchParams } from 'next/navigation'
 import type { CatalogueCard, FacetGroup } from './catalogue-data'
 
 export type { CatalogueCard, FacetGroup, FacetOption } from './catalogue-data'
@@ -32,6 +33,28 @@ export function CatalogueFilter({
 }: Props) {
   const [selected, setSelected] = useState<Record<string, Set<string>>>({})
   const [query, setQuery] = useState('')
+  // Deep-linkable filters: any facet group can be pre-selected via a URL
+  // param named after its key (e.g. /products/led-signage-modules?series=
+  // Mini+Series, comma-separated for multiple) — what the sidebar submenu
+  // "collections" link to. useSearchParams is reactive, so clicking another
+  // collection link while already on the page re-applies the filter (the
+  // consumer pages wrap this component in <Suspense> as Next requires).
+  // Unknown keys/values are ignored; hand-toggling filters afterwards works
+  // as normal.
+  const searchParams = useSearchParams()
+  useEffect(() => {
+    const fromUrl: Record<string, Set<string>> = {}
+    for (const g of groups) {
+      const raw = searchParams.get(g.key)
+      if (!raw) continue
+      const valid = new Set(g.options.map((o) => o.value))
+      const picks = raw.split(',').filter((v) => valid.has(v))
+      if (picks.length) fromUrl[g.key] = new Set(picks)
+    }
+    if (Object.keys(fromUrl).length) setSelected(fromUrl)
+    // groups are stable per page; re-sync whenever the URL params change.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [searchParams])
   // Accordion rail (user 2026-07-08): only the lead group (Series/Category)
   // opens by default — the rest collapse so the rail stays short. A group
   // with picks stays visible via its count badge even while closed.

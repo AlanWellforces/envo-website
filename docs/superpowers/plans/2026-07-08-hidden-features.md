@@ -25,18 +25,19 @@ Notes:
   nothing to hide.
 - Restore trigger: accessories stocked in Akeneo + synced.
 
-## 2. Sidebar series submenus (hidden 2026-07-08 — nav kept minimal at launch)
+## 2. Sidebar series submenus — RESTORED 2026-07-08 (filter-collection links)
 
-Disclosure submenus (parent rows toggle open, curated series children +
-"View all") are fully built but off.
+Re-enabled the same day as filter-collection links: children mirror each
+family page's Series FILTER options and deep-link to the pre-filtered view
+(`?series=<exact filter value>`; CatalogueFilter reads URL params via
+useSearchParams — consumers wrapped in `<Suspense>`). Keep children in
+lockstep with the filter options when range gating changes.
 
-| Where | File | How |
+Still partially hidden:
+
+| What | Why | Restore |
 |---|---|---|
-| Whole feature | `src/components/layout/sidebar.tsx` | `SHOW_NAV_SUBMENUS = false` → `true` |
-
-⚠️ Before re-enabling: re-verify every child slug returns 200. The range
-gating below hides `sc_envo` / `sr_triac` / `envo_casambi` — their submenu
-children ("Standard Range", "DALI Modules", "Casambi") would 404 while gated.
+| Control Gear submenu | only ONE visible series after range gating (Zigbee) — a 1-item dropdown is noise | add `children` back in sidebar.tsx when more control-gear ranges un-gate |
 
 ## 3. Sidebar supply-channel selector (hidden pre-2026-07-08)
 
