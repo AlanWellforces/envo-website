@@ -90,6 +90,11 @@ const SPEC_REPEAT_PATTERNS: RegExp[] = [
   /^constant (voltage|current) led driver\b/i, // model summary repeats W/V/A
   /(compliance|conform|meets?).{0,30}(safety regulations|standards)/i,
   /^in compliance with iec/i, // standards row carries certifications
+  // signage boilerplate (user 2026-07-09): identical on every series page —
+  // QA fluff, cert lists (standards row repeat), operation-mode repeat
+  /100% testing/i,
+  /certifications? from (ce|ul|rohs|t[uü]v|bis|cb)/i,
+  /^constant (voltage|current)( system)?: /i,
 ]
 
 const decode = (s: string) =>
@@ -141,15 +146,19 @@ export function parseOverview(description: string | null | undefined): OverviewC
     if (features.length >= 8) return
     if (SPEC_REPEAT_PATTERNS.some((p) => p.test(text))) return
     if (features.some((f) => (f.label ? `${f.label}: ${f.text}` : f.text) === text)) return
-    // "Label: detail" bullets keep the label bold in the grid
-    const lm = text.match(/^([A-Z][^:]{2,38}):\s+(.{3,})$/)
+    // "Label: detail" bullets keep the label bold in the grid; labels may
+    // start with a digit ("20 Pieces Per String: …")
+    const lm = text.match(/^([A-Z0-9][^:]{2,38}):\s+(.{3,})$/)
     if (lm) features.push({ label: lm[1], text: lm[2] })
     else features.push({ text })
   }
 
   for (const b of blocks) {
     if (b.tag === 'h2') {
-      if (!out.headline && !/^features:?$/i.test(b.text) && b.text.length <= 60) out.headline = b.text
+      // section labels ("Key Features:", "Application:") are not headlines —
+      // real marketing h2s never end with a colon
+      if (!out.headline && !/^(key\s+)?features$/i.test(b.text) && !/:$/.test(b.text) && b.text.length <= 60)
+        out.headline = b.text
       continue
     }
     if (b.tag === 'li') {
@@ -158,7 +167,7 @@ export function parseOverview(description: string | null | undefined): OverviewC
     }
     // paragraphs: "Label: detail" boilerplate reads as a feature; the first
     // substantial prose paragraph becomes the lede (first two sentences)
-    if (/^[A-Z][^:]{2,38}:\s+\S/.test(b.text) && b.text.length < 220) {
+    if (/^[A-Z0-9][^:]{2,38}:\s+\S/.test(b.text) && b.text.length < 220) {
       pushFeature(b.text)
     } else if (!out.lede && b.text.length > 60) {
       out.lede = (b.text.match(/[^.!?]+[.!?]+/g)?.slice(0, 2).map((s) => s.trim()).join(' ') ?? b.text).trim()
