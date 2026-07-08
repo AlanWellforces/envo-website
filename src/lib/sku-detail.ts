@@ -176,19 +176,65 @@ const clause = (t: string) => (PROPER_START.test(t) ? t : t.charAt(0).toLowerCas
 const sentence = (parts: string[], lead: string) =>
   `${lead} ${parts.slice(0, -1).join(', ')}${parts.length > 1 ? ' and ' : ''}${parts[parts.length - 1]}.`
 
-/** Weave the distilled content into short natural paragraphs (SEO prose —
- *  user 2026-07-08: the check-grid read as a second key-spec block). */
-export function overviewParagraphs(ov: OverviewContent): string[] {
+/** Weave the distilled content into short application-led paragraphs (user
+ *  2026-07-08, reference: old-trade-site product descriptions — "if you need
+ *  a lot of light, this is the module for the job"). Composed strictly from
+ *  PIM copy + spec fields; nothing invented. */
+export function overviewParagraphs(
+  ov: OverviewContent,
+  ctx: { familySlug: string; product: Product; solutions: MergedSolution[] },
+): string[] {
+  const { familySlug, product: p, solutions } = ctx
   const paras: string[] = []
-  if (ov.lede) paras.push(ov.lede)
+  const ip = p.waterproof && /^ip\d+$/i.test(p.waterproof) ? p.waterproof.toUpperCase() : null
 
+  // P1 — positioning: the PIM's own lede when it has one, else composed from
+  // what the product IS.
+  if (ov.lede) {
+    paras.push(ov.lede)
+  } else if (familySlug === 'led-drivers') {
+    const mode = p.operation_mode === 'cc' ? 'constant-current' : 'constant-voltage'
+    const sealed = ip && Number(ip.slice(2)) >= 65 // "sealed" claims need real sealing
+    const bits = [
+      p.power_w != null ? `${p.power_w} W` : null,
+      `${mode} LED driver`,
+      p.output_voltage_v != null ? `with a ${p.output_voltage_v} V DC output` : null,
+    ].filter(Boolean)
+    paras.push(`The ${p.sku} is a ${bits.join(' ')}${sealed ? `, sealed to ${ip}` : ''}.`)
+  } else if (familySlug === 'control-gear') {
+    const n = p.name
+    const job = /sensor/i.test(n) ? 'occupancy and daylight automation'
+      : /remote/i.test(n) ? 'wireless scene control'
+      : /gateway|smart hub/i.test(n) ? 'connecting your lighting to the wider network'
+      : /dimmer/i.test(n) ? 'smooth dimming control'
+      : /switch|panel/i.test(n) ? 'wall-point lighting control'
+      : 'precise lighting control'
+    paras.push(`Use the ${p.sku} to bring ${job} to your installation.`)
+  }
+
+  // P2 — where it earns its keep: the same applications the Where-it-works
+  // band derives, woven into one sentence with the strongest spec as anchor.
+  // Applications the positioning sentence already named get no encore.
+  const said = (paras[0] ?? '').toLowerCase()
+  const fresh = solutions.filter((s) => !said.includes(s.title.replace(/\s*&\s*/g, ' and ').toLowerCase()))
+  if (fresh.length) {
+    const apps = fresh.slice(0, 4).map((s) => clause(s.title.replace(/\s*&\s*/g, ' and ')))
+    const anchor = ip && Number(ip.slice(2)) >= 65 ? `With its ${ip}-sealed build, it`
+      : p.dimming_control?.includes('triac') || /triac[- ]?dim/i.test(p.name) ? 'With Triac phase dimming on board, it'
+      : p.operation_mode !== 'cc' && (p.output_voltage_v === 12 || p.output_voltage_v === 24)
+        ? `Running on ${p.output_voltage_v} V constant voltage, it`
+        : 'It'
+    paras.push(`${anchor} is built for ${apps.slice(0, -1).join(', ')}${apps.length > 1 ? ' and ' : ''}${apps[apps.length - 1]}.`)
+  }
+
+  // P3 — what backs that up: the genuine differentiators in one flowing line.
   const plain = (ov.features ?? []).filter((f) => !f.label).map((f) => clause(f.text))
   if (plain.length) {
     const first = plain.slice(0, 4)
     const rest = plain.slice(4)
-    let p = sentence(first, 'Key advantages include')
-    if (rest.length) p += ` ${sentence(rest, 'It also offers')}`
-    paras.push(p)
+    let para = sentence(first, 'Backing that up:')
+    if (rest.length) para += ` ${sentence(rest, 'It also offers')}`
+    paras.push(para)
   }
 
   // "Label: detail" boilerplate reads naturally as its own short sentences.
@@ -242,6 +288,10 @@ export function buildSkuDetailProps(
     .replace(/\s{2,}/g, ' ')
     .trim()
 
+  // 'Where it works' — editorial when authored, else derived from the
+  // product's own copy + specs; also anchors the Overview's application prose.
+  const solutions = base.solutions?.length ? base.solutions : deriveSolutions(family.slug, product)
+
   return {
     ...base,
     breadcrumb: { ...base.breadcrumb, seriesLabel: product.sku },
@@ -252,16 +302,14 @@ export function buildSkuDetailProps(
     overview: overviewContent
       ? {
           heading: overviewContent.headline ?? `About the ${product.sku}.`,
-          paragraphs: overviewParagraphs(overviewContent),
+          paragraphs: overviewParagraphs(overviewContent, { familySlug: family.slug, product, solutions }),
         }
       : undefined,
     // exact facts for THIS SKU, never series-wide ranges
     keySpecs: solo.keySpecs,
     datasheetUrl: solo.datasheetUrl,
     downloads: solo.datasheetUrl ? [{ name: `${product.sku} datasheet`, meta: 'PDF', href: solo.datasheetUrl }] : [],
-    // 'Where it works' — editorial when authored, else derived from the
-    // product's own copy + specs (user 2026-07-08).
-    solutions: base.solutions?.length ? base.solutions : deriveSolutions(family.slug, product),
+    solutions,
     // hero gallery shows only THIS product (user 2026-07-08): stage = its own
     // image; the thumb strip stays — own tile + any editorial scene photos,
     // never sibling-model tiles

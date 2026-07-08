@@ -74,10 +74,11 @@ describe('buildSkuDetailProps', () => {
     })
     const ov = buildSkuDetailProps(DRIVERS, p, [p]).overview!
     expect(ov.heading).toBe('About the EV-D-1.')
-    // title + short natural paragraphs (user 2026-07-08) — no check-grid
+    // title + short application-led paragraphs (user 2026-07-08) — no check-grid
     expect(ov.paragraphs).toEqual([
       'The EV-D-1 is a robust driver built for signage. It runs cool and quiet.', // lede = first 2 sentences
-      'Key advantages include maximum conversion efficiency of 86%.', // spec repeats dropped
+      'It is built for street and area lighting, signage systems and indoor installations.', // application angle
+      'Backing that up: maximum conversion efficiency of 86%.', // spec repeats dropped
       'Installation notes: do not install with power applied.',
     ])
   })
