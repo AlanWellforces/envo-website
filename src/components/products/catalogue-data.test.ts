@@ -155,7 +155,18 @@ describe('per-family filter groups', () => {
       p({ sku: 'ZB-2', name: 'ENVO ZigBee Classic Remote Single Colour - 4 Zones', family: 'psu_led_controller', series: 'envo_zigbee', dimming_control: ['zigbee'] }),
     ]
     const groups = buildGroups(buildCards(CONTROL, controlProducts), 'control-gear')
-    expect(groups.map((g) => g.key)).toEqual(['protocol', 'function', 'controltype', 'channels'])
+    expect(groups.map((g) => g.key)).toEqual(['series', 'protocol', 'function', 'controltype', 'channels'])
+  })
+
+  it('signage puts the series picker first too', () => {
+    const SIGNAGE = PRODUCT_FAMILIES.find((f) => f.slug === 'led-signage-modules')!
+    const cards = buildCards(SIGNAGE, [
+      p({ sku: 'EV-A', series: 'envo_ecoglo', cct_k: 4000, length_mm: 40 }),
+      p({ sku: 'EV-B', series: 'envo_minilux', cct_k: 6500, length_mm: 20 }),
+    ])
+    const groups = buildGroups(cards, 'led-signage-modules')
+    expect(groups[0].key).toBe('series')
+    expect(groups[0].options).toHaveLength(2)
   })
 
   it('per-SKU pages put the series picker first (BounceLED-style)', () => {

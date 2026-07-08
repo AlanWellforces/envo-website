@@ -408,6 +408,9 @@ export function buildCards(family: ProductFamily, products: Product[]): Catalogu
         null,
       )
       facets.family = [family.name] // Category picker on the all-families index
+      // Series picker (first filter group, BounceLED-style) — same display
+      // name the card itself carries; no-series buckets earn no option.
+      if (g.code) facets.series = [authored?.title ?? meta?.productName ?? seriesLabel(g.code)]
       const signage = family.slug === 'led-signage-modules'
       cards.push({
         key: `${family.slug}:${g.code ?? 'other'}`,
@@ -659,6 +662,7 @@ export function buildGroups(cards: CatalogueCard[], familySlug?: string): FacetG
         return [seriesGroup()]
       case 'led-signage-modules':
         return [
+          seriesGroup(),
           group('size', 'Size', cards, SIZE.label, SIZE.order),
           group('ledconfig', 'LED configuration', cards, LED.label, LED.order),
           group('brightness', 'Brightness', cards, BRIGHTNESS.label, BRIGHTNESS.order),
