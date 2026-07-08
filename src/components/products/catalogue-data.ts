@@ -7,7 +7,7 @@ import {
   groupSeriesIntoSections,
   type Product,
 } from '@/lib/products'
-import { seriesSlug, seriesLabel, seriesLineArt, seriesSectionTitle } from '@/data/family-map'
+import { seriesSlug, seriesLabel, seriesLineArt, seriesSectionTitle, signageSeriesCategory, SIGNAGE_CATEGORY_ORDER } from '@/data/family-map'
 import { SERIES_BLURBS, LED_CONFIG_OPTIONS } from '@/data/series-applications'
 import { catalogueSeriesMeta } from '@/data/series-catalogue-meta'
 import { formatDims } from '@/lib/units'
@@ -408,9 +408,15 @@ export function buildCards(family: ProductFamily, products: Product[]): Catalogu
         null,
       )
       facets.family = [family.name] // Category picker on the all-families index
-      // Series picker (first filter group, BounceLED-style) — same display
-      // name the card itself carries; no-series buckets earn no option.
-      if (g.code) facets.series = [authored?.title ?? meta?.productName ?? seriesLabel(g.code)]
+      // Series picker (first filter group, BounceLED-style). Signage groups
+      // by customer category (Mini/Eco/Pro/RGB/24V/Sidelit); other families
+      // use the same display name the card itself carries. No-series buckets
+      // earn no option.
+      if (g.code)
+        facets.series = [
+          (family.slug === 'led-signage-modules' ? signageSeriesCategory(g.code) : null) ??
+            authored?.title ?? meta?.productName ?? seriesLabel(g.code),
+        ]
       const signage = family.slug === 'led-signage-modules'
       cards.push({
         key: `${family.slug}:${g.code ?? 'other'}`,
@@ -438,9 +444,15 @@ export function buildCards(family: ProductFamily, products: Product[]): Catalogu
   return cards
 }
 
-/** Series display name for the series filter — the authored catalogue title
- *  when one exists (what the series page/cards call it), else the code label. */
+/** Series display name for the series filter. Signage groups by the old-menu
+ *  CUSTOMER category (Mini / Eco / Pro / RGB / 24V / Sidelit — one category
+ *  can span several internal series); other families use the authored
+ *  catalogue title when one exists, else the code label. */
 function seriesFilterName(familySlug: string, code: string | null): string {
+  if (familySlug === 'led-signage-modules') {
+    const cat = signageSeriesCategory(code)
+    if (cat) return cat
+  }
   return catalogueSeriesMeta(familySlug, code)?.title ?? seriesLabel(code)
 }
 
@@ -710,10 +722,16 @@ function group(
  */
 export function buildGroups(cards: CatalogueCard[], familySlug?: string): FacetGroup[] {
   // Series first (BounceLED-style range picker) on the per-SKU family pages.
-  // Values are display titles (labelFor = identity); options keep the cards'
-  // own order — signage follows the old-menu series order, drivers their
-  // name order — so the picker mirrors the grid.
-  const seriesGroup = () => group('series', 'Series', cards, (v) => v, () => 0)
+  // Values are display titles (labelFor = identity). Signage orders by the
+  // old-menu category order (Mini→Eco→Pro→RGB→24V→Sidelit); other families
+  // keep the cards' own order so the picker mirrors the grid.
+  const seriesGroup = () =>
+    familySlug === 'led-signage-modules'
+      ? group('series', 'Series', cards, (v) => v, (v) => {
+          const i = SIGNAGE_CATEGORY_ORDER.indexOf(v)
+          return i === -1 ? 999 : i
+        })
+      : group('series', 'Series', cards, (v) => v, () => 0)
   const candidates = (() => {
     switch (familySlug) {
       case 'led-drivers':

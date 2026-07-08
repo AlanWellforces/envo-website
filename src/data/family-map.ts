@@ -44,6 +44,31 @@ const SERIES_LABELS: Record<string, string> = {
   archilight_pure_lume: 'Pure Lume',
 }
 
+// Old-envo customer-facing signage CATEGORIES (the menu sign-makers know:
+// Mini / Eco / Pro / RGB / 24V / Sidelit). A category can span several
+// internal series — verified against envo-led.com collections 2026-07-08:
+// Pro = ProGlo + UltraFlare; Sidelit = EdgeBlade + EdgeFlare + EdgeLume.
+// Used by the catalogue Series filter so customers pick by category, not by
+// internal range codenames.
+const SIGNAGE_SERIES_CATEGORY: Record<string, string> = {
+  envo_minilux: 'Mini Series',
+  envo_ecoglo: 'Eco Series',
+  envo_proglo: 'Pro Series',
+  envo_ultraflare: 'Pro Series',
+  envo_chromaflux: 'RGB Series',
+  envo_optilume: '24V Series',
+  envo_edgeblade: 'Sidelit',
+  envo_edgeflare: 'Sidelit',
+  envo_edgelume: 'Sidelit',
+  edge_blade_2: 'Sidelit',
+}
+export const SIGNAGE_CATEGORY_ORDER = [
+  'Mini Series', 'Eco Series', 'Pro Series', 'RGB Series', '24V Series', 'Sidelit',
+]
+export function signageSeriesCategory(code: string | null | undefined): string | null {
+  return code ? SIGNAGE_SERIES_CATEGORY[code] ?? null : null
+}
+
 export function seriesSlug(code: string | null | undefined): string {
   if (!code) return 'other'
   return SERIES_SLUG_OVERRIDES[code] ?? code.replace(/_/g, '-')
