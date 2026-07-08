@@ -297,10 +297,10 @@ export default function MergedSeriesPage(p: MergedSeriesProps) {
   const rowsColCount = 1 + specRows.length + (hasDatasheets ? 1 : 0)
   const specMulti: ReactNode =
     p.variantLayout === 'rows' ? (
+      // No lead heading — the table sits inside the SPECIFICATIONS tab, so a
+      // "N models — full spec reference" banner was pure repetition (user
+      // crossed it out, 2026-07-08).
       <div className="compare">
-        <div className="lead">
-          <h2>{p.variants.length} models — full spec reference.</h2>
-        </div>
         <div className="cmp-tablewrap">
           <table className="cmp-table rows">
             <thead>
