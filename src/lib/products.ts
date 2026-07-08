@@ -142,11 +142,38 @@ export function resolveProductImage(
   return { src: seriesFallback, isLocal: true, alt: product.name }
 }
 
+/** TEMPORARY range gating (user 2026-07-08): the new site only shows ranges
+    the previous envo-led.com storefront actually carries. These series exist
+    in Akeneo but have zero SKUs on the old site (audit 2026-07-08) — drop
+    entries from this list to relaunch a range. The lone null-series driver
+    (KVS) is likewise gated via the family condition below. */
+const RANGES_NOT_ON_OLD_SITE = [
+  'sc_envo', // Standard Driver Range (73)
+  'envo_sng', // SNG waterproof high-power drivers
+  'sr_triac', // SR DALI CC drivers + controllers + switch
+  'envo_casambi',
+  'envo_dali',
+  'envo_sensor',
+  'hydro_lume',
+  'edge_blade_2',
+]
+
 /** The single definition of "publicly visible product". Every public query —
     lists, counts, single lookups (detail page, datasheets, project product
     references) — must spread this in, so hiding a product hides it everywhere. */
 export function visibleProductConditions(): import('payload').Where[] {
-  return [{ enabled: { equals: true } }, { hidden: { equals: false } }]
+  return [
+    { enabled: { equals: true } },
+    { hidden: { equals: false } },
+    {
+      or: [
+        // no series: keep (the old site's loose sensors) — except the KVS driver
+        { and: [{ series: { exists: false } }, { family: { not_equals: 'psu_led_cv' } }] },
+        // named series: must be a range the old site carries
+        { and: [{ series: { exists: true } }, { series: { not_in: RANGES_NOT_ON_OLD_SITE } }] },
+      ],
+    },
+  ]
 }
 
 /** Single visible product by SKU. Returns null if not found or hidden. */
