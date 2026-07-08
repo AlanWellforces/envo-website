@@ -33,16 +33,12 @@ family page's Series FILTER options and deep-link to the pre-filtered view
 useSearchParams — consumers wrapped in `<Suspense>`). Keep children in
 lockstep with the filter options when range gating changes.
 
-Still partially hidden:
-
-| What | Why | Restore |
-|---|---|---|
-| "Zigbee & Smart" control-gear category | the old site's 4th control-gear menu entry is an empty catch-all there, and `controlGearCategory` classifies zero visible products into it today (it will absorb e.g. the DALI wall panels when `sr_triac` un-gates) | add the child to sidebar.tsx control-gear `children` once the category has products (filter option appears automatically) |
-
-Control Gear submenu itself RESTORED later the same day with the old-menu
-FUNCTION categories (Remote & Receiver / Signal Converter / Sensor) — these
-split the range by product function, not by series (verified against the old
-site's collections; classifier = `controlGearCategory` in family-map.ts).
+Control Gear submenu RESTORED later the same day with all four old-menu
+categories: three FUNCTION splits (Remote & Receiver / Signal Converter /
+Sensor) + "Zigbee & Smart" = the whole zigbee range (old site's
+`zigbee-controller` collection — a superset every zigbee product carries in
+addition to its function category). Classifier = `controlGearCategories` in
+family-map.ts. Nothing hidden here any more.
 
 ## 3. Sidebar supply-channel selector (hidden pre-2026-07-08)
 
