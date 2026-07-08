@@ -4,7 +4,7 @@ import MergedSeriesPage from '@/components/products/merged/MergedSeriesPage'
 import { PRODUCT_FAMILIES, type SeriesLink } from '@/data/product-families'
 import { datasheetHref } from '@/lib/asset-url'
 import { formatDims } from '@/lib/units'
-import { getProduct, getProductsByMarketingFamily, type Product } from '@/lib/products'
+import { getProduct, getProductsByMarketingFamily, resolveProductImage, type Product } from '@/lib/products'
 import { seriesSlug as toSeriesSlug } from '@/data/family-map'
 import { buildMergedSeriesProps } from '@/lib/merged-series'
 import { buildSkuDetailProps } from '@/lib/sku-detail'
@@ -42,31 +42,47 @@ export async function generateStaticParams() {
 
 export const dynamicParams = false
 
+// Site-wide share-image fallback — keep in sync with the root layout default.
+const DEFAULT_OG_IMAGE = '/assets/images/hero-signage-poster.jpg'
+
+function detailMetadata(title: string, description: string, canonical: string, image = DEFAULT_OG_IMAGE): Metadata {
+  return {
+    title,
+    description,
+    alternates: { canonical },
+    // Page-level openGraph replaces the root default wholesale — restate siteName/type.
+    openGraph: { type: 'website', siteName: 'ENVO', title, description, url: canonical, images: [{ url: image }] },
+  }
+}
+
 export async function generateMetadata({ params }: { params: Params }): Promise<Metadata> {
   const { slug, series } = await params
   const family = PRODUCT_FAMILIES.find((f) => f.slug === slug)
   if (!family) return {}
+  const canonical = `/products/${slug}/${series}`
   const seriesObj = family.series.find((s): s is LiveSeries => isLive(s) && s.slug === series)
   if (seriesObj) {
-    return { title: `${seriesObj.label} · ${seriesObj.productName} — ENVO`, description: seriesObj.description, alternates: { canonical: `/products/${slug}/${series}` } }
+    return detailMetadata(`${seriesObj.label} · ${seriesObj.productName} — ENVO`, seriesObj.description, canonical)
   }
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const editorial = Object.entries(SERIES_EDITORIAL as Record<string, any>).find(
     ([code]) => toSeriesSlug(code) === series,
   )
-  if (editorial) return { title: `${editorial[1].label} — ENVO`, description: editorial[1].lede, alternates: { canonical: `/products/${slug}/${series}` } }
+  if (editorial) return detailMetadata(`${editorial[1].label} — ENVO`, editorial[1].lede, canonical)
   // SKU detail pages (spec-driven families): title on the product itself.
   if (SKU_DETAIL_FAMILIES.has(slug)) {
     const product = await getProduct(decodeURIComponent(series))
     if (product) {
-      return {
-        title: `${product.name} — ENVO`,
-        description: product.short_description ?? `${product.name} — specifications, datasheet and where to buy.`,
-        alternates: { canonical: `/products/${slug}/${series}` },
-      }
+      const img = resolveProductImage(product, DEFAULT_OG_IMAGE)
+      return detailMetadata(
+        `${product.name} — ENVO`,
+        product.short_description ?? `${product.name} — specifications, datasheet and where to buy.`,
+        canonical,
+        img.src,
+      )
     }
   }
-  return { title: `${family.name} — ENVO`, description: family.longDesc, alternates: { canonical: `/products/${slug}/${series}` } }
+  return detailMetadata(`${family.name} — ENVO`, family.longDesc, canonical)
 }
 
 export default async function SeriesDetailPage({ params }: { params: Params }) {

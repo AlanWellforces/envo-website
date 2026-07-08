@@ -18,11 +18,26 @@ const interTight = localFont({
   weight: '100 900',
 })
 
+const SITE_TITLE = 'ENVO — Engineered Illumination'
+const SITE_DESCRIPTION =
+  'ENVO designs and manufactures professional-grade LED lighting systems that power signage and architectural illumination worldwide.'
+
 export const metadata: Metadata = {
   metadataBase: new URL(process.env.NEXT_PUBLIC_SITE_URL || 'http://localhost:3000'),
-  title: 'ENVO — Engineered Illumination',
-  description:
-    'ENVO designs and manufactures professional-grade LED lighting systems that power signage and architectural illumination worldwide.',
+  title: SITE_TITLE,
+  description: SITE_DESCRIPTION,
+  // Site-wide share-preview fallback (LinkedIn, Slack, WeChat…). Pages with
+  // their own openGraph (blog posts, page-seo overrides) replace this wholesale.
+  openGraph: {
+    type: 'website',
+    siteName: 'ENVO',
+    title: SITE_TITLE,
+    description: SITE_DESCRIPTION,
+    images: [{ url: '/assets/images/hero-signage-poster.jpg', width: 1920, height: 1080, alt: 'ENVO LED signage lighting' }],
+  },
+  twitter: {
+    card: 'summary_large_image',
+  },
   icons: {
     icon: [
       { url: '/assets/images/favicon.svg', type: 'image/svg+xml' },
