@@ -452,7 +452,8 @@ function skuCard(
 ): CatalogueCard {
   const familyLabel = family.tag.split('·')[0].trim()
   const img = resolveProductImage(p, seriesLineArt(p.series, family.slug))
-  parts.facets.series = [seriesFilterName(family.slug, p.series)]
+  // No series → no series facet: an "Other" option makes no sense in the picker.
+  if (p.series) parts.facets.series = [seriesFilterName(family.slug, p.series)]
   parts.facets.family = [family.name] // Category picker on the all-families index
   return {
     key: `${family.slug}:${p.sku}`,
