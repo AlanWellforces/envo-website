@@ -1,6 +1,6 @@
 'use client'
 
-import { useEffect, useMemo, useState } from 'react'
+import { useMemo, useState } from 'react'
 import Image from 'next/image'
 import Link from 'next/link'
 import { useSearchParams } from 'next/navigation'
@@ -50,7 +50,6 @@ export function CatalogueFilter({
   layout = 'rows',
   showSections = false,
 }: Props) {
-  const [selected, setSelected] = useState<Record<string, Set<string>>>({})
   const [query, setQuery] = useState('')
   // Deep-linkable filters: any facet group can be pre-selected via a URL
   // param named after its key (e.g. /products/led-signage-modules?series=
@@ -61,11 +60,7 @@ export function CatalogueFilter({
   // Unknown keys/values are ignored; hand-toggling filters afterwards works
   // as normal.
   const searchParams = useSearchParams()
-  // Serialized snapshot of the URL-preset selection: while the user hasn't
-  // deviated from it, the page is in "collection browse" mode and keeps its
-  // section headings (user 2026-07-08).
-  const [preset, setPreset] = useState('')
-  useEffect(() => {
+  const urlSelection = useMemo(() => {
     const fromUrl: Record<string, Set<string>> = {}
     for (const g of groups) {
       const raw = searchParams.get(g.key)
@@ -74,13 +69,28 @@ export function CatalogueFilter({
       const picks = raw.split(',').filter((v) => valid.has(v))
       if (picks.length) fromUrl[g.key] = new Set(picks)
     }
-    if (Object.keys(fromUrl).length) {
-      setSelected(fromUrl)
-      setPreset(serializeSelection(fromUrl))
-    }
-    // groups are stable per page; re-sync whenever the URL params change.
+    return fromUrl
+    // groups are stable per page; re-parse whenever the URL params change.
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [searchParams])
+
+  const [selected, setSelected] = useState<Record<string, Set<string>>>(urlSelection)
+  // Serialized snapshot of the URL-preset selection: while the user hasn't
+  // deviated from it, the page is in "collection browse" mode and keeps its
+  // section headings (user 2026-07-08).
+  const [preset, setPreset] = useState(() => serializeSelection(urlSelection))
+  // A fresh navigation (new searchParams instance) re-applies the URL preset;
+  // between navigations the user's manual toggles own the state. Same
+  // dependency the old effect used, moved to an adjust-state-during-render
+  // pass so no setState runs inside an effect.
+  const [appliedParams, setAppliedParams] = useState(searchParams)
+  if (appliedParams !== searchParams) {
+    setAppliedParams(searchParams)
+    if (Object.keys(urlSelection).length) {
+      setSelected(urlSelection)
+      setPreset(serializeSelection(urlSelection))
+    }
+  }
   // Accordion rail (user 2026-07-08): only the lead group (Series/Category)
   // opens by default — the rest collapse so the rail stays short. A group
   // with picks stays visible via its count badge even while closed.
