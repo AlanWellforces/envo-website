@@ -7,7 +7,7 @@ import {
   groupSeriesIntoSections,
   type Product,
 } from '@/lib/products'
-import { seriesSlug, seriesLabel, seriesLineArt, seriesSectionTitle, signageSeriesCategory, SIGNAGE_CATEGORY_ORDER } from '@/data/family-map'
+import { seriesSlug, seriesLabel, seriesLineArt, seriesSectionTitle, signageSeriesCategory, SIGNAGE_CATEGORY_ORDER, controlGearCategory, CONTROL_GEAR_CATEGORY_ORDER } from '@/data/family-map'
 import { SERIES_BLURBS, LED_CONFIG_OPTIONS } from '@/data/series-applications'
 import { catalogueSeriesMeta } from '@/data/series-catalogue-meta'
 import { formatDims } from '@/lib/units'
@@ -408,7 +408,7 @@ export function buildCards(family: ProductFamily, products: Product[]): Catalogu
         null,
       )
       facets.family = [family.name] // Category picker on the all-families index
-      // Series picker (first filter group, BounceLED-style). Signage groups
+      // Series picker (first filter group). Signage groups
       // by customer category (Mini/Eco/Pro/RGB/24V/Sidelit); other families
       // use the same display name the card itself carries. No-series buckets
       // earn no option.
@@ -458,7 +458,7 @@ function seriesFilterName(familySlug: string, code: string | null): string {
 
 /** Common per-SKU catalogue-card shell. Family builders supply the derived
  *  desc/facts/facets/section; image, chips, CTA and identity are shared.
- *  Every SKU card also carries a `series` facet (BounceLED-style range
+ *  Every SKU card also carries a `series` facet (range
  *  filter — first group in the sidebar). */
 function skuCard(
   family: ProductFamily,
@@ -467,8 +467,12 @@ function skuCard(
 ): CatalogueCard {
   const familyLabel = family.tag.split('·')[0].trim()
   const img = resolveProductImage(p, seriesLineArt(p.series, family.slug))
-  // No series → no series facet: an "Other" option makes no sense in the picker.
-  if (p.series) parts.facets.series = [seriesFilterName(family.slug, p.series)]
+  // Control gear groups by FUNCTION category (old-menu Remote & Receiver /
+  // Signal Converter / Sensor…) — every product classifies, even the
+  // null-series sensors. Elsewhere: no series → no series facet (an "Other"
+  // option makes no sense in the picker).
+  if (family.slug === 'control-gear') parts.facets.series = [controlGearCategory(p)]
+  else if (p.series) parts.facets.series = [seriesFilterName(family.slug, p.series)]
   parts.facets.family = [family.name] // Category picker on the all-families index
   return {
     key: `${family.slug}:${p.sku}`,
@@ -721,17 +725,23 @@ function group(
  * before. Driver facets must never leak onto other families.
  */
 export function buildGroups(cards: CatalogueCard[], familySlug?: string): FacetGroup[] {
-  // Series first (BounceLED-style range picker) on the per-SKU family pages.
+  // Series first (range-first picker) on the per-SKU family pages.
   // Values are display titles (labelFor = identity). Signage orders by the
   // old-menu category order (Mini→Eco→Pro→RGB→24V→Sidelit); other families
   // keep the cards' own order so the picker mirrors the grid.
-  const seriesGroup = () =>
-    familySlug === 'led-signage-modules'
+  const CATEGORY_ORDERS: Record<string, string[]> = {
+    'led-signage-modules': SIGNAGE_CATEGORY_ORDER,
+    'control-gear': CONTROL_GEAR_CATEGORY_ORDER,
+  }
+  const seriesGroup = () => {
+    const order = familySlug ? CATEGORY_ORDERS[familySlug] : undefined
+    return order
       ? group('series', 'Series', cards, (v) => v, (v) => {
-          const i = SIGNAGE_CATEGORY_ORDER.indexOf(v)
+          const i = order.indexOf(v)
           return i === -1 ? 999 : i
         })
       : group('series', 'Series', cards, (v) => v, () => 0)
+  }
   const candidates = (() => {
     switch (familySlug) {
       case 'led-drivers':
@@ -763,7 +773,7 @@ export function buildGroups(cards: CatalogueCard[], familySlug?: string): FacetG
           group('cct', 'Colour temp (CCT)', cards, (v) => `${v} K`, (v) => Number(v)),
         ]
       default: {
-        // /products (all families) — category picker first (BounceLED-style),
+        // /products (all families) — category picker first,
         // then the generic adaptive set. Family order follows the site nav.
         const FAMILY_ORDER = ['Signage Modules', 'LED Drivers', 'Control Gear', 'Accessories']
         return [

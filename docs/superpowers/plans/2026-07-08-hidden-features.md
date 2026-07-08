@@ -37,7 +37,12 @@ Still partially hidden:
 
 | What | Why | Restore |
 |---|---|---|
-| Control Gear submenu | only ONE visible series after range gating (Zigbee) — a 1-item dropdown is noise | add `children` back in sidebar.tsx when more control-gear ranges un-gate |
+| "Zigbee & Smart" control-gear category | the old site's 4th control-gear menu entry is an empty catch-all there, and `controlGearCategory` classifies zero visible products into it today (it will absorb e.g. the DALI wall panels when `sr_triac` un-gates) | add the child to sidebar.tsx control-gear `children` once the category has products (filter option appears automatically) |
+
+Control Gear submenu itself RESTORED later the same day with the old-menu
+FUNCTION categories (Remote & Receiver / Signal Converter / Sensor) — these
+split the range by product function, not by series (verified against the old
+site's collections; classifier = `controlGearCategory` in family-map.ts).
 
 ## 3. Sidebar supply-channel selector (hidden pre-2026-07-08)
 

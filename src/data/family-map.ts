@@ -69,6 +69,23 @@ export function signageSeriesCategory(code: string | null | undefined): string |
   return code ? SIGNAGE_SERIES_CATEGORY[code] ?? null : null
 }
 
+// Old-envo CONTROL GEAR categories (Remote & Receiver / Signal Converter /
+// Sensor / Zigbee & Smart). On the old site these split the range by
+// FUNCTION, not by series (all four collections are EV-ZB* zigbee SKUs;
+// "Zigbee & Smart" is an empty catch-all there) — so classification is
+// name/family-based. Rule order matters: "Blinds Controller" is a converter,
+// not a remote. "conveter" covers a live PIM typo (EV-ZBDA-2421).
+export const CONTROL_GEAR_CATEGORY_ORDER = [
+  'Remote & Receiver', 'Signal Converter', 'Sensor', 'Zigbee & Smart',
+]
+export function controlGearCategory(p: { name?: string | null; family?: string | null }): string {
+  const n = p.name ?? ''
+  if (p.family === 'sensor' || /sensor/i.test(n)) return 'Sensor'
+  if (/switch|dimmer|convert|conveter|blinds/i.test(n)) return 'Signal Converter'
+  if (/remote|controller|gateway|hub|receiver/i.test(n)) return 'Remote & Receiver'
+  return 'Zigbee & Smart'
+}
+
 export function seriesSlug(code: string | null | undefined): string {
   if (!code) return 'other'
   return SERIES_SLUG_OVERRIDES[code] ?? code.replace(/_/g, '-')
@@ -79,7 +96,7 @@ export function seriesCodeFromSlug(slug: string): string | null {
   return SLUG_TO_CODE[slug] ?? slug.replace(/-/g, '_')
 }
 
-// Brand line-art tile per series (matches the original BOUNCE family-card look).
+// Brand line-art tile per series (uniform brand tile per series).
 // Per-series art where it exists; otherwise the family's category line-art.
 const SERIES_LINE_ART: Record<string, string> = {
   envo_minilux: '/assets/images/mod-mini-line.png',
