@@ -489,7 +489,7 @@ export function Sidebar() {
                 className="sidebar-region"
                 aria-haspopup="listbox"
                 aria-expanded={regionOpen}
-                aria-label={`Supply channel: ${currentChannel.channelLabel}. Click to change.`}
+                aria-label={`Supply channel: ${currentChannel.regionLabel}. Click to change.`}
                 onClick={(e) => {
                   e.stopPropagation()
                   setRegionOpen((o) => !o)
@@ -500,7 +500,7 @@ export function Sidebar() {
                   <circle cx="12" cy="10" r="2.6" />
                 </svg>
                 <span className="sidebar-region-body">
-                  <span className="sidebar-region-value">{currentChannel.channelLabel}</span>
+                  <span className="sidebar-region-value">{currentChannel.regionLabel}</span>
                 </span>
                 <svg
                   className={cn('sidebar-region-caret', regionOpen && 'flip')}
@@ -526,7 +526,7 @@ export function Sidebar() {
                         onClick={() => pickRegion(channel.id)}
                       >
                         <span className="sidebar-region-option-body">
-                          <span className="sidebar-region-option-name">{channel.channelLabel}</span>
+                          <span className="sidebar-region-option-name">{channel.regionLabel}</span>
                         </span>
                         {active && (
                           <svg className="sidebar-region-option-check" viewBox="0 0 24 24" aria-hidden="true">

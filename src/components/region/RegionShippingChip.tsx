@@ -1,5 +1,5 @@
 // Home-hero supply chip. ENVO's positioning is global supply through
-// authorised purchasing channels, so this is a fixed brand statement — it is
+// authorised supply channels, so this is a fixed brand statement — it is
 // deliberately NOT region-derived and names no country.
 
 export function RegionShippingChip() {
@@ -9,7 +9,7 @@ export function RegionShippingChip() {
         <circle cx="12" cy="12" r="9" />
         <path d="M3 12h18M12 3c2.6 2.8 2.6 15.2 0 18M12 3c-2.6 2.8-2.6 15.2 0 18" />
       </svg>{' '}
-      Supplied through authorised purchasing channels worldwide
+      Supplied through authorised channels worldwide
     </span>
   )
 }

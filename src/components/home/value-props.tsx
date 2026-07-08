@@ -36,7 +36,7 @@ const PROPS = [
   },
   {
     t: 'Channel-backed Availability',
-    d: 'Authorised purchasing channels help customers source ENVO components for projects worldwide.',
+    d: 'Authorised supply channels help customers source ENVO components for projects worldwide.',
     icon: (
       <>
         <circle cx="12" cy="12" r="9" />

@@ -10,6 +10,8 @@ export type { CatalogueCard, FacetGroup, FacetOption } from './catalogue-data'
 type Props = {
   cards: CatalogueCard[]
   groups: FacetGroup[]
+  resultKind?: 'series' | 'products'
+  layout?: 'rows' | 'productGrid'
   /** Group the results under their section headings (e.g. CV / CC drivers)
    *  while no filter or search is active; any active filter flattens the list. */
   showSections?: boolean
@@ -21,9 +23,16 @@ type Props = {
  * group intersect the selected set (so a card lacking a value for an active
  * facet is excluded), and the query (if any) appears in its name/family.
  */
-export function CatalogueFilter({ cards, groups, showSections = false }: Props) {
+export function CatalogueFilter({
+  cards,
+  groups,
+  resultKind = 'series',
+  layout = 'rows',
+  showSections = false,
+}: Props) {
   const [selected, setSelected] = useState<Record<string, Set<string>>>({})
   const [query, setQuery] = useState('')
+  const noun = resultKind === 'products' ? 'products' : 'series'
 
   const toggle = (groupKey: string, value: string) =>
     setSelected((prev) => {
@@ -56,7 +65,8 @@ export function CatalogueFilter({ cards, groups, showSections = false }: Props) 
   const visible = useMemo(() => {
     const q = query.trim().toLowerCase()
     return cards.filter((card) => {
-      if (q && !(`${card.name} ${card.familyLabel}`.toLowerCase().includes(q))) return false
+      const haystack = `${card.name} ${card.familyLabel} ${card.sku ?? ''} ${(card.facts ?? []).join(' ')}`
+      if (q && !haystack.toLowerCase().includes(q)) return false
       return Object.entries(selected).every(([gk, set]) => (card.facets[gk] ?? []).some((v) => set.has(v)))
     })
   }, [cards, selected, query])
@@ -71,7 +81,7 @@ export function CatalogueFilter({ cards, groups, showSections = false }: Props) 
           </svg>
           <input
             type="search"
-            placeholder="Search series or model…"
+            placeholder={resultKind === 'products' ? 'Search product or SKU…' : 'Search series or model…'}
             value={query}
             onChange={(e) => setQuery(e.target.value)}
             aria-label="Search the catalogue"
@@ -79,7 +89,7 @@ export function CatalogueFilter({ cards, groups, showSections = false }: Props) 
         </div>
 
         <div className="pcat-ftitle">Filters</div>
-        {groups.length > 0 && <p className="pcat-fnote">Counts are matching series, not models.</p>}
+        {groups.length > 0 && <p className="pcat-fnote">Counts are matching {noun}.</p>}
 
         {groups.map((g) => {
           const picked = selected[g.key]?.size ?? 0
@@ -139,7 +149,7 @@ export function CatalogueFilter({ cards, groups, showSections = false }: Props) 
           <p className="pcat-empty">Nothing in this category yet — check back soon.</p>
         ) : visible.length === 0 ? (
           <p className="pcat-empty">
-            No series match those filters.{' '}
+            No {noun} match those filters.{' '}
             <button type="button" className="pcat-empty-reset" onClick={reset}>
               Reset all
             </button>
@@ -157,42 +167,85 @@ export function CatalogueFilter({ cards, groups, showSections = false }: Props) 
             return buckets.map((b) => (
               <div key={b.title ?? 'all'}>
                 {b.title && <h2 className="pcat-section">{b.title}</h2>}
-                <div className="pcat-list">
+                <div className={layout === 'productGrid' ? 'pcat-product-grid' : 'pcat-list'}>
                   {b.cards.map((c) => (
-              <Link key={c.key} href={c.href} className="pcat-row">
-                <div className="pcat-row-media">
-                  <div className="pcat-row-img">
-                    <Image
-                      src={c.imgSrc}
-                      alt={c.imgAlt}
-                      width={300}
-                      height={200}
-                      sizes="160px"
-                    />
-                  </div>
-                </div>
+                    layout === 'productGrid' ? (
+                      <Link key={c.key} href={c.href} className="pcat-product-card">
+                        <div className="pcat-product-media">
+                          <Image
+                            src={c.imgSrc}
+                            alt={c.imgAlt}
+                            width={320}
+                            height={240}
+                            sizes="(max-width: 680px) 100vw, (max-width: 1100px) 50vw, 280px"
+                          />
+                        </div>
+                        <div className="pcat-product-body">
+                          <div className="pcat-product-topline">
+                            <span>{c.familyLabel}</span>
+                            {c.sku && <span>{c.sku}</span>}
+                          </div>
+                          <h3 className="pcat-product-name">{c.name}</h3>
+                          {c.desc && <p className="pcat-product-desc">{c.desc}</p>}
+                          {c.facts && c.facts.length > 0 && (
+                            <div className="pcat-product-facts">
+                              {c.facts.map((fact) => (
+                                <span key={fact}>{fact}</span>
+                              ))}
+                            </div>
+                          )}
+                          {c.chips.length > 0 && (
+                            <div className="pcat-card-chips">
+                              {c.chips.map((chip) => (
+                                <span key={chip} className="pcat-card-chip">
+                                  {chip}
+                                </span>
+                              ))}
+                            </div>
+                          )}
+                        </div>
+                        <div className="pcat-product-foot">
+                          <span className="pcat-card-go">
+                            {c.ctaLabel ?? 'View product'} <span>→</span>
+                          </span>
+                        </div>
+                      </Link>
+                    ) : (
+                      <Link key={c.key} href={c.href} className="pcat-row">
+                        <div className="pcat-row-media">
+                          <div className="pcat-row-img">
+                            <Image
+                              src={c.imgSrc}
+                              alt={c.imgAlt}
+                              width={300}
+                              height={200}
+                              sizes="160px"
+                            />
+                          </div>
+                        </div>
 
-                <div className="pcat-row-body">
-                  <div className="pcat-row-fam">{c.familyLabel}</div>
-                  <h3 className="pcat-row-nm">{c.name}</h3>
-                  <p className="pcat-row-desc">{c.desc}</p>
-                  {c.chips.length > 0 && (
-                    <div className="pcat-card-chips">
-                      {c.chips.map((chip) => (
-                        <span key={chip} className="pcat-card-chip">
-                          {chip}
-                        </span>
-                      ))}
-                    </div>
-                  )}
-                </div>
+                        <div className="pcat-row-body">
+                          <div className="pcat-row-fam">{c.familyLabel}</div>
+                          <h3 className="pcat-row-nm">{c.name}</h3>
+                          <p className="pcat-row-desc">{c.desc}</p>
+                          {c.chips.length > 0 && (
+                            <div className="pcat-card-chips">
+                              {c.chips.map((chip) => (
+                                <span key={chip} className="pcat-card-chip">
+                                  {chip}
+                                </span>
+                              ))}
+                            </div>
+                          )}
+                        </div>
 
-                <div className="pcat-row-side">
-                  <span className="pcat-card-go">
-                    View range <span>→</span>
-                  </span>
-                </div>
-              </Link>
+                        <div className="pcat-row-side">
+                          <span className="pcat-card-go">
+                            {c.ctaLabel ?? 'View range'} <span>→</span>
+                          </span>
+                        </div>
+                      </Link>
+                    )
                   ))}
                 </div>
               </div>
