@@ -131,7 +131,7 @@ describe('driver series spec table', () => {
     const props = buildMergedSeriesProps(driversFamily, 'envo_sng', [
       p({ sku: 'A', series: 'envo_sng', waterproof: 'ip67' }),
     ])
-    expect(sharedRow(props, 'Ingress protection')).toBeUndefined()
+    expect(sharedRow(props, 'IP rating')).toBeUndefined()
   })
 })
 
@@ -196,7 +196,7 @@ describe('hero key specs', () => {
       p({ sku: 'B', name: 'Driver', series: 'envo_se_us', power_w: 75, output_voltage_v: 24, input_voltage_min_v: 90, input_voltage_max_v: 132, operation_mode: 'cv', waterproof: 'ip20' }),
     ])
     const byLabel = Object.fromEntries((props.keySpecs ?? []).map((s) => [s.label, s.value]))
-    expect(byLabel['Power range']).toBe('15–75 W')
+    expect(byLabel['Power']).toBe('15–75 W')
     expect(byLabel['Output voltage']).toBe('12 / 24 V DC')
     expect(byLabel['Input voltage']).toBe('90–132 V AC')
     expect(byLabel['Operation mode']).toBe('Constant voltage')
@@ -210,11 +210,11 @@ describe('hero key specs', () => {
       p({ sku: 'EV-BLML03LBY-NW', series: 'envo_minilux', family: 'led_module', name: 'MiniLux Triple', subtitle: '12V 0.72W IP66', power_w: 0.72, max_in_series: 40, length_mm: 38.1, width_mm: 9, height_mm: 9 }),
     ])
     const byLabel = Object.fromEntries((props.keySpecs ?? []).map((s) => [s.label, s.value]))
-    expect(byLabel['Power rating']).toBe('0.24–0.72 W')
+    expect(byLabel['Power']).toBe('0.24–0.72 W')
     // voltage + IP come from the Akeneo subtitle when the columns are null (sync gap)
     expect(byLabel['Input voltage']).toBe('12 V DC')
     expect(byLabel['Max series']).toBe('40')
-    expect(byLabel['Waterproof']).toBe('IP66')
+    expect(byLabel['IP rating']).toBe('IP66')
     // multiple sizes → shared cross-section once, lengths slash-listed;
     // imperial twin on its own equal-size line
     expect(byLabel['Dimensions']).toBe('W9 × H9 × L14/38.1 mm\n(0.35 × 0.35 × 0.55/1.5 in)')

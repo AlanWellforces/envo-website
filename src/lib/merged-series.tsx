@@ -171,6 +171,13 @@ export function buildMergedSeriesProps(
       },
       modelCode: m.code,
       datasheetUrl: m.datasheetUrl ?? undefined,
+      // Rows layout: the code IS a live SKU (drivers/control gear have no CCT
+      // grouping) — link it to its own detail page. Guarded on an exact-SKU
+      // match so a grouped/stripped code can never emit a 404 link.
+      href:
+        isRowsLayout && rep?.sku === m.code
+          ? `/products/${family.slug}/${m.code}`
+          : undefined,
       ledBeads: beads ? String(beads) : undefined,
       output: m.lumens ? `~ ${m.lumens} lm` : undefined,
       power: m.powerW != null ? `${m.powerW} W` : undefined,
@@ -247,7 +254,7 @@ export function buildMergedSeriesProps(
 
   // Drivers carry IP in the per-model column instead of a shared row.
   const ipField = products.map((p) => p.waterproof).find((w) => w && /^ip\d+$/i.test(w))
-  if (ipField && !isDrivers) sharedRows.push({ label: 'Ingress protection', value: ipField.toUpperCase() })
+  if (ipField && !isDrivers) sharedRows.push({ label: 'IP rating', value: ipField.toUpperCase() })
 
   const lifetime = products.map((p) => num(p.lifetime_hrs)).find(Boolean) ?? null
   if (lifetime) sharedRows.push({ label: 'Lifetime', value: `${lifetime.toLocaleString()} h` })
@@ -300,7 +307,7 @@ export function buildMergedSeriesProps(
       : `${Math.min(...powers)}–${Math.max(...powers)} W`
     : null
   if (isDrivers) {
-    key('power', 'Power range', powerRange)
+    key('power', 'Power', powerRange)
     const outs = uniq(products.map((p) => num(p.output_voltage_v)).filter((v): v is number => v != null)).sort((a, b) => a - b)
     key('voltage', 'Output voltage', outs.length ? `${outs.join(' / ')} V DC` : null)
     const inMins = products.map((p) => num(p.input_voltage_min_v)).filter((v): v is number => v != null)
@@ -341,7 +348,7 @@ export function buildMergedSeriesProps(
     // Power rating / Input voltage / Max series / Waterproof / Dimensions
     // + Warranty. Voltage and IP fall back to the Akeneo SUBTITLE
     // ("12V 0.48W IP66") — the sync drops those columns for modules.
-    key('power', 'Power rating', powerRange)
+    key('power', 'Power', powerRange)
     const volts = uniq(
       products
         .map((p) => num(p.output_voltage_v) ?? (Number(p.subtitle?.match(/(\d+)\s*V\b/i)?.[1]) || null))
@@ -357,7 +364,7 @@ export function buildMergedSeriesProps(
         : null,
     )
     const ip = ipField ?? products.map((p) => p.subtitle?.match(/IP\s?(\d{2})/i)?.[1]).find(Boolean)
-    key('waterproof', 'Waterproof', ip ? (ipField ? ipField.toUpperCase() : `IP${ip}`) : null)
+    key('waterproof', 'IP rating', ip ? (ipField ? ipField.toUpperCase() : `IP${ip}`) : null)
     // Dimensions: a single size shows exact — anything more collapses to a
     // count + length span (a merged L×W×H list reads like number soup; the
     // compare table below carries exact per-model dims). "Lengths" when the
@@ -391,7 +398,7 @@ export function buildMergedSeriesProps(
     key('input', 'Input voltage', sharedVoltage)
     const protoDims = uniq(products.flatMap(dimmingValuesOf)).filter((d) => d !== 'none')
     key('dimming', 'Protocol', protoDims.length ? protoDims.map((d) => DIMMING_LABEL[d]).join(' / ') : null)
-    key('power', 'Power range', powerRange)
+    key('power', 'Power', powerRange)
     key('ip', 'IP rating', ipField ? ipField.toUpperCase() : null)
     key('lifetime', 'Lifetime', lifetime ? `${lifetime.toLocaleString()} h` : null)
     // Specs 6–8 (raised cap on SKU detail pages): shared dims + warranty.

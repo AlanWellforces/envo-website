@@ -47,6 +47,8 @@ export type MergedVariant = {
   bestFor?: string
   /** per-model spec sheet (PDF) — rows layout renders a download link column */
   datasheetUrl?: string
+  /** the model's own SKU detail page — rows layout renders the code as a link */
+  href?: string
 }
 
 export type MergedSharedRow = { label: string; value: ReactNode }
@@ -101,7 +103,7 @@ export type MergedSeriesProps = {
 const VARIANT_ROWS: { label: string; key: keyof MergedVariant; cls?: string }[] = [
   { label: 'Model code', key: 'modelCode', cls: 'mono' },
   { label: 'LED beads', key: 'ledBeads' },
-  { label: 'Output', key: 'output' },
+  { label: 'Light output', key: 'output' },
   { label: 'Power', key: 'power' },
   { label: 'Output voltage', key: 'outputVoltage' },
   { label: 'Rated current', key: 'ratedCurrent' },
@@ -109,7 +111,7 @@ const VARIANT_ROWS: { label: string; key: keyof MergedVariant; cls?: string }[] 
   { label: 'Type', key: 'type' },
   { label: 'Dimming', key: 'dimming' },
   { label: 'IP rating', key: 'ip' },
-  { label: 'Module size', key: 'size' },
+  { label: 'Dimensions', key: 'size' },
   { label: 'Dimensions', key: 'dimensions' },
   { label: 'Certifications', key: 'certifications' },
   { label: 'Protections', key: 'protections' },
@@ -320,7 +322,14 @@ export default function MergedSeriesPage(p: MergedSeriesProps) {
               {p.variants.map((v) => (
                 <tr key={v.modelCode ?? v.name} className={v.current ? 'is-current' : undefined}>
                   <th className="mono">
-                    {v.modelCode ?? v.name}
+                    {/* model code links to its own SKU page (never self-links) */}
+                    {v.href && !v.current ? (
+                      <Link href={v.href} className="mlink">
+                        {v.modelCode ?? v.name}
+                      </Link>
+                    ) : (
+                      v.modelCode ?? v.name
+                    )}
                     {v.current && <span className="cur-tag">Current model</span>}
                   </th>
                   {specRows.map((r) => (
@@ -370,9 +379,7 @@ export default function MergedSeriesPage(p: MergedSeriesProps) {
       </div>
     ) : (
       <div className="compare">
-        <div className="lead">
-          <h2>Compare the range — and every shared spec.</h2>
-        </div>
+        {/* no heading — the SPECIFICATIONS tab already names the panel (user 2026-07-08) */}
         <div className="cmp-tablewrap">
           <table className="cmp-table">
             <thead>

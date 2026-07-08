@@ -33,7 +33,7 @@ describe('buildSkuDetailProps', () => {
     expect(props.thumbs?.[0]?.label).toBe('EV-SNG-350-24') // own tile only — never sibling-model tiles
     expect(props.thumbs?.some((t) => t.label === 'EV-SNG-350-12')).toBe(false)
     // exact key specs from THIS product only — never a series-wide range
-    const power = props.keySpecs?.find((s) => s.label === 'Power range')
+    const power = props.keySpecs?.find((s) => s.label === 'Power')
     expect(power?.value).toBe('350 W')
     expect(props.datasheetUrl).toBeTruthy()
     expect(props.downloads?.[0]?.name).toBe('EV-SNG-350-24 datasheet')
@@ -56,7 +56,7 @@ describe('buildSkuDetailProps', () => {
     const props = buildSkuDetailProps(DRIVERS, p, [p])
     expect(props.keySpecs?.length).toBe(8)
     expect(props.keySpecs?.map((s) => s.label)).toEqual(
-      expect.arrayContaining(['Power range', 'Output voltage', 'Input voltage', 'Operation mode', 'Dimming', 'IP rating', 'Rated current', 'Dimensions']),
+      expect.arrayContaining(['Power', 'Output voltage', 'Input voltage', 'Operation mode', 'Dimming', 'IP rating', 'Rated current', 'Dimensions']),
     )
   })
 
