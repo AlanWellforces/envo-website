@@ -211,52 +211,13 @@ export default async function PostDetailPage(
               View all {categoryLabel} →
             </Link>
           </div>
-          <div className="grid gap-5 md:grid-cols-2 lg:grid-cols-3">
+          <div className="bi-grid">
             {related.map((p) => (
               <PostCard key={p.id} post={p} />
             ))}
           </div>
         </section>
       )}
-
-      {/* End CTA */}
-      <div className="blog-end-cta">
-        <div
-          className="blog-end-cta-card"
-          style={{
-            background: '#1a2332',
-            color: '#fff',
-            borderRadius: '18px',
-          }}
-        >
-          <div>
-            <h3
-              className="font-bold"
-              style={{ fontSize: '24px', letterSpacing: '-0.015em', margin: '0 0 6px' }}
-            >
-              Need help speccing controls for a project?
-            </h3>
-            <p style={{ fontSize: '14.5px', color: 'rgba(255,255,255,0.7)', margin: 0, maxWidth: '48ch' }}>
-              Our engineering team reviews installations larger than 30 luminaires for free. Send us your floor plan and luminaire schedule — we&apos;ll come back with recommendations.
-            </p>
-          </div>
-          <Link
-            href="/contact"
-            className="font-semibold"
-            style={{
-              padding: '13px 24px',
-              background: '#ffffff',
-              color: '#1a2332',
-              borderRadius: '999px',
-              fontSize: '13.5px',
-              textDecoration: 'none',
-              whiteSpace: 'nowrap',
-            }}
-          >
-            Contact engineering →
-          </Link>
-        </div>
-      </div>
     </div>
   )
 }
