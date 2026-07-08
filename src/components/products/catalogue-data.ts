@@ -7,7 +7,7 @@ import {
   groupSeriesIntoSections,
   type Product,
 } from '@/lib/products'
-import { seriesSlug, seriesLabel, seriesLineArt, seriesSectionTitle, sectionOrderIndex } from '@/data/family-map'
+import { seriesSlug, seriesLabel, seriesLineArt, seriesSectionTitle } from '@/data/family-map'
 import { SERIES_BLURBS, LED_CONFIG_OPTIONS } from '@/data/series-applications'
 import { catalogueSeriesMeta } from '@/data/series-catalogue-meta'
 import { formatDims } from '@/lib/units'
@@ -575,6 +575,19 @@ function signageFacts(rep: Product, ccts: number[]): string[] {
 /** CCT suffix variants (-WW/-NW/-CW) are ONE product (user 2026-07-08). */
 const stripCctSuffix = (sku: string) => sku.replace(/-(WW|NW|CW)$/i, '')
 
+/** Signage collection order = the old envo-led.com menu (user 2026-07-08):
+ *  Mini → Eco → Pro (ProGlo then UltraFlare) → RGB → 24V → Sidelit. */
+const SIGNAGE_SERIES_ORDER = [
+  'envo_minilux', 'envo_ecoglo', 'envo_proglo', 'envo_ultraflare',
+  'envo_chromaflux', 'envo_optilume', 'envo_edgeblade', 'envo_edgeflare', 'envo_edgelume',
+]
+const signageSeriesOrder = (code: string | null): number => {
+  const i = code ? SIGNAGE_SERIES_ORDER.indexOf(code) : -1
+  return i < 0 ? 99 : i
+}
+/** Bead count from the model code (EV-BLML0**3**LBY → 3) — 单颗到多颗. */
+const beadsFromModelCode = (code: string): number => Number(code.match(/^EV-[A-Z]{4}(\d{2})/)?.[1] ?? 99)
+
 /** Build one catalogue card per signage MODEL (user 2026-07-08 — signage
  * joins the product-first grid; CCT variants collapse into one card whose
  * CCT options become a fact + facet). */
@@ -605,18 +618,27 @@ export function buildSignageProductCards(family: ProductFamily, products: Produc
         section: seriesSectionTitle(family.slug, [rep]),
       })
       return {
-        ...card,
-        key: `${family.slug}:${code}`,
-        sku: code, // model code, never a CCT-suffixed variant
-        name: rep.name.replace(/\s*[,·]?\s*\d{4}\s*K\b/i, '').trim(), // CCT is an option, not identity
-        modelCount: variants.length,
+        card: {
+          ...card,
+          key: `${family.slug}:${code}`,
+          sku: code, // model code, never a CCT-suffixed variant
+          name: rep.name.replace(/\s*[,·]?\s*\d{4}\s*K\b/i, '').trim(), // CCT is an option, not identity
+          modelCount: variants.length,
+        },
+        seriesOrder: signageSeriesOrder(rep.series),
+        beads: beadsFromModelCode(code),
       }
     })
+    // old-menu series order, then 单颗到多颗 within a series (SKU breaks ties:
+    // RGB before RGBW)
     .sort(
       (a, b) =>
-        (sectionOrderIndex(family.slug, a.section) - sectionOrderIndex(family.slug, b.section)) ||
-        a.name.localeCompare(b.name),
+        (a.seriesOrder - b.seriesOrder) ||
+        (a.beads - b.beads) ||
+        a.card.name.localeCompare(b.card.name) ||
+        (a.card.sku ?? '').localeCompare(b.card.sku ?? ''),
     )
+    .map((e) => e.card)
 }
 
 /** Pick the card set + layout for a family's category page.
@@ -688,12 +710,10 @@ function group(
  */
 export function buildGroups(cards: CatalogueCard[], familySlug?: string): FacetGroup[] {
   // Series first (BounceLED-style range picker) on the per-SKU family pages.
-  // Values are display titles, so labelFor is identity; sorted alphabetically.
-  const seriesGroup = () => {
-    const g = group('series', 'Series', cards, (v) => v, () => 0)
-    if (g) g.options.sort((a, b) => a.label.localeCompare(b.label))
-    return g
-  }
+  // Values are display titles (labelFor = identity); options keep the cards'
+  // own order — signage follows the old-menu series order, drivers their
+  // name order — so the picker mirrors the grid.
+  const seriesGroup = () => group('series', 'Series', cards, (v) => v, () => 0)
   const candidates = (() => {
     switch (familySlug) {
       case 'led-drivers':
