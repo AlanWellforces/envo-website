@@ -2,7 +2,7 @@ import Link from 'next/link'
 import type { Metadata } from 'next'
 import { PRODUCT_FAMILIES } from '@/data/product-families'
 import { getProductsByMarketingFamily } from '@/lib/products'
-import { buildCards, buildGroups } from '@/components/products/catalogue-data'
+import { buildProductCardsFor, buildGroups } from '@/components/products/catalogue-data'
 import { CatalogueFilter } from '@/components/products/CatalogueFilter'
 import '@/components/products/products-catalogue.css'
 
@@ -16,12 +16,18 @@ export const metadata: Metadata = {
 export default async function ProductsPage() {
   // One catalogue across all families. Each family's series become cards; the
   // category pills navigate to the per-family view (/products/[slug]).
-  const allProducts = await Promise.all(
-    PRODUCT_FAMILIES.map((f) => getProductsByMarketingFamily(f.slug, { depth: 0 })),
-  )
+  // Fetched sequentially on purpose — the dev pooler's connection cap (each
+  // marketing family already fans out to several db-family queries inside).
+  const allProducts: Awaited<ReturnType<typeof getProductsByMarketingFamily>>[] = []
+  for (const f of PRODUCT_FAMILIES) {
+    allProducts.push(await getProductsByMarketingFamily(f.slug, { depth: 0 }))
+  }
   const countBySlug = new Map(PRODUCT_FAMILIES.map((f, i) => [f.slug, allProducts[i].length]))
 
-  const cards = PRODUCT_FAMILIES.flatMap((f, i) => buildCards(f, allProducts[i]))
+  // Same granularity as the category pages (user 2026-07-08): drivers /
+  // control gear / accessories list actual models, signage keeps series
+  // cards — all in one product grid, Category filter first.
+  const cards = PRODUCT_FAMILIES.flatMap((f, i) => buildProductCardsFor(f.slug, f, allProducts[i]).cards)
   const groups = buildGroups(cards)
 
   return (
@@ -49,7 +55,7 @@ export default async function ProductsPage() {
           </div>
         </div>
 
-        <CatalogueFilter cards={cards} groups={groups} />
+        <CatalogueFilter cards={cards} groups={groups} resultKind="products" layout="productGrid" showSections />
       </div>
     </div>
   )

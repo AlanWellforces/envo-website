@@ -106,6 +106,9 @@
 /* borderless trigger — plain text + caret (user 2026-07-06) */
 .pdetail .wtb-dd-trigger { appearance: none; font-family: inherit; cursor: pointer; display: inline-flex; align-items: center; gap: 5px;
   border: 0; background: none; padding: 0; font-size: 13px; color: var(--text); }
+/* no lime focus box on the region picker (user 2026-07-08) — hover/caret
+   already signal interactivity; the global *:focus-visible ring is too loud here */
+.pdetail .wtb-dd-trigger:focus-visible { outline: none; color: var(--blue); }
 .pdetail .wtb-dd-trigger b { font-weight: 650; }
 .pdetail .wtb-dd-trigger:hover { color: var(--blue); }
 .pdetail .wtb-dd-trigger:hover .caret { stroke: var(--blue); }
@@ -199,6 +202,10 @@
 .pdetail .cmp-table .vcol { text-align: center; padding: 18px 18px 16px; border-left: 1px solid var(--line); vertical-align: bottom; position: relative; }
 .pdetail .cmp-table .c-star { background: rgba(0, 113, 188, 0.04); }
 .pdetail .cmp-table .vcol .star { position: absolute; top: 9px; left: 0; right: 0; font-size: 8.5px; letter-spacing: 0.08em; text-transform: uppercase; color: var(--blue); font-weight: 700; }
+/* SKU detail pages — the column/row of the SKU being viewed: tinted + tagged */
+.pdetail .cmp-table .vcol.c-cur, .pdetail .cmp-table tbody td.cur { background: rgba(0, 113, 188, 0.07); }
+.pdetail .cmp-table.rows tr.is-current th, .pdetail .cmp-table.rows tr.is-current td { background: rgba(0, 113, 188, 0.07); }
+.pdetail .cmp-table .cur-tag { display: block; margin-top: 3px; font-size: 8.5px; letter-spacing: 0.08em; text-transform: uppercase; color: var(--blue); font-weight: 700; }
 .pdetail .cmp-table .vcol .dots { display: flex; gap: 5px; justify-content: center; margin-bottom: 9px; }
 .pdetail .cmp-table .vcol .dots i { width: 9px; height: 9px; border-radius: 50%; background: var(--lime); box-shadow: 0 0 7px rgba(174, 201, 11, 0.6); }
 .pdetail .cmp-table .vcol .dots i.off { background: #d5d9e0; box-shadow: none; }
@@ -275,6 +282,11 @@
 .pdetail .overview { padding: 8px 0 24px; max-width: 76ch; }
 .pdetail .overview h2 { font-size: 23px; letter-spacing: -0.025em; margin: 6px 0 14px; font-weight: 700; }
 .pdetail .overview p { font-size: 15px; color: var(--text-muted); line-height: 1.65; margin: 0; }
+/* Akeneo HTML descriptions (SKU pages): paragraphs + feature bullet lists */
+.pdetail .overview .ov-html p { margin: 0 0 12px; }
+.pdetail .overview .ov-html p:last-child { margin-bottom: 0; }
+.pdetail .overview .ov-html ul { list-style: disc; margin: 0 0 12px; padding-left: 20px; }
+.pdetail .overview .ov-html li { font-size: 15px; color: var(--text-muted); line-height: 1.65; margin: 4px 0; }
 
 /* ===== downloads ===== */
 .pdetail .downloads { padding: 8px 0 24px; }
@@ -314,6 +326,10 @@
 .pdetail .rel-card .rl { font-size: 9px; letter-spacing: 0.12em; text-transform: uppercase; font-weight: 700; color: var(--text-subtle); }
 .pdetail .rel-card .rn { font-size: 13.5px; font-weight: 700; margin: 3px 0 0; line-height: 1.25; }
 
+@media (max-width: 980px) {
+  /* clear the fixed hamburger (40px @ 16px inset) now the TopSubnav is gone */
+  .pdetail .breadcrumb { padding-left: 52px; min-height: 40px; display: flex; align-items: center; flex-wrap: wrap; }
+}
 @media (max-width: 900px) {
   .pdetail .p-hero { grid-template-columns: 1fr; gap: 26px; }
   .pdetail .gallery { position: static; }

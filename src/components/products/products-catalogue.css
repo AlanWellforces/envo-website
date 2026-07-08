@@ -22,8 +22,18 @@
 
 /* body: filter rail + results */
 .pcat-body { display:grid; grid-template-columns:224px 1fr; align-items:start; gap:30px; padding-top:18px; }
-/* sticky top 26px = level with the sidebar logo once the page is scrolled */
-.pcat-filters { position:sticky; top:26px; align-self:start; padding:0 0 20px; }
+/* sticky top 26px = level with the sidebar logo once the page is scrolled.
+   Taller-than-viewport filter stacks scroll INSIDE the rail — otherwise the
+   sticky pin leaves the lower groups unreachable (user 2026-07-08) */
+.pcat-filters {
+  position:sticky; top:26px; align-self:start; padding:0 6px 20px 0;
+  max-height:calc(100vh - 46px);
+  overflow-y:auto;
+  overflow-x:hidden; /* vertical rail only — never a horizontal drag bar */
+  overscroll-behavior:contain;
+  scrollbar-width:thin;
+  scrollbar-color:var(--line-strong) transparent;
+}
 .pcat-ftitle { font-size:9.5px; letter-spacing:.16em; text-transform:uppercase; color:var(--fg-soft); margin-bottom:10px; }
 .pcat-fnote { font-size:10.5px; color:var(--fg-mute); margin:-6px 0 12px; }
 
@@ -37,6 +47,14 @@
 .pcat-fgroup { padding:13px 0; border-bottom:1px solid var(--line); }
 .pcat-fgroup:last-child { border-bottom:0; }
 .pcat-fgroup h4 { display:flex; align-items:center; gap:7px; font-size:12px; font-weight:700; margin:0 0 6px; color:var(--fg); }
+/* accordion header (user 2026-07-08): whole title row toggles the group */
+.pcat-fgroup-toggle { appearance:none; border:0; background:none; padding:0; cursor:pointer;
+  display:flex; align-items:center; gap:7px; width:100%; font:inherit; color:inherit; text-align:left; }
+.pcat-fgroup-toggle .caret { width:13px; height:13px; margin-left:auto; fill:none; stroke:var(--fg-soft);
+  stroke-width:2; stroke-linecap:round; stroke-linejoin:round; transition:transform .16s; }
+.pcat-fgroup:not(.closed) .pcat-fgroup-toggle .caret { transform:rotate(180deg); }
+.pcat-fgroup.closed h4 { margin-bottom:0; }
+.pcat-fgroup-toggle:hover .caret { stroke:var(--envo-blue); }
 .pcat-fgroup h4 .picked { font-size:9.5px; font-weight:700; line-height:1; color:#fff; background:var(--envo-blue);
   min-width:15px; height:15px; padding:0 4px; border-radius:999px; display:inline-flex; align-items:center; justify-content:center; }
 
@@ -108,17 +126,19 @@ div:first-child > .pcat-section { margin-top:0; }
 .pcat-card-go span { transition:transform .25s; display:inline-block; }
 .pcat-row:hover .pcat-card-go span { transform:translateX(4px); }
 
-/* control gear: product-first cards */
+/* product-first cards */
 .pcat-product-grid {
   display:grid;
-  grid-template-columns:repeat(auto-fit, minmax(260px, 1fr));
+  /* auto-FILL keeps empty tracks, so a lone result stays card-sized instead
+     of stretching across the whole row (user 2026-07-08) */
+  grid-template-columns:repeat(auto-fill, minmax(260px, 1fr));
   gap:14px;
 }
 .pcat-product-card {
   min-width:0;
   min-height:100%;
   display:grid;
-  grid-template-rows:168px 1fr auto;
+  grid-template-rows:224px 1fr auto;
   background:var(--bg-card);
   border:1px solid var(--line);
   border-radius:8px;
@@ -134,10 +154,10 @@ div:first-child > .pcat-section { margin-top:0; }
 }
 .pcat-product-media {
   min-width:0;
-  height:168px;
+  height:224px; /* enlarged product imagery (user 2026-07-08) */
   display:grid;
   place-items:center;
-  padding:18px;
+  padding:14px;
   background:
     linear-gradient(180deg, rgba(255,255,255,.92), rgba(245,248,251,.94)),
     radial-gradient(80% 80% at 72% 18%, rgba(174,201,11,.12), transparent 68%);
@@ -145,7 +165,7 @@ div:first-child > .pcat-section { margin-top:0; }
 }
 .pcat-product-media img {
   width:100%;
-  height:132px;
+  height:194px;
   object-fit:contain;
   mix-blend-mode:multiply;
   transition:transform .32s;
@@ -230,7 +250,9 @@ div:first-child > .pcat-section { margin-top:0; }
 
 @media (max-width:1000px) {
   .pcat-body { grid-template-columns:1fr; gap:16px; }
-  .pcat-filters { position:static; padding:0 0 6px; }
+  .pcat-filters { position:static; padding:0 0 6px; max-height:none; overflow:visible; }
+  /* clear the fixed hamburger (40px @ 16px inset) now the TopSubnav is gone */
+  .pcat .breadcrumb { padding-left:52px; min-height:40px; display:flex; align-items:center; flex-wrap:wrap; }
 }
 @media (max-width:680px) {
   .pcat-results { order:1; }
@@ -239,7 +261,7 @@ div:first-child > .pcat-section { margin-top:0; }
   .pcat-row-media { flex-direction:row; width:auto; justify-content:flex-start; }
   .pcat-row-side { flex-direction:row; align-items:center; gap:12px; }
   .pcat-product-grid { grid-template-columns:1fr; }
-  .pcat-product-card { grid-template-rows:156px 1fr auto; }
-  .pcat-product-media { height:156px; }
-  .pcat-product-media img { height:122px; }
+  .pcat-product-card { grid-template-rows:200px 1fr auto; }
+  .pcat-product-media { height:200px; }
+  .pcat-product-media img { height:168px; }
 }

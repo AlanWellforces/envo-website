@@ -4,8 +4,6 @@ import '../globals.css'
 import { PageViewBeacon } from '@/components/analytics/PageViewBeacon'
 import { Sidebar } from '@/components/layout/sidebar'
 import { RegionProvider } from '@/components/region/RegionProvider'
-import { RegionBanner } from '@/components/region/RegionBanner'
-import { TopSubnav } from '@/components/layout/top-subnav'
 import { Footer } from '@/components/layout/footer'
 import { CursorGlow } from '@/components/layout/cursor-glow'
 import { RevealOnScroll } from '@/components/layout/reveal-on-scroll'
@@ -41,9 +39,14 @@ export default function RootLayout({
       <body>
         <PageViewBeacon />
         <RegionProvider>
-          <RegionBanner />
+          {/* Region/channel banner hidden for now (user 2026-07-08) — the
+              region picker under each purchase CTA still covers the choice.
+              Re-enable by restoring <RegionBanner />. */}
           <Sidebar />
-          <TopSubnav />
+          {/* TopSubnav retired (user 2026-07-08): the #157 sidebar lists all
+              four categories as top-level items, so the dark Categories bar
+              on detail pages was a duplicate. Restore <TopSubnav /> if a
+              horizontal category bar is ever wanted again. */}
           <CursorGlow />
           {children}
           <Footer />

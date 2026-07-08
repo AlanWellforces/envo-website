@@ -1,5 +1,12 @@
 import { describe, it, expect } from 'vitest'
-import { buildCards, buildGroups } from './catalogue-data'
+import {
+  buildCards,
+  buildGroups,
+  buildControlGearProductCards,
+  buildDriverProductCards,
+  buildAccessoryProductCards,
+  buildProductCardsFor,
+} from './catalogue-data'
 import { PRODUCT_FAMILIES } from '@/data/product-families'
 import type { Product } from '@/lib/products'
 
@@ -148,7 +155,31 @@ describe('per-family filter groups', () => {
       p({ sku: 'ZB-2', name: 'ENVO ZigBee Classic Remote Single Colour - 4 Zones', family: 'psu_led_controller', series: 'envo_zigbee', dimming_control: ['zigbee'] }),
     ]
     const groups = buildGroups(buildCards(CONTROL, controlProducts), 'control-gear')
-    expect(groups.map((g) => g.key)).toEqual(['protocol', 'function', 'controltype', 'channels'])
+    expect(groups.map((g) => g.key)).toEqual(['series', 'protocol', 'function', 'controltype', 'channels'])
+  })
+
+  it('signage puts the series picker first too', () => {
+    const SIGNAGE = PRODUCT_FAMILIES.find((f) => f.slug === 'led-signage-modules')!
+    const cards = buildCards(SIGNAGE, [
+      p({ sku: 'EV-A', series: 'envo_ecoglo', cct_k: 4000, length_mm: 40 }),
+      p({ sku: 'EV-B', series: 'envo_minilux', cct_k: 6500, length_mm: 20 }),
+    ])
+    const groups = buildGroups(cards, 'led-signage-modules')
+    expect(groups[0].key).toBe('series')
+    expect(groups[0].options).toHaveLength(2)
+  })
+
+  it('per-SKU pages put the series picker first (BounceLED-style)', () => {
+    const skuCards = [
+      p({ sku: 'A1', name: 'Envo A1 LED Driver 30W 12V', series: 'envo_se_us', operation_mode: 'cv', power_w: 30, output_voltage_v: 12 }),
+      p({ sku: 'B1', name: 'Envo B1 LED Driver 300W 24V', series: 'envo_sng', operation_mode: 'cv', power_w: 300, output_voltage_v: 24 }),
+    ]
+    const groups = buildGroups(buildDriverProductCards(DRIVERS, skuCards), 'led-drivers')
+    expect(groups[0].key).toBe('series')
+    expect(groups[0].options.length).toBe(2)
+    // options are the customer-facing series titles, alphabetically ordered
+    const labels = groups[0].options.map((o) => o.label)
+    expect(labels).toEqual([...labels].sort((a, b) => a.localeCompare(b)))
   })
 
   it('control-gear never shows size or the driver facets', () => {
@@ -173,6 +204,16 @@ describe('per-family filter groups', () => {
     const keys = groups.map((g) => g.key)
     expect(keys).not.toContain('power')
     expect(keys).not.toContain('environment')
+  })
+
+  it('the all-families view puts the Category picker first, in nav order', () => {
+    const cards = [
+      ...buildCards(DRIVERS, driverProducts),
+      ...buildCards(CONTROL, [p({ sku: 'Z1', family: 'psu_led_controller', series: 'envo_zigbee', dimming_control: ['zigbee'] })]),
+    ]
+    const groups = buildGroups(cards)
+    expect(groups[0].key).toBe('family')
+    expect(groups[0].options.map((o) => o.label)).toEqual(['LED Drivers', 'Control Gear'])
   })
 })
 
@@ -207,6 +248,122 @@ describe('control-gear derivations', () => {
     expect(card1({ sku: 'A', controller_type: ['ct', 'dimming', 'rgb', 'rgb_cct', 'rgbw'] }).facets.controltype)
       .toEqual(expect.arrayContaining(['ct', 'single', 'rgb', 'rgb_cct', 'rgbw']))
     expect(card1({ sku: 'B', name: 'ENVO PRO DALI2 DT8 LED Controller RGBWW 5 CH' }).facets.controltype).toEqual(['rgb_cct'])
+  })
+})
+
+// ── control-gear SKU cards (post-refactor parity) ───────────────────────────
+describe('control-gear SKU cards (post-refactor parity)', () => {
+  const products = [
+    p({ sku: 'CA-1', name: 'ENVO Casambi Low Voltage Controller, 12-48V 5 Channel',
+        family: 'psu_led_controller', series: 'envo_casambi', dimming_control: ['casambi'],
+        controller_type: ['rgbw'], output_channel: '5_channel', spec_sheet_url: 'x.pdf' }),
+  ]
+  const [card] = buildControlGearProductCards(CONTROL, products)
+
+  it('is one card per SKU carrying the SKU and per-unit facts', () => {
+    expect(card.sku).toBe('CA-1')
+    expect(card.modelCount).toBe(1)
+    expect(card.facts?.length).toBeGreaterThan(0)
+    expect(card.facets.protocol).toEqual(['casambi'])
+    expect(card.facets.channels).toEqual(['5'])
+  })
+  it('never surfaces a price', () => {
+    expect(JSON.stringify(card)).not.toMatch(/nzd|price/i)
+  })
+})
+
+// ── driver SKU cards ────────────────────────────────────────────────────────
+describe('driver SKU cards', () => {
+  it('emits one card per SKU with driver facets and human-readable facts', () => {
+    const products = [
+      p({ sku: 'EV-SNG-350-24', name: 'Envo EV-SNG-350-24 LED Driver 350W 24V Waterproof IP67',
+          series: 'envo_sng', operation_mode: 'cv', power_w: 350, output_voltage_v: 24, waterproof: 'ip67' }),
+    ]
+    const [card] = buildDriverProductCards(DRIVERS, products)
+    expect(card.sku).toBe('EV-SNG-350-24')
+    expect(card.modelCount).toBe(1)
+    expect(card.facets.outv).toEqual(['24'])
+    expect(card.facets.power).toEqual(['p151'])
+    expect(card.facets.opmode).toEqual(['cv'])
+    expect(card.facets.environment).toEqual(expect.arrayContaining(['outdoor', 'ip67']))
+    expect(card.facts).toEqual(expect.arrayContaining(['350 W', '24 V', 'Constant voltage', 'IP67']))
+  })
+
+  it('derives triac dimming from the name when dimming_control is empty', () => {
+    const products = [
+      p({ sku: 'EV-SP-30-12US-TDM', name: 'ENVO EV-SP-30-12US-TDM Triac Dimmable LED Driver 30W 12V',
+          series: 'envo_sp_us', operation_mode: 'cv', power_w: 30, output_voltage_v: 12, waterproof: 'ip20' }),
+    ]
+    const [card] = buildDriverProductCards(DRIVERS, products)
+    expect(card.facets.dimming).toContain('triac')
+    expect(card.chips[0]).toBe('Triac dimmable')
+  })
+
+  it('sorts CV before CC then by name', () => {
+    const products = [
+      p({ sku: 'B-CC', name: 'B CC', series: 'sr_triac', family: 'psu_led_cc', operation_mode: 'cc' }),
+      p({ sku: 'A-CV', name: 'A CV', series: 'envo_se_us', family: 'psu_led_cv', operation_mode: 'cv' }),
+    ]
+    const cards = buildDriverProductCards(DRIVERS, products)
+    expect(cards.map((c) => c.sku)).toEqual(['A-CV', 'B-CC'])
+  })
+
+  it('never surfaces a price', () => {
+    const products = [p({ sku: 'X', series: 'envo_sng', power_w: 100, output_voltage_v: 24, price_nzd: 99 })]
+    expect(JSON.stringify(buildDriverProductCards(DRIVERS, products))).not.toMatch(/nzd|"price"/i)
+  })
+})
+
+// ── accessory SKU cards ─────────────────────────────────────────────────────
+describe('accessory SKU cards', () => {
+  it('emits one card per SKU with material/IP facts and no forced facets', () => {
+    const products = [
+      p({ sku: 'ACC-1', name: 'ENVO Aluminium Mounting Clip', family: 'accessory_general',
+          series: null, material: 'Aluminium', waterproof: 'ip65' }),
+    ]
+    const [card] = buildAccessoryProductCards(ACCESSORIES, products)
+    expect(card.sku).toBe('ACC-1')
+    expect(card.modelCount).toBe(1)
+    expect(card.facts).toEqual(expect.arrayContaining(['Aluminium', 'IP65']))
+    expect(card.facets).toEqual({ family: ['Accessories'] }) // no spec facets; null series ≠ an "Other" option
+  })
+
+  it('never surfaces a price', () => {
+    const products = [p({ sku: 'ACC-2', family: 'accessory_general', price_nzd: 5 })]
+    expect(JSON.stringify(buildAccessoryProductCards(ACCESSORIES, products))).not.toMatch(/nzd|"price"/i)
+  })
+})
+
+// ── per-family card dispatcher ──────────────────────────────────────────────
+describe('per-family card dispatcher', () => {
+  const one = (over: Record<string, unknown>) => [p(over)]
+
+  it('drivers/control-gear/accessories → per-SKU productGrid', () => {
+    for (const [slug, fam] of [['led-drivers', DRIVERS], ['control-gear', CONTROL], ['accessories', ACCESSORIES]] as const) {
+      const r = buildProductCardsFor(slug, fam, one({ sku: `${slug}-1`, series: 'sc_envo', family: 'psu_led_cv' }))
+      expect(r.layout).toBe('productGrid')
+      expect(r.resultKind).toBe('products')
+      expect(r.cards[0].sku).toBe(`${slug}-1`)
+    }
+  })
+
+  it('signage → per-MODEL cards: CCT suffix variants collapse into one card', () => {
+    const SIGNAGE = PRODUCT_FAMILIES.find((f) => f.slug === 'led-signage-modules')!
+    const r = buildProductCardsFor('led-signage-modules', SIGNAGE, [
+      p({ sku: 'EV-X01-WW', name: 'ENVO EcoGlo Single 3000K', series: 'envo_ecoglo', cct_k: 3000, brightness_lm: 33, power_w: 0.65 }),
+      p({ sku: 'EV-X01-NW', name: 'ENVO EcoGlo Single 4000K', series: 'envo_ecoglo', cct_k: 4000, brightness_lm: 33, power_w: 0.65 }),
+      p({ sku: 'EV-Y02-NW', name: 'ENVO EcoGlo Duo 4000K', series: 'envo_ecoglo', cct_k: 4000, brightness_lm: 55, power_w: 0.96 }),
+    ])
+    expect(r.layout).toBe('productGrid')
+    expect(r.resultKind).toBe('products')
+    expect(r.cards).toHaveLength(2) // -WW/-NW are ONE product
+    const x = r.cards.find((c) => c.sku === 'EV-X01')!
+    expect(x.modelCount).toBe(2)
+    expect(x.name).toBe('ENVO EcoGlo Single') // CCT is an option, not identity
+    expect(x.facets.cct).toEqual(['3000', '4000'])
+    expect(x.facts).toEqual(expect.arrayContaining(['~ 33 lm', '0.65 W', '3000 / 4000 K']))
+    expect(x.href).toBe('/products/led-signage-modules/EV-X01-NW') // canonical NW variant
+    expect(x.ctaLabel).toBe('View product')
   })
 })
 

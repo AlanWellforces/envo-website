@@ -10,7 +10,7 @@ import {
 import { seriesSlug, seriesLabel, seriesLineArt, seriesSectionTitle } from '@/data/family-map'
 import { SERIES_BLURBS, LED_CONFIG_OPTIONS } from '@/data/series-applications'
 import { catalogueSeriesMeta } from '@/data/series-catalogue-meta'
-import { datasheetHref } from '@/lib/asset-url'
+import { formatDims } from '@/lib/units'
 
 export type FacetOption = { value: string; label: string; count: number }
 export type FacetGroup = { key: string; label: string; options: FacetOption[] }
@@ -407,6 +407,10 @@ export function buildCards(family: ProductFamily, products: Product[]): Catalogu
         (mx, p) => (p.power_w != null && (mx == null || p.power_w > mx) ? p.power_w : mx),
         null,
       )
+      facets.family = [family.name] // Category picker on the all-families index
+      // Series picker (first filter group, BounceLED-style) — same display
+      // name the card itself carries; no-series buckets earn no option.
+      if (g.code) facets.series = [authored?.title ?? meta?.productName ?? seriesLabel(g.code)]
       const signage = family.slug === 'led-signage-modules'
       cards.push({
         key: `${family.slug}:${g.code ?? 'other'}`,
@@ -434,58 +438,251 @@ export function buildCards(family: ProductFamily, products: Product[]): Catalogu
   return cards
 }
 
+/** Series display name for the series filter — the authored catalogue title
+ *  when one exists (what the series page/cards call it), else the code label. */
+function seriesFilterName(familySlug: string, code: string | null): string {
+  return catalogueSeriesMeta(familySlug, code)?.title ?? seriesLabel(code)
+}
+
+/** Common per-SKU catalogue-card shell. Family builders supply the derived
+ *  desc/facts/facets/section; image, chips, CTA and identity are shared.
+ *  Every SKU card also carries a `series` facet (BounceLED-style range
+ *  filter — first group in the sidebar). */
+function skuCard(
+  family: ProductFamily,
+  p: Product,
+  parts: { desc: string; facts: string[]; facets: Record<string, string[]>; section: string; maxPowerForChips?: number | null },
+): CatalogueCard {
+  const familyLabel = family.tag.split('·')[0].trim()
+  const img = resolveProductImage(p, seriesLineArt(p.series, family.slug))
+  // No series → no series facet: an "Other" option makes no sense in the picker.
+  if (p.series) parts.facets.series = [seriesFilterName(family.slug, p.series)]
+  parts.facets.family = [family.name] // Category picker on the all-families index
+  return {
+    key: `${family.slug}:${p.sku}`,
+    // SKU detail page (series-first-then-SKU route). Datasheet stays a
+    // detail-page CTA, never the card destination.
+    href: `/products/${family.slug}/${encodeURIComponent(p.sku)}`,
+    familyLabel,
+    name: p.name,
+    desc: parts.desc,
+    imgSrc: img.src,
+    imgLocal: img.isLocal,
+    imgAlt: img.alt,
+    chips: buildChips(parts.facets, parts.maxPowerForChips ?? null),
+    sku: p.sku,
+    facts: parts.facts,
+    ctaLabel: 'View product',
+    modelCount: 1,
+    section: parts.section,
+    certified: (p.standards_met ?? []).length > 0,
+    facets: parts.facets,
+  }
+}
+
 /** Build one visible catalogue card per control-gear SKU. Controllers, remotes,
  * gateways, switches and sensors are bought as individual units, so the family
  * landing should expose products directly instead of hiding them behind broad
  * "range" rows. */
 export function buildControlGearProductCards(family: ProductFamily, products: Product[]): CatalogueCard[] {
-  const familyLabel = family.tag.split('·')[0].trim()
-
   return products
     .map((p) => {
-      const img = resolveProductImage(p, seriesLineArt(p.series, family.slug))
       const protocol = protocolValues(p)
       const fn = functionValue(p)
       const controlTypes = controlTypeValues(p)
       const channel = channelsValue(p)
-      const facets: Record<string, string[]> = {
-        protocol,
-        function: uniq([fn]),
-        controltype: controlTypes,
-        channels: uniq([channel]),
-      }
-      const seriesHref = `/products/${family.slug}/${seriesSlug(p.series)}`
-      const sheetHref = p.spec_sheet_url ? datasheetHref(p.sku) : null
-
-      return {
-        key: `${family.slug}:${p.sku}`,
-        href: sheetHref ?? seriesHref,
-        familyLabel,
-        name: p.name,
+      const facets = { protocol, function: uniq([fn]), controltype: controlTypes, channels: uniq([channel]) }
+      return skuCard(family, p, {
         desc: controlGearDesc(protocol, fn, controlTypes),
-        imgSrc: img.src,
-        imgLocal: img.isLocal,
-        imgAlt: img.alt,
-        chips: buildChips(facets, null),
-        sku: p.sku,
         facts: controlGearFacts(p, fn, controlTypes, channel),
-        ctaLabel: sheetHref ? 'Datasheet' : 'View series',
-        modelCount: 1,
-        section: seriesSectionTitle(family.slug, [p]),
-        certified: (p.standards_met ?? []).length > 0,
         facets,
-      } satisfies CatalogueCard
+        section: seriesSectionTitle(family.slug, [p]),
+      })
     })
-    .sort((a, b) => {
-      const section = sectionOrder(a.section) - sectionOrder(b.section)
-      return section || a.name.localeCompare(b.name)
-    })
+    .sort((a, b) => (sectionOrder(a.section) - sectionOrder(b.section)) || a.name.localeCompare(b.name))
 }
 
 function sectionOrder(section: string): number {
   const order = ['Controllers', 'Switches', 'Sensors']
   const i = order.indexOf(section)
-  return i < 0 ? order.length : i
+  if (i >= 0) return i
+  // driver sections (Constant-voltage / Constant-current) — keep CV before CC
+  return section.toLowerCase().includes('current') ? 101 : 100
+}
+
+/** Card facts for a driver SKU: power → output voltage → dimming → CV/CC → IP. */
+function driverFacts(p: Product, facets: Record<string, string[]>): string[] {
+  const facts: (string | undefined)[] = [
+    p.power_w != null ? `${p.power_w} W` : undefined,
+    p.output_voltage_v != null ? `${p.output_voltage_v} V` : undefined,
+    facets.dimming?.includes('triac') ? 'Triac dimmable'
+      : facets.dimming?.includes('dali') ? 'DALI'
+      : facets.dimming?.includes('none') ? 'Non-dimmable' : undefined,
+    facets.opmode?.includes('cv') ? 'Constant voltage' : facets.opmode?.includes('cc') ? 'Constant current' : undefined,
+    waterproofLabel(p.waterproof),
+  ]
+  return [...new Set(facts.filter((x): x is string => !!x))].slice(0, 5)
+}
+
+/** One short line describing the driver from its op-mode + IP. */
+function driverDesc(facets: Record<string, string[]>, p: Product): string {
+  const mode = facets.opmode?.includes('cc') ? 'Constant-current' : 'Constant-voltage'
+  const env = p.waterproof && p.waterproof !== 'non_waterproof' && p.waterproof !== 'ip20' ? ` · ${p.waterproof.toUpperCase()}` : ''
+  return `${mode} LED driver${env}.`
+}
+
+/** Build one visible catalogue card per LED-driver SKU. Drivers are selected by
+ * spec (wattage, voltage, dimming, IP), so the family landing exposes SKUs
+ * directly; the series page stays for range education. */
+export function buildDriverProductCards(family: ProductFamily, products: Product[]): CatalogueCard[] {
+  const authored = (code: string | null) => catalogueSeriesMeta(family.slug, code)
+  return products
+    .map((p) => {
+      const facets: Record<string, string[]> = {
+        outv: uniq([outvBand(p.output_voltage_v)]),
+        power: uniq([powerBand(p.power_w)]),
+        dimming: dimmingValues(p),
+        opmode: opmodeValues(p.operation_mode),
+        environment: environmentValues(p.waterproof),
+        formfactor: formfactorValues(p, authored(p.series)?.formFactor ?? []),
+      }
+      return skuCard(family, p, {
+        desc: driverDesc(facets, p),
+        facts: driverFacts(p, facets),
+        facets,
+        section: seriesSectionTitle(family.slug, [p]),
+        maxPowerForChips: p.power_w,
+      })
+    })
+    .sort((a, b) => (sectionOrder(a.section) - sectionOrder(b.section)) || a.name.localeCompare(b.name))
+}
+
+/** Card facts for a signage model: output → power → CCT options → IP → size. */
+function signageFacts(rep: Product, ccts: number[]): string[] {
+  const ip = rep.waterproof && /^ip\d+$/i.test(rep.waterproof)
+    ? rep.waterproof.toUpperCase()
+    : rep.subtitle?.match(/IP\s?\d{2}/i)?.[0].toUpperCase().replace(/\s/, '')
+  const facts: (string | undefined)[] = [
+    rep.brightness_lm != null ? `~ ${rep.brightness_lm} lm` : undefined,
+    rep.power_w != null ? `${rep.power_w} W` : undefined,
+    ccts.length ? `${ccts.join(' / ')} K` : undefined,
+    ip,
+    rep.length_mm != null ? `${rep.length_mm} mm` : undefined,
+  ]
+  return [...new Set(facts.filter((x): x is string => !!x))].slice(0, 5)
+}
+
+/** CCT suffix variants (-WW/-NW/-CW) are ONE product (user 2026-07-08). */
+const stripCctSuffix = (sku: string) => sku.replace(/-(WW|NW|CW)$/i, '')
+
+/** Signage collection order = the old envo-led.com menu (user 2026-07-08):
+ *  Mini → Eco → Pro (ProGlo then UltraFlare) → RGB → 24V → Sidelit. */
+const SIGNAGE_SERIES_ORDER = [
+  'envo_minilux', 'envo_ecoglo', 'envo_proglo', 'envo_ultraflare',
+  'envo_chromaflux', 'envo_optilume', 'envo_edgeblade', 'envo_edgeflare', 'envo_edgelume',
+]
+const signageSeriesOrder = (code: string | null): number => {
+  const i = code ? SIGNAGE_SERIES_ORDER.indexOf(code) : -1
+  return i < 0 ? 99 : i
+}
+/** Bead count from the model code (EV-BLML0**3**LBY → 3) — 单颗到多颗. */
+const beadsFromModelCode = (code: string): number => Number(code.match(/^EV-[A-Z]{4}(\d{2})/)?.[1] ?? 99)
+
+/** Build one catalogue card per signage MODEL (user 2026-07-08 — signage
+ * joins the product-first grid; CCT variants collapse into one card whose
+ * CCT options become a fact + facet). */
+export function buildSignageProductCards(family: ProductFamily, products: Product[]): CatalogueCard[] {
+  const byModel = new Map<string, Product[]>()
+  for (const p of products) {
+    const code = stripCctSuffix(p.sku)
+    if (!byModel.has(code)) byModel.set(code, [])
+    byModel.get(code)!.push(p)
+  }
+  return [...byModel.entries()]
+    .map(([code, variants]) => {
+      // neutral-white variant is the canonical face of a model
+      const rep = variants.find((v) => /-NW$/i.test(v.sku)) ?? variants[0]
+      const ccts = uniq(variants.map((v) => (v.cct_k != null ? String(v.cct_k) : undefined)))
+        .map(Number)
+        .sort((a, b) => a - b)
+      const facets: Record<string, string[]> = {
+        size: uniq(variants.map((v) => sizeBand(v.length_mm))),
+        ledconfig: ledConfigFromSkus(variants.map((v) => v.sku)),
+        brightness: uniq(variants.map((v) => brightnessBand(v.brightness_lm))),
+        cct: ccts.map(String),
+      }
+      const card = skuCard(family, rep, {
+        desc: catalogueSeriesMeta(family.slug, rep.series)?.blurb ?? (rep.series ? SERIES_BLURBS[rep.series] : undefined) ?? '',
+        facts: signageFacts(rep, ccts),
+        facets,
+        section: seriesSectionTitle(family.slug, [rep]),
+      })
+      return {
+        card: {
+          ...card,
+          key: `${family.slug}:${code}`,
+          sku: code, // model code, never a CCT-suffixed variant
+          name: rep.name.replace(/\s*[,·]?\s*\d{4}\s*K\b/i, '').trim(), // CCT is an option, not identity
+          modelCount: variants.length,
+        },
+        seriesOrder: signageSeriesOrder(rep.series),
+        beads: beadsFromModelCode(code),
+      }
+    })
+    // old-menu series order, then 单颗到多颗 within a series (SKU breaks ties:
+    // RGB before RGBW)
+    .sort(
+      (a, b) =>
+        (a.seriesOrder - b.seriesOrder) ||
+        (a.beads - b.beads) ||
+        a.card.name.localeCompare(b.card.name) ||
+        (a.card.sku ?? '').localeCompare(b.card.sku ?? ''),
+    )
+    .map((e) => e.card)
+}
+
+/** Pick the card set + layout for a family's category page.
+ *  Every family → per-SKU product cards (signage joined 2026-07-08). */
+export function buildProductCardsFor(
+  slug: string,
+  family: ProductFamily,
+  products: Product[],
+): { cards: CatalogueCard[]; layout: 'rows' | 'productGrid'; resultKind: 'series' | 'products' } {
+  switch (slug) {
+    case 'control-gear':
+      return { cards: buildControlGearProductCards(family, products), layout: 'productGrid', resultKind: 'products' }
+    case 'led-drivers':
+      return { cards: buildDriverProductCards(family, products), layout: 'productGrid', resultKind: 'products' }
+    case 'accessories':
+      return { cards: buildAccessoryProductCards(family, products), layout: 'productGrid', resultKind: 'products' }
+    default: // led-signage-modules
+      return { cards: buildSignageProductCards(family, products), layout: 'productGrid', resultKind: 'products' }
+  }
+}
+
+function accessoryFacts(p: Product): string[] {
+  const d = formatDims(p.length_mm, p.width_mm, p.height_mm)
+  const facts: (string | undefined)[] = [
+    p.material ?? undefined,
+    d ? d.mm : undefined,
+    waterproofLabel(p.waterproof),
+  ]
+  return [...new Set(facts.filter((x): x is string => !!x))].slice(0, 3)
+}
+
+/** Build one visible catalogue card per accessory SKU — individually purchasable
+ * items with no filter facets (buildGroups returns [] for this family). */
+export function buildAccessoryProductCards(family: ProductFamily, products: Product[]): CatalogueCard[] {
+  return products
+    .map((p) =>
+      skuCard(family, p, {
+        desc: p.short_description ?? '',
+        facts: accessoryFacts(p),
+        facets: {}, // accessories: no filter facets (buildGroups returns [] for this family)
+        section: seriesSectionTitle(family.slug, [p]),
+      }),
+    )
+    .sort((a, b) => a.name.localeCompare(b.name))
 }
 
 function group(
@@ -512,10 +709,16 @@ function group(
  * before. Driver facets must never leak onto other families.
  */
 export function buildGroups(cards: CatalogueCard[], familySlug?: string): FacetGroup[] {
+  // Series first (BounceLED-style range picker) on the per-SKU family pages.
+  // Values are display titles (labelFor = identity); options keep the cards'
+  // own order — signage follows the old-menu series order, drivers their
+  // name order — so the picker mirrors the grid.
+  const seriesGroup = () => group('series', 'Series', cards, (v) => v, () => 0)
   const candidates = (() => {
     switch (familySlug) {
       case 'led-drivers':
         return [
+          seriesGroup(),
           group('outv', 'Output voltage', cards, OUTV.label, OUTV.order),
           group('power', 'Power range', cards, POWER.label, POWER.order),
           group('dimming', 'Dimming', cards, DIMMING.label, DIMMING.order),
@@ -525,23 +728,31 @@ export function buildGroups(cards: CatalogueCard[], familySlug?: string): FacetG
         ]
       case 'control-gear':
         return [
+          seriesGroup(),
           group('protocol', 'Protocol', cards, PROTOCOL.label, PROTOCOL.order),
           group('function', 'Function', cards, FUNCTION.label, FUNCTION.order),
           group('controltype', 'Control type', cards, CONTROLTYPE.label, CONTROLTYPE.order),
           group('channels', 'Channels', cards, CHANNELS.label, CHANNELS.order),
         ]
       case 'accessories':
-        return []
+        return [seriesGroup()]
       case 'led-signage-modules':
         return [
+          seriesGroup(),
           group('size', 'Size', cards, SIZE.label, SIZE.order),
           group('ledconfig', 'LED configuration', cards, LED.label, LED.order),
           group('brightness', 'Brightness', cards, BRIGHTNESS.label, BRIGHTNESS.order),
           group('cct', 'Colour temp (CCT)', cards, (v) => `${v} K`, (v) => Number(v)),
         ]
-      default:
-        // /products (all families) — the original generic, adaptive set.
+      default: {
+        // /products (all families) — category picker first (BounceLED-style),
+        // then the generic adaptive set. Family order follows the site nav.
+        const FAMILY_ORDER = ['Signage Modules', 'LED Drivers', 'Control Gear', 'Accessories']
         return [
+          group('family', 'Category', cards, (v) => v, (v) => {
+            const i = FAMILY_ORDER.indexOf(v)
+            return i < 0 ? 99 : i
+          }),
           group('size', 'Size', cards, SIZE.label, SIZE.order),
           group('ledconfig', 'LED configuration', cards, LED.label, LED.order),
           group('brightness', 'Brightness', cards, BRIGHTNESS.label, BRIGHTNESS.order),
@@ -549,6 +760,7 @@ export function buildGroups(cards: CatalogueCard[], familySlug?: string): FacetG
           group('voltage', 'Voltage', cards, VOLTAGE.label, VOLTAGE.order),
           group('opmode', 'Driver type', cards, OPMODE.label, OPMODE.order),
         ]
+      }
     }
   })()
   return candidates.filter((g): g is FacetGroup => g !== null)
