@@ -24,7 +24,12 @@ export type CmsPage = {
 
 export async function getPageBySlug(slug: string): Promise<CmsPage | null> {
   const payload = await getPayload({ config })
-  const res = await payload.find({ collection: 'pages', where: { slug: { equals: slug } }, limit: 1 })
+  // drafts are NOT auto-filtered — never render an unpublished page publicly
+  const res = await payload.find({
+    collection: 'pages',
+    where: { and: [{ slug: { equals: slug } }, { _status: { equals: 'published' } }] },
+    limit: 1,
+  })
   const d = res.docs[0]
   if (!d) return null
   return {
@@ -43,7 +48,8 @@ export async function getFooterLegalPages(): Promise<{ label: string; href: stri
     const payload = await getPayload({ config })
     const res = await payload.find({
       collection: 'pages',
-      where: { showInFooter: { equals: true } },
+      // drafts are NOT auto-filtered — a draft legal page must not leak a link
+      where: { and: [{ showInFooter: { equals: true } }, { _status: { equals: 'published' } }] },
       limit: 50,
       sort: 'title',
     })
