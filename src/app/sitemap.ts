@@ -10,9 +10,15 @@ const BASE = (process.env.NEXT_PUBLIC_SITE_URL || 'http://localhost:3000').repla
 
 const STATIC_PATHS = [
   '', '/about', '/contact', '/products', '/solutions', '/blog',
+  '/blog/category/guides', '/blog/category/tech_insights',
+  '/blog/category/company_news', '/blog/category/industry',
   '/resources', '/resources/downloads', '/resources/tools',
   '/free-layout-design',
 ]
+// Deliberately NOT in the sitemap:
+// - /datasheets/<sku> PDFs — the proxy route sends X-Robots-Tag: noindex
+//   (PDFs must not compete with product pages in search results).
+// - /blog/tag/* — thin pages; crawlable via on-page links but not advertised.
 
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   const urls = new Set<string>()
@@ -26,9 +32,12 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     for (const p of docs) {
       const m = dbFamilyToMarketing(p.family ?? '')
       if (!m) continue
-      // Per-SKU pages were removed 2026-07-06 (the series page is the product
-      // grain) — emit only the series URL (Set dedupes repeats).
+      // Series page (Set dedupes repeats) + the per-SKU detail page that #156
+      // re-added for every family — mirrors generateStaticParams on
+      // /products/[slug]/[series], which builds both from the same visibility
+      // conditions, so every URL here is a real prerendered page.
       urls.add(`/products/${m.slug}/${seriesSlug(p.series)}`)
+      urls.add(`/products/${m.slug}/${encodeURIComponent(p.sku)}`)
     }
   } catch { /* keep static + family URLs */ }
 
