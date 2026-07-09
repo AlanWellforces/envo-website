@@ -60,7 +60,10 @@ export async function getDatasheetLibrary(): Promise<DatasheetDoc[]> {
     const href = datasheetHref(d.sku)
     if (!file || !href || seen.has(file)) continue
     seen.add(file)
-    docs.push({ id: d.sku!, title: d.name, url: href, range: rangeLabel(d.family) })
+    // model grain: one datasheet covers every CCT variant, so the row shows
+    // the SKU minus -NW/-WW/-CW (functional suffixes like -RGBW stay)
+    const model = d.sku!.replace(/-(NW|WW|CW)$/, '')
+    docs.push({ id: d.sku!, title: d.name, model, url: href, range: rangeLabel(d.family) })
   }
   return docs
 }

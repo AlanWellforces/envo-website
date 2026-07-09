@@ -28,7 +28,8 @@ export function ResourceLibrary({ docs }: { docs: DatasheetDoc[] }) {
     const term = query.trim().toLowerCase()
     return docs.filter((d) => {
       if (range !== ALL && d.range !== range) return false
-      if (term && !`${d.title} ${d.range}`.toLowerCase().includes(term)) return false
+      // id = full SKU, so CCT-suffixed searches (…-NW) still hit their model
+      if (term && !`${d.title} ${d.model} ${d.id} ${d.range}`.toLowerCase().includes(term)) return false
       return true
     })
   }, [docs, query, range])
@@ -108,7 +109,9 @@ export function ResourceLibrary({ docs }: { docs: DatasheetDoc[] }) {
             >
               <span className="rd-ic">PDF</span>
               <span className="rd-doc">
-                <span className="rd-name">{d.title}</span>
+                <span className="rd-name">
+                  {d.title} <span className="rd-model">{d.model}</span>
+                </span>
                 <span className="rd-chips">
                   <span className="rd-chip">{d.range}</span>
                   <span className="rd-chip">Datasheet</span>
