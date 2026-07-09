@@ -97,3 +97,16 @@ flight (worktree envo-wt-blog) — restore the link when it ships.
 Notes:
 - Sidebar has no Blog entry (nothing to hide there).
 - Restore trigger: Insights-hub PR merged + content approved by Wei.
+
+## 10. Contact-page address (hidden 2026-07-09)
+
+The "Reach us directly" panel no longer shows the physical address; email +
+phones stay. The Site Settings → Contact Details → address field stays in the
+CMS untouched.
+
+| Where | File | How |
+|---|---|---|
+| Contact aside "Address" block | `src/app/(frontend)/contact/page.tsx` | block removed at the `Address block hidden` comment — re-add the `styles.detail` div reading `contact?.address` |
+
+Notes:
+- Legal pages' registered-entity address is CMS page content — separate, untouched.

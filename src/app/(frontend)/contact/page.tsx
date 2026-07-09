@@ -1,7 +1,6 @@
 import type { Metadata } from 'next'
 import { metadataForRoute } from '@/lib/page-seo'
 import Link from 'next/link'
-import { Fragment } from 'react'
 import { ContactForm } from './ContactForm'
 import { getSiteSettings } from '@/lib/site-settings'
 import styles from './page.module.css'
@@ -20,8 +19,6 @@ const DEFAULT_PHONES = [
   { region: 'UK', display: '+44 20 3398 6515', href: 'tel:+442033986515' },
   { region: 'AU', display: '+61 2 7254 5288', href: 'tel:+61272545288' },
 ]
-const DEFAULT_ADDRESS = '409 Canton Street, Unit 5\nStoughton, MA 02072 · USA'
-
 const telHref = (display: string) => `tel:${display.replace(/[^\d+]/g, '')}`
 
 export default async function ContactPage() {
@@ -30,7 +27,6 @@ export default async function ContactPage() {
   const phones = contact?.phones?.length
     ? contact.phones.map((p) => ({ region: p.label, display: p.number, href: telHref(p.number) }))
     : DEFAULT_PHONES
-  const addressLines = (contact?.address?.trim() || DEFAULT_ADDRESS).split('\n')
   return (
     <div className="theme-light">
       <div className="container">
@@ -76,17 +72,9 @@ export default async function ContactPage() {
               </p>
             </div>
 
-            <div className={styles.detail}>
-              <p className={styles.detailLabel}>Address</p>
-              <p className={styles.detailVal}>
-                {addressLines.map((line, i) => (
-                  <Fragment key={i}>
-                    {i > 0 && <br />}
-                    {line}
-                  </Fragment>
-                ))}
-              </p>
-            </div>
+            {/* Address block hidden (user 2026-07-09) — hidden-features
+                registry §10; the Site Settings → address field stays in the
+                CMS untouched, so restoring = re-adding this block. */}
           </aside>
         </div>
 
