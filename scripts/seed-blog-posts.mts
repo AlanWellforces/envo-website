@@ -3,15 +3,11 @@
 //
 // Run with: tsx --tsconfig tsconfig.json scripts/seed-blog-posts.mts
 //
-// Covers: Payload Media is local-disk storage (staticDir: 'media', gitignored)
-// and the team's media files aren't synced to every machine — so existing
-// Media rows 500. This script UPLOADS fresh images from wf_image_pipeline/ready,
-// which writes the file to ./media on THIS machine, so the covers actually load.
+// Covers upload from public/assets/images/blog/ (committed editorial art,
+// exact article ↔ image mapping) so fresh databases seed correct covers.
 
-import fs from 'node:fs'
 import path from 'node:path'
-import os from 'node:os'
-import { initPayload } from './lib/bootstrap.mts'
+import { initPayload, root } from './lib/bootstrap.mts'
 
 const payload = await initPayload()
 
@@ -26,17 +22,18 @@ const ul = (items: string[]) => ({
 type Block = ReturnType<typeof para> | ReturnType<typeof h2> | ReturnType<typeof ul>
 const body = (blocks: Block[]) => ({ root: { type: 'root', direction: 'ltr', format: '', indent: 0, version: 1, children: blocks } })
 
-// ---- cover images: copy real files out of the image pipeline into a temp
-// dir under blog-* names (avoids colliding with the 1052 product Media rows),
-// then upload each so Payload writes it into ./media on this machine. ----
-const readyDir = path.join(os.homedir(), 'Desktop/wellforces_automation/wf_image_pipeline/ready')
-const tmpDir = fs.mkdtempSync(path.join(os.tmpdir(), 'envo-blog-cover-'))
+// ---- cover images: purpose-made editorial art committed in the repo
+// (public/assets/images/blog/, spec 2026-07-09 — each article has an exact
+// image + alt; never random SKU product shots). Uploaded as Media so the
+// detail hero / cards / OG images resolve them. ----
+const coverDir = path.join(root, 'public/assets/images/blog')
 
 async function uploadCover(srcName: string, alt: string): Promise<number> {
-  const src = path.join(readyDir, srcName)
-  const dest = path.join(tmpDir, `blog-${srcName}`)
-  fs.copyFileSync(src, dest)
-  const media = await payload.create({ collection: 'media', data: { alt } as never, filePath: dest })
+  const media = await payload.create({
+    collection: 'media',
+    data: { alt } as never,
+    filePath: path.join(coverDir, srcName),
+  })
   return (media as { id: number }).id
 }
 
@@ -45,7 +42,8 @@ async function uploadCover(srcName: string, alt: string): Promise<number> {
 const POSTS = [
   {
     title: 'Constant-Current vs Constant-Voltage Drivers, Explained',
-    category: 'tech_insights', featured: true, img: 'SE-12-100-400-W1A.jpg',
+    category: 'tech_insights', featured: true, img: 'blog-constant-current-vs-voltage-drivers.jpg',
+    alt: 'LED driver, signage modules, wiring, and multimeter arranged on an engineering workbench',
     tags: ['drivers', 'power'],
     excerpt: 'The single most common spec mistake in LED signage — and a simple rule for picking the right driver every time.',
     blocks: [
@@ -60,9 +58,10 @@ const POSTS = [
   },
   {
     title: 'Choosing the Right LED Module for Channel Letters',
-    category: 'guides', featured: false, img: 'EV-BLML03LBY-CW.jpg',
+    category: 'guides', featured: false, img: 'blog-channel-letter-module-guide.jpg',
+    alt: 'LED modules installed inside an open channel letter sign housing',
     tags: ['signage', 'channel-letters', 'minilux'],
-    excerpt: 'Module pitch, beam angle, and depth — the three numbers that decide whether your channel letters glow evenly or blotch.',
+    excerpt: 'Module pitch, beam angle, and letter depth — the three numbers that decide whether channel letters glow evenly or blotch.',
     blocks: [
       para('Channel letters live or die on uniformity. Too few modules and you get dark gaps; too many and you waste power and create hotspots.'),
       h2('Match pitch to letter depth'),
@@ -72,9 +71,10 @@ const POSTS = [
   },
   {
     title: "Inside ENVO's IP66 Rating: What It Really Means Outdoors",
-    category: 'tech_insights', featured: false, img: 'EV-BLUF04LBY-CW.jpg',
+    category: 'tech_insights', featured: false, img: 'blog-ip66-outdoor-rating.jpg',
+    alt: 'Outdoor sign cabinet with sealed LED modules and waterproof connectors after rain',
     tags: ['waterproof', 'outdoor', 'ultraflare'],
-    excerpt: 'IP66 is not "waterproof forever." Here is what the two digits actually certify — and where installs still go wrong.',
+    excerpt: 'IP66 is not "waterproof forever." Here is what the two digits actually certify — and where outdoor installs still go wrong.',
     blocks: [
       para('The first digit (6) means fully dust-tight. The second (6) means protected against powerful water jets from any direction. It does not mean continuous submersion.'),
       h2('Where outdoor installs fail anyway'),
@@ -88,9 +88,10 @@ const POSTS = [
   },
   {
     title: 'A Practical Guide to Zigbee Lighting Control',
-    category: 'guides', featured: false, img: 'LOP-500-12.jpg',
+    category: 'guides', featured: false, img: 'blog-zigbee-lighting-control.jpg',
+    alt: 'Wireless lighting controller connected to LED signage modules on a commissioning bench',
     tags: ['zigbee', 'smart-control'],
-    excerpt: 'Mesh networking, scenes, and scheduling — how to add wireless control to a signage install without re-running cable.',
+    excerpt: 'Mesh networking, scenes, and scheduling — how to add wireless control to signage without re-running cable.',
     blocks: [
       para('Zigbee builds a self-healing mesh: every powered node relays for its neighbours, so coverage grows as you add fixtures rather than fighting a single weak radio.'),
       h2('What you get'),
@@ -104,7 +105,8 @@ const POSTS = [
   },
   {
     title: 'RGBW vs RGB: Getting True Color in LED Signage',
-    category: 'tech_insights', featured: false, img: 'EV-BLCF03LBY-RGBW.jpg',
+    category: 'tech_insights', featured: false, img: 'blog-rgbw-vs-rgb-color.jpg',
+    alt: 'RGBW LED signage modules illuminating color samples and neutral white acrylic panels',
     tags: ['color', 'rgbw', 'chromaflux'],
     excerpt: 'Why a dedicated white channel beats mixing R+G+B — especially when the brief calls for a clean, branded white.',
     blocks: [
@@ -116,9 +118,10 @@ const POSTS = [
   },
   {
     title: 'Retail Signage Trends Lighting Up 2026',
-    category: 'industry', featured: true, img: 'EV-BLEG04LBY-CW.jpg',
+    category: 'industry', featured: true, img: 'blog-retail-signage-trends-2026.jpg',
+    alt: 'Modern retail storefront at dusk with illuminated signage and architectural light accents',
     tags: ['retail', 'trends', 'ecoglo'],
-    excerpt: 'Dynamic storefronts, tighter energy rules, and the quiet shift from neon nostalgia to clean edge-lit faces.',
+    excerpt: 'Dynamic storefronts, tighter energy rules, and the shift from neon nostalgia to clean edge-lit faces.',
     blocks: [
       para('Two forces are reshaping retail signage in 2026: energy regulation and the demand for storefronts that change with the campaign, not the renovation budget.'),
       h2('What we are seeing'),
@@ -132,9 +135,10 @@ const POSTS = [
   },
   {
     title: 'How Hotels Use Facade Lighting to Build Brand Presence',
-    category: 'industry', featured: false, img: 'EV-BLOL04LBY-CW.jpg',
+    category: 'industry', featured: false, img: 'blog-hotel-facade-lighting.jpg',
+    alt: 'Upscale hotel exterior at night with facade grazing and illuminated canopy lighting',
     tags: ['hospitality', 'facade', 'optilume'],
-    excerpt: 'A lit facade is a hotel\'s biggest billboard. Here is how the best properties use it without blowing the energy budget.',
+    excerpt: 'A lit facade is a hotel\'s biggest billboard. Here is how premium properties use light without wasting energy.',
     blocks: [
       para('For a hotel, the facade works every night for years. Done well, it is the cheapest brand impression per guest the property will ever buy.'),
       h2('Principles that hold up'),
@@ -144,9 +148,10 @@ const POSTS = [
   },
   {
     title: 'ENVO Expands Distribution Across 60+ Countries',
-    category: 'company_news', featured: false, img: 'EV-BLPG04LBY-CW.jpg',
+    category: 'company_news', featured: false, img: 'blog-global-distribution-news.jpg',
+    alt: 'Organized LED lighting product distribution workspace with packages and global network display',
     tags: ['company', 'distribution'],
-    excerpt: 'Field-proven ENVO modules and drivers are now stocked and supported through regional partners on six continents.',
+    excerpt: 'Field-proven ENVO modules, drivers, and control gear are now supported through regional partners worldwide.',
     blocks: [
       para('ENVO LED modules, drivers, and control gear are now available through regional distribution partners spanning more than 60 countries.'),
       h2('Buy and get support locally'),
@@ -160,7 +165,7 @@ const today = new Date('2026-06-02T09:00:00Z')
 let created = 0
 for (let i = 0; i < POSTS.length; i++) {
   const p = POSTS[i]
-  const coverId = await uploadCover(p.img, `${p.title} — cover`)
+  const coverId = await uploadCover(p.img, p.alt)
   const publishedAt = new Date(today.getTime() - i * 4 * 24 * 60 * 60 * 1000).toISOString() // 4 days apart, descending
   const doc = await payload.create({
     collection: 'posts',
@@ -180,6 +185,5 @@ for (let i = 0; i < POSTS.length; i++) {
   console.log(`✓ #${(doc as { id: number }).id} [${p.category}${p.featured ? ', featured' : ''}] ${p.title} (cover media #${coverId})`)
 }
 
-fs.rmSync(tmpDir, { recursive: true, force: true })
 console.log(`\ndone — created ${created} posts.`)
 process.exit(0)
