@@ -311,24 +311,22 @@ export function buildSkuDetailProps(
   const solutions = pack?.solutions.length ? pack.solutions : proseSolutions
 
   // Signage names are genuinely descriptive (series + module type + bead
-  // count), so the model page H1 carries the character too (user 2026-07-09:
-  // 标题不要只有一个SKU). Driver/control names are spec soup — those H1s stay
-  // code-only (user 2026-07-08) with the descriptor as the subtitle.
-  const title =
-    family.slug === 'led-signage-modules' && descriptiveName
-      ? `${displayCode} · ${descriptiveName}`
-      : displayCode
+  // count), so the model page H1 IS the descriptor — no SKU in the title
+  // (user 2026-07-09, final round); the model code moves to the subtitle.
+  // Driver/control names are spec soup — those H1s stay code-only (user
+  // 2026-07-08) with the descriptor as the subtitle.
+  const signageTitle = family.slug === 'led-signage-modules' && descriptiveName
+  const title = signageTitle ? descriptiveName : displayCode
 
   return {
     ...base,
     breadcrumb: { ...base.breadcrumb, seriesLabel: displayCode },
     eyebrow: `${family.tag.split('·')[0].trim()} · ${seriesLabel(product.series)}`,
     title,
-    heroSubtitle:
-      title === displayCode
-        ? descriptiveName ||
-          (solo.heroSubtitle ?? product.short_description?.trim() ?? product.subtitle?.trim() ?? undefined)
-        : (product.short_description?.trim() ?? undefined),
+    heroSubtitle: signageTitle
+      ? displayCode
+      : descriptiveName ||
+        (solo.heroSubtitle ?? product.short_description?.trim() ?? product.subtitle?.trim() ?? undefined),
     overview: overviewContent
       ? {
           heading: overviewContent.headline ?? `About the ${displayCode}.`,

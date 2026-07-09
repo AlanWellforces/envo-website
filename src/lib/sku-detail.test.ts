@@ -171,11 +171,12 @@ describe('buildSkuDetailProps', () => {
     expect(labels).toEqual(['20 Pieces Per String', 'Exceptional Materials'])
   })
 
-  it('signage model-page title carries the descriptor, not just the code', () => {
+  it('signage model-page title is the descriptor; the code moves to the subtitle', () => {
     const SIGNAGE = PRODUCT_FAMILIES.find((f) => f.slug === 'led-signage-modules')!
     const p = mk({ sku: 'EV-BLEG03LBY-NW', name: 'ENVO EcoGlo LED Module Backlit - Triple LED', series: 'envo_ecoglo' })
     const props = buildSkuDetailProps(SIGNAGE, p, [p])
-    expect(props.title).toBe('EV-BLEG03LBY · EcoGlo LED Module Backlit - Triple LED')
+    expect(props.title).toBe('EcoGlo LED Module Backlit - Triple LED')
+    expect(props.heroSubtitle).toBe('EV-BLEG03LBY')
     expect(props.breadcrumb.seriesLabel).toBe('EV-BLEG03LBY') // crumb stays short
   })
 
