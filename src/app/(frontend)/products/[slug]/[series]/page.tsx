@@ -91,9 +91,11 @@ export async function generateMetadata({ params }: { params: Params }): Promise<
       if (variants.length) {
         const rep = variants.find((v) => /-NW$/i.test(v.sku)) ?? variants[0]
         const img = resolveProductImage(rep, DEFAULT_OG_IMAGE)
+        // tab/OG title carries the character too, not just the code
+        const descriptor = rep.name.replace(/^\s*envo\s+/i, '').trim()
         return detailMetadata(
-          `${code} — ENVO`,
-          rep.short_description ?? `${code} — specifications, datasheet and where to buy.`,
+          `${code} · ${descriptor} — ENVO`,
+          rep.short_description ?? `${descriptor} — specifications, datasheet and where to buy.`,
           `/products/${slug}/${encodeURIComponent(code)}`,
           img.src,
         )

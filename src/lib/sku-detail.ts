@@ -310,13 +310,25 @@ export function buildSkuDetailProps(
   const pack = SKU_WHERE_IT_WORKS[product.sku]
   const solutions = pack?.solutions.length ? pack.solutions : proseSolutions
 
+  // Signage names are genuinely descriptive (series + module type + bead
+  // count), so the model page H1 carries the character too (user 2026-07-09:
+  // 标题不要只有一个SKU). Driver/control names are spec soup — those H1s stay
+  // code-only (user 2026-07-08) with the descriptor as the subtitle.
+  const title =
+    family.slug === 'led-signage-modules' && descriptiveName
+      ? `${displayCode} · ${descriptiveName}`
+      : displayCode
+
   return {
     ...base,
     breadcrumb: { ...base.breadcrumb, seriesLabel: displayCode },
     eyebrow: `${family.tag.split('·')[0].trim()} · ${seriesLabel(product.series)}`,
-    title: displayCode,
+    title,
     heroSubtitle:
-      descriptiveName || (solo.heroSubtitle ?? product.short_description?.trim() ?? product.subtitle?.trim() ?? undefined),
+      title === displayCode
+        ? descriptiveName ||
+          (solo.heroSubtitle ?? product.short_description?.trim() ?? product.subtitle?.trim() ?? undefined)
+        : (product.short_description?.trim() ?? undefined),
     overview: overviewContent
       ? {
           heading: overviewContent.headline ?? `About the ${displayCode}.`,
