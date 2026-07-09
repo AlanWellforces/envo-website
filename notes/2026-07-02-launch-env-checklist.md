@@ -69,14 +69,14 @@ pointing at the prod project.
    `BACKFILL_DIR=<abs cache dir> npx tsx --tsconfig tsconfig.json scripts/backfill-clean-images.mts`
    then
    `npx tsx --tsconfig tsconfig.json scripts/backfill-sibling-clean-images.mts`
-4. **EV-BLEG02LBY-\* clean image — manual, no script.** u2net erases this
-   white-on-white product shot, so the rembg backfill produces a blank PNG.
-   Dev fix was a centre-crop of the raw photo saved as media
-   `clean-bleg02-recrop.png`. Replay: download that file from the dev
-   Supabase bucket (dev admin → Media → clean-bleg02-recrop), upload it into
-   prod Payload Media, set it as `clean_image` on **EV-BLEG02LBY-WW / -NW /
-   -CW**. (Crop recipe if regenerating: mask non-white pixels in the
-   430–1720px vertical band of the raw photo, bbox + 24% pad.)
+4. **Blank clean images** (u2net erases white-on-white product shots — hit
+   EV-BLEG02LBY *and* EV-BLEG03LBY on dev). Scripted + idempotent:
+   `npx tsx --tsconfig tsconfig.json scripts/fix-blank-clean-images.mts`
+   — sweeps every visible product's clean image, measures visible pixels,
+   recrops the raw Akeneo photo for any blank one and repoints the CCT
+   variants. `MEDIA_BASE` must point at a server that serves `/api/media`
+   against the prod DB (or run after media URLs are absolute). Sanity-check:
+   `DRY_RUN=1` first; expect ~2 blanks on a fresh prod sync.
 5. **Solutions seed** — `npx tsx --tsconfig tsconfig.json scripts/seed-solutions.mts`,
    then hit `/api/revalidate` (solutions pages are ISR 3600).
 6. **CMS pages seed** — `npx tsx --tsconfig tsconfig.json scripts/seed-cms-pages.mts`
