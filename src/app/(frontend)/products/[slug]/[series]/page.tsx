@@ -33,6 +33,10 @@ export async function generateStaticParams() {
   for (const f of ['led-signage-modules', 'led-drivers', 'control-gear', 'accessories']) {
     const products = await getProductsByMarketingFamily(f, { depth: 0 })
     const slugs = new Set(products.map((p) => toSeriesSlug(p.series)))
+    // No page for the no-series "other" bucket (user 2026-07-09) — nothing
+    // links to it and dynamicParams=false turns the URL into a 404. The
+    // bucket's products keep their SKU detail pages below.
+    slugs.delete('other')
     for (const s of slugs) params.push({ slug: f, series: s })
     if (SKU_DETAIL_FAMILIES.has(f)) {
       if (f === 'led-signage-modules') {
