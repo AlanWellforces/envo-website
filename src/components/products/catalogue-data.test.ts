@@ -362,7 +362,7 @@ describe('per-family card dispatcher', () => {
     expect(x.name).toBe('ENVO EcoGlo Single') // CCT is an option, not identity
     expect(x.facets.cct).toEqual(['3000', '4000'])
     expect(x.facts).toEqual(expect.arrayContaining(['~ 33 lm', '0.65 W', '3000 / 4000 K']))
-    expect(x.href).toBe('/products/led-signage-modules/EV-X01-NW') // canonical NW variant
+    expect(x.href).toBe('/products/led-signage-modules/EV-X01') // model-grain page (user 2026-07-09)
     expect(x.ctaLabel).toBe('View product')
   })
 })

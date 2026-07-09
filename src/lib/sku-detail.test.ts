@@ -26,8 +26,8 @@ describe('buildSkuDetailProps', () => {
 
   it('scopes the hero to the single product', () => {
     const props = buildSkuDetailProps(DRIVERS, current, [current, sibling])
-    expect(props.title).toBe('EV-SNG-350-24') // H1 = the SKU code, not the spec-soup name
-    expect(props.heroSubtitle).toBe('SNG 350W 24V') // descriptive name (brand/SKU stripped)
+    expect(props.title).toBe('SNG 350W 24V') // H1 = the descriptor (user 2026-07-09), never the SKU
+    expect(props.heroSubtitle).toBe('EV-SNG-350-24') // the code moves to the subtitle
     expect(props.breadcrumb.seriesLabel).toBe('EV-SNG-350-24') // crumb ends on the SKU
     expect(props.heroStage).toHaveLength(1) // stage = one product image, no sibling collage
     expect(props.thumbs?.[0]?.label).toBe('EV-SNG-350-24') // own tile only — never sibling-model tiles
@@ -43,7 +43,7 @@ describe('buildSkuDetailProps', () => {
     const p = mk({ sku: 'EV-BLPG01LBY-NW', name: 'ENVO ProGlo LED Module Backlit - Single LED', spec_sheet_url: 's.pdf' })
     const props = buildSkuDetailProps(DRIVERS, p, [p])
     expect(props.downloads?.[0]?.name).toBe('EV-BLPG01LBY datasheet')
-    expect(props.title).toBe('EV-BLPG01LBY-NW') // H1 keeps the full SKU — only the download label is shared
+    expect(props.title).toBe('ProGlo LED Module Backlit - Single LED') // descriptor-led H1 (user 2026-07-09)
   })
 
   it('keeps functional SKU suffixes in the datasheet download name', () => {
@@ -52,11 +52,13 @@ describe('buildSkuDetailProps', () => {
     expect(props.downloads?.[0]?.name).toBe('EV-SE-15-TDM datasheet')
   })
 
-  it('strips the brand and SKU out of the subtitle', () => {
+  it('strips the brand and SKU out of the title; falls back to the code when the name is only brand+SKU', () => {
     const p = mk({ sku: 'EV-SNG-350-24', name: 'Envo EV-SNG-350-24 LED Driver 350W 24V Waterproof IP67 14.58A' })
     const props = buildSkuDetailProps(DRIVERS, p, [p])
-    expect(props.title).toBe('EV-SNG-350-24')
-    expect(props.heroSubtitle).toBe('LED Driver 350W 24V Waterproof IP67 14.58A')
+    expect(props.title).toBe('LED Driver 350W 24V Waterproof IP67 14.58A')
+    expect(props.heroSubtitle).toBe('EV-SNG-350-24')
+    const bare = mk({ sku: 'EV-SNG-350-24', name: 'ENVO EV-SNG-350-24' })
+    expect(buildSkuDetailProps(DRIVERS, bare, [bare]).title).toBe('EV-SNG-350-24')
   })
 
   it('raises the hero key-spec cap to 8 for a fully-specced SKU', () => {
@@ -169,6 +171,15 @@ describe('buildSkuDetailProps', () => {
     expect(ov.lede).toContain('ChromaFlux')
     const labels = ov.features?.map((f) => f.label)
     expect(labels).toEqual(['20 Pieces Per String', 'Exceptional Materials'])
+  })
+
+  it('signage model-page title is the descriptor; the code moves to the subtitle', () => {
+    const SIGNAGE = PRODUCT_FAMILIES.find((f) => f.slug === 'led-signage-modules')!
+    const p = mk({ sku: 'EV-BLEG03LBY-NW', name: 'ENVO EcoGlo LED Module Backlit - Triple LED', series: 'envo_ecoglo' })
+    const props = buildSkuDetailProps(SIGNAGE, p, [p])
+    expect(props.title).toBe('EcoGlo LED Module Backlit - Triple LED')
+    expect(props.heroSubtitle).toBe('EV-BLEG03LBY')
+    expect(props.breadcrumb.seriesLabel).toBe('EV-BLEG03LBY') // crumb stays short
   })
 
   it('never includes a price field', () => {

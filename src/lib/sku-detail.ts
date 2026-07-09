@@ -8,6 +8,7 @@ import type { Product } from '@/lib/products'
 import type { ProductFamily } from '@/data/product-families'
 import { seriesLabel } from '@/data/family-map'
 import { buildMergedSeriesProps } from '@/lib/merged-series'
+import { stripCctSuffix } from '@/components/products/catalogue-data'
 import { SKU_WHERE_IT_WORKS } from '@/data/sku-where-it-works.generated'
 import type { MergedSeriesProps, MergedSolution } from '@/components/products/merged/MergedSeriesPage'
 
@@ -289,8 +290,11 @@ export function buildSkuDetailProps(
   const overviewContent = parseOverview(product.description)
 
   // H1 = the SKU code (Akeneo names are spec soup — those numbers already live
-  // in the key-spec grid). The descriptive remainder of the name, stripped of
-  // brand + SKU, becomes the one-line subtitle.
+  // in the key-spec grid). Signage pages are MODEL-grain: the CCT suffix never
+  // shows in titles/labels (user 2026-07-09). The descriptive remainder of the
+  // name, stripped of brand + SKU, becomes the one-line subtitle.
+  const displayCode =
+    family.slug === 'led-signage-modules' ? stripCctSuffix(product.sku) : product.sku
   const skuPattern = new RegExp(`\\b${product.sku.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')}\\b`, 'i')
   const descriptiveName = product.name
     .replace(skuPattern, '')
@@ -306,27 +310,32 @@ export function buildSkuDetailProps(
   const pack = SKU_WHERE_IT_WORKS[product.sku]
   const solutions = pack?.solutions.length ? pack.solutions : proseSolutions
 
+  // EVERY product page leads with the descriptor, never the SKU (user
+  // 2026-07-09: 所有产品都要改) — the code moves to the subtitle and stays
+  // in the breadcrumb. Products whose PIM name is nothing but brand+SKU
+  // fall back to the code.
+  const title = descriptiveName || displayCode
+
   return {
     ...base,
-    breadcrumb: { ...base.breadcrumb, seriesLabel: product.sku },
+    breadcrumb: { ...base.breadcrumb, seriesLabel: displayCode },
     eyebrow: `${family.tag.split('·')[0].trim()} · ${seriesLabel(product.series)}`,
-    title: product.sku,
-    heroSubtitle:
-      descriptiveName || (solo.heroSubtitle ?? product.short_description?.trim() ?? product.subtitle?.trim() ?? undefined),
+    title,
+    heroSubtitle: title === displayCode ? (product.short_description?.trim() ?? undefined) : displayCode,
     overview: overviewContent
       ? {
-          heading: overviewContent.headline ?? `About the ${product.sku}.`,
+          heading: overviewContent.headline ?? `About the ${displayCode}.`,
           paragraphs: overviewParagraphs(overviewContent, { familySlug: family.slug, product, solutions: proseSolutions }),
         }
       : undefined,
     // exact facts for THIS SKU, never series-wide ranges
     keySpecs: solo.keySpecs,
     datasheetUrl: solo.datasheetUrl,
-    // One datasheet covers every CCT variant of a model, so the download label
-    // drops the -NW/-WW/-CW suffix (H1/crumb keep the full SKU). Functional
-    // suffixes (-TDM, -RGB, …) are distinct products and stay.
+    // One datasheet covers every CCT variant of a model — the label always
+    // drops -NW/-WW/-CW, whatever the family. Functional suffixes (-TDM,
+    // -RGB, …) are distinct products and stay.
     downloads: solo.datasheetUrl
-      ? [{ name: `${product.sku.replace(/-(NW|WW|CW)$/, '')} datasheet`, meta: 'PDF', href: solo.datasheetUrl }]
+      ? [{ name: `${stripCctSuffix(product.sku)} datasheet`, meta: 'PDF', href: solo.datasheetUrl }]
       : [],
     solutions,
     solutionsHeading: pack?.sectionTitle,
@@ -335,7 +344,7 @@ export function buildSkuDetailProps(
     // never sibling-model tiles
     heroStage: [solo.variants[0].image],
     thumbs: [
-      { ...solo.variants[0].image, label: product.sku },
+      { ...solo.variants[0].image, label: displayCode },
       ...(base.thumbs?.filter((t) => t.cover) ?? []),
     ],
     variants,

@@ -644,6 +644,8 @@ export function buildSignageProductCards(family: ProductFamily, products: Produc
           ...card,
           key: `${family.slug}:${code}`,
           sku: code, // model code, never a CCT-suffixed variant
+          // detail pages live at the model grain too (user 2026-07-09)
+          href: `/products/${family.slug}/${encodeURIComponent(code)}`,
           name: rep.name.replace(/\s*[,·]?\s*\d{4}\s*K\b/i, '').trim(), // CCT is an option, not identity
           modelCount: variants.length,
         },

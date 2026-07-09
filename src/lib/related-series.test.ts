@@ -56,14 +56,15 @@ describe('pickRelatedProducts', () => {
     expect(rel[0].kicker).toBe('LED Drivers · Screw Terminal')
     expect(rel[1].href).toMatch(/^\/products\/control-gear\//)
     // sibling = next model in the same series
-    expect(rel[2]).toMatchObject({ name: 'EV-BLEG03LBY-NW', href: '/products/led-signage-modules/EV-BLEG03LBY-NW', kicker: 'Also in Signage Modules' })
+    expect(rel[2]).toMatchObject({ name: 'EV-BLEG03LBY', href: '/products/led-signage-modules/EV-BLEG03LBY', kicker: 'Also in Signage Modules' })
   })
 
   it('24 V driver pairs with a 24 V-rail module (OptiLume); 12 V driver with an Eco module', () => {
+    // signage cards show the MODEL code — never a CCT-suffixed variant
     const rel24 = pickRelatedProducts('led-drivers', current(drivers, 'EV-SE-15-24US'), byFamily)
-    expect(rel24[0].name).toBe('EV-BLOL06LBY-NW')
+    expect(rel24[0]).toMatchObject({ name: 'EV-BLOL06LBY', href: '/products/led-signage-modules/EV-BLOL06LBY' })
     const rel12 = pickRelatedProducts('led-drivers', current(drivers, 'EV-SE-15-12US'), byFamily)
-    expect(rel12[0].name).toMatch(/^EV-BLEG/)
+    expect(rel12[0].name).toMatch(/^EV-BLEG\d+LBY$/)
   })
 
   it('driver sibling = adjacent model on the SAME voltage rail, wrapping', () => {
@@ -80,16 +81,15 @@ describe('pickRelatedProducts', () => {
     expect(rel[1].name).toMatch(/^(SR-2309PRO-5C|EV-ZBDIM-01)$/)
   })
 
-  it('never recommends a CCT variant: module picks are the NW model face, siblings skip CCT twins', () => {
-    // 12 V driver → Eco module: the -WW/-CW twins collapse into the NW face
+  it('never shows a CCT suffix: names/hrefs are model codes, siblings skip CCT twins', () => {
     const rel12 = pickRelatedProducts('led-drivers', current(drivers, 'EV-SE-15-12US'), byFamily)
-    expect(rel12[0].name).toMatch(/-NW$/)
+    expect(rel12[0].name).not.toMatch(/-(WW|NW|CW)$/)
     // module sibling = the next MODEL, never the same model's -WW twin
     const rel = pickRelatedProducts('led-signage-modules', current(modules, 'EV-BLEG02LBY-NW'), byFamily)
-    expect(rel[2].name).toBe('EV-BLEG03LBY-NW')
+    expect(rel[2]).toMatchObject({ name: 'EV-BLEG03LBY', href: '/products/led-signage-modules/EV-BLEG03LBY' })
     // …even when the page itself is a -WW variant
     const relWw = pickRelatedProducts('led-signage-modules', current(modules, 'EV-BLEG02LBY-WW'), byFamily)
-    expect(relWw[2].name).toBe('EV-BLEG03LBY-NW')
+    expect(relWw[2].name).toBe('EV-BLEG03LBY')
   })
 
   it('RGB context prefers the 5C zigbee receiver; zigbee control pairs with an RGB module', () => {
