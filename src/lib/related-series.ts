@@ -122,10 +122,13 @@ function pickControl(current: Product | null, controls: Product[]): Product | nu
 function card(familySlug: string, chosen: Product, kicker?: string): MergedRelated {
   const cat = categoriesOf(familySlug, chosen)[0]
   const img = resolveProductImage(chosen, seriesLineArt(chosen.series, familySlug))
+  // signage pages live at the MODEL grain — the CCT suffix never surfaces
+  // in a name or URL (user 2026-07-09)
+  const code = modelOf(familySlug, chosen.sku)
   return {
     kicker: kicker ?? `${familyName(familySlug)}${cat ? ` · ${cat}` : ''}`,
-    name: chosen.sku,
-    href: `/products/${familySlug}/${encodeURIComponent(chosen.sku)}`,
+    name: code,
+    href: `/products/${familySlug}/${encodeURIComponent(code)}`,
     image: { src: img.src, local: img.isLocal, alt: img.alt },
   }
 }

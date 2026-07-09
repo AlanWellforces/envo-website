@@ -1,5 +1,5 @@
 import type { Metadata } from 'next'
-import { notFound } from 'next/navigation'
+import { notFound, permanentRedirect } from 'next/navigation'
 import MergedSeriesPage from '@/components/products/merged/MergedSeriesPage'
 import { PRODUCT_FAMILIES, type SeriesLink } from '@/data/product-families'
 import { datasheetHref } from '@/lib/asset-url'
@@ -9,6 +9,7 @@ import { seriesSlug as toSeriesSlug } from '@/data/family-map'
 import { buildMergedSeriesProps } from '@/lib/merged-series'
 import { buildSkuDetailProps } from '@/lib/sku-detail'
 import { COMPLEMENT_FAMILIES, pickRelatedProducts } from '@/lib/related-series'
+import { stripCctSuffix } from '@/components/products/catalogue-data'
 import { SERIES_EDITORIAL } from '@/data/series-editorial.generated'
 import { seriesPurchaseLinks } from '@/data/distributors'
 
@@ -34,7 +35,17 @@ export async function generateStaticParams() {
     const slugs = new Set(products.map((p) => toSeriesSlug(p.series)))
     for (const s of slugs) params.push({ slug: f, series: s })
     if (SKU_DETAIL_FAMILIES.has(f)) {
-      for (const p of products) params.push({ slug: f, series: encodeURIComponent(p.sku) })
+      if (f === 'led-signage-modules') {
+        // signage detail pages live at the MODEL grain (user 2026-07-09) —
+        // one page per stripped code; the CCT-suffixed URLs stay as params
+        // only so they can 301 to the model page.
+        const codes = new Set(products.map((p) => stripCctSuffix(p.sku)))
+        for (const c of codes) params.push({ slug: f, series: encodeURIComponent(c) })
+        for (const p of products)
+          if (stripCctSuffix(p.sku) !== p.sku) params.push({ slug: f, series: encodeURIComponent(p.sku) })
+      } else {
+        for (const p of products) params.push({ slug: f, series: encodeURIComponent(p.sku) })
+      }
     }
   }
   return params
@@ -71,15 +82,33 @@ export async function generateMetadata({ params }: { params: Params }): Promise<
   if (editorial) return detailMetadata(`${editorial[1].label} — ENVO`, editorial[1].lede, canonical)
   // SKU detail pages (spec-driven families): title on the product itself.
   if (SKU_DETAIL_FAMILIES.has(slug)) {
-    const product = await getProduct(decodeURIComponent(series))
-    if (product) {
-      const img = resolveProductImage(product, DEFAULT_OG_IMAGE)
-      return detailMetadata(
-        `${product.name} — ENVO`,
-        product.short_description ?? `${product.name} — specifications, datasheet and where to buy.`,
-        canonical,
-        img.src,
-      )
+    const decoded = decodeURIComponent(series)
+    if (slug === 'led-signage-modules') {
+      // model-grain page — title/canonical on the stripped code (user 2026-07-09)
+      const code = stripCctSuffix(decoded)
+      const all = await getProductsByMarketingFamily(slug, { depth: 0 })
+      const variants = all.filter((p) => stripCctSuffix(p.sku) === code)
+      if (variants.length) {
+        const rep = variants.find((v) => /-NW$/i.test(v.sku)) ?? variants[0]
+        const img = resolveProductImage(rep, DEFAULT_OG_IMAGE)
+        return detailMetadata(
+          `${code} — ENVO`,
+          rep.short_description ?? `${code} — specifications, datasheet and where to buy.`,
+          `/products/${slug}/${encodeURIComponent(code)}`,
+          img.src,
+        )
+      }
+    } else {
+      const product = await getProduct(decoded)
+      if (product) {
+        const img = resolveProductImage(product, DEFAULT_OG_IMAGE)
+        return detailMetadata(
+          `${product.name} — ENVO`,
+          product.short_description ?? `${product.name} — specifications, datasheet and where to buy.`,
+          canonical,
+          img.src,
+        )
+      }
     }
   }
   return detailMetadata(`${family.name} — ENVO`, family.longDesc, canonical)
@@ -225,9 +254,30 @@ export default async function SeriesDetailPage({ params }: { params: Params }) {
     // always wins the segment; SKU is the fallback. (Design spec §3.)
     if (SKU_DETAIL_FAMILIES.has(slug)) {
       const decoded = decodeURIComponent(series)
-      const product = await getProduct(decoded)
-      if (product && all.some((p) => p.sku === product.sku)) {
-        const sameSeries = all.filter((p) => toSeriesSlug(p.series) === toSeriesSlug(product.series))
+      // Signage pages live at the MODEL grain (user 2026-07-09): CCT variants
+      // are one page; legacy suffixed URLs 301 to the model page.
+      let product: Product | null = null
+      let sameSeries: Product[] = []
+      if (slug === 'led-signage-modules') {
+        const code = stripCctSuffix(decoded)
+        if (code !== decoded && all.some((p) => p.sku === decoded)) {
+          permanentRedirect(`/products/${slug}/${encodeURIComponent(code)}`)
+        }
+        const variants = all.filter((p) => stripCctSuffix(p.sku) === code)
+        product = variants.find((v) => /-NW$/i.test(v.sku)) ?? variants[0] ?? null
+        if (product) {
+          const rep = product
+          sameSeries = all.filter((p) => toSeriesSlug(p.series) === toSeriesSlug(rep.series))
+        }
+      } else {
+        product = await getProduct(decoded)
+        if (product && !all.some((p) => p.sku === product!.sku)) product = null
+        if (product) {
+          const rep = product
+          sameSeries = all.filter((p) => toSeriesSlug(p.series) === toSeriesSlug(rep.series))
+        }
+      }
+      if (product) {
         // "Pairs with" — same complementary-family picks as the series page.
         // Sequential fetches on purpose — the dev pooler's connection cap.
         const productsByFamily: Record<string, Product[]> = { [slug]: all }
