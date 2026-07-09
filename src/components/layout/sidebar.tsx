@@ -444,43 +444,77 @@ export function Sidebar() {
 
   return (
     <>
-      <button
-        ref={toggleRef}
-        type="button"
-        className="mobile-menu-toggle"
-        aria-label={open ? 'Close menu' : 'Open menu'}
-        aria-controls="sidebar"
-        aria-expanded={open}
-        onClick={(e) => {
-          e.stopPropagation()
-          setOpen((o) => !o)
-        }}
-      >
-        <svg
-          width="20"
-          height="20"
-          viewBox="0 0 24 24"
-          fill="none"
-          stroke="currentColor"
-          strokeWidth="2"
-          strokeLinecap="round"
-          strokeLinejoin="round"
-          aria-hidden="true"
+      {/* Mobile-only fixed header: menu toggle + brand + catalogue search.
+          Desktop (≥981px) hides the whole bar — the sidebar owns the logo there. */}
+      <div className="mobile-header">
+        <button
+          ref={toggleRef}
+          type="button"
+          className="mobile-menu-toggle"
+          aria-label={open ? 'Close menu' : 'Open menu'}
+          aria-controls="sidebar"
+          aria-expanded={open}
+          onClick={(e) => {
+            e.stopPropagation()
+            setOpen((o) => !o)
+          }}
         >
-          {open ? (
-            <>
-              <line x1="5" y1="5" x2="19" y2="19" />
-              <line x1="19" y1="5" x2="5" y2="19" />
-            </>
-          ) : (
-            <>
-              <line x1="3" y1="6" x2="21" y2="6" />
-              <line x1="3" y1="12" x2="21" y2="12" />
-              <line x1="3" y1="18" x2="21" y2="18" />
-            </>
-          )}
-        </svg>
-      </button>
+          <svg
+            width="20"
+            height="20"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            strokeWidth="2"
+            strokeLinecap="round"
+            strokeLinejoin="round"
+            aria-hidden="true"
+          >
+            {open ? (
+              <>
+                <line x1="5" y1="5" x2="19" y2="19" />
+                <line x1="19" y1="5" x2="5" y2="19" />
+              </>
+            ) : (
+              <>
+                <line x1="3" y1="6" x2="21" y2="6" />
+                <line x1="3" y1="12" x2="21" y2="12" />
+                <line x1="3" y1="18" x2="21" y2="18" />
+              </>
+            )}
+          </svg>
+        </button>
+        <Link href="/" className="mobile-header-logo" aria-label="ENVO home" onClick={handleNavClick}>
+          <Image
+            src="/assets/images/logo-envo-darkbg.svg"
+            alt="ENVO"
+            width={92}
+            height={17}
+            priority
+          />
+        </Link>
+        <Link
+          href="/products?search=1"
+          className="mobile-header-search"
+          aria-label="Search the catalogue"
+          onClick={handleNavClick}
+        >
+          <svg
+            width="20"
+            height="20"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            strokeWidth="2"
+            strokeLinecap="round"
+            strokeLinejoin="round"
+            aria-hidden="true"
+          >
+            <circle cx="11" cy="11" r="7" />
+            <path d="M21 21l-4.3-4.3" />
+          </svg>
+        </Link>
+      </div>
 
       <aside
         ref={sidebarRef}

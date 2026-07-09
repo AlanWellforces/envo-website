@@ -1,6 +1,6 @@
 'use client'
 
-import { useMemo, useState } from 'react'
+import { useEffect, useMemo, useRef, useState } from 'react'
 import Image from 'next/image'
 import Link from 'next/link'
 import { useSearchParams } from 'next/navigation'
@@ -91,6 +91,14 @@ export function CatalogueFilter({
       setPreset(serializeSelection(urlSelection))
     }
   }
+  // ?search=1 (mobile-header search button): the search box sits below the
+  // results on phones, so scroll it into view and focus it on arrival.
+  const searchInputRef = useRef<HTMLInputElement>(null)
+  useEffect(() => {
+    if (searchParams.get('search') == null) return
+    searchInputRef.current?.scrollIntoView({ block: 'center' })
+    searchInputRef.current?.focus({ preventScroll: true })
+  }, [searchParams])
   // Accordion rail (user 2026-07-08): only the lead group (Series/Category)
   // opens by default — the rest collapse so the rail stays short. A group
   // with picks stays visible via its count badge even while closed.
@@ -179,6 +187,7 @@ export function CatalogueFilter({
             <path d="M21 21l-4.3-4.3" />
           </svg>
           <input
+            ref={searchInputRef}
             type="search"
             placeholder={resultKind === 'products' ? 'Search product or SKU…' : 'Search series or model…'}
             value={query}
