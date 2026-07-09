@@ -34,7 +34,7 @@ Secrets live in **Zoho Vault** — never in git, never reused from dev.
 | `NEXT_PUBLIC_SITE_URL` | ✅ | sitemap/SEO URLs point at localhost | The production domain, e.g. `https://envo-led.com` | deploy-time |
 | `S3_ENDPOINT` / `S3_BUCKET` / `S3_REGION` / `S3_ACCESS_KEY_ID` / `S3_SECRET_ACCESS_KEY` | ✅ | Editorial images 500; admin uploads don't persist across deploys (issue #24) | Prod Supabase → Storage → S3 connection | Alan |
 | `REVALIDATE_SECRET` | ✅ | Publishing Posts/Projects never refreshes live pages (ISR stale forever) | `openssl rand -hex 32` | Alan (set), any (generate) |
-| `RESEND_API_KEY` | ✅ for sales flow | Leads still stored, but **no email notification — sales never learns a lead came in** (silent) | Resend account + **verify envo-led.com sending domain (DNS records)** | needs owner — Resend account TBD |
+| `RESEND_API_KEY` | ✅ for sales flow | Leads still stored, but **no email notification — sales never learns a lead came in** (silent) | Resend account + **verify envo-led.com sending domain (DNS records)** | **Alan** (user 2026-07-09) — acceptance = the real test submission in Post-deploy verification below |
 | `ANALYTICS_SALT` | recommended | Falls back to `PAYLOAD_SECRET` (works, but rotating PAYLOAD_SECRET would reset visitor session hashes) | `openssl rand -hex 16` | any |
 | `ANTHROPIC_API_KEY` | recommended | Find Your Match falls back to template explanation (graceful, degraded) | Anthropic console + billing | needs owner — account TBD |
 | `AKENEO_*` (URL/CLIENT_ID/CLIENT_SECRET/USERNAME/PASSWORD) | ❌ on Vercel | Nothing at runtime — `akeneo-sync` is a manually-run script, not a route | Only needed wherever the sync script runs | Alan |
@@ -86,7 +86,9 @@ pointing at the prod project.
 ## Post-deploy verification
 
 - `curl https://<domain>/robots.txt` → 200, sitemap line shows the prod
-  domain; `/sitemap.xml` → ~160 URLs incl. per-SKU product pages.
+  domain; `/sitemap.xml` → ~106 URLs incl. per-SKU product pages (signage at
+  the model grain — zero `-WW/-NW/-CW` URLs; no `/blog`, `/products/accessories`
+  or `…/other` until those are opened up — see src/app/sitemap.ts).
 - One SKU page + `/contact`: `og:title` / `og:image` present with absolute
   prod URLs (og:image on SKU pages = the product's own clean image).
 - Real test submission on `/contact` **and** `/free-layout-design` (with a
