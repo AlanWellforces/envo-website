@@ -193,6 +193,10 @@ const SUPPORT_NAV = NAVIGATE.filter((i) => SUPPORT_SECTIONS.has(i.section))
 
 function isActive(pathname: string, href: string) {
   if (href === '/') return pathname === '/'
+  // Blog has no sidebar entry of its own (nav-hidden until the content library
+  // launches) — the Insights hub lives under the Resources umbrella, so the
+  // Resources item lights up while reading it.
+  if (href === '/resources' && (pathname === '/blog' || pathname.startsWith('/blog/'))) return true
   return pathname === href || pathname.startsWith(href + '/')
 }
 
