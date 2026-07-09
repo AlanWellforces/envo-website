@@ -2054,14 +2054,10 @@ const MOCKUP_BODY = `
             <svg class="row-icon" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M9.5 9a2.5 2.5 0 015 0c0 2-2.5 2-2.5 4"/><circle cx="12" cy="17" r="0.5"/></svg>
             Not sure which fits?
           </span>
-          <span class="row-sublabel">Get a recommendation in 60 sec or have an engineer spec it</span>
+          <span class="row-sublabel">Have an engineer spec it</span>
         </div>
         <div class="compare-cell compare-cell-span3 help-ctas">
-          <a class="pill" href="/files/find-your-match.html">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="13 2 4 14 12 14 11 22 20 10 12 10 13 2"/></svg>
-            Find Your Match · 60-sec wizard
-          </a>
-          <a class="pill primary" href="/files/home-light-v3.html#layout-design">
+          <a class="pill primary" href="/free-layout-design">
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 19l7-7 3 3-7 7-3-3z"/><path d="M18 13l-1.5-7.5L2 2l3.5 14.5L13 18l5-5z"/></svg>
             Free Layout Design · engineer-reviewed
           </a>
@@ -2078,7 +2074,7 @@ const MOCKUP_BODY = `
           <div class="row-thumb">
             <img loading="lazy" decoding="async" src="/assets/images/cat-drivers.png" alt="">
             <div class="body">
-              <a href="/files/products-v3.html#drivers"><strong>EV-SL Linear 12 V</strong></a> — slim 60–100 W variants drive any Mini run. Max 40 modules per string on a constant-voltage feed; parallel multiple strings for longer letters.
+              <a href="/products/led-drivers/envo-sl-us"><strong>EV-SL Linear 12 V</strong></a> — slim 60–100 W variants drive any Mini run. Max 40 modules per string on a constant-voltage feed; parallel multiple strings for longer letters.
             </div>
           </div>
         </div>
@@ -2092,7 +2088,7 @@ const MOCKUP_BODY = `
           <div class="row-thumb">
             <img loading="lazy" decoding="async" src="/assets/images/cat-drivers.png" alt="" style="filter: hue-rotate(-15deg) brightness(1.05);">
             <div class="body">
-              <a href="/files/products-v3.html#drivers"><strong>EV-SP-TDM</strong></a> triac-dimmable driver — phase-cut from a wall plate, no controller required.
+              <a href="/products/led-drivers/envo-sp-us"><strong>EV-SP-TDM</strong></a> triac-dimmable driver — phase-cut from a wall plate, no controller required.
             </div>
           </div>
         </div>
@@ -2106,7 +2102,7 @@ const MOCKUP_BODY = `
           <div class="row-thumb">
             <img loading="lazy" decoding="async" src="/assets/images/cat-sensors.png" alt="">
             <div class="body">
-              <a href="/files/products-v3.html#accessories"><strong>IP67 push-fit connectors</strong></a> · 16 AWG pre-tinned cable — weather-tight cable runs.
+              <strong>IP67 push-fit connectors</strong> · 16 AWG pre-tinned cable — weather-tight cable runs.
             </div>
           </div>
         </div>
@@ -2328,8 +2324,7 @@ const MOCKUP_BODY = `
         <p>Drop a sketch, CAD or photo — an ENVO engineer reviews the letter strokes and cabinet depth, then writes back the right Mini variant + driver + accessory list with reasoning. No charge.</p>
       </div>
       <div style="display:flex; gap: 10px; flex-shrink: 0;">
-        <a class="pri" href="/files/home-light-v3.html#layout-design">Start a layout design</a>
-        <a class="ghost" href="/files/find-your-match.html">Find your match</a>
+        <a class="pri" href="/free-layout-design">Start a layout design</a>
       </div>
     </div>
   </section>
