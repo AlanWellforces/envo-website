@@ -7,10 +7,12 @@ const nextConfig: NextConfig = {
     // Serve AVIF/WebP at display size instead of original JPG/PNG.
     formats: ['image/avif', 'image/webp'],
     remotePatterns: [
-      // Akeneo PIM product images (products.image_url_fallback / clean_*)
+      // Akeneo PIM product images — legacy remote fallback. Product images are
+      // now localized onto the box, but datasheets still resolve via Akeneo, so
+      // this stays until datasheet localization lands.
       { protocol: 'https', hostname: 'wellforces-akeneo-pim.s3.ap-southeast-2.amazonaws.com' },
-      // Supabase Storage (Payload media binaries once the S3 adapter is live)
-      { protocol: 'https', hostname: 'amqqqdgosgfmojjcuzcz.supabase.co' },
+      // (Supabase Storage host removed 2026-07-09 — Supabase retired; media is
+      // served from the box's local disk.)
     ],
   },
   // Dev-only: allow the dev server's client JS / HMR chunks to be served when
