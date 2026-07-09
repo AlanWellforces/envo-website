@@ -97,6 +97,8 @@ export type MergedSeriesProps = {
     html?: string
   }
   solutions?: MergedSolution[]
+  /** overrides the "Built for the job." heading (per-SKU editorial packs) */
+  solutionsHeading?: string
   downloads?: MergedDownload[]
   related?: MergedRelated[]
   /** hero stage override — SKU detail pages show ONLY the viewed product's
@@ -554,7 +556,7 @@ export default function MergedSeriesPage(p: MergedSeriesProps) {
             <div className="solutions">
               <div className="sol-head">
                 <div className="eyebrow">Where it works</div>
-                <h2>Built for the job.</h2>
+                <h2>{p.solutionsHeading ?? 'Built for the job.'}</h2>
               </div>
               <div className={`sol-grid${p.solutions.some((s) => s.image) ? ' has-img' : ''}`}>
                 {p.solutions.map((s) => (
@@ -581,8 +583,13 @@ export default function MergedSeriesPage(p: MergedSeriesProps) {
           <div className="band-inner">
             <div className="rel">
               <div className="rel-head">
-                <h2>Pairs with</h2>
-                <Link href={p.breadcrumb.familyHref}>All {p.breadcrumb.familyName.toLowerCase()} →</Link>
+                {/* "Related products", not "Pairs with" — the picks are
+                     spec-based suggestions, not a certified pairing (user
+                     2026-07-09) */}
+                <h2>Related products</h2>
+                {/* the cards cross families, so "view all" goes to the whole
+                     catalogue — not the current family (user 2026-07-09) */}
+                <Link href="/products">All products →</Link>
               </div>
               <div className="rel-grid">
                 {p.related.map((r) => (

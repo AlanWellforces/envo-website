@@ -152,6 +152,25 @@ describe('buildSkuDetailProps', () => {
     expect(ov.lede).toContain('MiniLux LED Modules')
   })
 
+  it('parseOverview drops signage boilerplate: junk headline, QA fluff, cert lists; digit labels split', () => {
+    const ov = parseOverview(
+      '<h2 id="x">Key Features:</h2><h2 id="y">Application:</h2>' +
+        '<p>Illuminate your signage with precision and vibrant clarity using the ChromaFlux LED Module by ENVO. Designed for versatility and high performance.</p>' +
+        '<ul>' +
+        '<li>20 Pieces Per String: Each string includes 20 LED modules, offering flexibility.</li>' +
+        '<li>Exceptional Materials: 99.99% pure gold thread paired with a pure copper bracket.</li>' +
+        '<li>Uncompromising Quality: 100% testing during production ensures reliability.</li>' +
+        '<li>Constant Voltage: Enjoy consistent and reliable lighting performance.</li>' +
+        '<li>Constant Current System: Offers stable and reliable lighting performance.</li>' +
+        '<li>Certified Quality: Rest assured with certifications from CE, RoHS, UL, TUV, BIS, CB, and LM-80.</li>' +
+        '</ul>',
+    )!
+    expect(ov.headline).toBeUndefined() // "Key Features:" / "Application:" are section labels, not headlines
+    expect(ov.lede).toContain('ChromaFlux')
+    const labels = ov.features?.map((f) => f.label)
+    expect(labels).toEqual(['20 Pieces Per String', 'Exceptional Materials'])
+  })
+
   it('never includes a price field', () => {
     const props = buildSkuDetailProps(DRIVERS, mk({ sku: 'Y', price_nzd: 9 }), [mk({ sku: 'Y' })])
     expect(JSON.stringify(props)).not.toMatch(/nzd|"price"/i)
