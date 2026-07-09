@@ -7,7 +7,13 @@ export const Media: CollectionConfig = {
   slug: 'media',
   admin: {
     useAsTitle: 'alt',
-    group: 'Products',
+    group: 'Catalogue',
+    // Thumbnail leads (Shopify-style). Payload only links the FIRST column, and
+    // a custom ui Cell isn't auto-wrapped — so MediaThumbnailCell renders its
+    // own link to the edit view when it's the linked column.
+    defaultColumns: ['preview', 'filename', 'alt', 'url', 'createdAt', 'fileSize'],
+    // Search box matches both the alt text and the filename (1000+ uploads).
+    listSearchableFields: ['alt', 'filename'],
   },
   access: {
     read: () => true,
@@ -38,6 +44,28 @@ export const Media: CollectionConfig = {
     mimeTypes: ['image/jpeg', 'image/png', 'image/webp', 'image/gif'],
   },
   fields: [
+    {
+      // Image preview column for the list view (no stored data).
+      name: 'preview',
+      type: 'ui',
+      label: 'Preview',
+      admin: {
+        components: {
+          Cell: '/payload/components/MediaThumbnailCell#MediaThumbnailCell',
+        },
+      },
+    },
+    {
+      // Human-readable file size (reads filesize bytes from the row).
+      name: 'fileSize',
+      type: 'ui',
+      label: 'Size',
+      admin: {
+        components: {
+          Cell: '/payload/components/MediaFileSizeCell#MediaFileSizeCell',
+        },
+      },
+    },
     {
       name: 'alt',
       type: 'text',

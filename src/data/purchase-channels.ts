@@ -1,46 +1,33 @@
-// Brand-wide "Where to buy" config. Used by series detail pages (and
-// eventually any product page). Two regional distributors:
-//   - NZ / Asia-Pacific  →  wellforces.co.nz  (parent company)
-//   - US / Global        →  powersupplymall.com (US service partner)
+// Brand-wide "Where to buy" config. ENVO is supplied worldwide through two
+// authorised supply channels (the site sells nothing direct — no checkout):
+//   - wellforces.co.nz     → New Zealand & Asia-Pacific
+//   - powersupplymall.com  → United States & global
 //
-// The marketing site does not sell direct (no checkout) — these URLs are the
-// canonical destinations. Update this file when a new region or partner is
-// added; pages should not hardcode the URLs.
+// Both are equally authorised — there is no primary/secondary channel. So the
+// two are NOT ranked ("Primary"/"Global"); instead each carries a `regionLabel`
+// stating the coverage it serves, and users pick by their region + domain. The
+// `id` values are historical region codes kept only for localStorage / geo-
+// routing (see RegionProvider + data/distributors.ts) — never shown to users.
+// Update this file when a channel is added; pages should not hardcode URLs.
 
 export type PurchaseChannel = {
-  /** ISO-ish region identifier, used as React key. */
+  /** Stable channel id (historical region code). Internal only — never shown. */
   id: 'nz-ap' | 'us-global'
-  /** Single emoji used as the visual region marker. */
-  flag: string
-  /** Short uppercase region label shown above the heading. */
+  /** Coverage this channel serves, so users pick the right one for their region. */
   regionLabel: string
-  /** Heading shown on the channel card. */
-  heading: string
-  /** One-paragraph body explaining what's available in this region. */
-  body: string
-  /** Primary "View product on …" URL (full https). */
+  /** Destination URL for this channel (full https) — used as a link href only. */
   url: string
-  /** Short display label for the primary CTA, e.g. "wellforces.co.nz". */
-  urlLabel: string
 }
 
 export const PURCHASE_CHANNELS: PurchaseChannel[] = [
   {
     id: 'nz-ap',
-    flag: '🇳🇿',
-    regionLabel: 'New Zealand · Asia-Pacific',
-    heading: 'Available through wellforces.co.nz',
-    body: 'ENVO\'s Asia-Pacific service partner — full range carried locally with NZ warranty, NZD pricing and same-day Auckland dispatch for trade and project customers.',
+    regionLabel: 'New Zealand & Asia-Pacific',
     url: 'https://wellforces.co.nz',
-    urlLabel: 'wellforces.co.nz',
   },
   {
     id: 'us-global',
-    flag: '🇺🇸',
-    regionLabel: 'United States · Global region',
-    heading: 'Available through powersupplymall.com',
-    body: 'ENVO\'s US service partner stocks the full range with local warranty support and serves international customers outside the Asia-Pacific region.',
+    regionLabel: 'United States & Global',
     url: 'https://powersupplymall.com',
-    urlLabel: 'powersupplymall.com',
   },
 ]

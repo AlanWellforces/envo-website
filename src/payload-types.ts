@@ -70,8 +70,16 @@ export interface Config {
     products: Product;
     media: Media;
     posts: Post;
-    'payload-kv': PayloadKv;
+    projects: Project;
+    pages: Page;
+    solutions: Solution;
+    faqs: Faq;
+    submissions: Submission;
+    'lead-files': LeadFile;
+    events: Event;
+    'page-seo': PageSeo;
     users: User;
+    'payload-kv': PayloadKv;
     'payload-locked-documents': PayloadLockedDocument;
     'payload-preferences': PayloadPreference;
     'payload-migrations': PayloadMigration;
@@ -81,8 +89,16 @@ export interface Config {
     products: ProductsSelect;
     media: MediaSelect;
     posts: PostsSelect;
-    'payload-kv': PayloadKvSelect;
+    projects: ProjectsSelect;
+    pages: PagesSelect;
+    solutions: SolutionsSelect;
+    faqs: FaqsSelect;
+    submissions: SubmissionsSelect;
+    'lead-files': LeadFilesSelect;
+    events: EventsSelect;
+    'page-seo': PageSeoSelect;
     users: UsersSelect;
+    'payload-kv': PayloadKvSelect;
     'payload-locked-documents': PayloadLockedDocumentsSelect;
     'payload-preferences': PayloadPreferencesSelect;
     'payload-migrations': PayloadMigrationsSelect;
@@ -91,8 +107,14 @@ export interface Config {
     defaultIDType: number;
   };
   fallbackLocale: null;
-  globals: {};
-  globalsSelect: {};
+  globals: {
+    'site-settings': SiteSetting;
+    'home-page': HomePage;
+  };
+  globalsSelect: {
+    'site-settings': SiteSettingsSelect;
+    'home-page': HomePageSelect;
+  };
   locale: null;
   widgets: {
     collections: CollectionsWidget;
@@ -122,7 +144,7 @@ export interface UserAuthOperations {
   };
 }
 /**
- * ENVO product catalogue. Synced from Akeneo — edit freely. Enable sync_locked to prevent Akeneo from overwriting your changes.
+ * ENVO product catalogue. ⚠️ The nightly Akeneo sync OVERWRITES every "Synced from Akeneo" field — turn on Sync locked (sidebar) before hand-editing a product, or your changes disappear on the next sync. Payload-only fields (uploads, subtitle, pricing) are always safe.
  *
  * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "products".
@@ -130,7 +152,7 @@ export interface UserAuthOperations {
 export interface Product {
   id: number;
   /**
-   * Synced from Akeneo. Edit freely.
+   * Synced from Akeneo — the nightly sync overwrites edits unless Sync locked is on.
    */
   name: string;
   /**
@@ -142,7 +164,7 @@ export interface Product {
    */
   short_description?: string | null;
   /**
-   * Full product description. Accepts HTML. Synced from Akeneo — edit to override.
+   * Full product description. Accepts HTML. Synced from Akeneo — the nightly sync overwrites edits unless Sync locked is on.
    */
   description?: string | null;
   /**
@@ -263,11 +285,25 @@ export interface Product {
   maximum_detection_range?: string | null;
   multiway?: boolean | null;
   standards_met?:
-    | ('c_ce' | 'c_saa' | 'c_tuv' | 'c_ul' | 'c_rcm' | 'c_fcc' | 'c_rohs' | 'c_enec' | 'c_bis' | 'c_cb' | 'c_lm80')[]
+    | (
+        | 'c_ce'
+        | 'c_tuv'
+        | 'c_rohs'
+        | 'c_saa'
+        | 'c_ul'
+        | 'c_cul'
+        | 'c_cb'
+        | 'c_bis'
+        | 'c_rcm'
+        | 'c_fcc'
+        | 'c_selv'
+        | 'c_enec'
+        | 'c_lm80'
+      )[]
     | null;
   warranty_years?: number | null;
   /**
-   * Retail price ex-GST.
+   * Retail price ex-GST. Internal — never rendered on the site.
    */
   price_nzd?: number | null;
   inventory_type?: ('stocked' | 'on_demand') | null;
@@ -319,15 +355,15 @@ export interface Product {
       }[]
     | null;
   /**
-   * Page title tag. Synced from Akeneo.
+   * Page title tag. Synced from Akeneo — overwritten on sync unless Sync locked is on.
    */
   seo_title?: string | null;
   /**
-   * Meta description. Synced from Akeneo.
+   * Meta description. Synced from Akeneo — overwritten on sync unless Sync locked is on.
    */
   seo_description?: string | null;
   /**
-   * Questions and answers shown on the product page. Synced from Akeneo — edit freely.
+   * Questions and answers shown on the product page. Synced from Akeneo — overwritten on sync unless Sync locked is on.
    */
   faq?:
     | {
@@ -422,15 +458,11 @@ export interface Post {
   id: number;
   title: string;
   /**
-   * Auto-generated from title. Edit in the database if you must change it.
-   */
-  slug: string;
-  /**
-   * Shown on cards and as the meta-description fallback. 200 chars max.
+   * Shown on blog cards and used as the meta-description fallback (max 200 characters).
    */
   excerpt: string;
   /**
-   * Cover image. Used on list cards and the detail page header.
+   * Cover image — used on list cards and as the detail-page header.
    */
   cover: number | Media;
   body: {
@@ -448,9 +480,36 @@ export interface Post {
     };
     [k: string]: unknown;
   };
+  /**
+   * Optional. Falls back to the post title if empty.
+   */
+  seoTitle?: string | null;
+  /**
+   * Optional. Falls back to the excerpt if empty.
+   */
+  seoDescription?: string | null;
+  /**
+   * Optional. Falls back to the cover image if empty.
+   */
+  ogImage?: (number | null) | Media;
+  /**
+   * When the post goes live. Set a future date/time to schedule it.
+   */
+  publishedAt: string;
+  /**
+   * Primary section. Drives the /blog/category pages.
+   */
   category: 'guides' | 'tech_insights' | 'company_news' | 'industry';
   /**
-   * Free-form tags. Used for /blog/tag/[t] pages.
+   * Show in featured spots on /blog and the home page.
+   */
+  featured?: boolean | null;
+  /**
+   * Post URL: /blog/<slug>. Auto-filled from the title — edit only for a custom URL.
+   */
+  slug: string;
+  /**
+   * Free-form tags. Power the /blog/tag pages.
    */
   tags?:
     | {
@@ -458,26 +517,6 @@ export interface Post {
         id?: string | null;
       }[]
     | null;
-  /**
-   * When this post becomes visible. Future dates work as scheduled publishing.
-   */
-  publishedAt: string;
-  /**
-   * Show in featured spots on /blog and home.
-   */
-  featured?: boolean | null;
-  /**
-   * Optional. Falls back to title if empty.
-   */
-  seoTitle?: string | null;
-  /**
-   * Optional. Falls back to excerpt if empty.
-   */
-  seoDescription?: string | null;
-  /**
-   * Optional. Falls back to cover if empty.
-   */
-  ogImage?: (number | null) | Media;
   /**
    * Estimated minutes to read. Calculated on save.
    */
@@ -487,13 +526,409 @@ export interface Post {
   _status?: ('draft' | 'published') | null;
 }
 /**
+ * Real-world ENVO LED installations. Publish to make a case study visible on the website.
+ *
  * This interface was referenced by `Config`'s JSON-Schema
- * via the `definition` "payload-kv".
+ * via the `definition` "projects".
  */
-export interface PayloadKv {
+export interface Project {
   id: number;
-  key: string;
-  data:
+  title: string;
+  /**
+   * Client or building owner. Leave blank if under NDA.
+   */
+  client?: string | null;
+  /**
+   * City and country.
+   */
+  location?: string | null;
+  /**
+   * Year completed.
+   */
+  completedYear?: number | null;
+  /**
+   * Shown on project cards and used as the meta-description fallback (max 200 characters).
+   */
+  excerpt: string;
+  /**
+   * Cover image — used on list cards and as the detail-page hero.
+   */
+  cover: number | Media;
+  body: {
+    root: {
+      type: string;
+      children: {
+        type: any;
+        version: number;
+        [k: string]: unknown;
+      }[];
+      direction: ('ltr' | 'rtl') | null;
+      format: 'left' | 'start' | 'center' | 'right' | 'end' | 'justify' | '';
+      indent: number;
+      version: number;
+    };
+    [k: string]: unknown;
+  };
+  /**
+   * Install photos. Caption is optional but boosts SEO + alt-text quality.
+   */
+  gallery?:
+    | {
+        image: number | Media;
+        caption?: string | null;
+        id?: string | null;
+      }[]
+    | null;
+  /**
+   * ENVO SKU codes used in this install. Front-end resolves each via getProduct() at render time — type a real Akeneo SKU.
+   */
+  productsUsed?:
+    | {
+        sku: string;
+        id?: string | null;
+      }[]
+    | null;
+  /**
+   * Headline stats shown on the featured card and the detail hero (e.g. 1,920 / Modules). Up to 4. Use real ENVO product params; leave empty to hide the spec row.
+   */
+  specs?:
+    | {
+        value: string;
+        label: string;
+        id?: string | null;
+      }[]
+    | null;
+  /**
+   * Leave blank to hide the testimonial block.
+   */
+  testimonial?: string | null;
+  /**
+   * Optional. Falls back to the project title if empty.
+   */
+  seoTitle?: string | null;
+  /**
+   * Optional. Falls back to the excerpt if empty.
+   */
+  seoDescription?: string | null;
+  /**
+   * Optional. Falls back to the cover image if empty.
+   */
+  ogImage?: (number | null) | Media;
+  /**
+   * When the project goes live. Set a future date/time to schedule it.
+   */
+  publishedAt: string;
+  /**
+   * Drives /projects/industry/[i] pages. Pick all that fit — a project can span sectors.
+   */
+  industry: ('retail' | 'hotel' | 'storefront' | 'architectural' | 'canopy' | 'other')[];
+  /**
+   * Show in the Featured strip on /projects and the home page.
+   */
+  featured?: boolean | null;
+  /**
+   * Project URL: /projects/<slug>. Auto-filled from the title — edit only for a custom URL.
+   */
+  slug: string;
+  /**
+   * Free-form tags. Power the /projects/tag/[t] pages.
+   */
+  tags?:
+    | {
+        tag: string;
+        id?: string | null;
+      }[]
+    | null;
+  updatedAt: string;
+  createdAt: string;
+  _status?: ('draft' | 'published') | null;
+}
+/**
+ * Standalone rich-text pages. Publish to make a page Visible on the website.
+ *
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "pages".
+ */
+export interface Page {
+  id: number;
+  title: string;
+  content: {
+    root: {
+      type: string;
+      children: {
+        type: any;
+        version: number;
+        [k: string]: unknown;
+      }[];
+      direction: ('ltr' | 'rtl') | null;
+      format: 'left' | 'start' | 'center' | 'right' | 'end' | 'justify' | '';
+      indent: number;
+      version: number;
+    };
+    [k: string]: unknown;
+  };
+  /**
+   * URL slug. Policy pages render at /<slug>; other pages at /pages/<slug>.
+   */
+  slug?: string | null;
+  /**
+   * Show this page in the footer legal links.
+   */
+  showInFooter?: boolean | null;
+  /**
+   * Optional. Falls back to the page title.
+   */
+  seoTitle?: string | null;
+  /**
+   * Meta description (aim ≤ 155 chars).
+   */
+  metaDescription?: string | null;
+  /**
+   * The "Last updated" date shown on the page. Set this manually; it does NOT auto-change on save.
+   */
+  lastUpdated?: string | null;
+  /**
+   * Optional social share image.
+   */
+  ogImage?: (number | null) | Media;
+  updatedAt: string;
+  createdAt: string;
+  _status?: ('draft' | 'published') | null;
+}
+/**
+ * Application solutions shown at /solutions — hero copy, gallery and the recommended kit. Publish to make one visible.
+ *
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "solutions".
+ */
+export interface Solution {
+  id: number;
+  name: string;
+  /**
+   * Small tag above the title.
+   */
+  eyebrow?: string | null;
+  heroTitle: string;
+  /**
+   * One–two sentences under the title, on the list row and the detail hero.
+   */
+  heroDesc?: string | null;
+  /**
+   * Card/hero image. Overrides the path below.
+   */
+  image?: (number | null) | Media;
+  /**
+   * Fallback repo asset path, e.g. /assets/images/app-mini-channel-letters.jpg
+   */
+  imagePath?: string | null;
+  /**
+   * Three short selling points shown as ticks.
+   */
+  checklist?:
+    | {
+        text: string;
+        id?: string | null;
+      }[]
+    | null;
+  /**
+   * Scenario chips on the /solutions card (e.g. Channel letters, Light boxes).
+   */
+  useCases?:
+    | {
+        label: string;
+        id?: string | null;
+      }[]
+    | null;
+  /**
+   * Detail-page gallery (first image leads).
+   */
+  gallery?:
+    | {
+        image?: (number | null) | Media;
+        /**
+         * Fallback asset path.
+         */
+        imagePath?: string | null;
+        alt: string;
+        id?: string | null;
+      }[]
+    | null;
+  /**
+   * "Best for" cards — the concrete applications this solution suits.
+   */
+  bestFor?:
+    | {
+        scenario: string;
+        note?: string | null;
+        id?: string | null;
+      }[]
+    | null;
+  /**
+   * Design considerations — what gets checked before speccing this build.
+   */
+  considerations?:
+    | {
+        title: string;
+        text?: string | null;
+        id?: string | null;
+      }[]
+    | null;
+  /**
+   * Recommended ENVO series — cards linking to series pages.
+   */
+  series?:
+    | {
+        name: string;
+        blurb?: string | null;
+        /**
+         * Series page, e.g. /products/led-signage-modules/envo-minilux
+         */
+        href: string;
+        image?: (number | null) | Media;
+        /**
+         * Fallback asset path.
+         */
+        imagePath?: string | null;
+        id?: string | null;
+      }[]
+    | null;
+  /**
+   * Kit section heading.
+   */
+  kitHeading?: string | null;
+  /**
+   * Kit section intro sentence.
+   */
+  kitLede?: string | null;
+  /**
+   * The matched parts for this build. Non-ENVO items render as "compatible" (dashed card, no product link).
+   */
+  kit?:
+    | {
+        /**
+         * ENVO-branded product (links to a product page).
+         */
+        envo?: boolean | null;
+        role: string;
+        /**
+         * Product page link — ENVO items only.
+         */
+        href?: string | null;
+        name: string;
+        desc?: string | null;
+        image?: (number | null) | Media;
+        /**
+         * Fallback asset path.
+         */
+        imagePath?: string | null;
+        /**
+         * Three short spec rows on the card.
+         */
+        specs?:
+          | {
+              label: string;
+              value: string;
+              id?: string | null;
+            }[]
+          | null;
+        id?: string | null;
+      }[]
+    | null;
+  /**
+   * "When to choose alternatives" rows — honest routing when another series or solution fits better.
+   */
+  alternatives?:
+    | {
+        when: string;
+        choose: string;
+        /**
+         * Optional link for the suggestion.
+         */
+        href?: string | null;
+        id?: string | null;
+      }[]
+    | null;
+  /**
+   * Used as <meta name="description">. Falls back to the short blurb, then the hero description. Aim ≤ 155 characters.
+   */
+  longDesc?: string | null;
+  /**
+   * Fallback summary for other pages linking here. Not shown on /solutions itself.
+   */
+  shortDesc?: string | null;
+  /**
+   * URL: /solutions/<slug>
+   */
+  slug: string;
+  /**
+   * List position — lower shows first.
+   */
+  order?: number | null;
+  updatedAt: string;
+  createdAt: string;
+  _status?: ('draft' | 'published') | null;
+}
+/**
+ * Questions answered on /resources/faq. Publish to make one visible.
+ *
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "faqs".
+ */
+export interface Faq {
+  id: number;
+  question: string;
+  answer: {
+    root: {
+      type: string;
+      children: {
+        type: any;
+        version: number;
+        [k: string]: unknown;
+      }[];
+      direction: ('ltr' | 'rtl') | null;
+      format: 'left' | 'start' | 'center' | 'right' | 'end' | 'justify' | '';
+      indent: number;
+      version: number;
+    };
+    [k: string]: unknown;
+  };
+  /**
+   * Which FAQ section this appears under.
+   */
+  group: 'ordering' | 'products' | 'installation' | 'warranty';
+  /**
+   * Sort order within the group (low → high).
+   */
+  order: number;
+  updatedAt: string;
+  createdAt: string;
+  _status?: ('draft' | 'published') | null;
+}
+/**
+ * Enquiries captured from the website. Newest first.
+ *
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "submissions".
+ */
+export interface Submission {
+  id: number;
+  type: 'free-layout' | 'find-your-match' | 'contact';
+  status?: ('new' | 'contacted' | 'archived') | null;
+  name?: string | null;
+  email?: string | null;
+  company?: string | null;
+  phone?: string | null;
+  /**
+   * What the customer wrote in the form.
+   */
+  message?: string | null;
+  /**
+   * Extra form answers (sign type, dimensions, location…), one per line.
+   */
+  details?: string | null;
+  sketch?: (number | null) | LeadFile;
+  sourcePath?: string | null;
+  data?:
     | {
         [k: string]: unknown;
       }
@@ -502,6 +937,80 @@ export interface PayloadKv {
     | number
     | boolean
     | null;
+  updatedAt: string;
+  createdAt: string;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "lead-files".
+ */
+export interface LeadFile {
+  id: number;
+  alt?: string | null;
+  updatedAt: string;
+  createdAt: string;
+  url?: string | null;
+  thumbnailURL?: string | null;
+  filename?: string | null;
+  mimeType?: string | null;
+  filesize?: number | null;
+  width?: number | null;
+  height?: number | null;
+  focalX?: number | null;
+  focalY?: number | null;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "events".
+ */
+export interface Event {
+  id: number;
+  kind: 'pageview' | 'find-your-match';
+  path?: string | null;
+  referrer?: string | null;
+  sessionHash?: string | null;
+  data?:
+    | {
+        [k: string]: unknown;
+      }
+    | unknown[]
+    | string
+    | number
+    | boolean
+    | null;
+  updatedAt: string;
+  createdAt: string;
+}
+/**
+ * SEO title / description / share image for code-built pages, keyed by route. Empty fields fall back to the page’s in-code defaults.
+ *
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "page-seo".
+ */
+export interface PageSeo {
+  id: number;
+  /**
+   * Exact route path, e.g. /about or /solutions/signage-lighting
+   */
+  route: string;
+  /**
+   * Optional friendly name shown in the admin list.
+   */
+  label?: string | null;
+  /**
+   * Overrides the <title>. Leave blank to keep the page default.
+   */
+  seoTitle?: string | null;
+  /**
+   * Overrides <meta name="description">. Aim ≤ 155 characters.
+   */
+  metaDescription?: string | null;
+  /**
+   * Optional social share image.
+   */
+  ogImage?: (number | null) | Media;
+  updatedAt: string;
+  createdAt: string;
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
@@ -509,6 +1018,11 @@ export interface PayloadKv {
  */
 export interface User {
   id: number;
+  name?: string | null;
+  /**
+   * Admins can manage users and settings. Editors can create and edit content.
+   */
+  role: 'admin' | 'editor';
   updatedAt: string;
   createdAt: string;
   email: string;
@@ -530,6 +1044,23 @@ export interface User {
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "payload-kv".
+ */
+export interface PayloadKv {
+  id: number;
+  key: string;
+  data:
+    | {
+        [k: string]: unknown;
+      }
+    | unknown[]
+    | string
+    | number
+    | boolean
+    | null;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "payload-locked-documents".
  */
 export interface PayloadLockedDocument {
@@ -546,6 +1077,38 @@ export interface PayloadLockedDocument {
     | ({
         relationTo: 'posts';
         value: number | Post;
+      } | null)
+    | ({
+        relationTo: 'projects';
+        value: number | Project;
+      } | null)
+    | ({
+        relationTo: 'pages';
+        value: number | Page;
+      } | null)
+    | ({
+        relationTo: 'solutions';
+        value: number | Solution;
+      } | null)
+    | ({
+        relationTo: 'faqs';
+        value: number | Faq;
+      } | null)
+    | ({
+        relationTo: 'submissions';
+        value: number | Submission;
+      } | null)
+    | ({
+        relationTo: 'lead-files';
+        value: number | LeadFile;
+      } | null)
+    | ({
+        relationTo: 'events';
+        value: number | Event;
+      } | null)
+    | ({
+        relationTo: 'page-seo';
+        value: number | PageSeo;
       } | null)
     | ({
         relationTo: 'users';
@@ -757,22 +1320,22 @@ export interface MediaSelect {
  */
 export interface PostsSelect {
   title?: boolean;
-  slug?: boolean;
   excerpt?: boolean;
   cover?: boolean;
   body?: boolean;
+  seoTitle?: boolean;
+  seoDescription?: boolean;
+  ogImage?: boolean;
+  publishedAt?: boolean;
   category?: boolean;
+  featured?: boolean;
+  slug?: boolean;
   tags?:
     | boolean
     | {
         tag?: boolean;
         id?: boolean;
       };
-  publishedAt?: boolean;
-  featured?: boolean;
-  seoTitle?: boolean;
-  seoDescription?: boolean;
-  ogImage?: boolean;
   readingTime?: boolean;
   updatedAt?: boolean;
   createdAt?: boolean;
@@ -780,17 +1343,246 @@ export interface PostsSelect {
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
- * via the `definition` "payload-kv_select".
+ * via the `definition` "projects_select".
  */
-export interface PayloadKvSelect {
-  key?: boolean;
+export interface ProjectsSelect {
+  title?: boolean;
+  client?: boolean;
+  location?: boolean;
+  completedYear?: boolean;
+  excerpt?: boolean;
+  cover?: boolean;
+  body?: boolean;
+  gallery?:
+    | boolean
+    | {
+        image?: boolean;
+        caption?: boolean;
+        id?: boolean;
+      };
+  productsUsed?:
+    | boolean
+    | {
+        sku?: boolean;
+        id?: boolean;
+      };
+  specs?:
+    | boolean
+    | {
+        value?: boolean;
+        label?: boolean;
+        id?: boolean;
+      };
+  testimonial?: boolean;
+  seoTitle?: boolean;
+  seoDescription?: boolean;
+  ogImage?: boolean;
+  publishedAt?: boolean;
+  industry?: boolean;
+  featured?: boolean;
+  slug?: boolean;
+  tags?:
+    | boolean
+    | {
+        tag?: boolean;
+        id?: boolean;
+      };
+  updatedAt?: boolean;
+  createdAt?: boolean;
+  _status?: boolean;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "pages_select".
+ */
+export interface PagesSelect {
+  title?: boolean;
+  content?: boolean;
+  slug?: boolean;
+  showInFooter?: boolean;
+  seoTitle?: boolean;
+  metaDescription?: boolean;
+  lastUpdated?: boolean;
+  ogImage?: boolean;
+  updatedAt?: boolean;
+  createdAt?: boolean;
+  _status?: boolean;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "solutions_select".
+ */
+export interface SolutionsSelect {
+  name?: boolean;
+  eyebrow?: boolean;
+  heroTitle?: boolean;
+  heroDesc?: boolean;
+  image?: boolean;
+  imagePath?: boolean;
+  checklist?:
+    | boolean
+    | {
+        text?: boolean;
+        id?: boolean;
+      };
+  useCases?:
+    | boolean
+    | {
+        label?: boolean;
+        id?: boolean;
+      };
+  gallery?:
+    | boolean
+    | {
+        image?: boolean;
+        imagePath?: boolean;
+        alt?: boolean;
+        id?: boolean;
+      };
+  bestFor?:
+    | boolean
+    | {
+        scenario?: boolean;
+        note?: boolean;
+        id?: boolean;
+      };
+  considerations?:
+    | boolean
+    | {
+        title?: boolean;
+        text?: boolean;
+        id?: boolean;
+      };
+  series?:
+    | boolean
+    | {
+        name?: boolean;
+        blurb?: boolean;
+        href?: boolean;
+        image?: boolean;
+        imagePath?: boolean;
+        id?: boolean;
+      };
+  kitHeading?: boolean;
+  kitLede?: boolean;
+  kit?:
+    | boolean
+    | {
+        envo?: boolean;
+        role?: boolean;
+        href?: boolean;
+        name?: boolean;
+        desc?: boolean;
+        image?: boolean;
+        imagePath?: boolean;
+        specs?:
+          | boolean
+          | {
+              label?: boolean;
+              value?: boolean;
+              id?: boolean;
+            };
+        id?: boolean;
+      };
+  alternatives?:
+    | boolean
+    | {
+        when?: boolean;
+        choose?: boolean;
+        href?: boolean;
+        id?: boolean;
+      };
+  longDesc?: boolean;
+  shortDesc?: boolean;
+  slug?: boolean;
+  order?: boolean;
+  updatedAt?: boolean;
+  createdAt?: boolean;
+  _status?: boolean;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "faqs_select".
+ */
+export interface FaqsSelect {
+  question?: boolean;
+  answer?: boolean;
+  group?: boolean;
+  order?: boolean;
+  updatedAt?: boolean;
+  createdAt?: boolean;
+  _status?: boolean;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "submissions_select".
+ */
+export interface SubmissionsSelect {
+  type?: boolean;
+  status?: boolean;
+  name?: boolean;
+  email?: boolean;
+  company?: boolean;
+  phone?: boolean;
+  message?: boolean;
+  details?: boolean;
+  sketch?: boolean;
+  sourcePath?: boolean;
   data?: boolean;
+  updatedAt?: boolean;
+  createdAt?: boolean;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "lead-files_select".
+ */
+export interface LeadFilesSelect {
+  alt?: boolean;
+  updatedAt?: boolean;
+  createdAt?: boolean;
+  url?: boolean;
+  thumbnailURL?: boolean;
+  filename?: boolean;
+  mimeType?: boolean;
+  filesize?: boolean;
+  width?: boolean;
+  height?: boolean;
+  focalX?: boolean;
+  focalY?: boolean;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "events_select".
+ */
+export interface EventsSelect {
+  kind?: boolean;
+  path?: boolean;
+  referrer?: boolean;
+  sessionHash?: boolean;
+  data?: boolean;
+  updatedAt?: boolean;
+  createdAt?: boolean;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "page-seo_select".
+ */
+export interface PageSeoSelect {
+  route?: boolean;
+  label?: boolean;
+  seoTitle?: boolean;
+  metaDescription?: boolean;
+  ogImage?: boolean;
+  updatedAt?: boolean;
+  createdAt?: boolean;
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "users_select".
  */
 export interface UsersSelect {
+  name?: boolean;
+  role?: boolean;
   updatedAt?: boolean;
   createdAt?: boolean;
   email?: boolean;
@@ -807,6 +1599,14 @@ export interface UsersSelect {
         createdAt?: boolean;
         expiresAt?: boolean;
       };
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "payload-kv_select".
+ */
+export interface PayloadKvSelect {
+  key?: boolean;
+  data?: boolean;
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
@@ -839,6 +1639,318 @@ export interface PayloadMigrationsSelect {
   batch?: boolean;
   updatedAt?: boolean;
   createdAt?: boolean;
+}
+/**
+ * Global site configuration — footer text, contact details, SEO defaults.
+ *
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "site-settings".
+ */
+export interface SiteSetting {
+  id: number;
+  /**
+   * Designed for the top of every page but not rendered by the site yet — editing has no effect until the banner component ships.
+   */
+  banner?: {
+    enabled?: boolean | null;
+    message?: string | null;
+    link_label?: string | null;
+    link_url?: string | null;
+    style?: ('info' | 'success' | 'warning' | 'promo') | null;
+  };
+  footer?: {
+    /**
+     * Default: "Engineered illumination to elevate performance."
+     */
+    tagline?: string | null;
+    /**
+     * Default: "© <year> Envo — Engineered Illumination". The year updates automatically in the default.
+     */
+    legal_text?: string | null;
+    /**
+     * Shown in the footer bottom row next to the legal links.
+     */
+    social_links?:
+      | {
+          platform?: ('linkedin' | 'instagram' | 'facebook' | 'youtube' | 'twitter') | null;
+          url: string;
+          id?: string | null;
+        }[]
+      | null;
+    /**
+     * Not rendered — the footer columns are code-owned; the Solutions column follows the Solutions collection automatically.
+     */
+    link_columns?:
+      | {
+          heading: string;
+          links?:
+            | {
+                label: string;
+                url: string;
+                id?: string | null;
+              }[]
+            | null;
+          id?: string | null;
+        }[]
+      | null;
+  };
+  /**
+   * Shown on /contact ("Reach us directly" rail) and in the footer. ENVO's own contact only — never distributor phone numbers.
+   */
+  contact?: {
+    /**
+     * Default: contact@envo-led.com.
+     */
+    email?: string | null;
+    /**
+     * ENVO's own numbers, one per region. Label = short region tag shown before the number, e.g. "US".
+     */
+    phones?:
+      | {
+          /**
+           * e.g. "US"
+           */
+          label: string;
+          /**
+           * Display format, e.g. "888.228.9138" or "+44 20 3398 6515"
+           */
+          number: string;
+          id?: string | null;
+        }[]
+      | null;
+    /**
+     * Line breaks respected. Default: 409 Canton Street, Unit 5 / Stoughton, MA 02072 · USA.
+     */
+    address?: string | null;
+  };
+  /**
+   * Not rendered yet — per-page SEO lives in the Page SEO collection. These site-wide defaults and the analytics IDs hook up in a later pass.
+   */
+  seo?: {
+    /**
+     * Used in title tags: "Product Name | ENVO"
+     */
+    site_name?: string | null;
+    title_separator?: string | null;
+    /**
+     * Fallback if a page has no specific description.
+     */
+    default_description?: string | null;
+    /**
+     * Fallback Open Graph image for social sharing (1200×630px recommended).
+     */
+    default_og_image?: (number | null) | Media;
+    /**
+     * e.g. G-XXXXXXXXXX
+     */
+    google_analytics_id?: string | null;
+    /**
+     * e.g. GTM-XXXXXXX
+     */
+    google_tag_manager_id?: string | null;
+  };
+  updatedAt?: string | null;
+  createdAt?: string | null;
+}
+/**
+ * Text for the homepage Hero, Why ENVO and Free Layout Design sections. Leave a field empty to keep the built-in copy. Saving publishes immediately.
+ *
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "home-page".
+ */
+export interface HomePage {
+  id: number;
+  /**
+   * Small label above the headline. Default: "High-Quality LED Signage Components".
+   */
+  hero_eyebrow?: string | null;
+  /**
+   * Main H1. A line break here becomes a line break on the page. Default: "Innovative signage / for the digital age."
+   */
+  hero_headline?: string | null;
+  /**
+   * Paragraph under the headline. Plain text — the built-in default keeps its bold styling until you override it.
+   */
+  hero_lead?: string | null;
+  /**
+   * Primary button. Default: "Explore signage modules" → /products.
+   */
+  hero_primary_label?: string | null;
+  hero_primary_url?: string | null;
+  /**
+   * Secondary button. Default: "Get free layout design" → /free-layout-design.
+   */
+  hero_ghost_label?: string | null;
+  hero_ghost_url?: string | null;
+  /**
+   * Default: "Why ENVO".
+   */
+  why_eyebrow?: string | null;
+  /**
+   * Section heading; line breaks respected. Default: "Engineered, certified, / supported."
+   */
+  why_heading?: string | null;
+  /**
+   * 3 pillar cards. Icons are fixed in code — only text is editable. Leave empty for defaults.
+   */
+  why_pillars?:
+    | {
+        title: string;
+        desc: string;
+        id?: string | null;
+      }[]
+    | null;
+  /**
+   * Proof numbers. Built-in defaults (200+ SKUs, 50,000h module lifetime, 4 families, CE·UL·TÜV) were verified against the product data on 2026-07-03. Keep any replacement verifiable — no response-time promises.
+   */
+  why_stats?:
+    | {
+        /**
+         * e.g. "10+"
+         */
+        value: string;
+        /**
+         * e.g. "years manufacturing"
+         */
+        label: string;
+        /**
+         * Highlight this number in brand lime.
+         */
+        lime?: boolean | null;
+        id?: string | null;
+      }[]
+    | null;
+  /**
+   * Default: "Free service". No response-time promises.
+   */
+  fl_eyebrow?: string | null;
+  /**
+   * Default: "Get a free layout design for your next project."
+   */
+  fl_heading?: string | null;
+  /**
+   * Paragraph inside the panel.
+   */
+  fl_body?: string | null;
+  /**
+   * Lime button. Default: "Get free layout design" → /free-layout-design.
+   */
+  fl_primary_label?: string | null;
+  fl_primary_url?: string | null;
+  /**
+   * Ghost button. Default: "Browse catalogue" → /products.
+   */
+  fl_ghost_label?: string | null;
+  fl_ghost_url?: string | null;
+  updatedAt?: string | null;
+  createdAt?: string | null;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "site-settings_select".
+ */
+export interface SiteSettingsSelect {
+  banner?:
+    | boolean
+    | {
+        enabled?: boolean;
+        message?: boolean;
+        link_label?: boolean;
+        link_url?: boolean;
+        style?: boolean;
+      };
+  footer?:
+    | boolean
+    | {
+        tagline?: boolean;
+        legal_text?: boolean;
+        social_links?:
+          | boolean
+          | {
+              platform?: boolean;
+              url?: boolean;
+              id?: boolean;
+            };
+        link_columns?:
+          | boolean
+          | {
+              heading?: boolean;
+              links?:
+                | boolean
+                | {
+                    label?: boolean;
+                    url?: boolean;
+                    id?: boolean;
+                  };
+              id?: boolean;
+            };
+      };
+  contact?:
+    | boolean
+    | {
+        email?: boolean;
+        phones?:
+          | boolean
+          | {
+              label?: boolean;
+              number?: boolean;
+              id?: boolean;
+            };
+        address?: boolean;
+      };
+  seo?:
+    | boolean
+    | {
+        site_name?: boolean;
+        title_separator?: boolean;
+        default_description?: boolean;
+        default_og_image?: boolean;
+        google_analytics_id?: boolean;
+        google_tag_manager_id?: boolean;
+      };
+  updatedAt?: boolean;
+  createdAt?: boolean;
+  globalType?: boolean;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "home-page_select".
+ */
+export interface HomePageSelect {
+  hero_eyebrow?: boolean;
+  hero_headline?: boolean;
+  hero_lead?: boolean;
+  hero_primary_label?: boolean;
+  hero_primary_url?: boolean;
+  hero_ghost_label?: boolean;
+  hero_ghost_url?: boolean;
+  why_eyebrow?: boolean;
+  why_heading?: boolean;
+  why_pillars?:
+    | boolean
+    | {
+        title?: boolean;
+        desc?: boolean;
+        id?: boolean;
+      };
+  why_stats?:
+    | boolean
+    | {
+        value?: boolean;
+        label?: boolean;
+        lime?: boolean;
+        id?: boolean;
+      };
+  fl_eyebrow?: boolean;
+  fl_heading?: boolean;
+  fl_body?: boolean;
+  fl_primary_label?: boolean;
+  fl_primary_url?: boolean;
+  fl_ghost_label?: boolean;
+  fl_ghost_url?: boolean;
+  updatedAt?: boolean;
+  createdAt?: boolean;
+  globalType?: boolean;
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema

@@ -1,138 +1,72 @@
-'use client'
-
 import Image from 'next/image'
+import { RegionShippingChip } from '@/components/region/RegionShippingChip'
 import Link from 'next/link'
-import { useEffect, useRef } from 'react'
-import { PRODUCT_FAMILIES } from '@/data/product-families'
+import { ArrowRight } from './icons'
+import { Lines } from './lines'
+import type { HomeHeroData } from '@/lib/home-page'
 
-// Hero uses shorter, punchier copy than the canonical PRODUCT_FAMILIES
-// (e.g. "Signage Module" singular vs "Signage Modules" plural). href + image
-// are derived from PRODUCT_FAMILIES so a slug/path/image rename can't drift.
-const HERO_COPY: Record<string, { name: string; desc: string; cta: string }> = {
-  'led-signage-modules': { name: 'Signage Module', desc: 'Consistent brightness. Built to last.',           cta: 'Explore Modules' },
-  'led-drivers':         { name: 'LED Driver',     desc: 'Stable power. Maximum efficiency.',                cta: 'Explore Drivers' },
-  'control-gear':        { name: 'Control Gear',   desc: 'Intelligent control. Seamless integration.',      cta: 'Explore Control Gear' },
-  'accessories':         { name: 'Accessories',    desc: 'Complete the system. Every detail matters.',      cta: 'Explore Accessories' },
-}
-
-const PRODUCTS = PRODUCT_FAMILIES.filter((f) => HERO_COPY[f.slug]).map((f) => ({
-  href: f.href,
-  img: f.image,
-  ...HERO_COPY[f.slug],
-}))
-
-export function Hero() {
-  const videoRef = useRef<HTMLVideoElement>(null)
-
-  useEffect(() => {
-    const video = videoRef.current
-    if (!video) return
-
-    const showReady = () => video.classList.add('ready')
-    const onError = () => {
-      video.style.display = 'none'
-    }
-
-    video.addEventListener('playing', showReady)
-    video.addEventListener('loadeddata', showReady)
-    video.addEventListener('error', onError)
-
-    video.play().catch(() => {
-      // autoplay blocked by browser — fall through, the static dark
-      // bg from body still shows through.
-    })
-
-    return () => {
-      video.removeEventListener('playing', showReady)
-      video.removeEventListener('loadeddata', showReady)
-      video.removeEventListener('error', onError)
-    }
-  }, [])
-
+export function Hero({ data = {} }: { data?: HomeHeroData }) {
   return (
-    <section className="hero">
+    <section className="v4-hero">
       <video
-        ref={videoRef}
-        className="hero-bg-video"
+        className="v4-hero-bg"
         autoPlay
         muted
         loop
         playsInline
         preload="metadata"
+        poster="/assets/images/hero-signage-poster.jpg"
       >
-        <source src="/assets/videos/hero-led-night.mp4" type="video/mp4" />
+        <source src="/assets/videos/hero-signage.mp4" type="video/mp4" />
       </video>
-      <div className="diamond-bg" aria-hidden="true" />
-
-      <div className="container hero-inner">
-        <div className="hero-eyebrow">Engineered Illumination</div>
-        <h1>
-          Light that <em>performs.</em>
-        </h1>
-        <p className="hero-sub">
-          ENVO designs and manufactures professional grade LED lighting systems that power signage
-          and architectural illumination worldwide.
-        </p>
-
-        <div className="hero-features">
-          <div className="hero-feature">
-            <svg className="hero-feature-icon" viewBox="0 0 24 24" aria-hidden="true">
-              <circle cx="12" cy="12" r="9" />
-              <circle cx="12" cy="12" r="5" />
-              <circle cx="12" cy="12" r="1.5" />
-            </svg>
-            <div className="hero-feature-text">
-              <span className="hero-feature-label">Tailored Solutions</span>
-              <span className="hero-feature-desc">Built around your project needs</span>
-            </div>
+      <div className="v4-wrap">
+        <div className="v4-hero-col">
+          <div className="v4-eyebrow">{data.eyebrow ?? 'High-Quality LED Signage Components'}</div>
+          <h1>
+            {data.headline ? (
+              <Lines text={data.headline} />
+            ) : (
+              <>
+                Innovative signage
+                <br />
+                for the digital age.
+              </>
+            )}
+          </h1>
+          <p className="lead">
+            {data.lead ?? (
+              <>
+                LED <b>modules, drivers, controllers and accessories</b> — engineered for sign-makers,
+                backed by free layout design and shipped fast.
+              </>
+            )}
+          </p>
+          <div className="v4-chips">
+            <span className="v4-chip">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                <circle cx="12" cy="12" r="9" />
+                <path d="M12 7.5v5l3.2 2" />
+              </svg>{' '}
+              Free LED layout design
+            </span>
+            <RegionShippingChip />
+            <span className="v4-chip cert-chip">
+              <Image src="/assets/images/certs/ce.png" alt="CE" width={25} height={20} priority />
+              <Image src="/assets/images/certs/ul.png" alt="UL" width={20} height={20} priority />
+              {/* props match the file's true 528×300 ratio (44:25 = 1.76) so
+                  Next's aspect-ratio check passes; CSS sizes it to 20px tall */}
+              <Image src="/assets/images/certs/rohs.png" alt="RoHS" width={44} height={25} priority />
+              <Image src="/assets/images/certs/tuv.png" alt="TÜV" width={20} height={20} priority />
+            </span>
           </div>
-          <div className="hero-feature">
-            <svg className="hero-feature-icon" viewBox="0 0 24 24" aria-hidden="true">
-              <circle cx="12" cy="12" r="3" />
-              <path d="M12 4v2M12 18v2M4 12h2M18 12h2M6.3 6.3l1.4 1.4M16.3 16.3l1.4 1.4M6.3 17.7l1.4-1.4M16.3 7.7l1.4-1.4" />
-            </svg>
-            <div className="hero-feature-text">
-              <span className="hero-feature-label">Smart Lighting Control</span>
-              <span className="hero-feature-desc">Flexible, reliable, and future ready</span>
-            </div>
-          </div>
-          <div className="hero-feature">
-            <svg className="hero-feature-icon" viewBox="0 0 24 24" aria-hidden="true">
-              <path d="M3 10h13l3 4v3h-2" />
-              <circle cx="7.5" cy="17" r="2" />
-              <circle cx="16.5" cy="17" r="2" />
-              <path d="M3 10v7h2.5" />
-            </svg>
-            <div className="hero-feature-text">
-              <span className="hero-feature-label">Reliable Delivery</span>
-              <span className="hero-feature-desc">Global supply. Consistent quality</span>
-            </div>
-          </div>
-        </div>
-      </div>
-
-      <div className="hero-right">
-        <div className="hero-product-grid">
-          {PRODUCTS.map((p) => (
-            <Link key={p.href} href={p.href} className="hero-product-card">
-              <div className="hpc-body">
-                <div className="hpc-name">{p.name}</div>
-                <div className="hpc-desc">{p.desc}</div>
-                <div className="hpc-link">
-                  {p.cta} <span>→</span>
-                </div>
-              </div>
-              <div className="hpc-img">
-                <Image
-                  src={p.img}
-                  alt={p.name}
-                  width={400}
-                  height={300}
-                  sizes="(min-width: 980px) 200px, 30vw"
-                />
-              </div>
+          <div className="v4-cta-row">
+            <Link className="v4-btn v4-btn-primary" href={data.primary_url ?? '/products'}>
+              {data.primary_label ?? 'Explore signage modules'} <ArrowRight />
             </Link>
-          ))}
+            <Link className="v4-btn v4-btn-ghost" href={data.ghost_url ?? '/free-layout-design'}>
+              {data.ghost_label ?? 'Get free layout design'}
+            </Link>
+          </div>
         </div>
       </div>
     </section>

@@ -5,6 +5,7 @@
 
 # dependencies
 node_modules/
+node_modules
 
 # Next.js
 .next/
@@ -18,3 +19,6 @@ media/
 .DS_Store
 *.log
 .superpowers/
+
+# Lead attachments (customer PII) — local uploads, same policy as media/
+lead-files

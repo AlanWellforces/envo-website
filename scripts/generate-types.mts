@@ -1,26 +1,10 @@
 // Run with: tsx --tsconfig tsconfig.json scripts/generate-types.mts
-//
-// tsx CJS interop bug workaround: tsx transforms `import X from 'cjs-pkg'` to
-// `require('cjs-pkg').default`, but payload has a nested @next/env whose
-// module.exports has __esModule:true but no .default. We patch the correct
-// require-cache entry (resolved from payload's own node_modules) before any
-// payload import runs so import_env.default resolves to the exports object.
 
-import { createRequire } from 'node:module'
 import fs from 'node:fs/promises'
 import path from 'node:path'
-import { fileURLToPath } from 'node:url'
+import { loadConfig, root } from './lib/bootstrap.mts'
 
-const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..')
-
-// Resolve @next/env from payload's own bin directory (may be nested)
-const payloadLoadEnvDir = path.join(root, 'node_modules/payload/dist/bin')
-const _requireFromPayload = createRequire(path.join(payloadLoadEnvDir, 'dummy.js'))
-const nextEnvExports = _requireFromPayload('@next/env')
-if (!nextEnvExports.default) nextEnvExports.default = nextEnvExports
-
-const configMod = await import('../src/payload.config.ts')
-const config = await (configMod.default ?? configMod)
+const config = await loadConfig()
 
 const { configToJSONSchema } = await import('payload')
 const { initI18n } = await import('@payloadcms/translations')

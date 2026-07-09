@@ -214,9 +214,9 @@ export const PRODUCT_FAMILIES: ProductFamily[] = [
       'Consistent brightness',
       'Energy efficient',
       'Built to last',
-      '5-year warranty',
+      '50,000 h rated life',
     ],
-    productSpecsCallout: 'SMD2835 · IP65 · 170° beam · 5-yr warranty',
+    productSpecsCallout: 'SMD2835 · IP65 · 170° beam · 50,000 h life',
     applications: [
       {
         title: 'Channel Letters',
@@ -242,8 +242,8 @@ export const PRODUCT_FAMILIES: ProductFamily[] = [
     trustBadges: [
       {
         icon: 'shield',
-        title: '5-year warranty',
-        description: 'Every module ships with full 5-year coverage on output and build.',
+        title: '50,000-hour rated life',
+        description: 'Every module is rated for 50,000 hours of operation. Warranty terms are published per series on each datasheet.',
       },
       {
         icon: 'droplet',
@@ -270,12 +270,12 @@ export const PRODUCT_FAMILIES: ProductFamily[] = [
       {
         question: 'How long does an LED signage module last?',
         answer:
-          'ENVO modules are rated for 50,000 hours of typical operation. At 12 hours per day, that is roughly 11 years of service. The 5-year warranty covers output and build over that window.',
+          'ENVO modules are rated for 50,000 hours of typical operation. At 12 hours per day, that is roughly 11 years of service. Warranty terms are published per series — check each product’s datasheet.',
       },
       {
         question: 'How many modules do I need for my sign?',
         answer:
-          'Module count depends on letter stroke width, cabinet depth and target brightness. Use Find your match for an automatic BOM, or talk to engineering — we will spec the right module + driver + spacing for your sign size.',
+          'Module count depends on letter stroke width, cabinet depth and target brightness. Send us your sign through Free layout design for an exact BOM, or talk to engineering — we will spec the right module + driver + spacing for your sign size.',
       },
       {
         question: 'How do I pick the right IP rating?',
@@ -287,18 +287,23 @@ export const PRODUCT_FAMILIES: ProductFamily[] = [
     series: [
       {
         label: 'Mini Series',
-        productName: 'MiniLux',
-        shortDesc: 'Triple-LED backlit module for narrow channel letters and tight depths.',
+        productName: 'MiniLux Backlit',
+        shortDesc: 'The thinnest backlit module ENVO makes — 8.9 mm, Diamondback lens, IP66.',
         image: '/assets/images/mod-mini.png',
         compareSpec: {
-          ledConfig: 'Triple LED',
-          voltage: '12V',
-          power: '0.36–0.72W',
-          beam: '170°',
-          ipRating: 'IP65',
-          bestFor: 'Narrow channel letters',
+          ledConfig: 'Single · Duo · Triple',
+          voltage: '12V DC',
+          power: '0.24 / 0.48 / 0.72 W',
+          beam: '180° × 140°',
+          ipRating: 'IP66',
+          bestFor: 'Shallow cabinets (30–80 mm)',
         },
-        href: '#',
+        href: '/products/led-signage-modules/mini-series',
+        slug: 'mini-series',
+        seriesCode: 'envo_minilux',
+        subtitle: 'Backlit LED module · Signage Modules',
+        description:
+          'A single 0.24 W SMD 2835 LED behind a Diamondback 180° × 140° optic lens, encapsulated to IP66, on a 12 V DC constant-voltage bus. Triple, Duo and Single variants share the same chip, lens and driver — pick by how much light each unit length needs to throw.',
       },
       {
         label: 'Eco Series',
@@ -354,7 +359,7 @@ export const PRODUCT_FAMILIES: ProductFamily[] = [
               'Single, Duo, Triple and Quad LED variants in the same form factor — match output to letter size without changing modules.',
           },
           {
-            title: '5-year warranty',
+            title: 'Certified & supported',
             description:
               'Backed by UL · CE · TUV · LM-80 · RoHS certifications and ENVO global support.',
           },

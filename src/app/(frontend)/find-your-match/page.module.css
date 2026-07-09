@@ -1,0 +1,27 @@
+.hero { padding: 36px 0 8px; }
+.eyebrow { display: inline-flex; align-items: center; gap: 8px; font-size: 11px; font-weight: 600;
+  letter-spacing: .18em; text-transform: uppercase; color: var(--color-brand-blue); }
+.eyebrow::before { content: ''; width: 18px; height: 1.5px; background: var(--color-brand-lime); }
+.title { margin: 14px 0 0; font-size: clamp(32px, 4.6vw, 50px); line-height: 1.04; letter-spacing: -.03em; font-weight: 700; color: var(--color-text-primary); }
+.desc { margin: 14px 0 0; font-size: clamp(15px, 1.3vw, 18px); line-height: 1.55; color: var(--color-text-muted); max-width: 56ch; }
+
+.wrap { padding: 16px 0 72px; max-width: 760px; }
+.progress { font-size: 12px; letter-spacing: .12em; text-transform: uppercase; color: var(--color-text-subtle); margin: 0 0 12px; }
+.q { font-size: clamp(22px, 2.4vw, 30px); font-weight: 700; letter-spacing: -.02em; color: var(--color-text-primary); margin: 0 0 20px; }
+.opts { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+.opt { text-align: left; border: 1px solid var(--color-line-strong); background: var(--color-surface-card); border-radius: 12px;
+  padding: 16px 18px; font: inherit; font-size: 15px; font-weight: 600; color: var(--color-text-primary); cursor: pointer; transition: .14s; }
+.opt:hover { border-color: var(--color-brand-blue); transform: translateY(-1px); }
+.back { margin-top: 18px; background: none; border: none; color: var(--color-text-muted); font: inherit; font-size: 14px; cursor: pointer; }
+.back:hover { color: var(--color-brand-blue); }
+
+.resultCard { display: flex; gap: 16px; align-items: flex-start; border: 1px solid var(--color-line-strong); border-radius: 16px; padding: 20px; margin: 0 0 12px; background: var(--color-surface-card); }
+.resultRole { font-size: 11px; text-transform: uppercase; letter-spacing: .12em; color: var(--color-text-subtle); margin: 0 0 4px; }
+.resultName { font-size: 16px; font-weight: 700; color: var(--color-text-primary); margin: 0; }
+.resultReason { font-size: 13.5px; line-height: 1.5; color: var(--color-text-muted); margin: 6px 0 8px; }
+.resultLink { font-size: 13px; font-weight: 600; color: var(--color-brand-blue); text-decoration: none; }
+.rationale { border-left: 3px solid var(--color-brand-lime); padding: 4px 0 4px 16px; margin: 20px 0; color: var(--color-text-primary); line-height: 1.6; font-size: 15px; }
+.ctaRow { display: flex; gap: 12px; flex-wrap: wrap; align-items: center; margin-top: 24px; }
+.loading { color: var(--color-text-muted); font-size: 15px; padding: 24px 0; }
+
+@media (max-width: 640px) { .opts { grid-template-columns: 1fr; } }

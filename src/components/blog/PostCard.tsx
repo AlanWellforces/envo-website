@@ -1,7 +1,9 @@
-// Placeholder layout — Mackenzie replaces with final design later.
-
+// Article card — the same .bi-card used across /blog, category, tag and the
+// detail page's related grid (insights.css carries the styles).
+import Image from 'next/image'
 import Link from 'next/link'
 import type { Post } from '@/lib/posts'
+import '@/components/blog/insights.css'
 
 const CATEGORY_LABEL: Record<string, string> = {
   guides: 'Guides',
@@ -10,32 +12,41 @@ const CATEGORY_LABEL: Record<string, string> = {
   industry: 'Industry',
 }
 
-function coverUrl(cover: Post['cover']): string | null {
-  if (typeof cover === 'number') return null
-  return cover?.url ?? null
+function coverData(cover: Post['cover']): { url: string; alt?: string } | null {
+  if (typeof cover === 'number' || !cover?.url) return null
+  return { url: cover.url, alt: cover.alt }
 }
 
-export function PostCard({ post }: { post: Post }) {
-  const img = coverUrl(post.cover)
+function formatDate(iso: string): string {
+  return new Date(iso).toLocaleDateString('en-GB', {
+    day: 'numeric',
+    month: 'short',
+    year: 'numeric',
+  })
+}
+
+export function PostCard({ post, eager }: { post: Post; eager?: boolean }) {
+  const img = coverData(post.cover)
   return (
-    <Link
-      href={`/blog/${post.slug}`}
-      className="block border border-slate-200 rounded-lg overflow-hidden hover:shadow-md transition"
-    >
-      {img && (
-        <div className="aspect-[16/9] bg-slate-100 overflow-hidden">
-          {/* eslint-disable-next-line @next/next/no-img-element */}
-          <img src={img} alt="" className="w-full h-full object-cover" />
-        </div>
-      )}
-      <div className="p-4">
-        <div className="text-xs uppercase tracking-wide text-slate-500">
-          {CATEGORY_LABEL[post.category] ?? post.category}
-        </div>
-        <h3 className="mt-2 font-semibold text-lg leading-tight">{post.title}</h3>
-        <p className="mt-2 text-sm text-slate-600 line-clamp-2">{post.excerpt}</p>
-        <div className="mt-3 text-xs text-slate-500">
-          {new Date(post.publishedAt).toLocaleDateString()} · {post.readingTime ?? 1} min read
+    <Link href={`/blog/${post.slug}`} className="bi-card">
+      <div className="bi-card-img">
+        {img && (
+          <Image
+            src={img.url}
+            alt={img.alt || post.title}
+            fill
+            sizes="(min-width: 1080px) 33vw, (min-width: 720px) 50vw, 100vw"
+            style={{ objectFit: 'cover' }}
+            loading={eager ? 'eager' : undefined}
+          />
+        )}
+        <span className="bi-badge">{CATEGORY_LABEL[post.category] ?? post.category}</span>
+      </div>
+      <div className="bi-card-bd">
+        <h3>{post.title}</h3>
+        <p>{post.excerpt}</p>
+        <div className="bi-meta">
+          <span>{formatDate(post.publishedAt)}</span>
         </div>
       </div>
     </Link>

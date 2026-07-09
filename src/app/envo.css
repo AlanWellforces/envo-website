@@ -27,7 +27,7 @@
       /* C 新增：sidebar 尺寸 token */
       --sidebar-bg: var(--bg-elevated);
       --sidebar-bg-hover: var(--bg-surface);
-      --sidebar-w: 200px;       /* 容纳 "Free Layout Design" 最长标签 */
+      --sidebar-w: 232px;       /* v3 chrome canonical — fits "Free layout design" with section padding */
     }
 
     * { box-sizing: border-box; margin: 0; padding: 0; }
@@ -115,6 +115,70 @@
     }
     .promo-bar-close:hover { background: rgba(255,255,255,.06); color: #fff; }
 
+    /* ========== FIRST-VISIT REGION BANNER ========== */
+    /* Fixed overlay: appears only after hydration, so it must never push
+       content (layout shift). Light strip per approved screenshot; sits
+       above sidebar/subnav (highest z-index in use is 250). */
+    .region-banner {
+      position: fixed; top: 0; left: 0; right: 0; z-index: 300;
+      display: flex; align-items: center; justify-content: space-between;
+      gap: 16px; flex-wrap: wrap;
+      padding: 12px 24px;
+      background: #fff;
+      border-bottom: 1px solid #dbe2ea;
+      box-shadow: 0 1px 8px rgba(10,20,36,.08);
+    }
+    .region-banner-text {
+      margin: 0;
+      color: #1d2939;
+      font-size: 14px;
+      line-height: 1.4;
+    }
+    .region-banner-controls {
+      display: flex; align-items: center; gap: 12px;
+      margin-left: auto;
+    }
+    .region-banner-select {
+      appearance: none;
+      padding: 9px 34px 9px 14px;
+      border: 1px solid var(--envo-blue);
+      border-radius: 10px;
+      background: #fff url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8'%3E%3Cpath d='M1 1l5 5 5-5' fill='none' stroke='%231d2939' stroke-width='2' stroke-linecap='round'/%3E%3C/svg%3E") no-repeat right 12px center;
+      color: #1d2939;
+      font-family: inherit; font-size: 13px; font-weight: 500;
+      cursor: pointer;
+    }
+    .region-banner-cta {
+      padding: 9px 22px;
+      border: none; border-radius: 999px;
+      background: var(--envo-blue);
+      color: #fff;
+      font-family: inherit; font-size: 13px; font-weight: 600;
+      cursor: pointer;
+      transition: filter .15s ease;
+    }
+    .region-banner-cta:hover { filter: brightness(1.1); }
+    .region-banner-close {
+      background: transparent; border: none;
+      color: #667085;
+      font-size: 20px; line-height: 1; cursor: pointer;
+      width: 28px; height: 28px;
+      display: flex; align-items: center; justify-content: center;
+      border-radius: 50%;
+      font-family: inherit;
+      transition: all .15s;
+    }
+    .region-banner-close:hover { background: rgba(10,20,36,.06); color: #1d2939; }
+    @media (max-width: 640px) {
+      .region-banner { padding: 10px 16px; }
+      .region-banner-controls { margin-left: 0; width: 100%; }
+      /* width:0 + flex:1 zeroes the select's intrinsic-width contribution.
+         Mobile Chrome sizes the layout viewport from intrinsic widths (it
+         ignores flex shrinking there), so the select's longest option text
+         otherwise forces the whole page to zoom out on phones. */
+      .region-banner-select { flex: 1; min-width: 0; width: 0; }
+    }
+
     /* ========== HEADER ========== */
     .site-header {
       position: sticky; top: 0; left: 0; right: 0; z-index: 100;
@@ -138,11 +202,11 @@
     .header-cta {
       display: inline-flex; align-items: center; gap: 6px;
       padding: 9px 18px; border-radius: 999px;
-      background: var(--envo-lime); color: #050b1a;
+      background: var(--envo-blue); color: #fff;
       font-size: 13px; font-weight: 600;
       transition: all .2s;
     }
-    .header-cta:hover { background: var(--envo-lime-glow); box-shadow: 0 0 20px rgba(174,201,11,.5); }
+    .header-cta:hover { background: #0086e0; box-shadow: 0 10px 22px -10px rgba(0,113,188,.9); }
     .header-right { display: flex; align-items: center; gap: 14px; }
 
     /* Region selector — header 右侧小工具，类似 v6 region.js 简化版 */
@@ -331,12 +395,13 @@
       cursor: pointer; border: none; font-family: inherit;
     }
     .btn-primary {
-      background: var(--envo-lime); color: #050b1a; font-weight: 600;
+      background: var(--envo-blue); color: #fff; font-weight: 600;
+      box-shadow: 0 10px 26px -12px rgba(0,113,188,.95);
     }
     .btn-primary:hover {
-      background: var(--envo-lime-glow);
-      box-shadow: 0 0 32px rgba(174,201,11,.5);
-      transform: translateY(-1px);
+      background: #0086e0;
+      box-shadow: 0 16px 34px -12px rgba(0,113,188,1);
+      transform: translateY(-2px);
     }
     .btn-ghost { background: transparent; color: #fff; border: 1px solid rgba(255,255,255,.25); }
     .btn-ghost:hover { background: rgba(255,255,255,.06); border-color: rgba(255,255,255,.5); }
@@ -1159,7 +1224,7 @@
     }
     .section-head p { font-size: 17px; color: var(--fg-mute); max-width: 580px; }
 
-    /* ========== PRODUCT TABS + CAROUSEL — bounceled signature
+    /* ========== PRODUCT TABS + CAROUSEL
        【节奏 break #1】整段 LIGHT 反差，从深暗跳到 #f5f7fa
     ========== */
     .product-section {
@@ -1329,9 +1394,9 @@
       z-index: 3;
     }
     .pc-name { font-size: 18px; font-weight: 600; color: #fff; margin-bottom: 6px; letter-spacing: -.005em; }
-    /* ENVO 工程目录质感：monospace SKU 代码 */
+    /* SKU code — was mono; site-wide font unification uses sans across the brand. */
     .pc-sku {
-      font-family: 'SF Mono', Monaco, Consolas, 'Courier New', monospace;
+      font-family: var(--font-inter-tight, 'Inter Tight'), -apple-system, BlinkMacSystemFont, sans-serif;
       font-size: 11px; letter-spacing: .03em;
       color: var(--envo-lime);
       margin-bottom: 8px;
@@ -1367,7 +1432,7 @@
     }
     .carousel-btn:disabled { opacity: .3; cursor: not-allowed; }
 
-    /* ========== CASES SHOWCASE — bounceled "in action" 借鉴 ========== */
+    /* ========== CASES SHOWCASE — "in action" band ========== */
     .cases-section { background: var(--bg-elevated); }
     .cases-grid {
       display: grid; grid-template-columns: 1.5fr 1fr 1fr; gap: 16px;
@@ -1425,7 +1490,7 @@
       background: rgba(255,255,255,.05);
     }
 
-    /* ========== FEATURED + USED PRODUCTS — bounceled "products used" 借鉴 ========== */
+    /* ========== FEATURED + USED PRODUCTS — "products used" band ========== */
     .featured-detail { background: var(--bg); }
     .featured-grid {
       display: grid; grid-template-columns: 1.4fr 1fr; gap: 64px;
@@ -1631,7 +1696,7 @@
       text-align: center;
       font-size: 11px; letter-spacing: .28em; text-transform: uppercase;
       color: var(--envo-lime); font-weight: 500;
-      font-family: 'SF Mono', 'JetBrains Mono', Menlo, Consolas, monospace;
+      font-family: var(--font-inter-tight, 'Inter Tight'), -apple-system, BlinkMacSystemFont, sans-serif;
       margin-bottom: 30px;
     }
     .cert-grid {
@@ -1653,7 +1718,7 @@
     .cert-spec {
       font-size: 10px; letter-spacing: .06em;
       color: var(--fg-mute);
-      font-family: 'SF Mono', 'JetBrains Mono', Menlo, Consolas, monospace;
+      font-family: var(--font-inter-tight, 'Inter Tight'), -apple-system, BlinkMacSystemFont, sans-serif;
       white-space: nowrap;
     }
     @media (max-width: 900px) {
@@ -1730,7 +1795,9 @@
     }
 
     /* ========== FOOTER（spec 5.10：5 列 Brand + 4 link 列）========== */
-    footer { padding: 80px 0 32px; background: var(--bg); }
+    /* bottom padding clears the fixed back-to-top button (bottom:24 + 46px)
+       so it floats in the gap, not over the legal links */
+    footer { padding: 80px 0 84px; background: var(--bg); }
     .footer-grid {
       display: grid;
       grid-template-columns: 1.6fr 1fr 1fr 1fr 1fr;
@@ -1761,6 +1828,12 @@
       background: var(--envo-lime);
       box-shadow: 0 0 6px var(--envo-lime);
     }
+    .footer-brand-contact {
+      margin-top: 16px; font-size: 13px; line-height: 1.7;
+      color: var(--fg-mute); font-style: normal;
+    }
+    .footer-brand-contact a { color: var(--fg-mute); transition: color .2s; }
+    .footer-brand-contact a:hover { color: #fff; }
     .footer-col h5 {
       font-size: 12px; letter-spacing: .15em; text-transform: uppercase;
       font-weight: 500; color: #fff;
@@ -1801,7 +1874,7 @@
       padding-top: 32px; flex-wrap: wrap; gap: 16px;
     }
     .footer-bottom p { font-size: 12px; color: var(--fg-soft); }
-    .footer-legal { display: flex; gap: 24px; }
+    .footer-legal { display: flex; flex-wrap: wrap; gap: 8px 20px; justify-content: flex-end; }
     .footer-legal a { font-size: 12px; color: var(--fg-soft); }
     .footer-legal a:hover { color: var(--envo-lime); }
     .footer-legal span[aria-disabled="true"] {
@@ -1842,7 +1915,7 @@
     }
 
     /* hero 字号 / container 加大，nav 移到侧边后视口高度全给 hero */
-    .container { max-width: 1440px; padding: 0 40px; }
+    .container { max-width: var(--content-max-width); padding: 0 var(--page-gutter); }
     .hero h1 { font-size: clamp(56px, 9vw, 130px); }
 
     /* ===== Light-bin 色温梯度条（品牌签名）=====
@@ -1859,45 +1932,83 @@
       box-shadow: 0 0 12px rgba(174,201,11,.25);
     }
 
-    /* ===== SIDEBAR — 固定 92px / icon 上 + label 下 / 永远可见 ===== */
+    /* ===== SIDEBAR — v3: gradient bg + atmospheric radial glow ===== */
     .sidebar {
       position: fixed;
       top: 3px; left: 0; bottom: 0;          /* below light-bin bar */
       width: var(--sidebar-w);
-      background: var(--sidebar-bg);
+      background: linear-gradient(180deg,
+        #1a3a66 0%,
+        #0f2347 20%,
+        #06122a 55%,
+        #03081a 100%);
       z-index: 50;
       overflow: hidden;
-      border-right: 1px solid var(--line);
+      border-right: 1px solid rgba(77,195,255,.22);
       transition: width .32s cubic-bezier(.4, 0, .2, 1);
       will-change: width;
     }
-    .sidebar::before {  /* 顶部 lime 扫描线，呼应 feature-strip 顶线 */
+    /* Atmospheric overlay — blue glow top-right, lime tint bottom-left.
+       Glow kept small + high (hugging the logo band) so it never washes over
+       the first nav row — at full strength it made the active Home pill read
+       as a full-width bar. */
+    .sidebar::before {
+      content: ''; position: absolute; inset: 0; pointer-events: none;
+      background:
+        radial-gradient(ellipse 340px 200px at 78% -6%, rgba(77,195,255,.14) 0%, transparent 65%),
+        radial-gradient(ellipse 300px 400px at 30% 100%, rgba(174,201,11,.06) 0%, transparent 60%);
+    }
+    /* Restore the lime scan line as a sibling layer above the overlay */
+    .sidebar::after {
       content: ''; position: absolute; top: 0; left: 0; right: 0; height: 1px;
       background: linear-gradient(90deg, transparent 0%, rgba(174,201,11,.5) 50%, transparent 100%);
+      pointer-events: none;
     }
     .sidebar-inner {
       width: 100%; height: 100%;
       display: flex; flex-direction: column;
-      padding: 22px 0;
+      /* Top trimmed to 8px so the logo sits ~26px from the top — matches the
+         logo's own 26px left padding. Bottom kept small so the CTA card + the
+         collapse control sit lower, closer to the sidebar's edge. */
+      padding: 8px 0 10px;
+      position: relative; z-index: 1;        /* sit above ::before overlay */
     }
 
     /* ===== Logo（完整 ENVO wordmark + tagline 小字 + 缓慢 lime 脉冲） ===== */
     .sidebar-logo {
-      display: flex; align-items: center; justify-content: center;
-      padding: 14px 18px 18px;
+      display: flex; align-items: center; justify-content: flex-start;
+      /* 24px side inset — the shared content-column edge for the whole
+         sidebar (logo, nav pills, support zone, CTA card, collapse btn). */
+      padding: 18px 24px;
       position: relative;
       transition: padding .32s cubic-bezier(.4, 0, .2, 1);
     }
     .sidebar-logo img {
-      height: 20px;
+      height: 22px;
       width: auto;
       max-width: 100%;
       object-fit: contain;
       animation: logoPulse 5s ease-in-out infinite;
       transition: height .32s cubic-bezier(.4, 0, .2, 1);
     }
-    body.sidebar-collapsed .sidebar-logo { padding: 14px 8px 18px; }
-    body.sidebar-collapsed .sidebar-logo img { height: 14px; width: auto; }
+    body.sidebar-collapsed .sidebar-logo {
+      /* 11+36+11 = 58px — identical band height to the expanded 18+22+18,
+         so the nav below doesn't jump vertically on toggle. */
+      padding: 11px 0;
+      justify-content: center;
+    }
+    body.sidebar-collapsed .sidebar-logo .logo-full {
+      display: none;
+    }
+
+    /* Logo mark/full swap when sidebar collapses
+       (full wordmark expanded, brand E-mark collapsed) */
+    .sidebar-logo .logo-mark { display: none; }
+    body.sidebar-collapsed .sidebar-logo .logo-mark {
+      display: block;
+      height: 36px;
+      width: 36px;
+    }
     .sidebar-logo:hover img {
       filter: drop-shadow(0 0 8px rgba(77,195,255,.55));
     }
@@ -1918,22 +2029,24 @@
       padding: 4px 10px 12px;
     }
     .sidebar-nav::-webkit-scrollbar { width: 0; }
-    .sidebar-section { margin-bottom: 18px; }
+    .sidebar-section { padding: 14px 14px 6px; }
     .sidebar-section-title {
+      font-family: var(--font-inter-tight, 'Inter Tight'), -apple-system, BlinkMacSystemFont, sans-serif;
       font-size: 9px; font-weight: 600;
-      letter-spacing: .22em; text-transform: uppercase;
+      letter-spacing: .2em; text-transform: uppercase;
       color: var(--fg-soft);
-      padding: 0 12px 6px;
+      padding: 0 8px 8px;
+      white-space: nowrap;
     }
 
     /* 平面行风（无边框），active 是整行 lime bg pill */
     .sidebar-link {
-      display: flex; align-items: center; gap: 12px;
+      display: flex; align-items: center; gap: 11px;
       padding: 9px 12px;
       color: var(--fg-mute);
       font-size: 13px; font-weight: 500;
       letter-spacing: .005em;
-      border-radius: 8px;
+      border-radius: 5px;
       transition: background .2s ease, color .2s ease;
       position: relative;
       white-space: nowrap;
@@ -1944,12 +2057,20 @@
       color: #fff;
     }
     .sidebar-link.active {
-      background: rgba(77,195,255,.14);
-      color: var(--envo-blue-glow);
+      background: rgba(255,255,255,.055);
+      color: #fff;
+    }
+    /* Clean ENVO-green left indicator for active — no glow, rounded ends */
+    .sidebar-link.active::before {
+      content: '';
+      position: absolute;
+      left: 0; top: 7px; bottom: 7px;
+      width: 3px;
+      border-radius: 0 3px 3px 0;
+      background: var(--envo-lime);
     }
     .sidebar-link.active .sidebar-icon {
-      filter: drop-shadow(0 0 6px rgba(77,195,255,.6))
-              drop-shadow(0 0 16px rgba(77,195,255,.22));
+      color: #fff;
     }
     .sidebar-icon {
       flex-shrink: 0;
@@ -1958,6 +2079,11 @@
       stroke-linecap: round; stroke-linejoin: round;
       transition: transform .25s cubic-bezier(.34,1.56,.64,1),
                   filter .25s ease;
+    }
+    /* Signage grid glyph fills its viewBox edge-to-edge, so at 18px it reads
+       a touch heavier than its siblings — pull it back one step. */
+    .sidebar-link[data-section='signage-modules'] .sidebar-icon {
+      width: 17px; height: 17px;
     }
     /* Duotone fill layer — sits behind the stroke detail */
     .sidebar-icon .duotone-fill {
@@ -1986,16 +2112,6 @@
     .sidebar-label {
       font-size: 13px;
       flex: 1;
-      overflow: hidden;
-      white-space: nowrap;
-      max-width: 200px;
-      transition: max-width .28s cubic-bezier(.4, 0, .2, 1),
-                  opacity .18s cubic-bezier(.4, 0, .2, 1);
-    }
-    .sidebar-cta-label,
-    .sidebar-cta-sub,
-    .sidebar-region-label,
-    .sidebar-collapse-label {
       overflow: hidden;
       white-space: nowrap;
       max-width: 200px;
@@ -2042,12 +2158,15 @@
 
     .sidebar-sublink {
       display: block;
-      padding: 6px 10px;
-      border-left: 1px solid rgba(255,255,255,.08);
+      padding: 5px 12px;
+      border-left: 1.5px solid rgba(255,255,255,.10);
       border-radius: 0 6px 6px 0;
-      color: var(--fg-mute);
-      font-size: 11.5px;
-      letter-spacing: .005em;
+      /* Clearer than the muted token so children read as legible, not faded —
+         hierarchy comes from the indent rail + the 13px parent contrast, so
+         12px keeps the short (3–4 item) lists comfortably readable. */
+      color: rgba(210,220,232,.80);
+      font-size: 12px;
+      font-weight: 450;
       transition: background .2s ease, color .2s ease, border-color .2s ease;
       white-space: nowrap;
     }
@@ -2056,10 +2175,12 @@
       color: #fff;
       border-left-color: var(--envo-lime);
     }
+    /* Active child — ENVO-green text + green indent rail, no card background */
     .sidebar-sublink.active {
       color: var(--envo-lime);
       border-left-color: var(--envo-lime);
-      background: rgba(174,201,11,.08);
+      background: transparent;
+      font-weight: 500;
     }
     .sidebar-sub-desc {
       color: var(--fg-soft);
@@ -2068,130 +2189,375 @@
     }
     .sidebar-sublink:hover .sidebar-sub-desc { color: rgba(255,255,255,.7); }
 
-    /* ===== Footer CTA — 重设计：dark lime-border 卡片，hover 才填 lime ===== */
-    .sidebar-footer {
-      padding: 14px 12px 12px;
-      display: flex; flex-direction: column; gap: 10px;
-      border-top: 1px solid var(--line);
-    }
-    /* Ghost 风格：dark lime-border 卡片，hover 才填 lime（对齐参考图） */
-    .sidebar-cta {
-      display: flex; flex-direction: column; align-items: center; gap: 6px;
-      padding: 14px 12px;
-      background: rgba(174,201,11,.07);
-      color: var(--envo-lime);
-      border: 1px solid rgba(174,201,11,.32);
+    /* Group — the whole parent row is one disclosure button; the caret sits
+       right after the label (label hugs its content instead of stretching). */
+    .sidebar-group { display: flex; flex-direction: column; }
+    .sidebar-link--parent .sidebar-label { flex: 0 1 auto; }
+    .sidebar-link--parent .sidebar-caret { margin-left: 2px; }
+
+    /* Collapsed (64px) sidebar — caret has nowhere to fit, so hide it.
+       Sub list converts from inline accordion to a right-side flyout that
+       shows on hover/focus of the Products group. Apple Sidebar pattern. */
+    body.sidebar-collapsed .sidebar-link--parent .sidebar-caret { display: none; }
+    body.sidebar-collapsed .sidebar-group { position: relative; }
+    body.sidebar-collapsed .sidebar-sub {
+      display: block;
+      max-height: none;
+      overflow: visible;
+      position: absolute;
+      top: 0; left: 100%;
+      margin: 0; padding: 6px;
+      min-width: 220px;
+      background: linear-gradient(180deg, #112c5a 0%, #06122a 100%);
+      border: 1px solid rgba(77,195,255,.22);
       border-radius: 10px;
-      cursor: pointer;
-      font-family: inherit;
-      transition: background .25s ease, border-color .25s ease,
-                  color .25s ease, transform .2s ease, box-shadow .25s ease;
-      position: relative;
-      overflow: hidden;
-    }
-    .sidebar-cta::before {
-      content: ''; position: absolute; inset: 0;
-      background: linear-gradient(135deg, var(--envo-lime) 0%, var(--envo-lime-glow) 100%);
+      box-shadow: 0 12px 28px rgba(0,0,0,.40), 0 2px 8px rgba(0,0,0,.20);
+      z-index: 200;
       opacity: 0;
-      transition: opacity .3s ease;
-      z-index: 0;
+      visibility: hidden;
+      transform: translateX(-4px);
+      transition: opacity .14s ease, transform .14s ease,
+                  visibility 0s linear .14s;
     }
-    .sidebar-cta > * { position: relative; z-index: 1; }
-    .sidebar-cta:hover {
-      transform: translateY(-1px);
-      color: var(--bg);
-      border-color: var(--envo-lime);
-      box-shadow: 0 8px 24px -4px rgba(174,201,11,.5),
-                  0 0 24px -6px rgba(174,201,11,.45);
+    body.sidebar-collapsed .sidebar-group:hover .sidebar-sub,
+    body.sidebar-collapsed .sidebar-group:focus-within .sidebar-sub {
+      opacity: 1;
+      visibility: visible;
+      transform: translateX(0);
+      transition: opacity .14s ease, transform .14s ease,
+                  visibility 0s linear 0s;
     }
-    .sidebar-cta:hover::before { opacity: 1; }
-    .sidebar-cta:active { transform: translateY(0); }
-    .sidebar-cta-icon {
-      width: 22px; height: 22px;
-      stroke: currentColor; stroke-width: 1.7; fill: none;
-      stroke-linecap: round; stroke-linejoin: round;
-      transition: transform .35s ease;
-    }
-    .sidebar-cta:hover .sidebar-cta-icon {
-      animation: ctaSparkle .9s ease;
-    }
-    @keyframes ctaSparkle {
-      0%   { transform: scale(1) rotate(0); }
-      30%  { transform: scale(1.2) rotate(-8deg); }
-      60%  { transform: scale(1.1) rotate(8deg); }
-      100% { transform: scale(1) rotate(0); }
-    }
-    .sidebar-cta-label {
-      font-size: 12px; font-weight: 700;
-      letter-spacing: .02em;
-    }
-    .sidebar-cta-sub {
-      font-size: 9.5px; font-weight: 600;
-      letter-spacing: .08em;
+    /* Eyebrow inside the flyout names the parent (e.g. "PRODUCTS").
+       Source: data-parent-label attribute on the <ul>. */
+    body.sidebar-collapsed .sidebar-sub::before {
+      content: attr(data-parent-label);
+      display: block;
+      padding: 8px 12px 7px;
+      font-family: var(--font-inter-tight, 'Inter Tight'), -apple-system, BlinkMacSystemFont, sans-serif;
+      font-size: 10.5px; font-weight: 600;
+      color: rgba(245,247,250,.55);
       text-transform: uppercase;
-      opacity: .65;
+      letter-spacing: 0.16em;
+      border-bottom: 1px solid rgba(77,195,255,.10);
+      margin-bottom: 4px;
+    }
+    /* Sublinks inside the flyout — keep the existing lime-active treatment
+       but add a touch more horizontal padding so they read as cards. */
+    body.sidebar-collapsed .sidebar-sub .sidebar-sublink {
+      padding: 8px 12px;
+      font-size: 13px;
+      border-radius: 6px;
+      border-left: none;
+    }
+    body.sidebar-collapsed .sidebar-sub .sidebar-sublink:hover {
+      border-left: none;
+      background: rgba(77,195,255,.10);
+    }
+    body.sidebar-collapsed .sidebar-sub .sidebar-sublink.active {
+      border-left: none;
+      background: rgba(174,201,11,.12);
+      color: var(--envo-lime);
+    }
+
+    /* ===== Collapsed-sidebar tooltip — only on LEAF links (Home / Solutions /
+       Projects / Blog / Support / Find your match / Free layout design).
+       Parent groups (Products) use the flyout above instead, which already
+       names the category in its eyebrow. ===== */
+    body.sidebar-collapsed .sidebar-link[data-tooltip],
+    body.sidebar-collapsed .sidebar-cta-card[data-tooltip] {
+      position: relative;
+    }
+    body.sidebar-collapsed .sidebar-link[data-tooltip]::after,
+    body.sidebar-collapsed .sidebar-cta-card[data-tooltip]::after {
+      content: attr(data-tooltip);
+      position: absolute;
+      left: calc(100% + 12px);
+      top: 50%;
+      transform: translateY(-50%) translateX(-4px);
+      padding: 7px 14px;
+      background: linear-gradient(180deg, #112c5a 0%, #06122a 100%);
+      border: 1px solid rgba(77,195,255,.22);
+      border-radius: 8px;
+      color: #f5f7fa;
+      font-family: var(--font-inter-tight, 'Inter Tight'), -apple-system, BlinkMacSystemFont, sans-serif;
+      font-size: 13px; font-weight: 500;
+      letter-spacing: 0.005em;
+      white-space: nowrap;
+      box-shadow: 0 8px 22px rgba(0,0,0,.40), 0 2px 6px rgba(0,0,0,.20);
+      opacity: 0;
+      visibility: hidden;
+      pointer-events: none;
+      transition: opacity .14s ease, transform .14s ease,
+                  visibility 0s linear .14s;
+      z-index: 250;
+    }
+    body.sidebar-collapsed .sidebar-link[data-tooltip]:hover::after,
+    body.sidebar-collapsed .sidebar-link[data-tooltip]:focus-visible::after,
+    body.sidebar-collapsed .sidebar-cta-card[data-tooltip]:hover::after,
+    body.sidebar-collapsed .sidebar-cta-card[data-tooltip]:focus-visible::after {
+      opacity: 1;
+      visibility: visible;
+      transform: translateY(-50%) translateX(0);
+      transition: opacity .14s ease, transform .14s ease,
+                  visibility 0s linear 0s;
+      transition-delay: 0.35s, 0.35s, 0s;
+    }
+
+    /* ===== Support zone — pinned below the scrolling nav so support links
+       read as a distinct type from the product catalogue. A hairline divider
+       separates the two zones; the links reuse .sidebar-link but sit at a
+       lighter default weight so products stay the primary focus. ===== */
+    .sidebar-support {
+      /* Same 24px content-column edge as the nav pills; V3's slim 7px rows. */
+      padding: 8px 24px 4px;
+      margin-top: 4px;
+      position: relative;
+    }
+    /* Divider above — same treatment as the logo's underline (edge-faded
+       gradient, 18px inset) so the two zone breaks read as one family. */
+    .sidebar-support::before {
+      content: ''; position: absolute; top: -6px; left: 18px; right: 18px;
+      height: 1px;
+      background: linear-gradient(90deg, transparent 0%, rgba(77,195,255,.32) 50%, transparent 100%);
+    }
+    .sidebar-support .sidebar-link { padding: 7px 12px; }
+    .sidebar-support .sidebar-icon { width: 17px; height: 17px; }
+    body.sidebar-collapsed .sidebar-support .sidebar-icon { width: 18px; height: 18px; }
+    /* Links keep the standard .sidebar-link type treatment (same size, weight
+       and colour as the product rows) — only the PLACEMENT is the V3 bottom
+       zone; the divider above carries the separation. */
+    body.sidebar-collapsed .sidebar-support {
+      margin: 4px 8px 0;
+      padding: 6px 8px 2px;
+    }
+
+    /* ===== Bottom CTA card — one bordered card CONTAINING both the
+       "Need help specifying?" caption and the Free Layout Design action row
+       (mockup spec). The card itself is the button; the inner row is plain. */
+    .sidebar-cta-card {
+      display: flex; flex-direction: column; gap: 8px;
+      /* Framed box on the shared 24px content column — left/right edges line
+         up exactly with the nav pills and support rows above. Bottom margin
+         matches the visual gap above the card so the footer stack (support →
+         card → collapse) breathes evenly. */
+      margin: 6px 24px 16px;
+      padding: 10px 14px;
+      background: linear-gradient(135deg, rgba(77,195,255,.10), rgba(174,201,11,.06));
+      border: 1px solid rgba(77,195,255,.22);
+      border-radius: 10px;
+      text-decoration: none;
+      transition: border-color .16s ease, box-shadow .16s ease;
+    }
+    .sidebar-cta-card-title {
+      font-size: 11px; font-weight: 400; letter-spacing: .01em;
+      color: #9fb0c4;
+      white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+      transition: max-height .28s cubic-bezier(.4, 0, .2, 1),
+                  opacity .18s cubic-bezier(.4, 0, .2, 1);
+    }
+    .sidebar-cta-btn {
+      display: flex; align-items: center; gap: 8px;
+      color: #fff; font-size: 12px; font-weight: 600; letter-spacing: .005em;
+      white-space: nowrap; overflow: hidden;
+    }
+    .sidebar-cta-btn .sidebar-icon { width: 16px; height: 16px; color: var(--envo-blue-glow, #4dc3ff); flex-shrink: 0; }
+    .sidebar-cta-btn-label {
+      overflow: hidden; white-space: nowrap; text-overflow: ellipsis;
+      transition: max-width .28s cubic-bezier(.4, 0, .2, 1),
+                  opacity .18s cubic-bezier(.4, 0, .2, 1);
+    }
+    .sidebar-cta-card:hover {
+      border-color: rgba(77,195,255,.42);
+      box-shadow: 0 10px 22px -14px rgba(0,113,188,.55);
+    }
+    /* Collapsed: hide caption + label, the bordered card becomes an icon tile
+       the exact size/shape of the collapse button below it (34px, radius 8). */
+    body.sidebar-collapsed .sidebar-cta-card {
+      align-self: center;
+      width: 34px; height: 34px;
+      margin: 4px 0 12px;
+      padding: 0;
+      gap: 0;
+      border-radius: 8px;
+      justify-content: center;
+    }
+    body.sidebar-collapsed .sidebar-cta-card-title {
+      max-height: 0; opacity: 0; overflow: hidden; pointer-events: none;
+    }
+    body.sidebar-collapsed .sidebar-cta-btn { justify-content: center; gap: 0; }
+    body.sidebar-collapsed .sidebar-cta-btn-label {
+      max-width: 0; opacity: 0; overflow: hidden; pointer-events: none;
+    }
+
+    /* ===== v3 sidebar footer — distributor selector block + collapse ===== */
+    /* V3 footer: no divider above (the CTA card carries its own frame);
+       just a quiet zone holding the collapse control bottom-left. */
+    .sidebar-footer {
+      padding: 0 12px 4px;
+      display: flex; flex-direction: column; gap: 8px;
+    }
+    /* Distributor selector block — a small labelled control at the foot, kept
+       visually distinct from the primary nav so it never reads as a menu item. */
+    .sidebar-channel {
+      display: flex; flex-direction: column; gap: 7px;
+    }
+    /* Small block title — an informational hint (not a button); same size &
+       colour as the fine-print note below. The actual jump-to-site links are
+       the dropdown options. */
+    .sidebar-channel-title {
+      font-size: 10px;
+      line-height: 1.35;
+      letter-spacing: .01em;
+      color: var(--fg-soft);
+      padding: 0 2px;
+      white-space: nowrap;
+      overflow: hidden;
+      transition: max-height .28s cubic-bezier(.4, 0, .2, 1),
+                  opacity .18s cubic-bezier(.4, 0, .2, 1);
     }
     .sidebar-region {
-      display: flex; align-items: center; justify-content: center; gap: 6px;
-      padding: 6px 8px;
-      font-size: 9.5px; color: var(--fg-soft);
-      letter-spacing: .14em;
-      text-transform: uppercase;
-      background: transparent;
-      border: 1px solid transparent;
-      border-radius: 6px;
-      cursor: pointer;
+      display: flex; align-items: center; gap: 7px;
+      padding: 8px 9px;
+      background: rgba(255,255,255,.03);
+      border: 1px solid rgba(255,255,255,.08);
+      border-radius: 8px;
+      color: #dbe3ec;
       font-family: inherit;
-      transition: color .2s ease, border-color .2s ease, background .2s ease;
+      cursor: pointer;
+      text-align: left;
+      transition: border-color .15s ease, background .15s ease;
+    }
+    .sidebar-region-glyph {
+      width: 14px; height: 14px; flex-shrink: 0;
+      stroke: rgba(255,255,255,.55); stroke-width: 1.6; fill: none;
+      stroke-linecap: round; stroke-linejoin: round;
+      transition: max-width .28s cubic-bezier(.4, 0, .2, 1);
     }
     .sidebar-region:not(:disabled):hover {
-      color: #fff;
-      border-color: rgba(255,255,255,.12);
-      background: rgba(255,255,255,.04);
+      border-color: rgba(255,255,255,.16);
+      background: rgba(255,255,255,.06);
     }
-    .sidebar-region:disabled {
-      cursor: default;
-      opacity: .6;
+    .sidebar-region:disabled { cursor: default; opacity: .85; }
+    /* Value = the coverage region this channel serves — that's how a visitor
+       identifies their channel, not by distributor domain/brand. */
+    .sidebar-region-body {
+      flex: 1; min-width: 0;
+      display: flex; align-items: center;
+      overflow: hidden;
+      transition: max-width .28s cubic-bezier(.4, 0, .2, 1),
+                  opacity .18s cubic-bezier(.4, 0, .2, 1);
     }
-    .sidebar-region svg {
+    .sidebar-region-value {
+      font-size: 11px; font-weight: 400;
+      color: #dbe3ec;
+      white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+    }
+    .sidebar-region-caret {
       width: 12px; height: 12px;
-      stroke: currentColor; stroke-width: 1.7; fill: none;
+      stroke: rgba(255,255,255,.45); stroke-width: 1.8; fill: none;
       stroke-linecap: round; stroke-linejoin: round;
       flex-shrink: 0;
     }
-    .sidebar-region-caret {
-      width: 8px; height: 8px;
-      opacity: .6;
+    .sidebar-status {
+      font-family: var(--font-inter-tight, 'Inter Tight'), -apple-system, BlinkMacSystemFont, sans-serif;
+      font-size: 9.5px;
+      color: rgba(139,156,176,.85);
+      letter-spacing: .16em;
+      padding: 0 4px;
+    }
+    .sidebar-status::before {
+      content: ''; display: inline-block;
+      width: 5px; height: 5px; border-radius: 50%;
+      background: var(--envo-lime);
+      margin-right: 6px; vertical-align: 1px;
+    }
+    .sidebar-region-caret.flip { transform: rotate(180deg); }
+
+    /* ===== Region dropdown — pops UP from the sidebar foot row ===== */
+    .sidebar-region-wrap { position: relative; }
+    .sidebar-region-wrap .sidebar-region { width: 100%; }
+    .sidebar-region-dropdown {
+      position: absolute;
+      bottom: calc(100% + 6px);
+      left: 0; right: 0;
+      background: #0a1424;
+      border: 1px solid rgba(77,195,255,.18);
+      border-radius: 8px;
+      padding: 6px;
+      box-shadow: 0 18px 38px -14px rgba(0,0,0,.6),
+                  0 4px 10px rgba(0,0,0,.3);
+      z-index: 60;
+    }
+    .sidebar-region-dropdown-head {
+      padding: 8px 10px 6px;
+      font-size: 10px;
+      line-height: 1.35;
+      color: var(--fg-soft);
+      letter-spacing: .01em;
+      border-bottom: 1px solid rgba(77,195,255,.10);
+      margin-bottom: 4px;
+    }
+    .sidebar-region-option {
+      display: flex; align-items: center; gap: 10px;
+      width: 100%;
+      padding: 9px 10px;
+      background: transparent;
+      border: none;
+      border-radius: 5px;
+      color: #f5f7fa;
+      text-align: left;
+      font-family: inherit;
+      cursor: pointer;
+      transition: background .15s ease;
+    }
+    .sidebar-region-option:hover { background: rgba(77,195,255,.10); }
+    .sidebar-region-option.active { background: rgba(255,255,255,.06); }
+    .sidebar-region-option-body { display: flex; flex: 1; min-width: 0; }
+    .sidebar-region-option.active .sidebar-region-option-name { color: #fff; }
+    .sidebar-region-option-name { font-size: 11px; font-weight: 400; color: #dbe3ec; }
+    .sidebar-region-option-check {
+      width: 13px; height: 13px; flex-shrink: 0;
+      stroke: rgba(255,255,255,.8); stroke-width: 2.2; fill: none;
+      stroke-linecap: round; stroke-linejoin: round;
+    }
+
+    /* When collapsed, the dropdown still pops out at full width to the right
+       so the metadata strings remain readable. */
+    body.sidebar-collapsed .sidebar-region-dropdown {
+      left: 100%;
+      right: auto;
+      bottom: 0;
+      margin-left: 8px;
+      width: 280px;
     }
     @media (prefers-reduced-motion: reduce) {
       .sidebar-logo img,
       .sidebar-link.active::before { animation: none !important; }
     }
 
-    /* ===== Sidebar collapse toggle button ===== */
+    /* ===== Sidebar collapse toggle — small icon-only control, low weight ===== */
     .sidebar-collapse-btn {
-      display: flex; align-items: center; gap: 10px;
-      width: 100%;
-      padding: 9px 14px;
-      margin-top: 6px;
+      display: flex; align-items: center; justify-content: center;
+      /* bottom-RIGHT (user 2026-07-08): flush with the Layout-Design card's
+         right edge (the card spans the footer's padded width) */
+      align-self: flex-end;
+      width: 34px; height: 34px;
+      padding: 0;
+      margin: 0 12px 0 0; /* the CTA card sits 12px in from the footer edge */
       background: transparent;
-      border: 1px solid transparent;
-      border-radius: 6px;
-      color: var(--fg-soft);
-      font-family: inherit;
-      font-size: 11px;
-      font-weight: 500;
-      letter-spacing: .04em;
+      border: 1px solid rgba(255,255,255,.08);
+      border-radius: 8px;
+      color: var(--fg-mute);
       cursor: pointer;
-      transition: color .2s ease, background .2s ease, border-color .2s ease;
+      transition: color .15s ease, background .15s ease, border-color .15s ease;
     }
     .sidebar-collapse-btn:hover {
       color: #fff;
+      border-color: rgba(77,195,255,.3);
       background: rgba(255,255,255,.04);
-      border-color: rgba(255,255,255,.12);
     }
     .sidebar-collapse-icon {
-      width: 14px; height: 14px;
+      width: 15px; height: 15px;
       stroke: currentColor; stroke-width: 1.8; fill: none;
       stroke-linecap: round; stroke-linejoin: round;
       flex-shrink: 0;
@@ -2203,11 +2569,14 @@
 
     /* Collapsed: shrink labels' width AND fade — frees space so icons truly center */
     body.sidebar-collapsed .sidebar-label,
-    body.sidebar-collapsed .sidebar-cta-label,
-    body.sidebar-collapsed .sidebar-cta-sub,
-    body.sidebar-collapsed .sidebar-region-label,
-    body.sidebar-collapsed .sidebar-collapse-label {
+    body.sidebar-collapsed .sidebar-region-body {
       max-width: 0;
+      opacity: 0;
+      pointer-events: none;
+    }
+    /* Collapsed: block title collapses fully (like the fine-print note) */
+    body.sidebar-collapsed .sidebar-channel-title {
+      max-height: 0;
       opacity: 0;
       pointer-events: none;
     }
@@ -2216,29 +2585,67 @@
       opacity: 0;
       pointer-events: none;
     }
+    /* Status line hides entirely when collapsed (no icon to fall back to) */
+    body.sidebar-collapsed .sidebar-status {
+      opacity: 0;
+      height: 0;
+      padding: 0;
+      overflow: hidden;
+      pointer-events: none;
+    }
     /* Eliminate flex gap so icons sit dead-center, not offset by ghost-label gap */
+    /* Centering + padding for collapsed links lives with the collapsed-state
+       rules further down (same 9px vertical padding as expanded). */
     body.sidebar-collapsed .sidebar-link { gap: 0; }
-    body.sidebar-collapsed .sidebar-region { gap: 0; }
+    body.sidebar-collapsed .sidebar-region { gap: 0; padding: 8px 0; justify-content: center; }
     body.sidebar-collapsed .sidebar-collapse-btn { gap: 0; }
-    body.sidebar-collapsed .sidebar-cta { gap: 0; padding: 12px 0; }
 
     body.sidebar-collapsed { padding-left: var(--sidebar-w-collapsed); }
-    body.sidebar-collapsed .sidebar { width: var(--sidebar-w-collapsed); }
-    body.sidebar-collapsed .sidebar-inner { padding: 22px 0; }
+    body.sidebar-collapsed .sidebar {
+      width: var(--sidebar-w-collapsed);
+      /* Let the children-flyout and leaf tooltip escape the 64px column.
+         Expanded mode keeps `overflow: hidden` to clip the width-transition. */
+      overflow: visible;
+    }
+    body.sidebar-collapsed .sidebar-nav { overflow: visible; }
+    body.sidebar-collapsed .sidebar-inner { overflow: visible; }
     body.sidebar-collapsed .sidebar-logo::after { opacity: 0; }
     .sidebar-logo::after { transition: opacity .2s ease; }
-    body.sidebar-collapsed .sidebar-nav { padding: 4px 8px 12px; }
-    body.sidebar-collapsed .sidebar-section-title { opacity: 0; }
-    .sidebar-section-title { transition: opacity .2s ease; }
-    body.sidebar-collapsed .sidebar-link { justify-content: center; padding: 11px 0; }
-    body.sidebar-collapsed .sidebar-cta {
-      padding: 12px 0;
-      justify-content: center;
-      grid-template-columns: 1fr;
+    /* 18px top = the 4px nav padding + the 14px section padding dropped from
+       the collapsed sections, so the gap below the logo matches expanded. */
+    body.sidebar-collapsed .sidebar-nav { padding: 18px 8px 12px; }
+    /* Collapsed rail: drop the section paddings + eyebrow box entirely so
+       Home and the five category icons stack as ONE group with the same
+       1px rhythm the icons have between themselves. */
+    body.sidebar-collapsed .sidebar-section { padding: 0 8px; }
+    body.sidebar-collapsed .sidebar-section-title {
+      opacity: 0;
+      height: 0;
+      padding: 0;
+      margin: 0;
+      overflow: hidden;
     }
-    body.sidebar-collapsed .sidebar-cta-icon { margin: 0; }
-    body.sidebar-collapsed .sidebar-region { justify-content: center; padding: 10px 0; }
-    body.sidebar-collapsed .sidebar-collapse-btn { justify-content: center; padding: 9px 0; }
+    .sidebar-section-title { transition: opacity .2s ease; }
+    /* Keep the expanded 9px vertical padding so rows stay on the same
+       baseline across expand/collapse. */
+    body.sidebar-collapsed .sidebar-link { justify-content: center; padding: 9px 0; }
+
+    /* Collapsed: lime left bar → centered 36×36 blue square (per mockup) */
+    body.sidebar-collapsed .sidebar-link.active { background: transparent; }
+    body.sidebar-collapsed .sidebar-link.active::before {
+      content: '';
+      position: absolute;
+      left: 50%; top: 50%;
+      transform: translate(-50%, -50%);
+      width: 36px; height: 36px;
+      background: rgba(0,113,188,0.22);
+      border-radius: 8px;
+      box-shadow: none;
+    }
+    body.sidebar-collapsed .sidebar-link .sidebar-icon { position: relative; z-index: 1; }
+    /* margin: 0 kills the expanded state's 12px right margin too — leaving
+       it shifts the "centered" button 6px left of the icon column. */
+    body.sidebar-collapsed .sidebar-collapse-btn { align-self: center; margin: 0; }
     body.sidebar-collapsed .sidebar-collapse-icon { transform: rotate(180deg); }
     body.sidebar-collapsed .top-subnav { left: var(--sidebar-w-collapsed); }
     /* Match the sidebar's slide curve */
@@ -2247,8 +2654,8 @@
     .sidebar-logo img,
     .sidebar-nav,
     .sidebar-link,
-    .sidebar-cta,
     .sidebar-region,
+    .sidebar-status,
     .sidebar-collapse-btn {
       transition: padding .32s cubic-bezier(.4, 0, .2, 1),
                   justify-content .32s cubic-bezier(.4, 0, .2, 1),
@@ -2256,27 +2663,9 @@
     }
     .sidebar-collapse-icon { transition: transform .32s cubic-bezier(.4, 0, .2, 1); }
 
-    /* Tooltip on hover when collapsed */
-    body.sidebar-collapsed .sidebar-link { position: relative; }
-    body.sidebar-collapsed .sidebar-link:hover::after {
-      content: attr(data-section);
-      position: absolute;
-      left: calc(100% + 8px); top: 50%;
-      transform: translateY(-50%);
-      padding: 5px 10px;
-      background: var(--bg-card);
-      color: var(--fg);
-      font-size: 11px;
-      font-weight: 500;
-      letter-spacing: .08em;
-      text-transform: uppercase;
-      border: 1px solid var(--line-strong);
-      border-radius: 5px;
-      white-space: nowrap;
-      pointer-events: none;
-      z-index: 200;
-      box-shadow: 0 6px 18px rgba(0,0,0,.4);
-    }
+    /* Collapsed-state hover tooltips are handled by the data-tooltip rules
+       above (proper-case labels). A legacy attr(data-section) tooltip used to
+       live here and fought them with UPPERCASED slugs — removed. */
 
     /* ===== TOP BAR: product sub-nav (left) + utility (right) ===== */
     .top-subnav {
@@ -2285,7 +2674,7 @@
       left: var(--sidebar-w);
       right: 0;
       height: 40px;
-      background: rgba(5,11,26,.55);   /* lighter, hero shows through */
+      background: rgba(5,11,26,.95);   /* near-opaque: keeps nav legible when light content scrolls under */
       backdrop-filter: saturate(160%) blur(12px);
       -webkit-backdrop-filter: saturate(160%) blur(12px);
       border-bottom: 1px solid rgba(255,255,255,.05);
@@ -2464,38 +2853,72 @@
 
     /* ===== Mobile sidebar: full-width drawer ===== */
     @media (max-width: 980px) {
-      body { padding-left: 0; }
+      /* Fixed mobile header (menu + logo + search) is 56px under the 3px
+         light-bin bar — every page reserves that 59px strip. */
+      body { padding-left: 0; padding-top: 59px; }
       body.sidebar-collapsed { padding-left: 0; }
+      body.has-topsubnav { padding-top: 99px; }      /* 59px header strip + 40px sub-nav */
       .container { padding: 0 24px; }
-      .top-subnav { left: 0; padding-left: 56px; /* room for hamburger */ }
+      .sig-stats { padding: 0 24px; }
+      /* While the first-visit region banner (fixed overlay, z 300) is up it
+         publishes its height as --region-banner-h on <html>; every fixed
+         top element shifts below it so the header stays tappable and the
+         drawer isn't covered. Falls back to 0px once dismissed. */
+      .mobile-header {
+        position: fixed;
+        top: calc(3px + var(--region-banner-h, 0px));
+        left: 0; right: 0;
+        height: 56px;
+        z-index: 60;
+        display: flex; align-items: center; gap: 12px;
+        padding: 0 16px;
+        background: var(--sidebar-bg);
+        border-bottom: 1px solid var(--line);
+        transition: top .32s cubic-bezier(.4, 0, .2, 1);
+      }
+      .mobile-header-logo { display: flex; align-items: center; }
+      .mobile-header-logo img { display: block; }
+      .mobile-header-search {
+        margin-left: auto;
+        width: 40px; height: 40px;
+        display: flex; align-items: center; justify-content: center;
+        color: #fff;
+        border: 1px solid var(--line);
+        border-radius: 8px;
+      }
+      .top-subnav { left: 0; top: calc(59px + var(--region-banner-h, 0px)); }
       body.sidebar-collapsed .top-subnav { left: 0; }
       .top-subnav-inner { padding: 0 16px; gap: 16px; }
       .top-subnav-eyebrow { display: none; }
       .sidebar {
         width: 0;
         border-right: none;
+        top: calc(59px + var(--region-banner-h, 0px));
+        transition: width .32s cubic-bezier(.4, 0, .2, 1),
+                    top .32s cubic-bezier(.4, 0, .2, 1);
       }
+      /* Brand lives in the mobile header — drop the drawer's duplicate logo */
+      .sidebar .sidebar-logo { display: none; }
       .sidebar.open {
         width: 280px;
         box-shadow: 12px 0 32px -8px rgba(0,0,0,.6);
       }
       /* Restore label visibility inside open drawer even if collapsed flag is set */
       .sidebar.open .sidebar-label,
-      .sidebar.open .sidebar-cta-label,
-      .sidebar.open .sidebar-cta-sub,
-      .sidebar.open .sidebar-region-label,
-      .sidebar.open .sidebar-collapse-label {
+      .sidebar.open .sidebar-region-body,
+      .sidebar.open .sidebar-cta-card-title,
+      .sidebar.open .sidebar-cta-btn-label,
+      .sidebar.open .sidebar-cta-btn-arrow {
+        max-width: none;
+        max-height: none;
         opacity: 1;
         pointer-events: auto;
       }
       /* Hide collapse button on mobile — irrelevant in drawer mode */
       .sidebar-collapse-btn { display: none; }
       .mobile-menu-toggle {
-        position: fixed;
-        top: 14px; left: 16px;
-        z-index: 60;
         width: 40px; height: 40px;
-        background: var(--sidebar-bg);
+        background: transparent;
         color: #fff;
         border: 1px solid var(--line);
         border-radius: 8px;
@@ -2504,7 +2927,7 @@
       }
     }
     @media (min-width: 981px) {
-      .mobile-menu-toggle { display: none; }
+      .mobile-header { display: none; }
     }
 
     /* ===== 右侧竖向 panel-dot 指示器
@@ -2714,9 +3137,11 @@
   display: grid;
   grid-template-columns: repeat(4, 1fr);
   gap: 0;
-  max-width: 1400px;
+  /* Match .container exactly so the strip's edges line up with the
+     hero / breadcrumb / card grid above and below it. */
+  max-width: 1440px;
   margin: 0 auto 56px;
-  padding: 0 max(40px, 4vw);
+  padding: 0 40px;
 }
 .sig-stat {
   padding: 22px 28px;
@@ -2910,4 +3335,314 @@
   .sig-grid { grid-template-columns: 1fr; }
   .sig-stats { grid-template-columns: 1fr; }
   .sig-hero h1 { font-size: 36px; }
+}
+
+/* ============================================================
+   Blog index + detail responsive layout. Plain classes (not
+   Tailwind spacing utilities) because the global `* { margin:0;
+   padding:0 }` and `section { padding:140px 0 }` rules above are
+   unlayered and always beat @layer utilities.
+   ============================================================ */
+/* Blog content column — full-width section bg (set on the page wrapper), but
+   filter chips + card grid + pagination centred in the shared 1200px container.
+   .blog-container is /blog-index only; the gutter comes from the container, so
+   the grid itself no longer sets a horizontal gutter. */
+.blog-container { max-width: var(--content-max-width); margin: 0 auto; padding: 0 var(--page-gutter); }
+.blog-post-grid { display: grid; gap: 20px; padding: 0 0 32px; }
+.blog-hero-card { margin: 14px 20px 24px; }
+.blog-hero-body { padding: 24px; }
+.blog-end-cta { padding: 0 20px 64px; }
+.blog-end-cta-card {
+  display: flex; flex-wrap: wrap; align-items: center;
+  justify-content: space-between; gap: 24px; padding: 24px;
+}
+@media (min-width: 641px) {
+  .blog-hero-body { padding: 40px; }
+}
+@media (min-width: 768px) {
+  .blog-post-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); padding: 0 0 32px; }
+  .blog-hero-card { margin: 14px 56px 24px; }
+  .blog-hero-body { padding: 56px 60px 48px; }
+  .blog-end-cta { padding: 0 56px 64px; }
+  .blog-end-cta-card { gap: 32px; padding: 40px 48px; }
+}
+@media (min-width: 1024px) {
+  .blog-post-grid { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+}
+@media (max-width: 640px) {
+  article.blog-article-body { padding: 0 20px 40px; }
+}
+
+/* ============================================================
+   Blog detail page prose styles (matches blog-detail-v3.html
+   mockup). Wrapper is .blog-article-body on the <article>; the
+   inner tags come from RichTextRenderer (no class names), so we
+   target them by selector.
+   ============================================================ */
+.blog-article-body {
+  max-width: 820px;
+  margin: 0 auto;
+  padding: 0 56px 48px;
+  font-size: 17.5px;
+  line-height: 1.65;
+  color: #1a2332;
+  font-family: var(--font-sans);
+}
+.blog-article-body p { margin: 0 0 24px; }
+.blog-article-body h2 {
+  font-size: 28px; line-height: 1.25;
+  letter-spacing: -0.015em;
+  margin: 48px 0 16px;
+  font-weight: 600;
+  position: relative;
+  padding-left: 16px;
+}
+.blog-article-body h2::before {
+  content: '';
+  position: absolute;
+  left: 0; top: 8px; bottom: 8px;
+  width: 3px;
+  background: #0071bc;
+  border-radius: 2px;
+}
+.blog-article-body h3 {
+  font-size: 20px; line-height: 1.3;
+  letter-spacing: -0.008em;
+  margin: 36px 0 12px;
+  font-weight: 600;
+}
+.blog-article-body ul,
+.blog-article-body ol { margin: 0 0 24px; padding-left: 24px; }
+.blog-article-body li { margin-bottom: 8px; }
+.blog-article-body a {
+  color: #0071bc;
+  text-decoration: underline;
+  text-underline-offset: 3px;
+  text-decoration-thickness: 1px;
+}
+.blog-article-body a:hover { text-decoration-thickness: 2px; }
+.blog-article-body strong { font-weight: 600; }
+.blog-article-body em { font-style: italic; }
+.blog-article-body code {
+  font-family: var(--font-mono);
+  font-size: 0.88em;
+  padding: 2px 6px;
+  background: rgba(15, 35, 71, 0.06);
+  border-radius: 4px;
+  color: #1a2332;
+}
+.blog-article-body blockquote {
+  margin: 36px 0;
+  padding: 20px 28px;
+  background: #ffffff;
+  border-left: 4px solid #aec90b;
+  border-radius: 0 8px 8px 0;
+  font-size: 19px; line-height: 1.55;
+  letter-spacing: -0.003em;
+  color: #1a2332;
+  font-style: normal;
+  font-weight: 500;
+}
+.blog-article-body blockquote p:last-child { margin: 0; }
+
+/* ===== Project cards (case study list) ===== */
+.project-card {
+  display: block;
+  background: var(--bg-card, #fff);
+  border: 1px solid var(--line, #e2e5ea);
+  border-radius: 12px;
+  overflow: hidden;
+  text-decoration: none;
+  color: inherit;
+  transition: transform .2s ease, border-color .2s ease;
+}
+.project-card:hover { transform: translateY(-3px); border-color: var(--blue, #0071bc); }
+.project-card-cover { aspect-ratio: 16 / 10; overflow: hidden; background: #f4f5f7; }
+.project-card-cover img { width: 100%; height: 100%; object-fit: cover; transition: transform .5s ease; }
+.project-card:hover .project-card-cover img { transform: scale(1.04); }
+.project-card-body { padding: 18px 20px 22px; }
+.project-card-chips { display: flex; flex-wrap: wrap; gap: 6px; margin-bottom: 10px; }
+.project-card-chip {
+  padding: 2px 8px;
+  font-size: 11px; font-weight: 500;
+  color: var(--blue, #0071bc);
+  background: var(--blue-soft, #e8f1fb);
+  border-radius: 4px;
+  letter-spacing: 0.02em;
+}
+.project-card-title { font-size: 17px; margin: 0 0 6px; letter-spacing: -0.01em; font-weight: 700; }
+.project-card-excerpt { font-size: 13.5px; color: var(--text-muted, #4a5568); margin: 0 0 12px; line-height: 1.5; }
+.project-card-meta { font-size: 12.5px; color: var(--text-subtle, #6a7a8a); }
+
+/* ===== Project hero (case study detail) ===== */
+.project-hero { background: var(--bg-card, #fff); padding: 0 0 32px; }
+.project-hero-cover {
+  width: 100%;
+  aspect-ratio: 16 / 9;
+  overflow: hidden;
+  background: #f4f5f7;
+}
+.project-hero-cover img { width: 100%; height: 100%; object-fit: cover; }
+.project-hero-inner {
+  max-width: 880px;
+  margin: 0 auto;
+  padding: 32px 24px 0;
+}
+.project-hero-chips { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 18px; }
+.project-hero-chip {
+  padding: 4px 10px;
+  font-size: 12px; font-weight: 500;
+  color: var(--blue, #0071bc);
+  background: var(--blue-soft, #e8f1fb);
+  border-radius: 4px;
+  letter-spacing: 0.02em;
+}
+.project-hero-title {
+  font-size: clamp(32px, 4.5vw, 56px);
+  line-height: 1.05;
+  letter-spacing: -0.025em;
+  margin: 0 0 14px;
+  font-weight: 700;
+}
+.project-hero-meta {
+  font-size: 14px;
+  color: var(--text-subtle, #6a7a8a);
+  letter-spacing: 0.02em;
+  margin-bottom: 16px;
+}
+.project-hero-excerpt {
+  font-size: 18px;
+  line-height: 1.5;
+  color: var(--text-muted, #4a5568);
+  margin: 0;
+}
+
+/* ===== Project gallery (figure grid) ===== */
+.project-gallery { max-width: 1100px; margin: 0 auto; padding: 48px 24px; }
+.project-gallery-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 18px;
+}
+@media (max-width: 740px) {
+  .project-gallery-grid { grid-template-columns: 1fr; }
+}
+.project-gallery-figure { margin: 0; }
+.project-gallery-figure img {
+  width: 100%;
+  height: auto;
+  border-radius: 10px;
+  display: block;
+}
+.project-gallery-caption {
+  margin-top: 8px;
+  font-size: 13px;
+  color: var(--text-subtle, #6a7a8a);
+  line-height: 1.5;
+}
+
+/* ===== Products used (case study detail) ===== */
+.products-used { max-width: 1100px; margin: 0 auto; padding: 48px 24px; }
+.products-used-heading {
+  font-size: 24px;
+  letter-spacing: -0.015em;
+  margin: 0 0 22px;
+  font-weight: 700;
+}
+.products-used-grid {
+  list-style: none; padding: 0; margin: 0;
+  display: grid; grid-template-columns: repeat(3, 1fr); gap: 14px;
+}
+@media (max-width: 900px) { .products-used-grid { grid-template-columns: repeat(2, 1fr); } }
+@media (max-width: 560px) { .products-used-grid { grid-template-columns: 1fr; } }
+.products-used-item {
+  display: flex; gap: 14px;
+  padding: 14px;
+  background: var(--bg-card, #fff);
+  border: 1px solid var(--line, #e2e5ea);
+  border-radius: 10px;
+}
+.products-used-item-muted { opacity: 0.65; }
+.products-used-thumb {
+  width: 64px; height: 64px; flex-shrink: 0;
+  display: flex; align-items: center; justify-content: center;
+  background: var(--blue-soft, #e8f1fb);
+  border-radius: 8px; overflow: hidden;
+}
+.products-used-thumb img { max-width: 80%; max-height: 80%; object-fit: contain; }
+.products-used-body { flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 2px; }
+.products-used-name {
+  font-size: 14px; font-weight: 600;
+  white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+}
+.products-used-sku { font-size: 12px; color: var(--text-subtle, #6a7a8a); }
+.products-used-status {
+  font-size: 11.5px; color: var(--text-subtle, #6a7a8a);
+}
+.products-used-link {
+  margin-top: 4px;
+  font-size: 12.5px; font-weight: 500;
+  color: var(--blue, #0071bc);
+  text-decoration: none;
+}
+.products-used-link:hover { text-decoration: underline; }
+
+/* ===== /projects list page ===== */
+/* Projects page — wider left/right gutters so the content clears the
+   dark sidebar instead of butting right up against it. Applies to every
+   contained section (breadcrumb, hero, stats, card grid). The full-bleed
+   CTA banner keeps its own centered inner wrapper. */
+.projects-page .container,
+.projects-page .sig-stats { padding-left: 72px; padding-right: 72px; }
+@media (max-width: 980px) {
+  .projects-page .container,
+  .projects-page .sig-stats { padding-left: 24px; padding-right: 24px; }
+}
+
+.projects-featured { padding: 24px 0 8px; }
+.projects-featured-heading {
+  font-size: 22px;
+  letter-spacing: -0.01em;
+  font-weight: 700;
+  margin: 0 0 18px;
+}
+.projects-list { padding: 24px 0 64px; }
+.projects-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 18px;
+}
+@media (max-width: 960px) { .projects-grid { grid-template-columns: repeat(2, 1fr); } }
+@media (max-width: 600px) { .projects-grid { grid-template-columns: 1fr; } }
+.projects-empty {
+  text-align: center;
+  padding: 64px 24px;
+  font-size: 15px;
+  color: var(--text-subtle, #6a7a8a);
+}
+
+/* ===== Project detail page ===== */
+.project-body {
+  max-width: 720px;
+  padding: 36px 24px 16px;
+  font-size: 16px;
+  line-height: 1.7;
+  color: var(--text, #1a2332);
+}
+.project-testimonial { padding: 32px 24px; max-width: 760px; }
+.project-testimonial-quote {
+  margin: 0;
+  font-size: 22px;
+  line-height: 1.4;
+  letter-spacing: -0.01em;
+  color: var(--text, #1a2332);
+  border-left: 3px solid var(--lime, #aec90b);
+  padding-left: 22px;
+}
+.project-related { padding: 56px 0 64px; }
+.project-related-heading {
+  font-size: 22px;
+  letter-spacing: -0.01em;
+  font-weight: 700;
+  margin: 0 0 18px;
 }

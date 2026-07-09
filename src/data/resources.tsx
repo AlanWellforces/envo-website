@@ -1,6 +1,6 @@
 // Canonical resource / download data. Consumers as of 2026-05-15:
 //   - homepage <Resources>        small cards on dark
-//   - /support catalog page       full cards on light
+//   - /resources downloads page       full cards on light
 // Icon is stored as inline-SVG JSX (hence the .tsx extension) so both consumers
 // render the same exact glyph. Once Payload editorial is wired this becomes
 // the seed payload (icon will likely be replaced by a Payload Media reference
@@ -23,7 +23,7 @@ export const RESOURCES: Resource[] = [
     name: 'Product Catalog',
     desc: 'Explore our complete product portfolio.',
     cta: 'Download PDF',
-    href: '/support/resources',
+    href: '/resources/downloads',
     icon: (
       <svg viewBox="0 0 24 24" aria-hidden="true">
         <path d="M14 3H6a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V9z" />
@@ -37,7 +37,7 @@ export const RESOURCES: Resource[] = [
     name: 'Specification Sheets',
     desc: 'Detailed specs for every product series.',
     cta: 'Download PDF',
-    href: '/support/resources',
+    href: '/resources/downloads',
     icon: (
       <svg viewBox="0 0 24 24" aria-hidden="true">
         <path d="M14 3H6a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V9z" />
@@ -51,7 +51,7 @@ export const RESOURCES: Resource[] = [
     name: 'Installation Guides',
     desc: 'Step-by-step guides for quick & easy installation.',
     cta: 'Download PDF',
-    href: '/support/resources',
+    href: '/resources/downloads',
     icon: (
       <svg viewBox="0 0 24 24" aria-hidden="true">
         <path d="M14.7 6.3a4 4 0 0 1-5.66 5.66L4 17v3h3l5.04-5.04a4 4 0 0 1 5.66-5.66l-2.83 2.83-2.83-2.83 2.83-2.83z" />
@@ -63,7 +63,7 @@ export const RESOURCES: Resource[] = [
     name: 'IES Files',
     desc: 'Photometric data for lighting calculations.',
     cta: 'Download ZIP',
-    href: '/support/resources',
+    href: '/resources/downloads',
     icon: (
       <svg viewBox="0 0 24 24" aria-hidden="true">
         <path d="M21 8v13a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8" />

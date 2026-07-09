@@ -1,82 +1,66 @@
-import Image from 'next/image'
 import Link from 'next/link'
+import { Suspense } from 'react'
 import type { Metadata } from 'next'
 import { PRODUCT_FAMILIES } from '@/data/product-families'
-import familyStyles from './[slug]/page.module.css'
-import styles from './page.module.css'
+import { getProductsByMarketingFamily } from '@/lib/products'
+import { buildProductCardsFor, buildGroups } from '@/components/products/catalogue-data'
+import { CatalogueFilter } from '@/components/products/CatalogueFilter'
+import '@/components/products/products-catalogue.css'
 
 export const metadata: Metadata = {
-  title: 'Products — ENVO',
+  alternates: { canonical: '/products' },
+  title: 'Product catalogue — ENVO',
   description:
-    'A complete ecosystem for LED lighting. From the driver to the module to the control — every ENVO component is engineered to work together.',
+    'Modules, drivers, control gear and accessories — engineered to work together as one signage system. Filter the full ENVO catalogue by application, colour temperature and certification.',
 }
 
-/** Single-word category eyebrow per family, as in the reference catalog. */
-const EYEBROW: Record<string, string> = {
-  'led-signage-modules': 'Signage',
-  'led-drivers': 'Power',
-  'control-gear': 'Control',
-  accessories: 'Accessory',
-}
+export default async function ProductsPage() {
+  // One catalogue across all families. Each family's series become cards; the
+  // category pills navigate to the per-family view (/products/[slug]).
+  // Fetched sequentially on purpose — the dev pooler's connection cap (each
+  // marketing family already fans out to several db-family queries inside).
+  const allProducts: Awaited<ReturnType<typeof getProductsByMarketingFamily>>[] = []
+  for (const f of PRODUCT_FAMILIES) {
+    allProducts.push(await getProductsByMarketingFamily(f.slug, { depth: 0 }))
+  }
+  const countBySlug = new Map(PRODUCT_FAMILIES.map((f, i) => [f.slug, allProducts[i].length]))
 
-export default function ProductsPage() {
+  // Same granularity as the category pages (user 2026-07-08): drivers /
+  // control gear / accessories list actual models, signage keeps series
+  // cards — all in one product grid, Category filter first.
+  const cards = PRODUCT_FAMILIES.flatMap((f, i) => buildProductCardsFor(f.slug, f, allProducts[i]).cards)
+  const groups = buildGroups(cards)
+
   return (
-    <div className="theme-light">
+    <div className="theme-light pcat">
       <div className="container">
         <div className="breadcrumb">
           <Link href="/">Home</Link>
           <span className="sep">›</span>
           <span>Products</span>
         </div>
-      </div>
 
-      {/* ============== HERO ============== */}
-      <section className="sig-hero">
-        <div className="container">
-          <div className="sig-hero-inner">
-            <span className="sig-eyebrow">Our products</span>
-            <h1>
-              A complete ecosystem for <em>LED lighting.</em>
-            </h1>
-            <p className="sig-hero-desc">
-              From the driver to the module to the control — every ENVO component is engineered
-              to work together for clean, reliable installations.
-            </p>
+        <div className="pcat-head">
+          <h1>Product catalogue</h1>
+          <p className="pcat-lede">
+            Modules, drivers, control gear and accessories — engineered to work together as one
+            signage system.
+          </p>
+          <div className="pcat-pills">
+            <span className="pcat-pill on">All</span>
+            {PRODUCT_FAMILIES.filter((f) => (countBySlug.get(f.slug) ?? 0) > 0).map((f) => (
+              <Link key={f.slug} href={f.href} className="pcat-pill">
+                {f.name}
+              </Link>
+            ))}
           </div>
         </div>
-      </section>
 
-      {/* ============== 4 FAMILY CARDS ============== */}
-      <section className={familyStyles.sectionWrap}>
-        <div className={styles.familyGrid}>
-          {PRODUCT_FAMILIES.map((f) => (
-            <Link
-              key={f.slug}
-              href={f.href}
-              className={`${styles.familyCard}${f.popular ? ` ${styles.familyCardPopular}` : ''}`}
-            >
-              {f.popular && <span className={styles.familyBadge}>Most popular</span>}
-              <div className={styles.familyImg}>
-                <Image
-                  src={f.image}
-                  alt={f.name}
-                  width={800}
-                  height={600}
-                  sizes="(min-width: 1100px) 25vw, (min-width: 640px) 50vw, 100vw"
-                />
-              </div>
-              <div className={styles.familyBody}>
-                <span className={styles.familyTag}>{EYEBROW[f.slug] ?? f.tag}</span>
-                <h2 className={styles.familyName}>{f.name}</h2>
-                <p className={styles.familyDesc}>{f.longDesc}</p>
-                <span className={styles.familyCta}>
-                  Explore <span>→</span>
-                </span>
-              </div>
-            </Link>
-          ))}
-        </div>
-      </section>
+        {/* Suspense: CatalogueFilter reads useSearchParams (deep-linkable filters) */}
+        <Suspense>
+          <CatalogueFilter cards={cards} groups={groups} resultKind="products" layout="productGrid" showSections />
+        </Suspense>
+      </div>
     </div>
   )
 }

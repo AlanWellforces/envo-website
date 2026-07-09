@@ -1,0 +1,49 @@
+import Link from 'next/link'
+import { ArrowRight } from './icons'
+import type { HomeFlCtaData } from '@/lib/home-page'
+
+export function FreeLayoutCta({ data = {} }: { data?: HomeFlCtaData }) {
+  return (
+    <section className="flB">
+      <div className="v4-wrap">
+        <div className="panel">
+          <div className="glow" />
+          <div className="txt">
+            <div className="eb">{data.eyebrow ?? 'Free service'}</div>
+            <h2>{data.heading ?? 'Get a free layout design for your next project.'}</h2>
+            <p>
+              {data.body ?? (
+                <>
+                  Send us your sign or facade dimensions. We&apos;ll return a wired layout, parts list
+                  and wattage budget.
+                </>
+              )}
+            </p>
+            <div className="btns">
+              <Link className="fl-lime" href={data.primary_url ?? '/free-layout-design'}>
+                {data.primary_label ?? 'Get free layout design'} <ArrowRight />
+              </Link>
+              <Link className="fl-ghost" href={data.ghost_url ?? '/products'}>
+                {data.ghost_label ?? 'Browse catalogue'}
+              </Link>
+            </div>
+          </div>
+          <div className="vis">
+            <div className="sketch">
+              <div className="dim dim-w">2400 mm</div>
+              <div className="dim dim-h">900 mm</div>
+              <div className="ph2">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
+                  <rect x="3" y="5" width="18" height="14" rx="2" />
+                  <path d="M3 9h18" />
+                </svg>
+                <span>your sign outline</span>
+              </div>
+              <div className="badge">→ wired layout + BOM</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+  )
+}

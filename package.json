@@ -5,20 +5,23 @@
   "scripts": {
     "dev": "next dev",
     "build": "next build",
-    "start": "next start",
+    "start": "node .next/standalone/server.js",
     "lint": "eslint",
     "typecheck": "tsc --noEmit",
     "test": "vitest run",
     "test:watch": "vitest",
     "payload": "payload",
     "generate:types": "tsx --tsconfig tsconfig.json scripts/generate-types.mts",
-    "generate:importmap": "payload generate:importmap"
+    "generate:importmap": "tsx --tsconfig tsconfig.json scripts/generate-importmap.mts",
+    "postinstall": "patch-package"
   },
   "dependencies": {
+    "@anthropic-ai/sdk": "^0.100.1",
     "@base-ui/react": "^1.4.1",
     "@payloadcms/db-postgres": "^3.84.1",
     "@payloadcms/next": "^3.84.1",
     "@payloadcms/richtext-lexical": "^3.84.1",
+    "@payloadcms/storage-s3": "^3.84.1",
     "@tailwindcss/postcss": "^4.3.0",
     "class-variance-authority": "^0.7.1",
     "clsx": "^2.1.1",
@@ -28,6 +31,7 @@
     "payload": "^3.84.1",
     "react": "19.2.4",
     "react-dom": "19.2.4",
+    "resend": "^6.16.0",
     "shadcn": "^4.7.0",
     "sharp": "^0.34.5",
     "tailwind-merge": "^3.6.0",
@@ -40,6 +44,7 @@
     "@vitest/coverage-v8": "^4.1.7",
     "eslint": "^9",
     "eslint-config-next": "16.2.6",
+    "patch-package": "^8.0.1",
     "typescript": "^5",
     "vitest": "^4.1.7"
   }

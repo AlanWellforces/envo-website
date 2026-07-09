@@ -1,18 +1,35 @@
 #!/usr/bin/env npx tsx
+/* eslint-disable @typescript-eslint/no-explicit-any --
+   Akeneo REST payloads are untyped upstream; this operational script works on
+   loose shapes by design. Typing them properly is tracked tech debt. */
 /**
  * Akeneo → Payload sync script (uses Payload local API — no auth needed)
- * Usage:  npx tsx scripts/akeneo-sync.ts          (full sync)
- *         npx tsx scripts/akeneo-sync.ts --limit 5 (test: first N products)
+ * Usage:  npx tsx --tsconfig tsconfig.json scripts/akeneo-sync.ts          (full sync)
+ *         npx tsx --tsconfig tsconfig.json scripts/akeneo-sync.ts --limit 5 (test: first N)
+ *
+ * Schema must be in sync first. If a Payload Collection was added/changed but
+ * the DB schema wasn't pushed, EVERY upsert fails with an opaque
+ * "Failed query … payload_locked_documents". Push additive schema once with:
+ *   PAYLOAD_DB_PUSH=true npx tsx --tsconfig tsconfig.json scripts/akeneo-sync.ts --limit 1
+ * (No migrations dir exists — push is gated by PAYLOAD_DB_PUSH, payload.config.ts.)
  */
 
 import * as dotenv from 'dotenv'
 import * as path from 'path'
 import * as fs from 'fs'
-import { getPayload } from 'payload'
-import config from '../src/payload.config.ts'
+import { createRequire } from 'node:module'
+import { CERT_CODES } from '../src/lib/cert-codes.ts'
 
-// Load .env.local then .env
+// Env MUST be loaded before `payload`/payload.config are imported: payload.config
+// reads process.env.PAYLOAD_SECRET at module-eval time, and importing `payload`
+// triggers its nested @next/env, which trips a tsx CJS-interop bug (see
+// scripts/generate-types.mts). So we (1) prime @next/env's default export,
+// (2) load env here, and (3) import payload + config DYNAMICALLY in main() —
+// never as static top-level imports (those would hoist ahead of this).
 const root = path.resolve(__dirname, '..')
+const nextEnvReq = createRequire(path.join(root, 'node_modules/payload/dist/bin/dummy.js'))
+const nextEnv = nextEnvReq('@next/env') as { default?: unknown }
+if (!nextEnv.default) nextEnv.default = nextEnv
 for (const f of ['.env.local', '.env']) {
   const p = path.join(root, f)
   if (fs.existsSync(p)) dotenv.config({ path: p })
@@ -115,14 +132,18 @@ function normalise(p: any) {
   }
   const dimming_control = dimmingArr.map(d => dimmingMap[String(d).toLowerCase()] ?? null).filter(Boolean) as string[]
 
-  // Standards
+  // Standards — Akeneo emits canonical cert codes ('c_ce', 'c_cul', …) matching
+  // our Payload select values 1:1. Keep known codes, log unknowns (don't drop
+  // silently; the old re-prefix map dropped every cert → 0/224).
   const stdRaw: any = getVal(v, 'standards_met')
   const stdArr: string[] = Array.isArray(stdRaw) ? stdRaw : stdRaw ? [stdRaw] : []
-  const stdMap: Record<string, string> = {
-    ce: 'c_ce', saa: 'c_saa', tuv: 'c_tuv', ul: 'c_ul', rcm: 'c_rcm',
-    fcc: 'c_fcc', rohs: 'c_rohs', enec: 'c_enec',
-  }
-  const standards_met = stdArr.map(s => stdMap[String(s).toLowerCase()] ?? null).filter(Boolean) as string[]
+  const standards_met = stdArr
+    .map(s => String(s).toLowerCase())
+    .filter(c => {
+      if (CERT_CODES.has(c)) return true
+      console.warn(`[akeneo-sync] ${p.identifier}: unknown cert code '${c}' — add it to src/lib/cert-codes.ts`)
+      return false
+    })
 
   // IP rating
   const ipRaw = getString(v, 'waterproof') ?? ''
@@ -172,7 +193,10 @@ function normalise(p: any) {
 
     image_url_fallback,
     clean_image_url_fallback,
-    spec_sheet_url:          getString(v, 'spec_sheet') ?? getString(v, 'datasheet_url'),
+    // Datasheets: read the absolute `.aws` URL (with the Akeneo download href as
+    // fallback) exactly like images above — NOT the raw relative key, which
+    // 404s as an href. Mirrors src/lib/akeneo/sync.ts. See src/lib/asset-url.ts.
+    spec_sheet_url:          (v.spec_sheet?.[0]?.aws ?? v.spec_sheet?.[0]?._links?.download?.href) ?? getString(v, 'datasheet_url'),
 
     power_w:                 getAmount(v, 'power_rating'),
     output_voltage_v:        getAmount(v, 'output_voltage'),
@@ -197,8 +221,8 @@ function normalise(p: any) {
     price_nzd:               priceNzd != null ? parseFloat(priceNzd) : null,
     inventory_type:          getString(v, 'inventory_type'),
     pack_qty:                getVal(v, 'pack_qty') as number | null,
-    shipping_lead_days:      getVal(v, 'shipping_lead_time') as number | null,
-    manufacturing_lead_days: getVal(v, 'manufacturing_lead_time') as number | null,
+    shipping_lead_days:      getAmount(v, 'shipping_lead_time'),
+    manufacturing_lead_days: getAmount(v, 'manufacturing_lead_time'),
 
     seo_title:               getString(v, 'seo_title'),
     seo_description:         getString(v, 'seo_meta_description'),
@@ -212,6 +236,9 @@ function normalise(p: any) {
 async function main() {
   console.log(`\nAkeneo sync — ${LIMIT ? `test mode (${LIMIT} products)` : 'full sync'}\n`)
 
+  // Dynamic import AFTER env is loaded (see top-of-file note).
+  const { getPayload } = await import('payload')
+  const { default: config } = await import('../src/payload.config.ts')
   const payload = await getPayload({ config })
 
   console.log('Authenticating with Akeneo...')

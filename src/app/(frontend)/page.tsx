@@ -1,31 +1,28 @@
 import { Hero } from '@/components/home/hero'
-import { Impact } from '@/components/home/impact'
-import { Trust } from '@/components/home/trust'
-import { ProductFamilies } from '@/components/home/product-families'
-import { Solutions } from '@/components/home/solutions'
-import { Projects } from '@/components/home/projects'
-import { Quote } from '@/components/home/quote'
-import { FeaturedDetail } from '@/components/home/featured-detail'
-import { Process } from '@/components/home/process'
-import { Resources } from '@/components/home/resources'
-import { FinalCta } from '@/components/home/final-cta'
-import { Newsletter } from '@/components/home/newsletter'
+import { ValueProps } from '@/components/home/value-props'
+import { ShopByCategory } from '@/components/home/shop-by-category'
+import { SignageRange } from '@/components/home/signage-range'
+import { getHomePage } from '@/lib/home-page'
 
-export default function HomePage() {
+import type { Metadata } from 'next'
+
+export const metadata: Metadata = { alternates: { canonical: '/' } }
+// import { Projects } from '@/components/home/projects' // hidden until real installs exist
+import { WhyEnvo } from '@/components/home/why-envo'
+import { FreeLayoutCta } from '@/components/home/free-layout-cta'
+import '@/components/home/home-v6.css'
+
+export default async function HomePage() {
+  const home = await getHomePage()
   return (
-    <>
-      <Hero />
-      <Impact />
-      <Trust />
-      <ProductFamilies />
-      <Solutions />
-      <Projects />
-      <Quote />
-      <FeaturedDetail />
-      <Process />
-      <Resources />
-      <FinalCta />
-      <Newsletter />
-    </>
+    <main className="v4">
+      <Hero data={home.hero} />
+      <ValueProps />
+      <ShopByCategory />
+      <SignageRange />
+      {/* <Projects /> hidden until real installs exist */}
+      <WhyEnvo data={home.why} />
+      <FreeLayoutCta data={home.flCta} />
+    </main>
   )
 }

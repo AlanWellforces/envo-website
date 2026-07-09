@@ -65,6 +65,26 @@ Git          →  owns all code and logic (schema, API routes, AI prompts, compo
 Never put product data in Payload. Never put editorial copy in Git as hardcoded strings.
 Never put core AI prompt logic only in Payload.
 
+## Copy rules — site-wide
+
+Enforceable wording constraints for ALL customer-facing copy — whether it lives
+in code, Payload, or anywhere else. These override any draft copy.
+
+- **No online chat.** ENVO has no live-chat / chatbot / "start a chat" feature.
+  Never write "chat", "live chat", "start a chat", or use a chat-bubble CTA.
+  Support is via the contact form and email — route to `/contact` with wording
+  like "Contact us" / "Ask our engineers".
+- **No prices.** Lead-generation site, no ecommerce. Never surface a price (incl.
+  `price_nzd`). Talk lead-time and channel routing instead.
+- **The site sells nothing directly.** No checkout / cart / "buy now" / "purchasing
+  channel" wording that implies you can order on-site. ENVO is supplied through
+  **authorised supply channels** (external distributors) — use "supply channel" /
+  "where to buy" / "authorised channels" and route to `/contact` or the distributor.
+- **No response-time promises.** Never promise a numeric turnaround ("within 24h",
+  "same-day reply"). Vague qualitative wording is fine.
+- **ENVO-only branding.** Brand as ENVO only; legal entity Envo; contact email
+  `contact@envo-led.com`. Never use legacy brand names (e.g. Power Supply Mall).
+
 ## Database
 
 Always use `process.env.DATABASE_URL`. Never hardcode a hostname.

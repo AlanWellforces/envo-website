@@ -6,19 +6,33 @@
 //   - sync_locked = true: sync skips this product entirely — editor owns it fully
 
 import type { CollectionConfig } from 'payload'
+import { CERT_OPTIONS } from '@/lib/cert-codes'
 
 export const Products: CollectionConfig = {
   slug: 'products',
   admin: {
     useAsTitle: 'name',
-    defaultColumns: ['sku', 'name', 'family', 'price_nzd', 'enabled', 'featured'],
-    description: 'ENVO product catalogue. Synced from Akeneo — edit freely. Enable sync_locked to prevent Akeneo from overwriting your changes.',
-    group: 'Products',
+    defaultColumns: ['thumbnail', 'sku', 'name', 'family', 'enabled', 'featured'],
+    description: 'ENVO product catalogue. ⚠️ The nightly Akeneo sync OVERWRITES every "Synced from Akeneo" field — turn on Sync locked (sidebar) before hand-editing a product, or your changes disappear on the next sync. Payload-only fields (uploads, subtitle, pricing) are always safe.',
+    group: 'Catalogue',
+    // Hide un-enriched Akeneo shells (no family — never categorisable on the
+    // frontend) from the default list. Clear the Filters panel to see them.
+    baseListFilter: () => ({ family: { exists: true } }),
   },
   access: {
     read: () => true,
   },
   fields: [
+    {
+      name: 'thumbnail',
+      type: 'ui',
+      label: 'Photo',
+      admin: {
+        components: {
+          Cell: '/payload/components/ProductImageCell#ProductImageCell',
+        },
+      },
+    },
     // -------------------------------------------------------------------------
     // TABS
     // -------------------------------------------------------------------------
@@ -36,7 +50,7 @@ export const Products: CollectionConfig = {
               name: 'name',
               type: 'text',
               required: true,
-              admin: { description: 'Synced from Akeneo. Edit freely.' },
+              admin: { description: 'Synced from Akeneo — the nightly sync overwrites edits unless Sync locked is on.' },
             },
             {
               name: 'subtitle',
@@ -52,7 +66,7 @@ export const Products: CollectionConfig = {
               name: 'description',
               type: 'textarea',
               admin: {
-                description: 'Full product description. Accepts HTML. Synced from Akeneo — edit to override.',
+                description: 'Full product description. Accepts HTML. Synced from Akeneo — the nightly sync overwrites edits unless Sync locked is on.',
                 rows: 8,
               },
             },
@@ -88,6 +102,16 @@ export const Products: CollectionConfig = {
         {
           label: 'Media',
           fields: [
+            {
+              name: 'image_preview',
+              type: 'ui',
+              label: 'Akeneo images',
+              admin: {
+                components: {
+                  Field: '/payload/components/ProductImagePreview#ProductImagePreview',
+                },
+              },
+            },
             {
               name: 'image',
               type: 'upload',
@@ -409,19 +433,9 @@ export const Products: CollectionConfig = {
                   type: 'select',
                   hasMany: true,
                   label: 'Certifications',
-                  options: [
-                    { label: 'CE',       value: 'c_ce'   },
-                    { label: 'SAA',      value: 'c_saa'  },
-                    { label: 'TUV',      value: 'c_tuv'  },
-                    { label: 'UL',       value: 'c_ul'   },
-                    { label: 'RCM',      value: 'c_rcm'  },
-                    { label: 'FCC',      value: 'c_fcc'  },
-                    { label: 'RoHS',     value: 'c_rohs' },
-                    { label: 'ENEC',     value: 'c_enec' },
-                    { label: 'BIS',      value: 'c_bis'  },
-                    { label: 'CB',       value: 'c_cb'   },
-                    { label: 'LM-80',    value: 'c_lm80' },
-                  ],
+                  // Shared with the Akeneo sync (src/lib/cert-codes.ts) so the
+                  // option set can't drift from what the sync keeps.
+                  options: CERT_OPTIONS.map((o) => ({ ...o })),
                 },
                 {
                   name: 'warranty_years',
@@ -437,7 +451,8 @@ export const Products: CollectionConfig = {
         // TAB 4: Pricing & Availability
         // -----------------------------------------------------------------------
         {
-          label: 'Pricing',
+          label: 'Pricing (internal)',
+          description: 'Internal reference only — the brand site is lead-gen and NEVER shows prices, stock or pack quantities. Fulfilment lives with the regional distributors.',
           fields: [
             {
               type: 'row',
@@ -446,7 +461,7 @@ export const Products: CollectionConfig = {
                   name: 'price_nzd',
                   type: 'number',
                   label: 'Price (NZD)',
-                  admin: { width: '33%', description: 'Retail price ex-GST.' },
+                  admin: { width: '33%', description: 'Retail price ex-GST. Internal — never rendered on the site.' },
                 },
                 {
                   name: 'inventory_type',
@@ -571,18 +586,18 @@ export const Products: CollectionConfig = {
             {
               name: 'seo_title',
               type: 'text',
-              admin: { description: 'Page title tag. Synced from Akeneo.' },
+              admin: { description: 'Page title tag. Synced from Akeneo — overwritten on sync unless Sync locked is on.' },
             },
             {
               name: 'seo_description',
               type: 'textarea',
-              admin: { description: 'Meta description. Synced from Akeneo.' },
+              admin: { description: 'Meta description. Synced from Akeneo — overwritten on sync unless Sync locked is on.' },
             },
             {
               name: 'faq',
               type: 'array',
               label: 'FAQ',
-              admin: { description: 'Questions and answers shown on the product page. Synced from Akeneo — edit freely.' },
+              admin: { description: 'Questions and answers shown on the product page. Synced from Akeneo — overwritten on sync unless Sync locked is on.' },
               fields: [
                 {
                   name: 'question',

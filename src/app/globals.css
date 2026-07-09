@@ -151,3 +151,93 @@ body {
   --color-envo-lime-glow:     var(--color-brand-lime-glow);
   --color-envo-lime-deep:     var(--color-brand-lime-deep);
 }
+
+/* ============================================================
+   Layout tokens — shared page content width + side gutter
+   (2026-07-06). The homepage (.v4-wrap) is the reference; the
+   general page .container and the product-detail .wrap consume
+   these same values so every top-level page's content column and
+   gutters line up. Change the width/gutter here once, not per page.
+
+   1200px is the DEFAULT (marketing/content look). 1440px is an
+   explicit WIDE opt-in — NOT the global default — for genuinely
+   dense pages (product grids, gallery-heavy sections). To opt a
+   page in, add class="layout-wide" on an ancestor of its wrapper
+   (.container / .v4-wrap / .pdetail .wrap); the wider max-width
+   then cascades down via the custom property. Gutters are
+   unchanged. No page uses it yet — apply deliberately, per page.
+   ============================================================ */
+:root {
+  --content-max-width: 1200px;
+  --content-max-width-wide: 1440px;
+  --page-gutter: clamp(28px, 4vw, 64px);
+}
+
+/* Explicit wide-layout opt-in (see note above). */
+.layout-wide { --content-max-width: var(--content-max-width-wide); }
+
+/* ============================================================
+   Type + spacing scales — FAITHFUL pilot (2026-07-06).
+
+   Px-named, zero-rounding: every token's value is a size/step
+   already used across the component CSS, so swapping a raw px for
+   its token is a pure alias — the rendered pixels do not change.
+   The name encodes the value (--text-14 IS 14px; --space-16 IS
+   16px) so "no visual change" stays auditable at a glance.
+
+   Consumed via var() in component CSS (this project styles with
+   CSS files, not Tailwind spacing/type utilities — those are inert
+   here). Kept in :root, NOT @theme, so Tailwind does not generate
+   unused utilities from them.
+
+   Deliberately NOT tokenized yet (left as raw px, pending the
+   final-design pass): fractional font sizes (10.5 / 12.5 / 13.5 /
+   14.5 / 15.5 …), one-off functional spacings, and any
+   rationalization/rounding into fewer steps. This block only
+   inventories the common values as aliases.
+   ============================================================ */
+:root {
+  /* Font-size scale — common integer sizes in use */
+  --text-10: 10px;
+  --text-11: 11px;
+  --text-12: 12px;
+  --text-13: 13px;
+  --text-14: 14px;
+  --text-15: 15px;
+  --text-16: 16px;
+  --text-18: 18px;
+  --text-20: 20px;
+  --text-24: 24px;
+  --text-30: 30px;
+  --text-36: 36px;
+
+  /* Spacing scale — padding / margin / gap, on the project's 2px grid */
+  --space-2: 2px;
+  --space-4: 4px;
+  --space-6: 6px;
+  --space-7: 7px;
+  --space-8: 8px;
+  --space-9: 9px;
+  --space-10: 10px;
+  --space-11: 11px;
+  --space-12: 12px;
+  --space-13: 13px;
+  --space-14: 14px;
+  --space-15: 15px;
+  --space-16: 16px;
+  --space-18: 18px;
+  --space-20: 20px;
+  --space-22: 22px;
+  --space-24: 24px;
+  --space-26: 26px;
+  --space-28: 28px;
+  --space-30: 30px;
+  --space-32: 32px;
+  --space-34: 34px;
+  --space-36: 36px;
+  --space-40: 40px;
+  --space-48: 48px;
+  --space-56: 56px;
+  --space-64: 64px;
+  --space-72: 72px;
+}

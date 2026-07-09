@@ -5,6 +5,10 @@ import { usePathname } from 'next/navigation'
 import { useEffect } from 'react'
 import { PRODUCT_FAMILIES } from '@/data/product-families'
 import { cn } from '@/lib/utils'
+import { SERIES_EDITORIAL } from '@/data/series-editorial.generated'
+import { seriesSlug } from '@/data/family-map'
+
+const EDITORIAL_SERIES_SLUGS = new Set(Object.keys(SERIES_EDITORIAL).map((k) => seriesSlug(k)))
 
 /**
  * Section-aware top bar.
@@ -15,12 +19,27 @@ import { cn } from '@/lib/utils'
  */
 export function TopSubnav() {
   const pathname = usePathname()
-  const visible = pathname.startsWith('/products')
+  // Hidden on /products/*/mini-series — that page renders its own
+  // Overview / Compare / Solutions sub-nav from the v3 mockup chrome.
+  // Returning null (rather than .hidden class) so the fixed dark bar never
+  // paints during SSR / hydration; it would otherwise sit on top of the
+  // mockup's own sub-nav as a thin black strip.
+  const isMiniSeries = /^\/products\/[^/]+\/mini-series(\/|$)/.test(pathname)
+  const seriesSeg = pathname.match(/^\/products\/[^/]+\/([^/]+)/)?.[1]
+  const isEditorialSeries = !!seriesSeg && EDITORIAL_SERIES_SLUGS.has(seriesSeg)
+  // Catalogue listing pages (/products and /products/<family>) render their own
+  // category pills WITH counts + an "All" tab, so the dark category bar would be
+  // a redundant second row. Detail pages (/products/<family>/<series>) keep it.
+  const isCatalogueListing = /^\/products(\/[^/]+)?\/?$/.test(pathname)
+  const visible =
+    pathname.startsWith('/products') && !isMiniSeries && !isEditorialSeries && !isCatalogueListing
 
   useEffect(() => {
     document.body.classList.toggle('has-topsubnav', visible)
     return () => document.body.classList.remove('has-topsubnav')
   }, [visible])
+
+  if (isMiniSeries || isEditorialSeries || isCatalogueListing) return null
 
   return (
     <div className={cn('top-subnav', !visible && 'hidden')} aria-hidden={!visible}>

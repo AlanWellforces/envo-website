@@ -1,23 +1,48 @@
 import type { Metadata } from 'next'
-import { Inter_Tight } from 'next/font/google'
+import localFont from 'next/font/local'
 import '../globals.css'
+import { PageViewBeacon } from '@/components/analytics/PageViewBeacon'
 import { Sidebar } from '@/components/layout/sidebar'
-import { TopSubnav } from '@/components/layout/top-subnav'
+import { RegionProvider } from '@/components/region/RegionProvider'
 import { Footer } from '@/components/layout/footer'
 import { CursorGlow } from '@/components/layout/cursor-glow'
 import { RevealOnScroll } from '@/components/layout/reveal-on-scroll'
 import { BackToTop } from '@/components/layout/back-to-top'
+import { PointerBlur } from '@/components/layout/PointerBlur'
 
-const interTight = Inter_Tight({
+// Vendored variable font (latin subset) — builds must not depend on
+// fonts.googleapis.com being reachable.
+const interTight = localFont({
+  src: '../../fonts/inter-tight-latin.woff2',
   variable: '--font-inter-tight',
-  subsets: ['latin'],
-  weight: ['400', '500', '600', '700'],
+  weight: '100 900',
 })
 
+const SITE_TITLE = 'ENVO — Engineered Illumination'
+const SITE_DESCRIPTION =
+  'ENVO designs and manufactures professional-grade LED lighting systems that power signage and architectural illumination worldwide.'
+
 export const metadata: Metadata = {
-  title: 'ENVO — Engineered Illumination',
-  description:
-    'ENVO designs and manufactures professional-grade LED lighting systems that power signage and architectural illumination worldwide.',
+  metadataBase: new URL(process.env.NEXT_PUBLIC_SITE_URL || 'http://localhost:3000'),
+  title: SITE_TITLE,
+  description: SITE_DESCRIPTION,
+  // Site-wide share-preview fallback (LinkedIn, Slack, WeChat…). Pages with
+  // their own openGraph (blog posts, page-seo overrides) replace this wholesale.
+  openGraph: {
+    type: 'website',
+    siteName: 'ENVO',
+    title: SITE_TITLE,
+    description: SITE_DESCRIPTION,
+    images: [{ url: '/assets/images/hero-signage-poster.jpg', width: 1920, height: 1080, alt: 'ENVO LED signage lighting' }],
+  },
+  twitter: {
+    card: 'summary_large_image',
+  },
+  icons: {
+    icon: [
+      { url: '/assets/images/favicon.svg', type: 'image/svg+xml' },
+    ],
+  },
 }
 
 export default function RootLayout({
@@ -28,13 +53,23 @@ export default function RootLayout({
   return (
     <html lang="en" className={interTight.variable}>
       <body>
-        <Sidebar />
-        <TopSubnav />
-        <CursorGlow />
-        {children}
-        <Footer />
-        <RevealOnScroll />
-        <BackToTop />
+        <PageViewBeacon />
+        <RegionProvider>
+          {/* Region/channel banner hidden for now (user 2026-07-08) — the
+              region picker under each purchase CTA still covers the choice.
+              Re-enable by restoring <RegionBanner />. */}
+          <Sidebar />
+          {/* TopSubnav retired (user 2026-07-08): the #157 sidebar lists all
+              four categories as top-level items, so the dark Categories bar
+              on detail pages was a duplicate. Restore <TopSubnav /> if a
+              horizontal category bar is ever wanted again. */}
+          <CursorGlow />
+          {children}
+          <Footer />
+          <RevealOnScroll />
+          <BackToTop />
+          <PointerBlur />
+        </RegionProvider>
       </body>
     </html>
   )

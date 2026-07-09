@@ -1,0 +1,40 @@
+/* /contact — local styles, mirrors the resources/about design language.
+   Renders inside .theme-light; uses semantic --color-* tokens. */
+
+.hero { padding: 36px 0 40px; }
+.heroEyebrow { display: inline-flex; align-items: center; gap: 8px; font-size: 11px; font-weight: 600;
+  letter-spacing: .18em; text-transform: uppercase; color: var(--color-brand-blue); }
+.heroEyebrow::before { content: ''; width: 18px; height: 1.5px; background: var(--color-brand-lime); }
+.heroTitle { margin: 14px 0 0; font-size: clamp(34px, 5vw, 52px); line-height: 1.04; letter-spacing: -.03em; font-weight: 700; color: var(--color-text-primary); }
+.heroDesc { margin: 14px 0 0; font-size: clamp(16px, 1.4vw, 18px); line-height: 1.55; color: var(--color-text-muted); max-width: 56ch; }
+
+.layout { display: grid; grid-template-columns: 1fr 300px; gap: 32px; padding: 8px 0 72px; align-items: start; }
+
+/* white card wrapping the form — same surface as the panel cards */
+.card { background: var(--color-surface-card); border: 1px solid var(--color-line-strong); border-radius: 18px; padding: 26px; }
+.cardTitle { font-size: 13px; font-weight: 700; text-transform: uppercase; letter-spacing: .1em; color: var(--color-brand-blue); margin: 0 0 18px; }
+
+/* form */
+.form { display: grid; gap: 16px; }
+.row2 { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+.field { display: flex; flex-direction: column; gap: 6px; }
+.label { font-size: 14px; font-weight: 600; color: var(--color-text-primary); letter-spacing: .02em; }
+.input, .textarea { border: 1px solid var(--color-line-strong); border-radius: 10px; padding: 12px 14px; font: inherit; font-size: 15px; color: var(--color-text-primary); background: var(--color-surface-card); }
+.input:focus, .textarea:focus { outline: none; border-color: var(--color-brand-blue); box-shadow: 0 0 0 3px rgba(0,113,188,.12); }
+.textarea { resize: vertical; min-height: 120px; }
+.submit { justify-self: start; background: var(--color-brand-blue); color: #fff; font-weight: 600; font-size: 15px; padding: 14px 28px; border-radius: 999px; border: none; cursor: pointer; box-shadow: 0 10px 26px -12px rgba(0,113,188,.95); transition: transform .2s, box-shadow .2s, background .2s; }
+.submit:hover { background: #0086e0; transform: translateY(-2px); box-shadow: 0 16px 34px -12px rgba(0,113,188,1); }
+.note { font-size: 12.5px; color: var(--color-text-muted); }
+.sent { background: rgba(174,201,11,.12); border: 1px solid rgba(174,201,11,.5); color: var(--color-text-primary); border-radius: 10px; padding: 14px 16px; font-size: 14px; }
+
+/* details panel */
+.panel { background: var(--color-surface-base); border: 1px solid var(--color-line-strong); border-radius: 18px; padding: 28px; }
+.panelTitle { font-size: 13px; font-weight: 700; text-transform: uppercase; letter-spacing: .1em; color: var(--color-brand-blue); margin: 0 0 4px; }
+.detail { padding: 16px 0; border-top: 1px solid var(--color-line-light); }
+.detail:first-of-type { border-top: none; }
+.detailLabel { font-size: 11px; text-transform: uppercase; letter-spacing: .12em; color: var(--color-text-subtle); margin: 0 0 6px; }
+.detailVal { font-size: 14px; font-weight: 600; color: var(--color-text-primary); margin: 0; line-height: 1.5; }
+.detailVal a { color: var(--color-text-primary); text-decoration: none; display: block; }
+.detailVal a:hover { color: var(--color-brand-blue); }
+
+@media (max-width: 860px) { .layout { grid-template-columns: 1fr; gap: 32px; } .row2 { grid-template-columns: 1fr; } }

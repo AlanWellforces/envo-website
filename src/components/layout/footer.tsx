@@ -1,48 +1,77 @@
 import Image from 'next/image'
 import Link from 'next/link'
+import { getFooterLegalPages } from '@/lib/cms-pages'
+import { getSolutions } from '@/lib/solutions'
+import { getSiteSettings } from '@/lib/site-settings'
 
-export function Footer() {
+const SOCIAL_LABELS: Record<string, string> = {
+  linkedin: 'LinkedIn',
+  instagram: 'Instagram',
+  facebook: 'Facebook',
+  youtube: 'YouTube',
+  twitter: 'X',
+}
+
+export async function Footer() {
+  const [legal, solutions, settings] = await Promise.all([
+    getFooterLegalPages(),
+    getSolutions(),
+    getSiteSettings(),
+  ])
+  const email = settings.contact?.email || 'contact@envo-led.com'
+  const social = settings.footer?.social_links ?? []
   return (
     <footer>
       <div className="container">
         <div className="footer-grid">
           <div className="footer-brand">
+            {/* Attrs = the SVG's intrinsic size (923.42×170.9); CSS scales it
+                to height 22px. Attrs that half-match the rendered size (the
+                old 120×22 — height hit, width missed by the ~5.4 ratio)
+                trip Next's dev aspect-ratio warning. */}
             <Image
               src="/assets/images/logo-envo-darkbg.svg"
               alt="ENVO"
-              width={120}
-              height={22}
+              width={923}
+              height={171}
+              style={{ height: '22px', width: 'auto' }}
             />
-            <p>Engineered illumination to elevate performance.</p>
-            <a href="mailto:contact@envo.com" className="footer-brand-email">
-              contact@envo.com
+            <p>{settings.footer?.tagline || 'Engineered illumination to elevate performance.'}</p>
+            <a href={`mailto:${email}`} className="footer-brand-email">
+              {email}
             </a>
           </div>
 
           <div className="footer-col">
             <h5>Products</h5>
             <ul>
-              <li><Link href="/products/led-signage-modules">Signage Module</Link></li>
-              <li><Link href="/products/led-drivers">LED Driver</Link></li>
+              <li><Link href="/products/led-signage-modules">Signage Modules</Link></li>
+              <li><Link href="/products/led-drivers">LED Drivers</Link></li>
               <li><Link href="/products/control-gear">Control Gear</Link></li>
-              <li><Link href="/products/accessories">Accessories</Link></li>
+              {/* Accessories hidden until it has live products — see
+                  docs/superpowers/plans/2026-07-08-hidden-features.md
+              <li><Link href="/products/accessories">Accessories</Link></li> */}
             </ul>
           </div>
 
-          <div className="footer-col">
-            <h5>Solutions</h5>
-            <ul>
-              <li><Link href="/solutions/signage-lighting">Signage Lighting</Link></li>
-              <li><Link href="/solutions/architectural-lighting">Architectural Lighting</Link></li>
-            </ul>
-          </div>
+          {solutions.length > 0 && (
+            <div className="footer-col">
+              <h5>Solutions</h5>
+              <ul>
+                {solutions.map((s) => (
+                  <li key={s.slug}><Link href={s.href}>{s.name}</Link></li>
+                ))}
+              </ul>
+            </div>
+          )}
 
           <div className="footer-col">
-            <h5>Support</h5>
+            <h5>Resources</h5>
             <ul>
               <li><Link href="/free-layout-design">Free Layout Design</Link></li>
-              <li><Link href="/support/resources">Resources &amp; Downloads</Link></li>
-              <li><Link href="/support/tools">Tools &amp; Guides</Link></li>
+              {/* the datasheet library at /resources is the hub (post-#139);
+                  /resources/downloads is just one of its sub-pages */}
+              <li><Link href="/resources">Resources &amp; Downloads</Link></li>
               <li><Link href="/contact">Contact Us</Link></li>
             </ul>
           </div>
@@ -51,18 +80,24 @@ export function Footer() {
             <h5>Company</h5>
             <ul>
               <li><Link href="/about">About ENVO</Link></li>
-              <li><span aria-disabled="true">News</span></li>
-              <li><span aria-disabled="true">Careers</span></li>
+              {/* Blog hidden until the content library is launch-ready — see
+                  docs/superpowers/plans/2026-07-08-hidden-features.md
+              <li><Link href="/blog">Blog</Link></li> */}
             </ul>
           </div>
         </div>
 
         <div className="footer-bottom">
-          <p>© {new Date().getFullYear()} ENVO — Engineered Illumination</p>
+          <p>{settings.footer?.legal_text || `© ${new Date().getFullYear()} Envo — Engineered Illumination`}</p>
           <div className="footer-legal">
-            <span aria-disabled="true">Privacy Policy</span>
-            <span aria-disabled="true">Terms of Use</span>
-            <span aria-disabled="true">Sitemap</span>
+            {social.map((s) => (
+              <a key={s.url} href={s.url} target="_blank" rel="noopener noreferrer">
+                {SOCIAL_LABELS[s.platform] ?? s.platform}
+              </a>
+            ))}
+            {legal.map((l) => (
+              <Link key={l.href} href={l.href}>{l.label}</Link>
+            ))}
           </div>
         </div>
       </div>
