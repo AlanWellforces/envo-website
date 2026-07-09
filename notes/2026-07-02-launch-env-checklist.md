@@ -42,8 +42,59 @@ Secrets live in **Zoho Vault** — never in git, never reused from dev.
 
 ## Related launch blockers (not env)
 
-- `robots.txt` is 404 — needs to be added (and point at `/sitemap.xml`).
+- ~~`robots.txt` is 404~~ — **done in #172** (`src/app/robots.ts`, sitemap URL
+  derives from `NEXT_PUBLIC_SITE_URL`; sitemap covers per-SKU pages + blog
+  categories, deliberately excludes `/datasheets/*` and `/blog/tag/*`).
 - Editorial media backfill: ~300 MB of existing binaries must be uploaded to
   the prod bucket (issue #24) — wiring the adapter only fixes *new* uploads.
 - Dev-only status as of 2026-07-02: dev `.env.local` now has S3 + both
   secrets set; dev values are recorded in Zoho Vault.
+
+## PROD data replay — run in order at launch (compiled 2026-07-09)
+
+Every fix below was applied to the **DEV DB only**; the fresh prod Supabase
+project needs each one re-run. Prereq: Payload schema push against the prod
+DB first (`PAYLOAD_DB_PUSH=true` — the select-prompt needs a real tty and
+`\r`; read the data-loss list before answering), with `DATABASE_URL`
+pointing at the prod project.
+
+1. **Product sync** — populates `product_*`:
+   `yes | PAYLOAD_DB_PUSH=true npx tsx --tsconfig tsconfig.json scripts/akeneo-sync.ts`
+   (Akeneo credentials: `Desktop/wellforces_automation/_shared/.env`).
+2. **Channel-copy 2-table fix** (#148/#162 — body copy says *global
+   authorised channels*, never NZ/Oceania):
+   `npx tsx --tsconfig tsconfig.json scripts/fix-solution-channel-copy.mts`
+3. **Clean-image backfill** (#155: 96 products via rembg, then #167: 16
+   sibling-borrows; ENC-20×4 + ENC-REMOTE stay imageless — known-unfixable):
+   `BACKFILL_DIR=<abs cache dir> npx tsx --tsconfig tsconfig.json scripts/backfill-clean-images.mts`
+   then
+   `npx tsx --tsconfig tsconfig.json scripts/backfill-sibling-clean-images.mts`
+4. **EV-BLEG02LBY-\* clean image — manual, no script.** u2net erases this
+   white-on-white product shot, so the rembg backfill produces a blank PNG.
+   Dev fix was a centre-crop of the raw photo saved as media
+   `clean-bleg02-recrop.png`. Replay: download that file from the dev
+   Supabase bucket (dev admin → Media → clean-bleg02-recrop), upload it into
+   prod Payload Media, set it as `clean_image` on **EV-BLEG02LBY-WW / -NW /
+   -CW**. (Crop recipe if regenerating: mask non-white pixels in the
+   430–1720px vertical band of the raw photo, bbox + 24% pad.)
+5. **Solutions seed** — `npx tsx --tsconfig tsconfig.json scripts/seed-solutions.mts`,
+   then hit `/api/revalidate` (solutions pages are ISR 3600).
+6. **CMS pages seed** — `npx tsx --tsconfig tsconfig.json scripts/seed-cms-pages.mts`
+   (legal 4-page set etc.), then review in admin.
+7. **Editorial media backfill** — the ~300 MB item above.
+
+## Post-deploy verification
+
+- `curl https://<domain>/robots.txt` → 200, sitemap line shows the prod
+  domain; `/sitemap.xml` → ~160 URLs incl. per-SKU product pages.
+- One SKU page + `/contact`: `og:title` / `og:image` present with absolute
+  prod URLs (og:image on SKU pages = the product's own clean image).
+- Real test submission on `/contact` **and** `/free-layout-design` (with a
+  sketch attachment) → row in Payload → Submissions **and** a Resend email
+  to contact@envo-led.com. No `RESEND_API_KEY` = silent no-email (leads
+  still stored).
+- `/blog` loads repeatedly without `EMAXCONNSESSION` (transaction pooler).
+- 375px-wide viewport: `window.innerWidth === 375` (intrinsic-width zoom-out
+  regression check).
+- Region banner geo-IP default (AP list → nz-ap, else us-global) — inert in
+  dev, first verifiable in prod.
