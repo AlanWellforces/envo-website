@@ -104,9 +104,14 @@ export async function generateMetadata({ params }: { params: Params }): Promise<
       const product = await getProduct(decoded)
       if (product) {
         const img = resolveProductImage(product, DEFAULT_OG_IMAGE)
+        // descriptor-led title for every family (user 2026-07-09) — brand and
+        // SKU stripped; falls back to the SKU when the name is nothing else
+        const skuRe = new RegExp(`\\b${product.sku.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')}\\b`, 'i')
+        const descriptor =
+          product.name.replace(skuRe, '').replace(/^\s*envo\s+/i, '').replace(/\s{2,}/g, ' ').trim() || product.sku
         return detailMetadata(
-          `${product.name} — ENVO`,
-          product.short_description ?? `${product.name} — specifications, datasheet and where to buy.`,
+          `${descriptor} — ENVO`,
+          product.short_description ?? `${descriptor} — specifications, datasheet and where to buy.`,
           canonical,
           img.src,
         )

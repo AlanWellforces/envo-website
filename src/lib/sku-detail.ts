@@ -310,23 +310,18 @@ export function buildSkuDetailProps(
   const pack = SKU_WHERE_IT_WORKS[product.sku]
   const solutions = pack?.solutions.length ? pack.solutions : proseSolutions
 
-  // Signage names are genuinely descriptive (series + module type + bead
-  // count), so the model page H1 IS the descriptor — no SKU in the title
-  // (user 2026-07-09, final round); the model code moves to the subtitle.
-  // Driver/control names are spec soup — those H1s stay code-only (user
-  // 2026-07-08) with the descriptor as the subtitle.
-  const signageTitle = family.slug === 'led-signage-modules' && descriptiveName
-  const title = signageTitle ? descriptiveName : displayCode
+  // EVERY product page leads with the descriptor, never the SKU (user
+  // 2026-07-09: 所有产品都要改) — the code moves to the subtitle and stays
+  // in the breadcrumb. Products whose PIM name is nothing but brand+SKU
+  // fall back to the code.
+  const title = descriptiveName || displayCode
 
   return {
     ...base,
     breadcrumb: { ...base.breadcrumb, seriesLabel: displayCode },
     eyebrow: `${family.tag.split('·')[0].trim()} · ${seriesLabel(product.series)}`,
     title,
-    heroSubtitle: signageTitle
-      ? displayCode
-      : descriptiveName ||
-        (solo.heroSubtitle ?? product.short_description?.trim() ?? product.subtitle?.trim() ?? undefined),
+    heroSubtitle: title === displayCode ? (product.short_description?.trim() ?? undefined) : displayCode,
     overview: overviewContent
       ? {
           heading: overviewContent.headline ?? `About the ${displayCode}.`,
