@@ -42,10 +42,11 @@ export default async function SolutionsPage() {
 
       <section className="sd-rows">
         <div className="container">
-          {solutions.map((s) => (
+          {solutions.map((s, i) => (
             <article key={s.slug} className="sd-row">
               <div className="sd-media">
-                <Image src={s.img} alt={s.name} fill sizes="(min-width: 900px) 40vw, 100vw" />
+                {/* first row is above the fold — eager-load its image (LCP) */}
+                <Image src={s.img} alt={s.name} fill sizes="(min-width: 900px) 40vw, 100vw" loading={i === 0 ? 'eager' : undefined} />
               </div>
               <div className="sd-body">
                 <span className="sd-tag">{s.eyebrow}</span>

@@ -34,17 +34,31 @@ export async function getPageSeo(route: string): Promise<PageSeo | null> {
   }
 }
 
+// Site-wide share image fallback — keep in sync with the root layout default.
+const DEFAULT_OG_IMAGE = '/assets/images/hero-signage-poster.jpg'
+
 /** Merge a page's in-code defaults with any page-seo override (override wins). */
 export async function metadataForRoute(
   route: string,
   defaults: { title: string; description: string },
 ): Promise<Metadata> {
   const seo = await getPageSeo(route)
+  const title = seo?.seoTitle ?? defaults.title
+  const description = seo?.metaDescription ?? defaults.description
   return {
-    title: seo?.seoTitle ?? defaults.title,
-    description: seo?.metaDescription ?? defaults.description,
+    title,
+    description,
     // Canonical = the route itself (resolved against metadataBase).
     alternates: { canonical: route },
-    ...(seo?.ogImage ? { openGraph: { images: [{ url: seo.ogImage.url }] } } : {}),
+    // Page-level openGraph replaces the root-layout default wholesale, so
+    // restate siteName/type alongside the per-page title.
+    openGraph: {
+      type: 'website',
+      siteName: 'ENVO',
+      title,
+      description,
+      url: route,
+      images: [{ url: seo?.ogImage?.url ?? DEFAULT_OG_IMAGE }],
+    },
   }
 }

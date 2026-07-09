@@ -42,8 +42,9 @@ export default async function TagPage(
             <p className="bi-empty">No articles found. Try another category or search term.</p>
           ) : (
             <div className="bi-grid">
-              {posts.map((post) => (
-                <PostCard key={post.id} post={post} />
+              {posts.map((post, i) => (
+                // first grid row is above the fold — eager-load its covers (LCP)
+                <PostCard key={post.id} post={post} eager={i < 3} />
               ))}
             </div>
           )}

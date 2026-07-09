@@ -25,11 +25,16 @@ export async function Footer() {
       <div className="container">
         <div className="footer-grid">
           <div className="footer-brand">
+            {/* Attrs = the SVG's intrinsic size (923.42×170.9); CSS scales it
+                to height 22px. Attrs that half-match the rendered size (the
+                old 120×22 — height hit, width missed by the ~5.4 ratio)
+                trip Next's dev aspect-ratio warning. */}
             <Image
               src="/assets/images/logo-envo-darkbg.svg"
               alt="ENVO"
-              width={120}
-              height={22}
+              width={923}
+              height={171}
+              style={{ height: '22px', width: 'auto' }}
             />
             <p>{settings.footer?.tagline || 'Engineered illumination to elevate performance.'}</p>
             <a href={`mailto:${email}`} className="footer-brand-email">
