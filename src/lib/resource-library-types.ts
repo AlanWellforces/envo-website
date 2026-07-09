@@ -5,6 +5,9 @@
 export type DatasheetDoc = {
   id: string
   title: string
+  /** model code shown on the row — the SKU minus any CCT suffix (one
+   *  datasheet covers every -NW/-WW/-CW variant of a model) */
+  model: string
   url: string
   /** short family label used for the chip + range filter */
   range: string
