@@ -41,7 +41,7 @@ export async function Footer() {
             <h5>Products</h5>
             <ul>
               <li><Link href="/products/led-signage-modules">Signage Modules</Link></li>
-              <li><Link href="/products/led-drivers">LED Driver</Link></li>
+              <li><Link href="/products/led-drivers">LED Drivers</Link></li>
               <li><Link href="/products/control-gear">Control Gear</Link></li>
               {/* Accessories hidden until it has live products — see
                   docs/superpowers/plans/2026-07-08-hidden-features.md
@@ -73,7 +73,9 @@ export async function Footer() {
             <h5>Company</h5>
             <ul>
               <li><Link href="/about">About ENVO</Link></li>
-              <li><Link href="/blog">Blog</Link></li>
+              {/* Blog hidden until the content library is launch-ready — see
+                  docs/superpowers/plans/2026-07-08-hidden-features.md
+              <li><Link href="/blog">Blog</Link></li> */}
             </ul>
           </div>
         </div>

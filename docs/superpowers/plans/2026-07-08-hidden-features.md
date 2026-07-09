@@ -83,3 +83,17 @@ layout calculator (#125).
 
 `/resources/tools` product-selector stays hidden; #120 is the pickup point —
 do NOT merge as-is.
+
+## 9. Blog (hidden 2026-07-09 — content library not launch-ready)
+
+The `/blog` route and all posts stay live (deep links + SEO unaffected);
+only the navigation entry is hidden. A Blog "Insights hub" rework is in
+flight (worktree envo-wt-blog) — restore the link when it ships.
+
+| Where | File | How |
+|---|---|---|
+| Footer "Company" column | `src/components/layout/footer.tsx` | commented-out `<li>` — uncomment |
+
+Notes:
+- Sidebar has no Blog entry (nothing to hide there).
+- Restore trigger: Insights-hub PR merged + content approved by Wei.
