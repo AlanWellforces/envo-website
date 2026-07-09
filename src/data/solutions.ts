@@ -25,7 +25,8 @@ export type BestForItem = { scenario: string; note: string }
 /** Design-consideration row — what gets checked before speccing the build. */
 export type Consideration = { title: string; text: string }
 
-/** Recommended-series card — links to a live /products/<family>/<series> page. */
+/** Recommended-range card — links to a catalogue series-filter deep link
+ *  (/products/<family>?series=<option>), same taxonomy as the sidebar submenus. */
 export type SeriesRec = { name: string; blurb: string; href: string; img: string }
 
 /** "When to choose alternatives" row — honest routing to a better fit. */
@@ -119,27 +120,27 @@ export const SOLUTIONS: Solution[] = [
     ],
     series: [
       {
-        name: 'MiniLux',
+        name: 'Mini Series',
         blurb: 'Ultra-compact backlit modules for small letters and shallow, intricate depths.',
-        href: '/products/led-signage-modules/mini-series',
+        href: '/products/led-signage-modules?series=Mini%20Series',
         img: '/assets/images/series/envo_minilux.jpg',
       },
       {
-        name: 'EcoGlo',
+        name: 'Eco Series',
         blurb: 'Cost-effective backlit modules — the everyday workhorse for general signage.',
-        href: '/products/led-signage-modules/envo-ecoglo',
+        href: '/products/led-signage-modules?series=Eco%20Series',
         img: '/assets/images/series/envo_ecoglo.jpg',
       },
       {
-        name: 'UltraFlare',
-        blurb: 'OSRAM-powered high-output modules for large letters and long viewing distances.',
-        href: '/products/led-signage-modules/envo-ultraflare',
+        name: 'Pro Series',
+        blurb: 'High-output ProGlo and UltraFlare modules for large letters and long viewing distances.',
+        href: '/products/led-signage-modules?series=Pro%20Series',
         img: '/assets/images/series/envo_ultraflare.jpg',
       },
       {
-        name: 'EdgeLume',
-        blurb: 'Edge-lit modules for slim, double-sided light boxes.',
-        href: '/products/led-signage-modules/envo-edgelume',
+        name: 'Sidelit',
+        blurb: 'Edge-lit EdgeLume, EdgeFlare and EdgeBlade modules for slim, double-sided light boxes.',
+        href: '/products/led-signage-modules?series=Sidelit',
         img: '/assets/images/series/envo_edgelume.jpg',
       },
     ],
@@ -154,7 +155,7 @@ export const SOLUTIONS: Solution[] = [
         desc: 'Compact backlit module for channel letters and shallow cabinets, with a wide beam for even fill at close depth.',
         img: '/assets/images/mod-mini.png',
         spec: [['Beam angle', '180° × 140°'], ['Ingress', 'IP66'], ['CCT options', '3 (warm–cool)']],
-        href: '/products/led-signage-modules/mini-series',
+        href: '/products/led-signage-modules?series=Mini%20Series',
       },
       {
         envo: true,
@@ -163,7 +164,7 @@ export const SOLUTIONS: Solution[] = [
         desc: 'Constant-voltage linear driver sized for long letter runs, with headroom for the module count on a typical frontage.',
         img: '/assets/images/cat-drivers.png',
         spec: [['Type', 'Constant voltage'], ['Form', 'Slim linear'], ['Mains input', '100–277 V']],
-        href: '/products/led-drivers/envo-sl-us',
+        href: '/products/led-drivers?series=Linear',
       },
       {
         envo: false,
@@ -178,7 +179,7 @@ export const SOLUTIONS: Solution[] = [
       {
         when: 'The face needs colour-changing or programmable effects',
         choose: 'ChromaFlux RGBW modules',
-        href: '/products/led-signage-modules/envo-chromaflux',
+        href: '/products/led-signage-modules?series=RGB%20Series',
       },
       {
         when: 'The sign should dim, schedule or join a control scene',
@@ -255,27 +256,27 @@ export const SOLUTIONS: Solution[] = [
     ],
     series: [
       {
-        name: 'EdgeLume',
+        name: 'Sidelit',
         blurb: 'Side-lit modules for slim facade bands, edge-lit panels and long continuous runs.',
-        href: '/products/led-signage-modules/envo-edgelume',
+        href: '/products/led-signage-modules?series=Sidelit',
         img: '/assets/images/series/envo_edgelume.jpg',
       },
       {
-        name: 'ChromaFlux',
-        blurb: 'RGBW colour-changing modules for dynamic, programmable accent scenes.',
-        href: '/products/led-signage-modules/envo-chromaflux',
+        name: 'RGB Series',
+        blurb: 'ChromaFlux RGBW colour-changing modules for dynamic, programmable accent scenes.',
+        href: '/products/led-signage-modules?series=RGB%20Series',
         img: '/assets/images/series/envo_chromaflux.jpg',
       },
       {
-        name: 'EV-SL Linear Driver',
-        blurb: 'Constant-voltage linear drivers with the headroom long facade runs demand.',
-        href: '/products/led-drivers/envo-sl-us',
+        name: 'Linear Drivers',
+        blurb: 'Constant-voltage EV-SL linear drivers with the headroom long facade runs demand.',
+        href: '/products/led-drivers?series=Linear',
         img: '/assets/images/cat-drivers.png',
       },
       {
-        name: 'Zigbee Control',
+        name: 'Zigbee & Smart',
         blurb: 'Wireless controllers for dimming, scheduling and scene control across the site.',
-        href: '/products/control-gear/envo-zigbee',
+        href: '/products/control-gear?series=Zigbee%20%26%20Smart',
         img: '/assets/images/cat-controllers.png',
       },
     ],
@@ -290,7 +291,7 @@ export const SOLUTIONS: Solution[] = [
         desc: 'Side-lit module for slim edge-lit panels and facade bands, with uniform throw across long continuous runs.',
         img: '/assets/images/mod-sidelit.png',
         spec: [['Type', 'Side-lit'], ['Ingress', 'IP66'], ['CCT options', 'Multiple']],
-        href: '/products/led-signage-modules/envo-edgelume',
+        href: '/products/led-signage-modules?series=Sidelit',
       },
       {
         envo: true,
@@ -299,7 +300,7 @@ export const SOLUTIONS: Solution[] = [
         desc: 'Constant-voltage linear driver sized for long facade runs, with headroom for the module count across a large span.',
         img: '/assets/images/cat-drivers.png',
         spec: [['Type', 'Constant voltage'], ['Form', 'Slim linear'], ['Mains input', '100–277 V']],
-        href: '/products/led-drivers/envo-sl-us',
+        href: '/products/led-drivers?series=Linear',
       },
       {
         envo: false,
@@ -319,7 +320,7 @@ export const SOLUTIONS: Solution[] = [
       {
         when: 'Small accent details viewed up close',
         choose: 'MiniLux compact modules',
-        href: '/products/led-signage-modules/mini-series',
+        href: '/products/led-signage-modules?series=Mini%20Series',
       },
       {
         when: 'Full media-facade or pixel-mapped installs',
