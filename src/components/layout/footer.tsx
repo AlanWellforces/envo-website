@@ -69,7 +69,9 @@ export async function Footer() {
             <h5>Resources</h5>
             <ul>
               <li><Link href="/free-layout-design">Free Layout Design</Link></li>
-              <li><Link href="/resources/downloads">Resources &amp; Downloads</Link></li>
+              {/* the datasheet library at /resources is the hub (post-#139);
+                  /resources/downloads is just one of its sub-pages */}
+              <li><Link href="/resources">Resources &amp; Downloads</Link></li>
               <li><Link href="/contact">Contact Us</Link></li>
             </ul>
           </div>
