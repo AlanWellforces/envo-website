@@ -1,21 +1,33 @@
 import { buildLeadEmail, type NormalizedLead } from './submission'
 
 const SALES_TO = 'contact@envo-led.com'
+const MAIL_FROM = 'ENVO Website <leads@mail.envolighting.com>'
 
-/** Best-effort sales notification. No-op (logs) when RESEND_API_KEY is unset. */
+/**
+ * Best-effort sales notification via Mailgun (US region, api.mailgun.net).
+ * No-op when MAILGUN_API_KEY / MAILGUN_DOMAIN are unset. Never throws — a
+ * failed notification must not break lead capture.
+ */
 export async function notifyNewLead(lead: NormalizedLead): Promise<void> {
-  const key = process.env.RESEND_API_KEY
-  if (!key) return
+  const key = process.env.MAILGUN_API_KEY
+  const domain = process.env.MAILGUN_DOMAIN
+  if (!key || !domain) return
   try {
-    const { Resend } = await import('resend')
-    const resend = new Resend(key)
     const { subject, text } = buildLeadEmail(lead)
-    await resend.emails.send({
-      from: 'ENVO Website <contact@envo-led.com>',
+    const form = new URLSearchParams({
+      from: MAIL_FROM,
       to: SALES_TO,
-      replyTo: lead.email,
       subject,
       text,
+      'h:Reply-To': lead.email,
+    })
+    await fetch(`https://api.mailgun.net/v3/${domain}/messages`, {
+      method: 'POST',
+      headers: {
+        Authorization: `Basic ${Buffer.from(`api:${key}`).toString('base64')}`,
+        'Content-Type': 'application/x-www-form-urlencoded',
+      },
+      body: form,
     })
   } catch {
     // Notification must never break lead capture.
