@@ -24,7 +24,7 @@ export function ContactForm() {
     return (
       <div className={styles.sent}>
         Thanks — your message has been received. For anything urgent, reach us at{' '}
-        <a href="mailto:contact@envo-led.com">contact@envo-led.com</a> or 888.228.9138.
+        <a href="mailto:contact@envolighting.com">contact@envolighting.com</a> or 888.228.9138.
       </div>
     )
   }
@@ -61,7 +61,7 @@ export function ContactForm() {
       {state === 'error' && (
         <p className={styles.note}>
           Something went wrong — please email{' '}
-          <a href="mailto:contact@envo-led.com">contact@envo-led.com</a> directly.
+          <a href="mailto:contact@envolighting.com">contact@envolighting.com</a> directly.
         </p>
       )}
     </form>

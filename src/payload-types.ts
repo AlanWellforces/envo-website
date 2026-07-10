@@ -1699,7 +1699,7 @@ export interface SiteSetting {
    */
   contact?: {
     /**
-     * Default: contact@envo-led.com.
+     * Default: contact@envolighting.com.
      */
     email?: string | null;
     /**

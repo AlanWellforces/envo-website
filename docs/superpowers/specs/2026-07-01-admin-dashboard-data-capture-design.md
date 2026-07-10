@@ -89,7 +89,7 @@ Payload schema.
 - Validates required fields (name, email, type), creates a `submissions` row via
   the Payload Local API (`payload.create`).
 - **Resend notification (decided: yes).** On every new lead, send a Resend email
-  to sales (`contact@envo-led.com`) so the 24h-reply promise isn't missed. Kept
+  to sales (`contact@envolighting.com`) so the 24h-reply promise isn't missed. Kept
   behind a presence-check on `RESEND_API_KEY`, mirroring how the AI route guards
   on `ANTHROPIC_API_KEY`. Email failure never fails the submission (best-effort).
 - File upload (`sketch`): upload to Media first, relate by id. See Media storage

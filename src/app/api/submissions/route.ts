@@ -68,7 +68,7 @@ export async function POST(req: Request) {
       })
       sketchId = uploaded.id
     } catch {
-      return bad(['we could not store your sketch — please try again or email it to contact@envo-led.com'])
+      return bad(['we could not store your sketch — please try again or email it to contact@envolighting.com'])
     }
   }
 

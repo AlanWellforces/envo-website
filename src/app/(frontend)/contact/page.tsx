@@ -23,7 +23,7 @@ const telHref = (display: string) => `tel:${display.replace(/[^\d+]/g, '')}`
 
 export default async function ContactPage() {
   const { contact } = await getSiteSettings()
-  const email = contact?.email || 'contact@envo-led.com'
+  const email = contact?.email || 'contact@envolighting.com'
   const phones = contact?.phones?.length
     ? contact.phones.map((p) => ({ region: p.label, display: p.number, href: telHref(p.number) }))
     : DEFAULT_PHONES

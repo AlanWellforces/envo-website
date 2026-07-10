@@ -1,6 +1,6 @@
 import { buildLeadEmail, type NormalizedLead } from './submission'
 
-const SALES_TO = 'contact@envo-led.com'
+const SALES_TO = 'contact@envolighting.com'
 const MAIL_FROM = 'ENVO Website <leads@mail.envolighting.com>'
 
 /**
