@@ -93,7 +93,7 @@ pointing at the prod project.
   prod URLs (og:image on SKU pages = the product's own clean image).
 - Real test submission on `/contact` **and** `/free-layout-design` (with a
   sketch attachment) → row in Payload → Submissions **and** a Resend email
-  to contact@envo-led.com. No `RESEND_API_KEY` = silent no-email (leads
+  to contact@envolighting.com. No `RESEND_API_KEY` = silent no-email (leads
   still stored).
 - `/blog` loads repeatedly without `EMAXCONNSESSION` (transaction pooler).
 - 375px-wide viewport: `window.innerWidth === 375` (intrinsic-width zoom-out

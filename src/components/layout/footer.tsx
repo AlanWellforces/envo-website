@@ -18,7 +18,7 @@ export async function Footer() {
     getSolutions(),
     getSiteSettings(),
   ])
-  const email = settings.contact?.email || 'contact@envo-led.com'
+  const email = settings.contact?.email || 'contact@envolighting.com'
   const social = settings.footer?.social_links ?? []
   return (
     <footer>

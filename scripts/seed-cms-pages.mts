@@ -69,7 +69,7 @@ const PAGES = [
       p(text('We may update this policy from time to time; the “last updated” date above reflects the latest version.')),
 
       h2('Contact'),
-      p(text('Questions about this policy? Email '), link('contact@envo-led.com', 'mailto:contact@envo-led.com'), text(', call 888.228.9138, or write to 409 Canton Street, Unit 5, Stoughton, MA 02072, USA.')),
+      p(text('Questions about this policy? Email '), link('contact@envolighting.com', 'mailto:contact@envolighting.com'), text(', call 888.228.9138, or write to 409 Canton Street, Unit 5, Stoughton, MA 02072, USA.')),
     ),
   },
 
@@ -120,7 +120,7 @@ const PAGES = [
       p(text('If any provision of these terms is wholly or partly unenforceable, it is severed to that extent and the remainder continues to apply. These terms are governed by the laws of the United States, and you submit to the exclusive jurisdiction of its courts.')),
 
       h2('Contact'),
-      p(text('Questions about these terms? Email '), link('contact@envo-led.com', 'mailto:contact@envo-led.com'), text(', call 888.228.9138, or write to 409 Canton Street, Unit 5, Stoughton, MA 02072, USA.')),
+      p(text('Questions about these terms? Email '), link('contact@envolighting.com', 'mailto:contact@envolighting.com'), text(', call 888.228.9138, or write to 409 Canton Street, Unit 5, Stoughton, MA 02072, USA.')),
     ),
   },
 
@@ -158,7 +158,7 @@ const PAGES = [
       p(text('You can block or delete cookies through your browser settings at any time. Doing so may affect how some features of the site behave.')),
 
       h2('Contact'),
-      p(text('Questions about our use of cookies? Email '), link('contact@envo-led.com', 'mailto:contact@envo-led.com'), text(' or call 888.228.9138.')),
+      p(text('Questions about our use of cookies? Email '), link('contact@envolighting.com', 'mailto:contact@envolighting.com'), text(' or call 888.228.9138.')),
     ),
   },
 
@@ -198,7 +198,7 @@ const PAGES = [
       p(text('You must not impersonate Envo or fraudulently represent a business relationship with Envo.')),
 
       h2('Contact'),
-      p(text('To report a violation or ask about this policy, email '), link('contact@envo-led.com', 'mailto:contact@envo-led.com'), text(', call 888.228.9138 (Mon–Fri, 9:00am–5:30pm EST), or write to 409 Canton Street, Unit 5, Stoughton, MA 02072, USA.')),
+      p(text('To report a violation or ask about this policy, email '), link('contact@envolighting.com', 'mailto:contact@envolighting.com'), text(', call 888.228.9138 (Mon–Fri, 9:00am–5:30pm EST), or write to 409 Canton Street, Unit 5, Stoughton, MA 02072, USA.')),
     ),
   },
 ]

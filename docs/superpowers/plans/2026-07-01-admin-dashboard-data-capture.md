@@ -726,7 +726,7 @@ npm install resend
 // src/lib/leads/notify.ts
 import { buildLeadEmail, type NormalizedLead } from './submission'
 
-const SALES_TO = 'contact@envo-led.com'
+const SALES_TO = 'contact@envolighting.com'
 
 /** Best-effort sales notification. No-op (logs) when RESEND_API_KEY is unset. */
 export async function notifyNewLead(lead: NormalizedLead): Promise<void> {
@@ -737,7 +737,7 @@ export async function notifyNewLead(lead: NormalizedLead): Promise<void> {
     const resend = new Resend(key)
     const { subject, text } = buildLeadEmail(lead)
     await resend.emails.send({
-      from: 'ENVO Website <contact@envo-led.com>',
+      from: 'ENVO Website <contact@envolighting.com>',
       to: SALES_TO,
       replyTo: lead.email,
       subject,
@@ -890,20 +890,20 @@ export function SketchForm() {
           <span className="btn-arrow">→</span>
         </button>
         <small>
-          Or email <a href="mailto:contact@envo-led.com">contact@envo-led.com</a> directly.
+          Or email <a href="mailto:contact@envolighting.com">contact@envolighting.com</a> directly.
         </small>
       </div>
 
       {state === 'sent' && (
         <div className={`${styles.fieldWide} ${styles.thanks}`} role="status">
           <strong>✓ Got it.</strong> We&apos;ll review your project and reply within 24 hours.
-          For anything urgent, email <a href="mailto:contact@envo-led.com">contact@envo-led.com</a>.
+          For anything urgent, email <a href="mailto:contact@envolighting.com">contact@envolighting.com</a>.
         </div>
       )}
       {state === 'error' && (
         <div className={`${styles.fieldWide} ${styles.thanks}`} role="alert">
           <strong>Something went wrong.</strong> Please try again, or email{' '}
-          <a href="mailto:contact@envo-led.com">contact@envo-led.com</a>.
+          <a href="mailto:contact@envolighting.com">contact@envolighting.com</a>.
         </div>
       )}
     </form>

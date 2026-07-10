@@ -126,7 +126,7 @@ export const SiteSettings: GlobalConfig = {
       fields: [
         {
           name: 'email', type: 'email', label: 'General enquiries email',
-          admin: { description: 'Default: contact@envo-led.com.' },
+          admin: { description: 'Default: contact@envolighting.com.' },
         },
         {
           name: 'phones',

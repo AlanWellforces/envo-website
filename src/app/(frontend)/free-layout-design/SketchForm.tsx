@@ -103,20 +103,20 @@ export function SketchForm() {
           <span className="btn-arrow">→</span>
         </button>
         <small>
-          Or email <a href="mailto:contact@envo-led.com">contact@envo-led.com</a> directly.
+          Or email <a href="mailto:contact@envolighting.com">contact@envolighting.com</a> directly.
         </small>
       </div>
 
       {state === 'sent' && (
         <div className={`${styles.fieldWide} ${styles.thanks}`} role="status">
           <strong>✓ Got it.</strong> We&apos;ll review your project and get back to you.
-          For anything urgent, email <a href="mailto:contact@envo-led.com">contact@envo-led.com</a>.
+          For anything urgent, email <a href="mailto:contact@envolighting.com">contact@envolighting.com</a>.
         </div>
       )}
       {state === 'error' && (
         <div className={`${styles.fieldWide} ${styles.thanks}`} role="alert">
           <strong>Something went wrong.</strong> {serverError ? `${serverError}. ` : ''}Please try
-          again, or email <a href="mailto:contact@envo-led.com">contact@envo-led.com</a>.
+          again, or email <a href="mailto:contact@envolighting.com">contact@envolighting.com</a>.
         </div>
       )}
     </form>

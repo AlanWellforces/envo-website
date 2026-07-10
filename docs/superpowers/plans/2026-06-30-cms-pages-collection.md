@@ -13,7 +13,7 @@
 - Tailwind v4 only (CSS-first); no v3 config. (Not touched here, but applies.)
 - Reuse existing patterns: Lexical editor config from `Posts.ts`, `RichTextRenderer.tsx`, `LegalPage` + `legal.module.css`, `slugify`, fail-soft sitemap `try`.
 - Payload drafts already hide `_status: 'draft'` from default public reads — do NOT add explicit `_status` filters to public `find` calls (matches `src/lib/posts.ts`).
-- Legal entity in copy = **Envo** (Stoughton MA); legal contact email = **contact@envo-led.com**. Brand wordmark "ENVO" only in page `<title>`/meta chrome.
+- Legal entity in copy = **Envo** (Stoughton MA); legal contact email = **contact@envolighting.com**. Brand wordmark "ENVO" only in page `<title>`/meta chrome.
 - No block-based page builder — rich text + optional raw-HTML block only.
 - Run the dev server detached (PID `/tmp/envo-dev.pid`, log `/tmp/envo-dev.log`); verify routes with `curl` status + rendered-HTML greps. The Payload admin cannot be verified headless — ask the user to confirm admin UI.
 - Prefer `npm ci`; only `npm install` when adding a dependency (none needed here).
@@ -339,7 +339,7 @@ const PAGES = [
       ]),
       // …port the remaining sections from privacy-policy/page.tsx 1:1…
       h2('Contact'),
-      p(text('Questions about this policy? Email '), link('contact@envo-led.com', 'mailto:contact@envo-led.com'), text(', call 888.228.9138, or write to 409 Canton Street, Unit 5, Stoughton, MA 02072, USA.')),
+      p(text('Questions about this policy? Email '), link('contact@envolighting.com', 'mailto:contact@envolighting.com'), text(', call 888.228.9138, or write to 409 Canton Street, Unit 5, Stoughton, MA 02072, USA.')),
     ),
   },
   // terms-of-service, cookie-policy, acceptable-use-policy — same shape, ported
