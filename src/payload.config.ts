@@ -30,6 +30,12 @@ export default buildConfig({
   // Set PAYLOAD_SERVER_URL=https://yourdomain.com on production (Vercel).
   serverURL: process.env.PAYLOAD_SERVER_URL ?? '',
   admin: {
+    // Pin the admin to LIGHT. Payload's default lets the client follow the OS /
+    // stored preference and flip <html data-theme> to "dark" — but our custom
+    // AdminStyles brand skin is light-designed and overrides only part of the
+    // surface, so dark mode rendered a broken mix (black inputs and invisible
+    // table text on a white page). One theme, styled end-to-end.
+    theme: 'light',
     components: {
       // Injects small global admin CSS (e.g. a taller rich-text editor).
       providers: ['/payload/components/AdminStyles#AdminStyles'],
