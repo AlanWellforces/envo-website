@@ -99,11 +99,11 @@ export function CatalogueFilter({
     searchInputRef.current?.scrollIntoView({ block: 'center' })
     searchInputRef.current?.focus({ preventScroll: true })
   }, [searchParams])
-  // Accordion rail (user 2026-07-08): only the lead group (Series/Category)
-  // opens by default — the rest collapse so the rail stays short. A group
-  // with picks stays visible via its count badge even while closed.
+  // All groups open by default (user 2026-07-10; reverses the 2026-07-08
+  // lead-group-only accordion) — selectors scan every facet at a glance.
+  // Groups remain individually collapsible.
   const [open, setOpen] = useState<Record<string, boolean>>(() =>
-    groups[0] ? { [groups[0].key]: true } : {},
+    Object.fromEntries(groups.map((g) => [g.key, true])),
   )
   const toggleOpen = (key: string) => setOpen((prev) => ({ ...prev, [key]: !prev[key] }))
   const noun = resultKind === 'products' ? 'products' : 'series'

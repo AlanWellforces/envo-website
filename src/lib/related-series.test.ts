@@ -28,8 +28,9 @@ const drivers = [
   p({ sku: 'EV-SE-20-24US', series: 'envo_se_us', family: 'psu_led_cv', power_w: 20, output_voltage_v: 24 }),
   p({ sku: 'EV-SL-100-12US', series: 'envo_sl_us', family: 'psu_led_cv', power_w: 100, output_voltage_v: 12 }),
   p({ sku: 'EV-SP-30-12US', series: 'envo_sp_us', family: 'psu_led_cv', power_w: 30, output_voltage_v: 12, clean_image_url_fallback: 'https://s3/sp.jpg' }),
-  // unmapped/gated series must never surface
-  p({ sku: 'SC-10-12', series: 'sc_envo', family: 'psu_led_cv', power_w: 10, output_voltage_v: 12 }),
+  // unmapped/GATED series must never surface. (Was sc_envo, which went LIVE
+  // 2026-07-10 — SNG is the driver range still behind RANGES_NOT_ON_OLD_SITE.)
+  p({ sku: 'EV-SNG-300-12', series: 'envo_sng', family: 'psu_led_cv', power_w: 300, output_voltage_v: 12 }),
 ]
 const controls = [
   p({ sku: 'SR-2309PRO-5C', name: 'Zigbee Remote 5C', series: 'envo_zigbee', family: 'psu_led_controller' }),
