@@ -92,6 +92,10 @@ const OUTV_OPTIONS = [
   { value: '24', label: '24 V' },
   { value: '48', label: '48 V' },
 ] as const
+const INPUTV_OPTIONS = [
+  { value: '110', label: '110–120 V' },
+  { value: '240', label: '220–240 V' },
+] as const
 const POWER_OPTIONS = [
   { value: 'p30', label: 'Up to 30 W' },
   { value: 'p75', label: '31–75 W' },
@@ -171,6 +175,16 @@ function opmodeValues(m: Product['operation_mode']): string[] {
 }
 function outvBand(v: number | null): string | undefined {
   return v === 12 || v === 24 || v === 48 ? String(v) : undefined
+}
+// Input-voltage (mains) bands for the driver Input filter. Full-range
+// supplies (e.g. 90–264 V) genuinely run on both mains standards, so they
+// match BOTH bands; "All" is simply the facet's unselected state, like
+// every other group. DC-input units (12–48 V in) match neither.
+function inputvValues(p: Product): string[] {
+  const out: string[] = []
+  if (p.input_voltage_min_v != null && p.input_voltage_min_v >= 90 && p.input_voltage_min_v <= 120) out.push('110')
+  if (p.input_voltage_max_v != null && p.input_voltage_max_v >= 200) out.push('240')
+  return out
 }
 function powerBand(w: number | null): string | undefined {
   if (w == null) return undefined
@@ -308,6 +322,7 @@ const BRIGHTNESS = maps(BRIGHTNESS_OPTIONS)
 const VOLTAGE = maps(VOLTAGE_OPTIONS)
 const OPMODE = maps(OPMODE_OPTIONS)
 const OUTV = maps(OUTV_OPTIONS)
+const INPUTV = maps(INPUTV_OPTIONS)
 const POWER = maps(POWER_OPTIONS)
 const DIMMING = maps(DIMMING_OPTIONS)
 const FORMFACTOR = maps(FORMFACTOR_OPTIONS)
@@ -396,6 +411,7 @@ export function buildCards(family: ProductFamily, products: Product[]): Catalogu
         voltage: uniq(g.products.map((p) => voltageBand(p.output_voltage_v))),
         opmode: uniq(g.products.flatMap((p) => opmodeValues(p.operation_mode))),
         outv: uniq(g.products.map((p) => outvBand(p.output_voltage_v))),
+        inputv: uniq(g.products.flatMap(inputvValues)),
         power: uniq(g.products.map((p) => powerBand(p.power_w))),
         dimming: uniq(g.products.flatMap(dimmingValues)),
         formfactor: uniq(g.products.flatMap((p) => formfactorValues(p, authored?.formFactor ?? []))),
@@ -562,6 +578,7 @@ export function buildDriverProductCards(family: ProductFamily, products: Product
     .map((p) => {
       const facets: Record<string, string[]> = {
         outv: uniq([outvBand(p.output_voltage_v)]),
+        inputv: inputvValues(p),
         power: uniq([powerBand(p.power_w)]),
         dimming: dimmingValues(p),
         opmode: opmodeValues(p.operation_mode),
@@ -760,6 +777,7 @@ export function buildGroups(cards: CatalogueCard[], familySlug?: string): FacetG
       case 'led-drivers':
         return [
           seriesGroup(),
+          group('inputv', 'Input voltage', cards, INPUTV.label, INPUTV.order),
           group('outv', 'Output voltage', cards, OUTV.label, OUTV.order),
           group('power', 'Power range', cards, POWER.label, POWER.order),
           group('dimming', 'Dimming', cards, DIMMING.label, DIMMING.order),

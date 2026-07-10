@@ -35,7 +35,9 @@ const SERIES_LABELS: Record<string, string> = {
   envo_proglo: 'ProGlo', envo_optilume: 'OptiLume', envo_edgelume: 'EdgeLume',
   envo_edgeflare: 'EdgeFlare', envo_edgeblade: 'EdgeBlade', edge_blade_2: 'EdgeBlade 2',
   envo_chromaflux: 'ChromaFlux', hydro_lume: 'Hydro Lume', envo_zigbee: 'Zigbee Smart',
-  envo_casambi: 'Casambi', envo_dali: 'DALI', sr_triac: 'Triac', sc_envo: 'Standard',
+  // sr_triac is DALI DT6 — its legacy "Triac" label must never surface
+  // (naming rule, user-locked 2026-07-06; see series-catalogue-meta.ts).
+  envo_casambi: 'Casambi', envo_dali: 'DALI', sr_triac: 'SR DALI', sc_envo: 'Standard',
   // Driver model lines carry no curated name in Akeneo (product `title` is null);
   // surface the real SKU-prefix model code cleanly rather than the garbled
   // title-cased fallback ("Se Us" → "SE"). `_us` is a US-variant region tag.

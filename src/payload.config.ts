@@ -119,6 +119,12 @@ export default buildConfig({
   db: postgresAdapter({
     pool: {
       connectionString: process.env.DATABASE_URL || '',
+      // Cap connections PER PROCESS. `next build` prerenders with ~15 worker
+      // processes, each holding its own pool — with pg-pool's default of 10+
+      // that exceeds Postgres's max_connections (100) and the build dies with
+      // "sorry, too many clients already". 5 per process is plenty (queries
+      // are short); the single runtime process can override via PG_POOL_MAX.
+      max: Number(process.env.PG_POOL_MAX || 5),
     },
     push: process.env.PAYLOAD_DB_PUSH === 'true',
   }),

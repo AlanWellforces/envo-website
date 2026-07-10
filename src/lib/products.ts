@@ -148,9 +148,10 @@ export function resolveProductImage(
     entries from this list to relaunch a range. The lone null-series driver
     (KVS) is likewise gated via the family condition below. */
 const RANGES_NOT_ON_OLD_SITE = [
-  'sc_envo', // Standard Driver Range (73)
+  // sc_envo (Standard Driver Range, 77) and sr_triac (SR DALI CC drivers +
+  // control modules, 13) went LIVE 2026-07-10 (user decision) — they carry
+  // the US 110 V driver catalogue. The ranges below stay gated.
   'envo_sng', // SNG waterproof high-power drivers
-  'sr_triac', // SR DALI CC drivers + controllers + switch
   'envo_casambi',
   'envo_dali',
   'envo_sensor',
