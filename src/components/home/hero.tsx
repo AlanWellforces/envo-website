@@ -3,22 +3,17 @@ import { RegionShippingChip } from '@/components/region/RegionShippingChip'
 import Link from 'next/link'
 import { ArrowRight } from './icons'
 import { Lines } from './lines'
+import { HeroVideo } from './hero-video'
 import type { HomeHeroData } from '@/lib/home-page'
 
 export function Hero({ data = {} }: { data?: HomeHeroData }) {
   return (
     <section className="v4-hero">
-      <video
+      <HeroVideo
         className="v4-hero-bg"
-        autoPlay
-        muted
-        loop
-        playsInline
-        preload="metadata"
+        src="/assets/videos/hero-signage.mp4"
         poster="/assets/images/hero-signage-poster.jpg"
-      >
-        <source src="/assets/videos/hero-signage.mp4" type="video/mp4" />
-      </video>
+      />
       <div className="v4-wrap">
         <div className="v4-hero-col">
           <div className="v4-eyebrow">{data.eyebrow ?? 'High-Quality LED Signage Components'}</div>
