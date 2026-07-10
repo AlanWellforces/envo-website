@@ -1528,6 +1528,24 @@ const MOCKUP_CSS = `  :host {
     margin-top: 4px; display: block;
   }`
 
+// Shadow-DOM HTML can't use <Image>, so the raw <img> tags below served the
+// ORIGINAL files — ~3 MB of PNG/JPEG for this route. optimizeMockupImages()
+// rewrites every /assets/images src to the Next optimizer endpoint instead:
+// browsers negotiate AVIF/WebP at a bounded width (~10-20× smaller) and
+// Cloudflare edge-caches /_next/image responses. Widths must be values from
+// next.config deviceSizes/imageSizes. Applied once at module load.
+export function optimizeMockupImages(html: string): string {
+  const widthFor = (src: string): number => {
+    if (src.includes('/certs/')) return 256 // tiny inline logos
+    if (/app-mini-(hero-twilight|cabinet-detail|halo-letters)/.test(src)) return 1920 // full-bleed banners
+    return 1080 // cards, module shots, ecosystem tiles
+  }
+  return html.replace(
+    /src="(\/assets\/images\/[^"]+)"/g,
+    (_, src: string) => `src="/_next/image?url=${encodeURIComponent(src)}&w=${widthFor(src)}&q=75"`,
+  )
+}
+
 const MOCKUP_BODY = `
   <div class="subnav">
     <div class="subnav-left">
@@ -2363,6 +2381,10 @@ const FORMATTERS: Record<string, (p: Product) => { text?: string; href?: string 
   },
 }
 
+// Exposed for optimize-mockup-images.test.ts only — asserts no raw asset src
+// survives the optimizer rewrite (a regression would silently re-ship ~3 MB).
+export const MOCKUP_BODY_FOR_TESTS = MOCKUP_BODY
+
 function applyAkeneo(shadow: ShadowRoot, variants: Product[]) {
   const bySku = new Map(variants.map((v) => [v.sku, v]))
   shadow.querySelectorAll<HTMLElement>('[data-akeneo]').forEach((el) => {
@@ -2413,7 +2435,7 @@ export default function MiniSeriesPage({ variants, siblings }: Props) {
     // them — so reuse the existing shadow if present and only render content once.
     const shadow = host.shadowRoot ?? host.attachShadow({ mode: 'open' })
     if (!shadow.firstChild) {
-      shadow.innerHTML = `<style>${MOCKUP_CSS}</style>${MOCKUP_BODY}`
+      shadow.innerHTML = `<style>${MOCKUP_CSS}</style>${optimizeMockupImages(MOCKUP_BODY)}`
       applyAkeneo(shadow, variants)
     }
 
