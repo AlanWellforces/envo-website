@@ -90,14 +90,13 @@ const DRIVER_SERIES_CATEGORIES: Record<string, string[]> = {
   envo_sl_us: ['Linear'],
 }
 // The Standard Driver Range (sc_envo) is one Akeneo series spanning six model
-// LINES, so its type classification is by SKU prefix (user mapping 2026-07-10:
-// SC=Standard, SNL=Linear, SNP/SNR=Waterproof, SNT=Screw Terminal, ENC=CC).
-// Note: SNP/SNR are typed Waterproof per the user even though their Akeneo
-// `waterproof` attribute currently says non_waterproof — fix pending in PIM.
+// LINES, so its type classification is by SKU prefix (user mapping 2026-07-10,
+// SNR corrected same day: SC=Standard, SNL=Linear, SNP=Waterproof (IP67 —
+// fixed in the PIM too), SNR+SNT=Screw Terminal, ENC=CC).
 const SC_ENVO_LINE_CATEGORIES: [RegExp, string[]][] = [
   [/^S?-?EV-SNL-/, ['Linear']],
   [/^S?-?EV-SNP-/, ['Waterproof']],
-  [/^S?-?EV-SNR-/, ['Waterproof']],
+  [/^S?-?EV-SNR-/, ['Screw Terminal']],
   [/^S?-?EV-SNT-/, ['Screw Terminal']],
   [/^ENC-/, ['Constant Current']],
   [/^SC-/, ['Standard']],
