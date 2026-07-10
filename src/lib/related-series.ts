@@ -11,7 +11,7 @@ import type { Product } from './products'
 import { resolveProductImage } from './products'
 import {
   SIGNAGE_CATEGORY_ORDER, signageSeriesCategory,
-  DRIVER_CATEGORY_ORDER, driverCategories,
+  DRIVER_CATEGORY_ORDER, driverProductCategories,
   CONTROL_GEAR_CATEGORY_ORDER, controlGearCategories,
   seriesLineArt,
 } from '@/data/family-map'
@@ -39,7 +39,7 @@ function categoriesOf(familySlug: string, p: Product): string[] {
     const c = signageSeriesCategory(p.series)
     return c ? [c] : []
   }
-  if (familySlug === 'led-drivers') return driverCategories(p.series) ?? []
+  if (familySlug === 'led-drivers') return driverProductCategories(p.sku, p.series) ?? []
   if (familySlug === 'control-gear') return controlGearCategories(p)
   return []
 }

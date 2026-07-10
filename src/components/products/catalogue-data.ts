@@ -7,7 +7,7 @@ import {
   groupSeriesIntoSections,
   type Product,
 } from '@/lib/products'
-import { seriesSlug, seriesLabel, seriesLineArt, seriesSectionTitle, signageSeriesCategory, SIGNAGE_CATEGORY_ORDER, controlGearCategories, CONTROL_GEAR_CATEGORY_ORDER, driverCategories, DRIVER_CATEGORY_ORDER } from '@/data/family-map'
+import { seriesSlug, seriesLabel, seriesLineArt, seriesSectionTitle, signageSeriesCategory, SIGNAGE_CATEGORY_ORDER, controlGearCategories, CONTROL_GEAR_CATEGORY_ORDER, driverProductCategories, DRIVER_CATEGORY_ORDER } from '@/data/family-map'
 import { SERIES_BLURBS, LED_CONFIG_OPTIONS } from '@/data/series-applications'
 import { catalogueSeriesMeta } from '@/data/series-catalogue-meta'
 import { formatDims } from '@/lib/units'
@@ -491,8 +491,8 @@ function skuCard(
   // even the null-series sensors. Elsewhere: no series → no series facet
   // (an "Other" option makes no sense in the picker).
   if (family.slug === 'control-gear') parts.facets.series = controlGearCategories(p)
-  else if (family.slug === 'led-drivers' && driverCategories(p.series))
-    parts.facets.series = driverCategories(p.series)!
+  else if (family.slug === 'led-drivers' && driverProductCategories(p.sku, p.series))
+    parts.facets.series = driverProductCategories(p.sku, p.series)!
   else if (p.series) parts.facets.series = [seriesFilterName(family.slug, p.series)]
   parts.facets.family = [family.name] // Category picker on the all-families index
   return {
