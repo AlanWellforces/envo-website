@@ -22,3 +22,9 @@ media/
 
 # Lead attachments (customer PII) — local uploads, same policy as media/
 lead-files
+
+# local DB snapshots (Supabase copy)
+.local-db/
+
+# direnv local env
+.envrc
