@@ -10,7 +10,7 @@
 
 ## Global Constraints
 
-- **Copy:** no prices (never surface `price_nzd`); no online-chat wording; no numeric response-time promises; supply via "authorised channels" / "where to buy" (no on-site checkout wording); ENVO-only branding, contact `contact@envo-led.com`.
+- **Copy:** no prices (never surface `price_nzd`); no online-chat wording; no numeric response-time promises; supply via "authorised channels" / "where to buy" (no on-site checkout wording); ENVO-only branding, contact `contact@envolighting.com`.
 - **Tailwind v4 only** — CSS-first `@theme`; no v3 `tailwind.config.js` theme extensions. Repo-wide `*{margin:0}` reset means Tailwind `px-*`/`mx-*` spacing utilities are dead — use `products-catalogue.css` classes.
 - **Three-source rule:** product data from Payload/Akeneo (never hardcode SKUs/specs as strings), editorial from CMS, logic in Git.
 - **Images:** prefer clean (background-removed) product image via `resolveProductImage`; it already falls back clean → regular → series line-art.

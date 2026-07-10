@@ -83,7 +83,7 @@ in code, Payload, or anywhere else. These override any draft copy.
 - **No response-time promises.** Never promise a numeric turnaround ("within 24h",
   "same-day reply"). Vague qualitative wording is fine.
 - **ENVO-only branding.** Brand as ENVO only; legal entity Envo; contact email
-  `contact@envo-led.com`. Never use legacy brand names (e.g. Power Supply Mall).
+  `contact@envolighting.com`. Never use legacy brand names (e.g. Power Supply Mall).
 
 ## Database
 
