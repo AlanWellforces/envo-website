@@ -17,12 +17,11 @@ export const metadata: Metadata = {
 export default async function ProductsPage() {
   // One catalogue across all families. Each family's series become cards; the
   // category pills navigate to the per-family view (/products/[slug]).
-  // Fetched sequentially on purpose — the dev pooler's connection cap (each
-  // marketing family already fans out to several db-family queries inside).
-  const allProducts: Awaited<ReturnType<typeof getProductsByMarketingFamily>>[] = []
-  for (const f of PRODUCT_FAMILIES) {
-    allProducts.push(await getProductsByMarketingFamily(f.slug, { depth: 0 }))
-  }
+  // Parallel since 2026-07: the sequential fetch existed for the retired
+  // Supabase pooler's connection cap — self-hosted Postgres has no such cap.
+  const allProducts = await Promise.all(
+    PRODUCT_FAMILIES.map((f) => getProductsByMarketingFamily(f.slug, { depth: 0 })),
+  )
   const countBySlug = new Map(PRODUCT_FAMILIES.map((f, i) => [f.slug, allProducts[i].length]))
 
   // Same granularity as the category pages (user 2026-07-08): drivers /
