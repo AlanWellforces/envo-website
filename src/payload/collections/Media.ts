@@ -20,6 +20,19 @@ export const Media: CollectionConfig = {
   },
   upload: {
     staticDir: 'media',
+    // Cap the SAVED original at 2400px on the long edge. Team uploads arrived
+    // as 3+ MB 4000px camera exports; the original is what the lightbox zoom
+    // serves raw and what the image optimizer transcodes on first view, so an
+    // uncapped source costs real load time (and disk/backup weight). 2400px
+    // comfortably covers every rendered size incl. retina zoom. A weekly
+    // sweeper on the box (envo-media-shrink.timer) catches anything that
+    // bypasses this hook (e.g. direct volume copies).
+    resizeOptions: {
+      width: 2400,
+      height: 2400,
+      fit: 'inside',
+      withoutEnlargement: true,
+    },
     imageSizes: [
       {
         name: 'thumbnail',
