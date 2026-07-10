@@ -47,11 +47,11 @@ CMS:         Payload CMS 3
 Database:    PostgreSQL
 ORM:         Drizzle ORM (product_* tables only)
 Product src: Akeneo PIM
-Hosting:     Vercel (later)
-Prod DB:     Supabase (later)
-Dev DB:      Supabase free (us-west-2) — see notes/2026-05-15-dev-db-supabase.md
+Hosting:     Self-hosted Docker on a Hostinger VPS, public via Cloudflare Tunnel — see DEPLOY.md
+Prod DB:     Self-hosted PostgreSQL 17 (Docker) on the VPS — the single source of truth
+Dev DB:      Local Docker PostgreSQL 17, isolated per-laptop — see DEPLOY.md
 AI:          Anthropic API (server-side only)
-Email:       Resend
+Email:       Mailgun (HTTP API, US region)
 ```
 
 ## Three-source rule — ALWAYS follow this
@@ -89,15 +89,21 @@ in code, Payload, or anywhere else. These override any draft copy.
 
 Always use `process.env.DATABASE_URL`. Never hardcode a hostname.
 
+**Supabase is retired (2026-07).** The self-hosted PostgreSQL on the production
+VPS is now the single source of truth for data. Content is authored in prod
+`/admin`; local dev works against an isolated copy.
+
 ```txt
-Team dev:        Supabase free (us-west-2)     →  Session Pooler, details in Zoho Vault
-Local dev (opt): docker-compose up -d           (individual offline Postgres on your laptop)
-Off-site backup: MBA saless-macbook-air.local   (nightly pg_dump from Supabase, 14-day retention)
-Production:      Supabase Pro (separate project, region TBD at launch)
+Production:    Self-hosted PostgreSQL 17 (Docker) on the VPS. Authored via /admin,
+               reachable only over Tailscale, backed up nightly to the NAS.
+Local dev:     Isolated PostgreSQL 17 in Docker — `docker compose up -d`.
+               Your own copy; NEVER points at production. Port 5433, db envo_dev.
+Get real data: ./scripts/db-refresh-from-prod.sh   (one-way prod→local, over Tailscale)
 ```
 
-Onboarding + full architecture details in [`notes/2026-05-15-dev-db-supabase.md`](notes/2026-05-15-dev-db-supabase.md).
-Connection string lives in Zoho Vault under **"ENVO Dev Database — Supabase"**.
+Full deploy + data-sync workflow: [`DEPLOY.md`](DEPLOY.md).
+(The old Supabase note `notes/2026-05-15-dev-db-supabase.md` is kept for history
+only — its connection details no longer apply.)
 
 ## AI prompts
 

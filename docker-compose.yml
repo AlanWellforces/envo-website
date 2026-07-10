@@ -1,13 +1,20 @@
+# Local development database — an isolated Postgres 17 on your laptop.
+# NOT shared, NEVER production. Bring it up with `docker compose up -d`, then
+# load real content with `./scripts/db-refresh-from-prod.sh`. See DEPLOY.md.
+#
+# Host port is 5433 (not 5432) to avoid clashing with any system Postgres, and
+# to match DATABASE_URL in .env.example. Version 17 matches prod so restores work.
 services:
   postgres:
-    image: postgres:16-alpine
+    image: postgres:17-alpine
+    container_name: envo-pg-local
     restart: unless-stopped
     environment:
       POSTGRES_DB: envo_dev
       POSTGRES_USER: envo
       POSTGRES_PASSWORD: envo_dev_password
     ports:
-      - "5432:5432"
+      - "5433:5432"
     volumes:
       - postgres_data:/var/lib/postgresql/data
 

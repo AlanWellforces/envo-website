@@ -1,7 +1,14 @@
-# Dev database — Supabase (current architecture)
+# Dev database — Supabase (RETIRED — historical record)
+
+> ⚠️ **SUPERSEDED (2026-07). Do not follow this document.** Supabase has been
+> retired. The database is now self-hosted PostgreSQL 17 on the production VPS,
+> with an isolated local Docker Postgres for dev. The connection strings and Zoho
+> Vault entry below **no longer work**. Current setup lives in
+> [`../DEPLOY.md`](../DEPLOY.md) and the Database section of [`../CLAUDE.md`](../CLAUDE.md).
+> This file is kept only for historical context.
 
 **Date:** 2026-05-15
-**Status:** Live
+**Status:** Retired 2026-07 (was: Live)
 **Supersedes the architecture in:** [`notes/2026-05-14-db-dev-plan.md`](2026-05-14-db-dev-plan.md) (NAS → MBA → Supabase pivot)
 
 ## TL;DR
