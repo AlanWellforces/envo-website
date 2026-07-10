@@ -78,15 +78,44 @@ export function signageSeriesCategory(code: string | null | undefined): string |
 // envo-led.com collections 2026-07-08 (SE 10 + SNPV 4 + SP 6 = Screw
 // Terminal 20; SL 8 = Linear; SP 6 = Triac Dimmable). Unmapped series (e.g.
 // gated ranges when they return) fall back to their authored series title.
-export const DRIVER_CATEGORY_ORDER = ['Screw Terminal', 'Linear', 'Triac Dimmable']
+export const DRIVER_CATEGORY_ORDER = [
+  'Screw Terminal', 'Linear', 'Triac Dimmable',
+  // Standard Driver Range types (user mapping 2026-07-10)
+  'Standard', 'Waterproof', 'Constant Current',
+]
 const DRIVER_SERIES_CATEGORIES: Record<string, string[]> = {
   envo_se_us: ['Screw Terminal'],
   envo_snpv_us: ['Screw Terminal'],
   envo_sp_us: ['Screw Terminal', 'Triac Dimmable'],
   envo_sl_us: ['Linear'],
 }
+// The Standard Driver Range (sc_envo) is one Akeneo series spanning six model
+// LINES, so its type classification is by SKU prefix (user mapping 2026-07-10:
+// SC=Standard, SNL=Linear, SNP/SNR=Waterproof, SNT=Screw Terminal, ENC=CC).
+// Note: SNP/SNR are typed Waterproof per the user even though their Akeneo
+// `waterproof` attribute currently says non_waterproof — fix pending in PIM.
+const SC_ENVO_LINE_CATEGORIES: [RegExp, string[]][] = [
+  [/^S?-?EV-SNL-/, ['Linear']],
+  [/^S?-?EV-SNP-/, ['Waterproof']],
+  [/^S?-?EV-SNR-/, ['Waterproof']],
+  [/^S?-?EV-SNT-/, ['Screw Terminal']],
+  [/^ENC-/, ['Constant Current']],
+  [/^SC-/, ['Standard']],
+]
 export function driverCategories(code: string | null | undefined): string[] | null {
   return code ? DRIVER_SERIES_CATEGORIES[code] ?? null : null
+}
+/** Type categories for a driver PRODUCT: sc_envo classifies by model line
+ *  (SKU prefix); every other series by its series-level mapping. */
+export function driverProductCategories(
+  sku: string,
+  code: string | null | undefined,
+): string[] | null {
+  if (code === 'sc_envo') {
+    for (const [re, cats] of SC_ENVO_LINE_CATEGORIES) if (re.test(sku)) return cats
+    return ['Standard'] // unrecognised line — keep it findable
+  }
+  return driverCategories(code)
 }
 
 // Old-envo CONTROL GEAR categories (Remote & Receiver / Signal Converter /
