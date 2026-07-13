@@ -277,10 +277,20 @@ export function buildSkuDetailProps(
 
   // groupSeriesModels strips CCT suffixes; the spec-driven families' SKUs are
   // unsuffixed, so modelCode === sku — with a startsWith fallback just in case.
-  const variants = base.variants.map((v) =>
+  const tagged = base.variants.map((v) =>
     v.modelCode === product.sku || (v.modelCode && product.sku.startsWith(v.modelCode))
       ? { ...v, current: true }
       : v,
+  )
+  // The viewed SKU leads the models table (user 2026-07-13); siblings keep
+  // series order behind it. Every sibling links to its own page — the columns
+  // assembler only fills href on rows-layout series, but SKU pages are
+  // model-grain across all families, so the stripped code IS the page slug.
+  const variants = [...tagged.filter((v) => v.current), ...tagged.filter((v) => !v.current)].map(
+    (v) =>
+      v.current || v.href || !v.modelCode
+        ? v
+        : { ...v, href: `/products/${family.slug}/${v.modelCode}` },
   )
 
   // Overview tab: the Akeneo description distilled to marketing content
@@ -348,5 +358,8 @@ export function buildSkuDetailProps(
       ...(base.thumbs?.filter((t) => t.cover) ?? []),
     ],
     variants,
+    // 2026-07-13 spec split: Specifications tab = THIS model only (opens by
+    // default); siblings render below the tabs as "All models in this series".
+    skuPage: { seriesEyebrow: seriesLabel(product.series) },
   }
 }

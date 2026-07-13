@@ -5,6 +5,7 @@ import type { SeriesPurchaseLinks } from '@/data/distributors'
 import { FindDistributorCta } from './FindDistributorCta'
 import { SpecTabs, type SpecTab } from './SpecTabs'
 import { SeriesGallery } from './SeriesGallery'
+import { SeriesModelsSection } from './SeriesModelsSection'
 import './merged-series.css'
 
 type Img = { src: string; local: boolean; alt: string }
@@ -104,6 +105,11 @@ export type MergedSeriesProps = {
   /** hero stage override — SKU detail pages show ONLY the viewed product's
    *  image while the compare table still carries every sibling model */
   heroStage?: Img[]
+  /** SKU detail pages (2026-07-13 spec split): the Specifications tab shows
+   *  ONLY this model's own spec list (and opens by default); the sibling
+   *  models move below the tabs into an always-visible "All models in this
+   *  series" section, eyebrowed with the series name. */
+  skuPage?: { seriesEyebrow: string }
 }
 
 // Per-variant spec rows, rendered only when at least one variant carries a value.
@@ -286,18 +292,35 @@ export default function MergedSeriesPage(p: MergedSeriesProps) {
     </div>
   )
 
+  // Single-model spec list — also the whole Specifications tab on SKU pages
+  // (2026-07-13 split): variants[0] is the viewed SKU there (pinned first).
+  // Rows the model has no value for are omitted, never dashed.
+  const v0 = p.variants[0]
+  const dualLine = (value: string) => {
+    // "103 × 16 × 35.5 mm (4.06 × 0.63 × 1.4 in)" → metric + muted imperial line
+    const cut = value.indexOf(' (')
+    if (cut === -1) return value
+    return (
+      <>
+        {value.slice(0, cut)}
+        <span className="dim-imp block">{value.slice(cut + 1)}</span>
+      </>
+    )
+  }
   const specSingle: ReactNode = (
     <div className="compare">
       {/* no heading — the SPECIFICATIONS tab already names the panel (user 2026-07-08) */}
       <dl className="shared-specs">
-        {activeVariantRows
-          .filter((r) => r.key !== 'bestFor')
-          .map((r) => (
-            <div key={r.key}>
-              <dt>{r.label}</dt>
-              <dd className={r.cls}>{(p.variants[0][r.key] as string) ?? '—'}</dd>
-            </div>
-          ))}
+        {VARIANT_ROWS.filter((r) => r.key !== 'bestFor' && v0[r.key]).map((r) => (
+          <div key={r.key}>
+            <dt>{r.label}</dt>
+            <dd className={r.cls}>
+              {r.key === 'size' || r.key === 'dimensions'
+                ? dualLine(v0[r.key] as string)
+                : (v0[r.key] as string)}
+            </dd>
+          </div>
+        ))}
         {p.sharedRows?.map((row) => (
           <div key={row.label}>
             <dt>{row.label}</dt>
@@ -470,9 +493,12 @@ export default function MergedSeriesPage(p: MergedSeriesProps) {
     </div>
   )
 
+  // SKU pages: the tab always shows THIS model's own spec list — the sibling
+  // table renders as its own section below the tabs (2026-07-13 split).
+  const specsPanel = p.skuPage || single ? specSingle : specMulti
   const tabs: SpecTab[] = ([
     overviewPanel ? { id: 'overview', label: 'Overview', content: overviewPanel } : null,
-    hasSpecs ? { id: 'specs', label: 'Specifications', content: single ? specSingle : specMulti } : null,
+    hasSpecs ? { id: 'specs', label: 'Specifications', content: specsPanel } : null,
     downloadsPanel ? { id: 'downloads', label: 'Downloads', content: downloadsPanel } : null,
   ] as (SpecTab | null)[]).filter((t): t is SpecTab => t !== null)
 
@@ -544,7 +570,13 @@ export default function MergedSeriesPage(p: MergedSeriesProps) {
         {/* ===== TABS: Overview / Specifications / Downloads (real tabs — one
              panel at a time). "Where it works" + "Pairs with" stay below as
              always-visible sections (user 2026-07-06). ===== */}
-        <SpecTabs tabs={tabs} />
+        <SpecTabs tabs={tabs} defaultTab={p.skuPage ? 'specs' : undefined} />
+
+        {/* SKU pages: the sibling selector table, always visible below the
+            tabs — viewed model pinned first (2026-07-13 split) */}
+        {p.skuPage && p.variants.length > 1 && (
+          <SeriesModelsSection eyebrow={p.skuPage.seriesEyebrow} variants={p.variants} />
+        )}
       </div>
 
       {/* ===== SOLUTIONS + RELATED — full-bleed bands (user 2026-07-06):
