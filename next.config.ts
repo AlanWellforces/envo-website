@@ -1,5 +1,8 @@
 import { withPayload } from '@payloadcms/next/withPayload'
 import type { NextConfig } from 'next'
+// Relative import on purpose — the config loader can't resolve `@/` aliases.
+// series-registry.ts is dependency-free so it stays safe to import here.
+import { seriesRedirects } from './src/data/series-registry'
 
 const nextConfig: NextConfig = {
   output: 'standalone',
@@ -21,17 +24,9 @@ const nextConfig: NextConfig = {
     ],
   },
   async redirects() {
-    return [
-      // The EcoGlo series page never lived at the hand-written 'eco-series'
-      // slug (series slugs derive from seriesSlug(): envo_ecoglo → envo-ecoglo;
-      // only MiniLux has a real override). The bad path shipped in internal
-      // links and got crawled, so permanently redirect (308) to the real page.
-      {
-        source: '/products/led-signage-modules/eco-series',
-        destination: '/products/led-signage-modules/envo-ecoglo',
-        permanent: true,
-      },
-    ]
+    // Retired series slugs 308 to their canonical pages — the list lives in
+    // src/data/series-registry.ts next to the slug rules themselves.
+    return seriesRedirects()
   },
   async headers() {
     // Payload's /api/media/file/* route sends NO Cache-Control, so every

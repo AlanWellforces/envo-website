@@ -46,12 +46,26 @@ describe('getProductsForSelector', () => {
     expect(rows[0].dims).toEqual({ mm: '70 × 22 × 12 mm', in: '2.76 × 0.87 × 0.47 in' })
   })
 
-  it('falls back to a humanised label + null detailHref for unconfigured series', async () => {
+  it('falls back to a humanised label but still derives detailHref for unconfigured series', async () => {
     mockList.mockResolvedValue({ docs: [{
       sku: 'X', name: 'ENVO Foo Backlit - Single LED', series: 'envo_unknown',
       led_light_power_input: ['power_input_24V'], waterproof: 'ip67', cct_k: 7000,
     }], totalDocs: 1, totalPages: 1 })
     const rows = await getProductsForSelector('signage')
-    expect(rows[0]).toMatchObject({ seriesLabel: 'Envo Unknown', detailHref: null, voltage: '24V' })
+    expect(rows[0]).toMatchObject({
+      seriesLabel: 'Envo Unknown',
+      // any series with a product in the DB gets a generated page, so the
+      // derived link is valid even for series absent from the selector config
+      detailHref: '/products/led-signage-modules/envo-unknown',
+      voltage: '24V',
+    })
+  })
+
+  it('gives no detailHref to products without a series', async () => {
+    mockList.mockResolvedValue({ docs: [{
+      sku: 'Y', name: 'ENVO Bare Module', series: null,
+    }], totalDocs: 1, totalPages: 1 })
+    const rows = await getProductsForSelector('signage')
+    expect(rows[0].detailHref).toBeNull()
   })
 })
