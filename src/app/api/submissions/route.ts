@@ -125,7 +125,16 @@ export async function POST(req: Request) {
     return bad(['please check your details and try again'])
   }
 
-  // Notify sales off the response path (best-effort; never blocks the reply).
-  after(() => notifyNewLead(lead))
+  // Notify sales off the response path (retried inside notifyNewLead; never
+  // blocks the reply). The outcome is stamped onto the lead so the admin list
+  // shows exactly which leads never reached the inbox.
+  after(async () => {
+    const status = await notifyNewLead(lead)
+    try {
+      await payload.update({ collection: 'submissions', id: createdId, data: { notify: status } })
+    } catch {
+      // the status column is observability, not truth — never let it throw
+    }
+  })
   return NextResponse.json({ ok: true, id: createdId })
 }
