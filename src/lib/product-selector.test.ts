@@ -40,7 +40,7 @@ describe('getProductsForSelector', () => {
     expect(rows[0]).toMatchObject({
       sku: 'EV-BLEG04LBY-NW', seriesLabel: 'EcoGlo', seriesType: 'backlit',
       voltage: '12V', ledCount: 'Quad', cct: '4K', ip: 'IP65',
-      detailHref: '/products/led-signage-modules/eco-series',
+      detailHref: '/products/led-signage-modules/envo-ecoglo',
       image: 'https://x/clean.png',
     })
     expect(rows[0].dims).toEqual({ mm: '70 × 22 × 12 mm', in: '2.76 × 0.87 × 0.47 in' })

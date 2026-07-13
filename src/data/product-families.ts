@@ -318,8 +318,8 @@ export const PRODUCT_FAMILIES: ProductFamily[] = [
           ipRating: 'IP65',
           bestFor: 'General signage (workhorse)',
         },
-        href: '/products/led-signage-modules/eco-series',
-        slug: 'eco-series',
+        href: '/products/led-signage-modules/envo-ecoglo',
+        slug: 'envo-ecoglo',
         seriesCode: 'envo_ecoglo',
         subtitle: 'Backlit LED module · Signage Modules',
         description:

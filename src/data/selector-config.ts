@@ -41,7 +41,7 @@ export const SIGNAGE_SELECTOR: FamilySelectorConfig = {
   columns: ['image', 'model', 'series', 'ledCount', 'output', 'power', 'beam', 'cri', 'ip', 'maxRun', 'dims', 'actions'],
   filters: ['search', 'series', 'ledCount', 'voltage', 'cct', 'ip', 'maxHeight'],
   series: [
-    { code: 'envo_ecoglo',     label: 'EcoGlo',     bestFor: 'Everyday workhorse',          type: 'backlit', detailHref: '/products/led-signage-modules/eco-series' },
+    { code: 'envo_ecoglo',     label: 'EcoGlo',     bestFor: 'Everyday workhorse',          type: 'backlit', detailHref: '/products/led-signage-modules/envo-ecoglo' },
     { code: 'envo_proglo',     label: 'ProGlo',     bestFor: 'High-clarity mid-range',      type: 'backlit', detailHref: null },
     { code: 'envo_ultraflare', label: 'UltraFlare', bestFor: 'Deep lightboxes, big letters', type: 'backlit', detailHref: null },
     { code: 'envo_minilux',    label: 'MiniLux',    bestFor: 'Shallow cabinets · 8.9 mm',    type: 'backlit', detailHref: '/products/led-signage-modules/mini-series' },
