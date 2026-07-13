@@ -58,6 +58,39 @@ Watch a deploy: `ssh root@100.106.130.54 'tail -f /opt/envo/deploy.log'` (over T
 > prod `/admin` only shows on the live static pages after the next deploy (or a manual
 > `--no-cache` rebuild on the box). Do **not** use `revalidatePath` on these routes — it 404s them.
 
+## First-time setup (new teammate)
+
+Everything about the **structure** ships in the repo — you do **not** need the box's
+`/opt/envo/.env`. From a clean checkout:
+
+```bash
+git pull
+cp .env.example .env.local        # DATABASE_URL is pre-filled for local Docker Postgres
+                                  # → set your own PAYLOAD_SECRET (any long random string)
+docker compose up -d              # creates envo-pg-local on port 5433
+npm install
+```
+
+At this point you can develop, but the DB is **empty**. Two ways to get a schema:
+
+- **Structure only, no access needed** — with `PAYLOAD_DB_PUSH=true` in `.env.local`
+  (the default in `.env.example`), `npm run dev` makes Payload auto-create the full schema
+  on boot. Good for building features; no real content.
+- **Real content** — run the refresh script below. This needs box access (next section).
+
+> **Doing this with an AI agent?** Open Claude Code in the repo and paste one of these:
+> - *No box access yet:* "Read CLAUDE.md and DEPLOY.md, then set up my local dev environment:
+>   `.env.local` (generate a PAYLOAD_SECRET), bring up the local Docker Postgres, `npm install`,
+>   and start dev so Payload auto-creates the schema via PAYLOAD_DB_PUSH. I don't have Tailscale
+>   or a box SSH key yet."
+> - *With Tailscale + your key on the box:* "Read CLAUDE.md and DEPLOY.md, then set up local dev
+>   and run `scripts/db-refresh-from-prod.sh --with-media` to pull real prod data. My key is at
+>   `~/.ssh/envo_box` — use ENVO_BOX_KEY."
+>
+> **Nothing about local setup happens via a `git push`.** The GitHub → box auto-deploy updates
+> the *live production site's code* only; it never touches your laptop's DB. Content is pulled
+> down separately (above), never committed to git.
+
 ## Getting prod data onto your laptop
 
 Local dev uses an **isolated** local Postgres (Docker container `envo-pg-local`, port 5433) —
@@ -69,7 +102,11 @@ not the prod DB. To load a fresh copy of real prod content:
 ```
 
 One-way only (prod → local). It **overwrites** your local DB — any un-pushed local data is
-lost. Requires Tailscale up and your SSH key authorized on the box.
+lost. It never reads `/opt/envo/.env` — it dumps using the prod Postgres container's own
+internal creds over an SSH tunnel. It needs two things that are **not** in the repo:
+
+1. **Tailscale on the tailnet** — the box (`100.106.130.54`) has no public SSH; ask Lenny for an invite.
+2. **Your own SSH key authorized on the box** (see below).
 
 ## Schema changes (the one deliberate step)
 
@@ -142,6 +179,29 @@ terminal failures land in the container log). Two ops pieces:
 
 ## Access a teammate needs
 
+- **GitHub** push access — see `git-workflow.md`. (Enough on its own for feature work with
+  a `PAYLOAD_DB_PUSH` schema — no box access required.)
 - **Tailscale** on the tailnet (ask Lenny) — required for `db-refresh-from-prod.sh` and prod migrations.
-- **GitHub** push access — see `git-workflow.md`.
-- Box SSH / the deploy key are held by Lenny + the box only; you don't need them for day-to-day work.
+- **Your own SSH key on the box** — only if you want to pull real prod data.
+
+### Getting your SSH key onto the box
+
+**Never share a private key.** Generate your own and send only the public half.
+
+1. **Teammate** creates a keypair (skip if you already have one you want to use):
+   ```bash
+   ssh-keygen -t ed25519 -f ~/.ssh/envo_box -C "yourname@envo"
+   ```
+   This writes `~/.ssh/envo_box` (private — keep secret) and `~/.ssh/envo_box.pub` (public).
+   Send Lenny the **`.pub`** file's one line.
+2. **Lenny** appends that line to the box's `~/.ssh/authorized_keys` (over Tailscale):
+   ```bash
+   echo 'ssh-ed25519 AAAA…theirline… yourname@envo' | \
+     ssh root@100.106.130.54 'cat >> ~/.ssh/authorized_keys'
+   ```
+   Revoke later by deleting that one line — no re-keying anyone else.
+3. **Teammate** points the refresh script at their key (the path is overridable, so no code edit):
+   ```bash
+   ENVO_BOX_KEY=~/.ssh/envo_box ./scripts/db-refresh-from-prod.sh --with-media
+   ```
+   (Or name your key `~/.ssh/envo_deploy_ed25519` to use the default and skip the env var.)
