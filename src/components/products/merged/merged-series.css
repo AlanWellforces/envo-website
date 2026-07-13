@@ -364,20 +364,41 @@
 .pdetail .overview .ov-html ul { list-style: disc; margin: 0 0 12px; padding-left: 20px; }
 .pdetail .overview .ov-html li { font-size: 15px; color: var(--text-muted); line-height: 1.65; margin: 4px 0; }
 
-/* ===== downloads ===== */
+/* ===== downloads (2026-07-13 redesign) =====
+   One card per document THIS product ships with — blue uppercase type kicker
+   (Datasheet / Installation guide / …) is the rule that scales as file types
+   land. SKU pages append an inline request form instead of a /contact jump.
+   Same type scale as the models table: 13.5/600 names, 13 inputs, 11.5 subs. */
 .pdetail .downloads { padding: 8px 0 24px; }
-.pdetail .downloads .dl-head { margin-bottom: 18px; }
-.pdetail .downloads h2 { font-size: 23px; letter-spacing: -0.025em; margin: 6px 0 0; font-weight: 700; }
-.pdetail .dl-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 12px; }
-.pdetail .dl-card { display: flex; align-items: center; gap: 14px; padding: 16px 18px; border: 1px solid var(--line); border-radius: 12px; background: var(--bg-card); text-decoration: none; color: inherit; transition: border-color 0.15s, transform 0.15s; }
-.pdetail .dl-card:hover { border-color: var(--blue); transform: translateY(-2px); }
-.pdetail .dl-ico { width: 38px; height: 38px; border-radius: 9px; background: var(--blue-soft); display: grid; place-items: center; flex-shrink: 0; }
-.pdetail .dl-ico svg { width: 18px; height: 18px; stroke: var(--blue); fill: none; stroke-width: 1.8; }
-.pdetail .dl-body { display: flex; flex-direction: column; flex: 1; }
-.pdetail .dl-name { font-size: 14px; font-weight: 600; }
-.pdetail .dl-meta { font-size: 10.5px; color: var(--text-subtle); margin-top: 2px; }
-.pdetail .dl-arrow { color: var(--text-subtle); font-size: 16px; }
-.pdetail .dl-card:hover .dl-arrow { color: var(--blue); }
+.pdetail .file-cards { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 12px; max-width: 860px; }
+.pdetail .fcard { display: flex; align-items: center; gap: 14px; padding: 16px 18px; border: 1px solid var(--line); border-radius: 14px; background: var(--bg-card); text-decoration: none; color: inherit; }
+.pdetail .fcard:hover { border-color: var(--blue); }
+.pdetail .fcard > .pdf-ico { width: 30px; height: 30px; flex: 0 0 auto; }
+.pdetail .fcard .fc-bd { flex: 1; min-width: 0; }
+.pdetail .fcard .fc-kick { display: block; font-size: 9.5px; font-weight: 700; letter-spacing: 0.12em; text-transform: uppercase; color: var(--blue); margin-bottom: 2px; }
+.pdetail .fcard .fc-nm { display: block; font-size: 13.5px; font-weight: 600; }
+.pdetail .fcard .fc-mt { display: block; font-size: 11.5px; font-weight: 400; color: var(--text-subtle); margin-top: 1px; }
+.pdetail .fcard .fc-dl { flex: 0 0 auto; width: 34px; height: 34px; border: 1px solid var(--line); border-radius: 50%; display: grid; place-items: center; color: var(--text-muted); font-size: 15px; transition: all 0.12s; }
+.pdetail .fcard:hover .fc-dl { border-color: var(--blue); color: var(--blue); background: var(--blue-soft); }
+/* inline request-files form (SKU pages) */
+.pdetail .reqform { margin-top: 22px; padding: 18px 20px; background: var(--bg-card); border: 1px solid var(--line); border-radius: 14px; max-width: 860px; }
+.pdetail .reqform .rf-title { margin: 0 0 12px; font-size: 13.5px; font-weight: 600; }
+.pdetail .reqform .rf-sku { color: var(--blue); }
+.pdetail .reqform .rf-fields { display: flex; gap: 10px; flex-wrap: wrap; }
+.pdetail .reqform input, .pdetail .reqform select, .pdetail .reqform textarea { flex: 1 1 180px; min-width: 0; padding: 9px 12px; border: 1px solid var(--line); border-radius: 8px; font: inherit; font-size: 13px; font-weight: 400; color: var(--text); background: var(--bg-card); }
+.pdetail .reqform select { appearance: none; -webkit-appearance: none; cursor: pointer; padding-right: 32px; background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%23667085' stroke-width='2.5' stroke-linecap='round'%3E%3Cpath d='M6 9l6 6 6-6'/%3E%3C/svg%3E"); background-repeat: no-repeat; background-position: right 12px center; }
+.pdetail .reqform select:invalid { color: var(--text-subtle); }
+.pdetail .reqform input:focus, .pdetail .reqform select:focus, .pdetail .reqform textarea:focus { outline: none; border-color: var(--blue); }
+.pdetail .reqform textarea { flex: 1 1 100%; resize: vertical; min-height: 64px; margin-top: 10px; }
+.pdetail .reqform .rf-send { margin-top: 10px; display: flex; align-items: center; justify-content: space-between; gap: 14px; flex-wrap: wrap; }
+.pdetail .reqform button { flex: 0 0 auto; padding: 9px 20px; background: var(--blue); color: #fff; border: 0; border-radius: 8px; font: inherit; font-size: 13px; font-weight: 600; cursor: pointer; }
+.pdetail .reqform button:hover { background: #005f9e; }
+.pdetail .reqform button:disabled { opacity: 0.6; cursor: default; }
+.pdetail .reqform .rf-fine { margin: 0; font-size: 11.5px; font-weight: 400; color: var(--text-subtle); }
+.pdetail .reqform .rf-fine a { color: var(--blue); text-decoration: none; }
+.pdetail .reqform .rf-fine a:hover { text-decoration: underline; }
+.pdetail .reqform .rf-error { margin: 10px 0 0; font-size: 12px; color: #b42318; }
+/* series pages keep the plain contact line under the cards */
 .pdetail .dl-contact { margin: 14px 0 0; font-size: 13px; color: var(--text-subtle); }
 .pdetail .dl-contact a { color: var(--blue); font-weight: 600; text-decoration: none; }
 .pdetail .dl-contact a:hover { text-decoration: underline; }
@@ -409,7 +430,7 @@
   .pdetail .p-hero { grid-template-columns: 1fr; gap: 26px; }
   .pdetail .gallery { position: static; }
   .pdetail .p-info h1 { font-size: 36px; }
-  .pdetail .dl-grid { grid-template-columns: 1fr; }
+  .pdetail .file-cards { grid-template-columns: 1fr; }
   /* narrower viewport: show ~2.2 cards and let the rest scroll */
   .pdetail .rel-card { flex-basis: calc((100% - 28px) / 2.2); }
 }

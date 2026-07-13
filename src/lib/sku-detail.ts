@@ -345,7 +345,14 @@ export function buildSkuDetailProps(
     // drops -NW/-WW/-CW, whatever the family. Functional suffixes (-TDM,
     // -RGB, …) are distinct products and stay.
     downloads: solo.datasheetUrl
-      ? [{ name: `${stripCctSuffix(product.sku)} datasheet`, meta: 'PDF', href: solo.datasheetUrl }]
+      ? [
+          {
+            kind: 'Datasheet',
+            name: `${stripCctSuffix(product.sku)} datasheet`,
+            meta: 'PDF · specifications & dimensions',
+            href: solo.datasheetUrl,
+          },
+        ]
       : [],
     solutions,
     solutionsHeading: pack?.sectionTitle,
@@ -360,6 +367,7 @@ export function buildSkuDetailProps(
     variants,
     // 2026-07-13 spec split: Specifications tab = THIS model only (opens by
     // default); siblings render below the tabs as "All models in this series".
-    skuPage: { seriesEyebrow: seriesLabel(product.series) },
+    // `code` rides into the Downloads tab's inline file-request form.
+    skuPage: { seriesEyebrow: seriesLabel(product.series), code: displayCode },
   }
 }

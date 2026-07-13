@@ -6,6 +6,7 @@ import { FindDistributorCta } from './FindDistributorCta'
 import { SpecTabs, type SpecTab } from './SpecTabs'
 import { SeriesGallery } from './SeriesGallery'
 import { SeriesModelsSection } from './SeriesModelsSection'
+import { DownloadsPanel } from './DownloadsPanel'
 import './merged-series.css'
 
 type Img = { src: string; local: boolean; alt: string }
@@ -53,6 +54,13 @@ export type MergedVariant = {
 }
 
 export type MergedSharedRow = { label: string; value: ReactNode }
+export type MergedDownload = {
+  /** file-type kicker on the card, e.g. "Datasheet" (2026-07-13 redesign) */
+  kind?: string
+  name: string
+  meta?: string
+  href?: string
+}
 export type MergedKeySpec = {
   icon:
     | 'power' | 'voltage' | 'input' | 'mode' | 'dimming' | 'ip' | 'beam' | 'cct' | 'efficacy' | 'lifetime'
@@ -63,7 +71,6 @@ export type MergedKeySpec = {
   value: string
 }
 export type MergedSolution = { title: string; pick: string; image?: Img }
-export type MergedDownload = { name: string; meta?: string; href?: string }
 export type MergedRelated = { kicker: string; name: string; href: string; image: Img }
 
 export type MergedSeriesProps = {
@@ -108,8 +115,9 @@ export type MergedSeriesProps = {
   /** SKU detail pages (2026-07-13 spec split): the Specifications tab shows
    *  ONLY this model's own spec list (and opens by default); the sibling
    *  models move below the tabs into an always-visible "All models in this
-   *  series" section, eyebrowed with the series name. */
-  skuPage?: { seriesEyebrow: string }
+   *  series" section, eyebrowed with the series name. `code` feeds the
+   *  Downloads tab's inline file-request form. */
+  skuPage?: { seriesEyebrow: string; code: string }
 }
 
 // Per-variant spec rows, rendered only when at least one variant carries a value.
@@ -135,13 +143,6 @@ const VARIANT_ROWS: { label: string; key: keyof MergedVariant; cls?: string }[] 
 function Picture({ img, sizes }: { img: Img; sizes: string }) {
   return <Image src={img.src} alt={img.alt} width={300} height={220} sizes={sizes} />
 }
-
-const FileIcon = () => (
-  <svg viewBox="0 0 24 24" aria-hidden>
-    <path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z" />
-    <path d="M14 2v6h6" />
-  </svg>
-)
 
 // Generic red "PDF file" mark — dog-eared sheet + PDF letters. Deliberately
 // NOT Adobe's trademarked Acrobat loop glyph; a plain file-type symbol.
@@ -467,30 +468,11 @@ export default function MergedSeriesPage(p: MergedSeriesProps) {
       </div>
     )
 
-  const downloadsPanel: ReactNode = files.length > 0 && (
-    <div className="downloads">
-      <div className="dl-head">
-        <h2>Specs, drawings and compliance — one click away.</h2>
-      </div>
-      <div className="dl-grid">
-        {files.map((d) => (
-          <a key={d.name} className="dl-card" href={d.href} target="_blank" rel="noopener noreferrer">
-            <span className="dl-ico">
-              <FileIcon />
-            </span>
-            <span className="dl-body">
-              <span className="dl-name">{d.name}</span>
-              {d.meta && <span className="dl-meta">{d.meta}</span>}
-            </span>
-            <span className="dl-arrow">↓</span>
-          </a>
-        ))}
-      </div>
-      <p className="dl-contact">
-        Need installation guides, drawings or compliance certificates?{' '}
-        <Link href="/contact">Request files →</Link>
-      </p>
-    </div>
+  // 2026-07-13 redesign: type-kickered file cards; SKU pages swap the
+  // /contact jump for an inline request form (so the tab exists even when a
+  // model has no datasheet yet), series pages keep the contact line.
+  const downloadsPanel: ReactNode = (files.length > 0 || !!p.skuPage) && (
+    <DownloadsPanel files={files} requestSku={p.skuPage?.code} />
   )
 
   // SKU pages: the tab always shows THIS model's own spec list — the sibling
