@@ -914,6 +914,7 @@ export interface Submission {
   id: number;
   type: 'free-layout' | 'find-your-match' | 'contact';
   status?: ('new' | 'contacted' | 'archived') | null;
+  notify?: ('sent' | 'failed' | 'skipped') | null;
   name?: string | null;
   email?: string | null;
   company?: string | null;
@@ -1520,6 +1521,7 @@ export interface FaqsSelect {
 export interface SubmissionsSelect {
   type?: boolean;
   status?: boolean;
+  notify?: boolean;
   name?: boolean;
   email?: boolean;
   company?: boolean;

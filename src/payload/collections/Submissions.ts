@@ -9,7 +9,7 @@ export const Submissions: CollectionConfig = {
   labels: { singular: 'Lead', plural: 'Leads' },
   admin: {
     useAsTitle: 'email',
-    defaultColumns: ['email', 'type', 'company', 'status', 'createdAt'],
+    defaultColumns: ['email', 'type', 'company', 'status', 'notify', 'createdAt'],
     group: 'Sales',
     description: 'Enquiries captured from the website. Newest first.',
     pagination: { defaultLimit: 50 },
@@ -44,6 +44,19 @@ export const Submissions: CollectionConfig = {
         { label: 'New', value: 'new' },
         { label: 'Contacted', value: 'contacted' },
         { label: 'Archived', value: 'archived' },
+      ],
+    },
+    {
+      // Sales-email notification outcome, written by /api/submissions after
+      // the (retried) Mailgun send — "Failed" rows need a manual follow-up.
+      name: 'notify',
+      label: 'Email notification',
+      type: 'select',
+      admin: { position: 'sidebar', readOnly: true },
+      options: [
+        { label: 'Sent', value: 'sent' },
+        { label: 'Failed', value: 'failed' },
+        { label: 'Off (no Mailgun keys)', value: 'skipped' },
       ],
     },
     {

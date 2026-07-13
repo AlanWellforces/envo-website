@@ -104,6 +104,30 @@ pieces live in the Cloudflare dashboard and are **not yet configured**:
    → Security → WAF → Rate limiting rules — e.g. `http.request.uri.path eq "/api/submissions"`,
    10 requests / 10 minutes per IP, block. Free plan includes one rule.
 
+## Lead notifications & the daily digest
+
+Every stored lead triggers a Mailgun email to sales (retried ×3; the outcome is
+stamped on the lead — the admin Leads list has an "Email notification" column, and
+terminal failures land in the container log). Two ops pieces:
+
+1. **Daily unhandled-leads reminder**: `GET /api/leads-digest` (header
+   `Authorization: Bearer $LEADS_DIGEST_SECRET`) emails sales a list of leads still
+   marked *New* after 24 h — quiet days send nothing. Set `LEADS_DIGEST_SECRET` in
+   `/opt/envo/.env`, then add a timer on the box, e.g. a systemd unit alongside
+   `envo-deploy.timer`:
+   ```
+   # envo-leads-digest.service (Type=oneshot)
+   ExecStart=/usr/bin/curl -sf -H "Authorization: Bearer <secret>" http://localhost:3000/api/leads-digest
+   # envo-leads-digest.timer
+   OnCalendar=*-*-* 09:00:00   # NZ morning; timezone per the box
+   ```
+2. **One-time migration** (adds the `notify` column): run the standard
+   prod-migration step from "Schema changes" above **before** (or immediately
+   after) the release that carries this code lands on `main`. Adding the column
+   ahead of the code is harmless; the other way round, the admin **Leads list
+   errors until the migration runs** (the public site and lead capture are
+   unaffected either way).
+
 ## Access a teammate needs
 
 - **Tailscale** on the tailnet (ask Lenny) — required for `db-refresh-from-prod.sh` and prod migrations.
