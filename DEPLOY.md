@@ -90,6 +90,20 @@ are reviewable and safe.
    (The nightly NAS backup is the safety net. Ask Lenny for a one-command helper if this comes up
    often — it mirrors `scripts/db-refresh-from-prod.sh`.)
 
+## Form anti-abuse (Cloudflare side)
+
+The code ships three in-process guards on `/api/submissions` (honeypot, 5-per-10-min
+IP rate limit, short-term duplicate drop — `src/lib/leads/abuse-guard.ts`). Two
+pieces live in the Cloudflare dashboard and are **not yet configured**:
+
+1. **Turnstile** (bot check on the Free Layout upload form): create a widget under
+   Cloudflare → Turnstile for envolighting.com, then set `NEXT_PUBLIC_TURNSTILE_SITE_KEY`
+   + `TURNSTILE_SECRET_KEY` in the box's `.env` and restart. Blank keys = feature off,
+   forms work as before.
+2. **Edge rate limiting** (backstop if a bot outruns the in-process limiter): Cloudflare
+   → Security → WAF → Rate limiting rules — e.g. `http.request.uri.path eq "/api/submissions"`,
+   10 requests / 10 minutes per IP, block. Free plan includes one rule.
+
 ## Access a teammate needs
 
 - **Tailscale** on the tailnet (ask Lenny) — required for `db-refresh-from-prod.sh` and prod migrations.
