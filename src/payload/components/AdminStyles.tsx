@@ -184,6 +184,15 @@ ${iconRules}
 .table table tbody tr:last-child td { border-bottom: 0; }
 .table table tbody tr:hover td { background: #f9fafb; }
 .table tbody tr:nth-child(odd) { background: transparent; }
+/* Leads list: the whole row opens the record — stock Payload only links the
+   email (title) cell, which reads as a dead row (user 2026-07-13). The email
+   link grows an invisible overlay across its row; the 40px offset keeps the
+   select-checkbox column clickable for bulk actions. */
+.collection-list--submissions .table table tbody tr { position: relative; }
+.collection-list--submissions .table .cell-email a::after {
+  content: ''; position: absolute; top: 0; bottom: 0; left: 40px; right: 0;
+}
+.collection-list--submissions .table table tbody tr:hover td { background: #f2f7fc; cursor: pointer; }
 .search-filter__input { background: #fff; }
 .pill { font-weight: 600; }
 
