@@ -20,6 +20,19 @@ const nextConfig: NextConfig = {
       // served from the box's local disk.)
     ],
   },
+  async redirects() {
+    return [
+      // The EcoGlo series page never lived at the hand-written 'eco-series'
+      // slug (series slugs derive from seriesSlug(): envo_ecoglo → envo-ecoglo;
+      // only MiniLux has a real override). The bad path shipped in internal
+      // links and got crawled, so permanently redirect (308) to the real page.
+      {
+        source: '/products/led-signage-modules/eco-series',
+        destination: '/products/led-signage-modules/envo-ecoglo',
+        permanent: true,
+      },
+    ]
+  },
   async headers() {
     // Payload's /api/media/file/* route sends NO Cache-Control, so every
     // product image was a full tunnel round-trip (Payload + disk read) on
