@@ -6,6 +6,7 @@
 import { getPayload } from 'payload'
 import config from '@/payload.config'
 import { marketingFamilyToDbFamilies, seriesSectionTitle, sectionOrderIndex } from '@/data/family-map'
+import { relativeMediaUrl } from './media-url'
 
 export type Product = {
   id: number
@@ -121,9 +122,12 @@ export function resolveProductImage(
   seriesFallback: string,
 ): { src: string; isLocal: boolean; alt: string } {
   // 1. Clean image, Payload upload (editorial override)
+  // Payload upload urls are ABSOLUTE on prod (serverURL) — next/image rejects
+  // them as unlisted remote hosts, so serve them relative (see media-url.ts).
   const cleanUpload = product.clean_image as { url?: string; alt?: string } | null | undefined
   if (cleanUpload?.url) {
-    return { src: cleanUpload.url, isLocal: true, alt: cleanUpload.alt ?? product.name }
+    const src = relativeMediaUrl(cleanUpload.url) ?? cleanUpload.url
+    return { src, isLocal: true, alt: cleanUpload.alt ?? product.name }
   }
   // 2. Clean image, Akeneo S3
   if (product.clean_image_url_fallback) {
@@ -132,7 +136,8 @@ export function resolveProductImage(
   // 3. Regular image, Payload upload (editorial override)
   const upload = product.image as { url?: string; alt?: string } | null | undefined
   if (upload?.url) {
-    return { src: upload.url, isLocal: true, alt: upload.alt ?? product.name }
+    const src = relativeMediaUrl(upload.url) ?? upload.url
+    return { src, isLocal: true, alt: upload.alt ?? product.name }
   }
   // 4. Regular image, Akeneo S3
   if (product.image_url_fallback) {
