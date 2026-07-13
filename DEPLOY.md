@@ -34,6 +34,18 @@ Supabase and Akeneo are retired — production is now the single source of truth
 Merging to `main` is the deploy. No manual step.
 
 1. Ship as usual (see `git-workflow.md`): `feature/*` → PR → `dev`, then `dev` → `main`.
+   **Pre-release link check** (before merging dev → main): crawl a local instance —
+   it has the DB, so this covers every dynamically generated page, not just source links.
+   ```bash
+   npm run dev                                     # or a production build + npm start
+   npm run check:links                             # defaults to --base http://localhost:3000
+   ```
+   Checks: sitemap URLs all 200, internal links/media/PDFs resolve, canonicals 200,
+   no localhost refs, legacy series slugs 308 correctly (expectations come from
+   `src/data/series-registry.ts`). CI (`.github/workflows/link-check.yml`) also crawls
+   the **live** site on dev→main PRs, daily, and ~7 min after each push to `main`
+   (post-deploy verification) — but CI can't reach the DB, so the local run above is
+   the only true pre-release check of the candidate build.
 2. The box polls `main` on a timer (`envo-deploy.timer`, every ~3 min, plus 2 min after boot).
 3. On a new commit it: `git reset --hard origin/main` → **rebuilds the image** → swaps the container.
 4. **Build-fail-safe:** if the build fails, the box keeps the current live image. A broken

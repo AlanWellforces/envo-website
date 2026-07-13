@@ -10,6 +10,7 @@
     "typecheck": "tsc --noEmit",
     "test": "vitest run",
     "test:watch": "vitest",
+    "check:links": "tsx scripts/check-links.ts",
     "payload": "payload",
     "generate:types": "tsx --tsconfig tsconfig.json scripts/generate-types.mts",
     "generate:importmap": "tsx --tsconfig tsconfig.json scripts/generate-importmap.mts",

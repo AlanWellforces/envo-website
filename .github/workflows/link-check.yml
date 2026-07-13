@@ -1,0 +1,41 @@
+# Broken-link detection against the LIVE site (scripts/check-links.ts).
+#
+# Three triggers:
+#   - pull_request → main:  release gate — the dev→main PR shows the live
+#     site's current link health before shipping. (CI has no DB/Tailscale
+#     access, so it can't crawl the *candidate* build — run
+#     `npm run check:links` against a local build for that; see DEPLOY.md.)
+#   - push → main: the box auto-deploys ~3 min after main moves; wait it
+#     out, then crawl the freshly deployed site. This is the real
+#     post-release verification.
+#   - daily cron + manual dispatch: catch content/data drift between releases.
+#
+# If Cloudflare ever starts challenging the runner (checker UA is
+# `envo-link-check/1`), allowlist that UA in the CF dashboard.
+
+name: link-check
+
+on:
+  pull_request:
+    branches: [main]
+  push:
+    branches: [main]
+  schedule:
+    - cron: '17 18 * * *' # daily 18:17 UTC ≈ 06:17 NZT
+  workflow_dispatch:
+
+jobs:
+  check-links:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+      - run: npm ci --ignore-scripts
+      - name: Wait for the box to deploy this push
+        if: github.event_name == 'push'
+        run: sleep 420 # poll timer ~3 min + build; generous margin
+      - run: npx tsx scripts/check-links.ts --base https://envolighting.com
