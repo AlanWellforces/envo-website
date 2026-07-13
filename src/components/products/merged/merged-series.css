@@ -298,15 +298,15 @@
 .pdetail .mdl-table td a { display: inline-flex; }
 .pdetail .mdl-table td a .pdf-ico { width: 20px; height: 20px; transition: transform 0.12s ease; }
 .pdetail .mdl-table td a:hover .pdf-ico { transform: translateY(-1px) scale(1.06); }
-/* mobile: same table, narrowed to Model + the two key columns; rows past the
-   first 5 collapse behind "Show all N models" (desktop always shows all) */
-.pdetail .mdl-table .mb-more { display: none; }
+/* long series collapse to the first 5 rows behind "Show all N models" — on
+   every viewport (user 2026-07-13: 避免过长; sc_envo runs to 33 models) */
+.pdetail .mdl-table:not(.open) tr.xtr { display: none; }
+.pdetail .mdl-table .mb-more td { padding: 0; }
+.pdetail .mdl-table .mb-more button { appearance: none; width: 100%; border: 0; background: #f7f9fb; padding: 11px; font: inherit; font-size: 12px; font-weight: 600; color: var(--blue); cursor: pointer; }
+.pdetail .mdl-table .mb-more button:hover { background: rgba(0, 113, 188, 0.06); }
+/* mobile: same table, narrowed to Model + the two key columns */
 @media (max-width: 700px) {
   .pdetail .mdl-table .dsk { display: none; }
-  .pdetail .mdl-table:not(.open) tr.xtr { display: none; }
-  .pdetail .mdl-table:not(.open) .mb-more { display: table-row; }
-  .pdetail .mdl-table .mb-more td { padding: 0; }
-  .pdetail .mdl-table .mb-more button { appearance: none; width: 100%; border: 0; background: #f7f9fb; padding: 11px; font: inherit; font-size: 12px; font-weight: 600; color: var(--blue); cursor: pointer; }
   .pdetail .mdl-table .mthumb { flex-basis: 38px; height: 32px; }
   .pdetail .mdl-table .chip-cur { display: block; width: fit-content; margin: 3px 0 0; }
 }
