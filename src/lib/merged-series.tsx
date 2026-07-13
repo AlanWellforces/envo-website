@@ -444,6 +444,8 @@ export function buildMergedSeriesProps(
     variantLayout: variants.length > COLUMN_CAP ? 'rows' : 'columns',
     sharedRows,
     solutions: copy?.solutions,
-    downloads: datasheetUrl ? [{ name: `${label} datasheet`, meta: 'PDF', href: datasheetUrl }] : [],
+    downloads: datasheetUrl
+      ? [{ kind: 'Datasheet', name: `${label} datasheet`, meta: 'PDF · specifications & dimensions', href: datasheetUrl }]
+      : [],
   }
 }
