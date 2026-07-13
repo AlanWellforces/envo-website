@@ -8,8 +8,12 @@ import { useState, type ReactNode } from 'react'
 
 export type SpecTab = { id: string; label: string; content: ReactNode }
 
-export function SpecTabs({ tabs }: { tabs: SpecTab[] }) {
-  const [active, setActive] = useState(tabs[0]?.id)
+export function SpecTabs({ tabs, defaultTab }: { tabs: SpecTab[]; defaultTab?: string }) {
+  // SKU pages open on Specifications (user 2026-07-13) — engineers land on a
+  // model page to read its numbers; series pages keep Overview first.
+  const [active, setActive] = useState(
+    defaultTab && tabs.some((t) => t.id === defaultTab) ? defaultTab : tabs[0]?.id,
+  )
   if (tabs.length === 0) return null
   const current = tabs.find((t) => t.id === active) ?? tabs[0]
 
