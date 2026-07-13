@@ -24,6 +24,13 @@ const SITE_DESCRIPTION =
 
 export const metadata: Metadata = {
   metadataBase: new URL(process.env.NEXT_PUBLIC_SITE_URL || 'http://localhost:3000'),
+  // Search-engine site-ownership verification. Paste the token from the
+  // console into /opt/envo/.env and redeploy — no DNS change needed.
+  // (Google: URL-prefix property "HTML tag" method; Bing: msvalidate.01.)
+  verification: {
+    ...(process.env.GOOGLE_SITE_VERIFICATION && { google: process.env.GOOGLE_SITE_VERIFICATION }),
+    ...(process.env.BING_SITE_VERIFICATION && { other: { 'msvalidate.01': process.env.BING_SITE_VERIFICATION } }),
+  },
   title: SITE_TITLE,
   description: SITE_DESCRIPTION,
   // Site-wide share-preview fallback (LinkedIn, Slack, WeChat…). Pages with
