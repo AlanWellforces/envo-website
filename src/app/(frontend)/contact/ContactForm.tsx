@@ -2,6 +2,7 @@
 
 import { useState } from 'react'
 import styles from './page.module.css'
+import { HoneypotField } from '@/components/forms/HoneypotField'
 
 export function ContactForm() {
   const [state, setState] = useState<'idle' | 'sending' | 'sent' | 'error'>('idle')
@@ -31,6 +32,7 @@ export function ContactForm() {
 
   return (
     <form className={styles.form} onSubmit={handleSubmit}>
+      <HoneypotField />
       <div className={styles.row2}>
         <div className={styles.field}>
           <label className={styles.label} htmlFor="cf-name">Name</label>

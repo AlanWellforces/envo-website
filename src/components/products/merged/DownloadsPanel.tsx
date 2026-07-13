@@ -8,6 +8,7 @@
 // pipeline (Payload lead + Mailgun notify) with the SKU attached.
 import Link from 'next/link'
 import { useState, type FormEvent } from 'react'
+import { HoneypotField } from '@/components/forms/HoneypotField'
 
 export type DownloadFile = {
   /** type kicker, e.g. "Datasheet" — falls back to "Document" */
@@ -49,6 +50,8 @@ function RequestForm({ sku, options }: { sku: string; options: string[] }) {
           // land in the lead's "Request details" + notification email
           requestedFile: fields.requestedFile,
           model: sku,
+          // honeypot — forwarded so the API can drop bot fills
+          website: fields.website || undefined,
         }),
       })
       setState(res.ok ? 'sent' : 'error')
@@ -69,6 +72,7 @@ function RequestForm({ sku, options }: { sku: string; options: string[] }) {
 
   return (
     <form className="reqform" onSubmit={handleSubmit}>
+      <HoneypotField />
       <p className="rf-title">
         Need other files for <span className="rf-sku">{sku}</span>?
       </p>
