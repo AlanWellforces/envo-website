@@ -6,6 +6,7 @@
 
 import { getPayload, type Where } from 'payload'
 import config from '@/payload.config'
+import { relativeMediaUrl } from './media-url'
 
 export type PostCategory =
   | 'guides'
@@ -35,6 +36,21 @@ export type Post = {
 
 async function payload() {
   return getPayload({ config })
+}
+
+/**
+ * On prod Payload has a serverURL, so populated media come back with ABSOLUTE
+ * urls — which next/image rejects (remotePatterns) and broke every blog cover
+ * on the live site. Rewrite them to relative paths once, centrally, so no
+ * consumer has to remember to. See src/lib/media-url.ts for the full story.
+ */
+function normalizeMediaUrls(doc: Post): Post {
+  for (const media of [doc.cover, doc.ogImage]) {
+    if (media && typeof media === 'object' && media.url) {
+      media.url = relativeMediaUrl(media.url) ?? media.url
+    }
+  }
+  return doc
 }
 
 /**
@@ -83,7 +99,7 @@ export async function getPosts(opts: GetPostsOpts = {}): Promise<{
   })
 
   return {
-    docs: result.docs as unknown as Post[],
+    docs: (result.docs as unknown as Post[]).map(normalizeMediaUrls),
     totalDocs: result.totalDocs,
     totalPages: result.totalPages,
   }
@@ -98,7 +114,8 @@ export async function getPostBySlug(slug: string): Promise<Post | null> {
     limit: 1,
     depth: 1,
   })
-  return (result.docs[0] as unknown as Post) ?? null
+  const doc = (result.docs[0] as unknown as Post) ?? null
+  return doc ? normalizeMediaUrls(doc) : null
 }
 
 export async function getPostsByCategory(
@@ -113,7 +130,7 @@ export async function getPostsByCategory(
     limit: opts.limit ?? 24,
     depth: 1,
   })
-  return result.docs as unknown as Post[]
+  return (result.docs as unknown as Post[]).map(normalizeMediaUrls)
 }
 
 export async function getPostsByTag(
@@ -128,7 +145,7 @@ export async function getPostsByTag(
     limit: opts.limit ?? 24,
     depth: 1,
   })
-  return result.docs as unknown as Post[]
+  return (result.docs as unknown as Post[]).map(normalizeMediaUrls)
 }
 
 /** Same-category posts, excluding the supplied post. Default 3. */
@@ -150,7 +167,7 @@ export async function getRelatedPosts(
     limit: opts.limit ?? 3,
     depth: 1,
   })
-  return result.docs as unknown as Post[]
+  return (result.docs as unknown as Post[]).map(normalizeMediaUrls)
 }
 
 /** Counts per category + total. Powers the filter chips on /blog. */
