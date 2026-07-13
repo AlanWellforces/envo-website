@@ -2857,6 +2857,15 @@
          light-bin bar — every page reserves that 59px strip. */
       body { padding-left: 0; padding-top: 59px; }
       body.sidebar-collapsed { padding-left: 0; }
+      /* The desktop collapse state (persisted as envo-c-sidebar-collapsed=1)
+         must never leak into the drawer breakpoint: its rules live outside
+         any media query and `body.sidebar-collapsed .sidebar { width:64px;
+         overflow:visible }` out-specifies the plain `.sidebar { width:0 }`
+         below — pinning a 64px rail OVER page content on any phone that ever
+         set the flag (e.g. tapping the collapse button inside the drawer).
+         Re-assert the drawer geometry at the same specificity or higher. */
+      body.sidebar-collapsed .sidebar { width: 0; overflow: hidden; }
+      body.sidebar-collapsed .sidebar.open { width: 280px; }
       body.has-topsubnav { padding-top: 99px; }      /* 59px header strip + 40px sub-nav */
       .container { padding: 0 24px; }
       .sig-stats { padding: 0 24px; }
