@@ -76,33 +76,8 @@ export default async function ContactPage() {
                 registry §10; the Site Settings → address field stays in the
                 CMS untouched, so restoring = re-adding this block. */}
 
-            {/* Reassurance copy (audit item 6). Wording constraints: no numeric
-                response-time promises, supply = global authorised channels. */}
-            <div className={styles.detail}>
-              <p className={styles.detailLabel}>What to expect</p>
-              <p className={styles.detailText}>
-                Your message goes straight to our engineers and gets a personal
-                reply. The more detail you include — sign type, dimensions,
-                quantities — the more concrete the answer.
-              </p>
-            </div>
-
-            <div className={styles.detail}>
-              <p className={styles.detailLabel}>Where we supply</p>
-              <p className={styles.detailText}>
-                Projects worldwide, supplied through authorised channels.
-              </p>
-            </div>
-
-            <div className={styles.detail}>
-              <p className={styles.detailLabel}>Free layout design</p>
-              <p className={styles.detailText}>
-                Planning a sign? Attach your sign dimensions plus any drawings
-                or site photos and we&apos;ll map out modules and drivers for
-                you — or use the{' '}
-                <Link href="/free-layout-design">free layout design form</Link>.
-              </p>
-            </div>
+            {/* Reassurance copy blocks (audit item 6) built then REMOVED at
+                the user's request 2026-07-14 — don't re-add. */}
           </aside>
         </div>
 

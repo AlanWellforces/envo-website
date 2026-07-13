@@ -39,10 +39,6 @@
 
 @media (max-width: 860px) { .layout { grid-template-columns: 1fr; gap: 32px; } .row2 { grid-template-columns: 1fr; } }
 
-/* reassurance text blocks in the details panel */
-.detailText { font-size: 13.5px; font-weight: 400; color: var(--color-text-muted); margin: 0; line-height: 1.55; }
-.detailText a { color: var(--color-brand-blue); text-decoration: underline; text-underline-offset: 2px; }
-
 /* attachment drop zone — same pattern as the Free Layout form: the native
    input is stretched invisibly over the zone, so click, keyboard focus and
    drag-and-drop all work without custom JS. */
