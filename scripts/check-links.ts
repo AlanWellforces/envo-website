@@ -236,6 +236,11 @@ async function main() {
       if (raw.startsWith('#') || raw.startsWith('mailto:') || raw.startsWith('tel:') || raw.startsWith('data:')) continue
       if (!isInternal(raw, pageUrl)) continue
       const target = toBase(new URL(raw, pageUrl).href)
+      // /cdn-cgi/* is injected at the Cloudflare edge, not served by the app —
+      // email obfuscation rewrites mailto:/plain emails into
+      // /cdn-cgi/l/email-protection anchors that only a CF browser script can
+      // decode, so fetching them directly is a guaranteed 404.
+      if (new URL(target).pathname.startsWith('/cdn-cgi/')) continue
       if (!linkTargets.has(target)) linkTargets.set(target, pageUrl)
     }
   })
