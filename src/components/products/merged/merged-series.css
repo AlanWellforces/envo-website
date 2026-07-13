@@ -320,11 +320,13 @@
 /* zero the global envo.css `section { padding: 140px 0 }` that leaks onto
    these bare <section> bands (known trap) — the band-inner owns the padding */
 /* Version B (user 2026-07-06): both sections on the light page bg with ONE
-   shared card language — no dark band. A hairline divides the two. The bare
-   <section> still inherits envo.css's global section padding (140px) — zero it. */
+   shared card language — no dark band. The bare <section> still inherits
+   envo.css's global section padding (140px) — zero it. Sections separate by
+   whitespace alone (user 2026-07-13: hairline above Related removed to match
+   every other section boundary). */
 .pdetail .band { width: 100%; padding: 0; background: var(--bg); color: var(--fg); }
 .pdetail .band-inner { max-width: var(--content-max-width); margin: 0 auto; padding: 30px var(--page-gutter); }
-.pdetail .band-related .band-inner { border-top: 1px solid var(--line); padding-bottom: 44px; }
+.pdetail .band-related .band-inner { padding-bottom: 44px; }
 
 .pdetail .solutions .sol-head { margin-bottom: 16px; }
 .pdetail .solutions .eyebrow { color: var(--lime-deep); }
