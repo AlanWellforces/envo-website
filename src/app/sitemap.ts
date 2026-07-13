@@ -1,6 +1,6 @@
 import type { MetadataRoute } from 'next'
 import { listProducts } from '@/lib/products'
-// import { getAllSlugs as getAllPostSlugs } from '@/lib/posts' // blog hidden — see below
+import { getAllSlugs as getAllPostSlugs } from '@/lib/posts'
 // import { getAllProjectSlugs } from '@/lib/projects' // projects hidden — see below
 import { dbFamilyToMarketing, seriesSlug, MARKETING_FAMILIES } from '@/data/family-map'
 import { stripCctSuffix } from '@/components/products/catalogue-data'
@@ -18,15 +18,13 @@ const STATIC_PATHS = [
 // - /datasheets/<sku> PDFs — the proxy route sends X-Robots-Tag: noindex
 //   (PDFs must not compete with product pages in search results).
 // - /blog/tag/* — thin pages; crawlable via on-page links but not advertised.
-// - /blog + categories + posts — blog has no nav entry until Wei signs it off
-//   (user 2026-07-09); restore BLOG_PATHS + the posts loop below to re-expose.
 // - /products/accessories — nav-hidden family (hidden-features registry);
 //   re-add to the family loop when the family is opened up.
 
-// const BLOG_PATHS = [
-//   '/blog', '/blog/category/guides', '/blog/category/tech_insights',
-//   '/blog/category/company_news', '/blog/category/industry',
-// ]
+const BLOG_PATHS = [
+  '/blog', '/blog/category/guides', '/blog/category/tech_insights',
+  '/blog/category/company_news', '/blog/category/industry',
+]
 
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   const urls = new Set<string>()
@@ -56,11 +54,11 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     }
   } catch { /* keep static + family URLs */ }
 
-  // Blog hidden until the nav entry ships — see header note.
-  // for (const p of BLOG_PATHS) urls.add(p)
-  // try {
-  //   for (const slug of await getAllPostSlugs()) urls.add(`/blog/${slug}`)
-  // } catch { /* skip posts */ }
+  // Blog restored 2026-07-13 (user sign-off) — index + categories + posts.
+  for (const p of BLOG_PATHS) urls.add(p)
+  try {
+    for (const slug of await getAllPostSlugs()) urls.add(`/blog/${slug}`)
+  } catch { /* skip posts */ }
 
   try {
     for (const sol of await getSolutions()) urls.add(`/solutions/${sol.slug}`)

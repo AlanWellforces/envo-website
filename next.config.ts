@@ -1,5 +1,8 @@
 import { withPayload } from '@payloadcms/next/withPayload'
 import type { NextConfig } from 'next'
+// Relative import on purpose — the config loader can't resolve `@/` aliases.
+// series-registry.ts is dependency-free so it stays safe to import here.
+import { seriesRedirects } from './src/data/series-registry'
 
 const nextConfig: NextConfig = {
   output: 'standalone',
@@ -19,6 +22,11 @@ const nextConfig: NextConfig = {
       // (Supabase Storage host removed 2026-07-09 — Supabase retired; media is
       // served from the box's local disk.)
     ],
+  },
+  async redirects() {
+    // Retired series slugs 308 to their canonical pages — the list lives in
+    // src/data/series-registry.ts next to the slug rules themselves.
+    return seriesRedirects()
   },
   async headers() {
     // Payload's /api/media/file/* route sends NO Cache-Control, so every

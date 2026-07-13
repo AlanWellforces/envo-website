@@ -1,6 +1,11 @@
 export type LeadType = 'free-layout' | 'find-your-match' | 'contact'
 const TYPES: LeadType[] = ['free-layout', 'find-your-match', 'contact']
-const KNOWN = new Set(['type', 'name', 'email', 'company', 'phone', 'sourcePath', 'message', 'notes'])
+// website = honeypot, cf-turnstile-response = bot-check token — both are
+// consumed by the route's abuse guards and must never store into lead.data.
+const KNOWN = new Set([
+  'type', 'name', 'email', 'company', 'phone', 'sourcePath', 'message', 'notes',
+  'website', 'cf-turnstile-response',
+])
 
 export type NormalizedLead = {
   type: LeadType

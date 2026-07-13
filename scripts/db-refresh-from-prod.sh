@@ -17,7 +17,8 @@
 #   - Docker running (hosts your local Postgres container `envo-pg-local`)
 #   - Tailscale up — the box is SSH-reachable ONLY over Tailscale since the
 #     public-SSH lockdown (100.106.130.54)
-#   - SSH key ~/.ssh/envo_deploy_ed25519 authorized on the box
+#   - An SSH key of YOURS authorized on the box (default path
+#     ~/.ssh/envo_deploy_ed25519; override with ENVO_BOX_KEY=~/.ssh/your_key)
 set -euo pipefail
 cd "$(dirname "$0")/.."
 
@@ -26,8 +27,10 @@ IMAGE="postgres:17-alpine"
 HOST_PORT="5433"
 LOCAL_URI="postgresql://envo:envo_dev_password@host.docker.internal:${HOST_PORT}/envo_dev"
 
-BOX_SSH="root@100.106.130.54"                 # Tailscale IP (public SSH is closed)
-BOX_KEY="$HOME/.ssh/envo_deploy_ed25519"
+# Overridable so a teammate can point at THEIR OWN key without editing this file:
+#   ENVO_BOX_KEY=~/.ssh/my_envo_key ./scripts/db-refresh-from-prod.sh
+BOX_SSH="${ENVO_BOX_SSH:-root@100.106.130.54}"  # Tailscale IP (public SSH is closed)
+BOX_KEY="${ENVO_BOX_KEY:-$HOME/.ssh/envo_deploy_ed25519}"
 BOX_VOL="/var/lib/docker/volumes/envo_media/_data"
 
 WITH_MEDIA=0

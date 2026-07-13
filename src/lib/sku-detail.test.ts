@@ -15,13 +15,22 @@ describe('buildSkuDetailProps', () => {
   const current = mk({ sku: 'EV-SNG-350-24', name: 'SNG 350W 24V', power_w: 350, output_voltage_v: 24, operation_mode: 'cv', waterproof: 'ip67', spec_sheet_url: 's.pdf' })
   const sibling = mk({ sku: 'EV-SNG-350-12', name: 'SNG 300W 12V', power_w: 300, output_voltage_v: 12, operation_mode: 'cv', waterproof: 'ip67' })
 
-  it('keeps every sibling in the compare table and tags only the viewed SKU as current', () => {
+  it('keeps every sibling in the models table and tags only the viewed SKU as current', () => {
     const props = buildSkuDetailProps(DRIVERS, current, [current, sibling])
-    expect(props.variants).toHaveLength(2) // the classic series compare table
+    expect(props.variants).toHaveLength(2)
     const cur = props.variants.find((v) => v.modelCode === 'EV-SNG-350-24')!
     const sib = props.variants.find((v) => v.modelCode === 'EV-SNG-350-12')!
     expect(cur.current).toBe(true)
     expect(sib.current).toBeUndefined()
+  })
+
+  it('pins the viewed SKU first, links every sibling, and exposes the series band (2026-07-13 split)', () => {
+    const props = buildSkuDetailProps(DRIVERS, current, [sibling, current]) // series order: sibling first
+    expect(props.variants[0].modelCode).toBe('EV-SNG-350-24') // current leads regardless of series order
+    expect(props.variants[0].href).toBeUndefined() // never self-links
+    const sib = props.variants.find((v) => v.modelCode === 'EV-SNG-350-12')!
+    expect(sib.href).toBe('/products/led-drivers/EV-SNG-350-12')
+    expect(props.skuPage?.seriesEyebrow).toBeTruthy() // turns on the "All models" band
   })
 
   it('scopes the hero to the single product', () => {

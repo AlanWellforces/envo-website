@@ -4,6 +4,8 @@ import { getPayload } from 'payload'
 import config from '@payload-config'
 import { buildLeadDetails, normalizeSubmission } from '@/lib/leads/submission'
 import { notifyNewLead } from '@/lib/leads/notify'
+import { clientIp, rateLimited, isDuplicate } from '@/lib/leads/abuse-guard'
+import { verifyTurnstile } from '@/lib/leads/turnstile'
 
 // Matches the Free Layout form's advertised list: JPG · PNG · PDF · DWG · SVG.
 const SKETCH_EXT = /\.(jpe?g|png|webp|gif|pdf|svg|dwg)$/i
@@ -37,9 +39,36 @@ export async function POST(req: Request) {
     }
   }
 
+  // ── anti-abuse (2026-07-13) ─────────────────────────────────────────────
+  // Honeypot: the forms carry an offscreen "website" field no human fills.
+  // Report success so the bot learns nothing; store nothing.
+  if (typeof raw.website === 'string' && raw.website.trim() !== '') {
+    return NextResponse.json({ ok: true })
+  }
+
+  const ip = clientIp(req.headers)
+  if (rateLimited(ip)) {
+    return bad(['too many requests — please wait a few minutes and try again'], 429)
+  }
+
   const result = normalizeSubmission(raw)
   if (!result.ok) return bad(result.errors)
   const lead = result.value
+
+  // Turnstile guards the upload-bearing Free Layout form (no-op until the
+  // TURNSTILE_* keys are configured — see .env.example / DEPLOY.md).
+  if (lead.type === 'free-layout') {
+    const token = typeof raw['cf-turnstile-response'] === 'string' ? raw['cf-turnstile-response'] : undefined
+    if (!(await verifyTurnstile(token, ip))) {
+      return bad(['verification failed — please reload the page and try again'])
+    }
+  }
+
+  // Same sender, same content, minutes apart = double-click / retry spam.
+  // The first submission is already in the pipeline, so report success.
+  if (isDuplicate({ type: lead.type, email: lead.email, message: lead.message })) {
+    return NextResponse.json({ ok: true })
+  }
 
   // Cap the free-form remainder so a hostile body can't store megabytes.
   if (JSON.stringify(lead.data).length > DATA_MAX_CHARS) {
@@ -96,7 +125,16 @@ export async function POST(req: Request) {
     return bad(['please check your details and try again'])
   }
 
-  // Notify sales off the response path (best-effort; never blocks the reply).
-  after(() => notifyNewLead(lead))
+  // Notify sales off the response path (retried inside notifyNewLead; never
+  // blocks the reply). The outcome is stamped onto the lead so the admin list
+  // shows exactly which leads never reached the inbox.
+  after(async () => {
+    const status = await notifyNewLead(lead)
+    try {
+      await payload.update({ collection: 'submissions', id: createdId, data: { notify: status } })
+    } catch {
+      // the status column is observability, not truth — never let it throw
+    }
+  })
   return NextResponse.json({ ok: true, id: createdId })
 }

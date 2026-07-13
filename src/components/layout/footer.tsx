@@ -80,9 +80,7 @@ export async function Footer() {
             <h5>Company</h5>
             <ul>
               <li><Link href="/about">About ENVO</Link></li>
-              {/* Blog hidden until the content library is launch-ready — see
-                  docs/superpowers/plans/2026-07-08-hidden-features.md
-              <li><Link href="/blog">Blog</Link></li> */}
+              <li><Link href="/blog">Blog</Link></li>
             </ul>
           </div>
         </div>

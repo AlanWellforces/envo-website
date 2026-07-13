@@ -22,8 +22,11 @@ export function marketingFamilyToDbFamilies(slug: string): string[] {
   return MARKETING_FAMILIES.find((f) => f.slug === slug)?.dbFamilies ?? []
 }
 
-// Series that have a bespoke/curated page keep their existing slug.
-const SERIES_SLUG_OVERRIDES: Record<string, string> = { envo_minilux: 'mini-series' }
+// Slug identity (code → slug/href, bespoke overrides, legacy redirects) lives
+// in the dependency-free series-registry.ts so next.config.ts can import it
+// too; app code keeps importing from here.
+import { SERIES_SLUG_OVERRIDES, seriesSlug, seriesHref } from './series-registry'
+export { seriesSlug, seriesHref }
 const SLUG_TO_CODE: Record<string, string> = Object.fromEntries(
   Object.entries(SERIES_SLUG_OVERRIDES).map(([code, slug]) => [slug, code]),
 )
@@ -142,11 +145,6 @@ export function controlGearCategories(p: {
   const cats = fn ? [fn] : []
   if (zigbee) cats.push('Zigbee & Smart')
   return cats.length ? cats : ['Zigbee & Smart']
-}
-
-export function seriesSlug(code: string | null | undefined): string {
-  if (!code) return 'other'
-  return SERIES_SLUG_OVERRIDES[code] ?? code.replace(/_/g, '-')
 }
 
 export function seriesCodeFromSlug(slug: string): string | null {

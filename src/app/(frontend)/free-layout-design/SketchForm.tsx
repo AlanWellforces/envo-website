@@ -1,7 +1,14 @@
 'use client'
 
+import Script from 'next/script'
 import { useState } from 'react'
 import styles from './page.module.css'
+import { HoneypotField } from '@/components/forms/HoneypotField'
+
+// Turnstile guards this upload-bearing form only when the site key is
+// configured — locally (and until the key lands on the VPS) nothing renders
+// and the API skips verification.
+const TURNSTILE_SITE_KEY = process.env.NEXT_PUBLIC_TURNSTILE_SITE_KEY
 
 export function SketchForm() {
   const [state, setState] = useState<'idle' | 'sending' | 'sent' | 'error'>('idle')
@@ -96,6 +103,16 @@ export function SketchForm() {
         <span>Notes</span>
         <textarea name="notes" rows={3} placeholder="Brand colours, control / dimming requirements, deadline..." />
       </label>
+
+      <HoneypotField />
+
+      {TURNSTILE_SITE_KEY && (
+        <div className={styles.fieldWide}>
+          {/* the widget injects a hidden cf-turnstile-response input into the form */}
+          <div className="cf-turnstile" data-sitekey={TURNSTILE_SITE_KEY} data-appearance="interaction-only" />
+          <Script src="https://challenges.cloudflare.com/turnstile/v0/api.js" strategy="lazyOnload" />
+        </div>
+      )}
 
       <div className={`${styles.fieldWide} ${styles.formActions}`}>
         <button type="submit" className="btn btn-primary" disabled={state === 'sending' || state === 'sent'}>

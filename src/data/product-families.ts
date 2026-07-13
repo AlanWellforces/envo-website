@@ -5,6 +5,16 @@
 //   - /products catalog page       (full cards with tag / sku / pills)
 //   - /products/[slug] family page (hero, series grid, applications, etc.)
 //   - footer Products column
+import { seriesHref, seriesSlug } from './series-registry'
+
+/**
+ * Derived route identity for a live series entry. Never hand-write series
+ * slugs/hrefs here — 4 of the 5 originals drifted from the real routes and
+ * 404'd / killed the metadata lookup (fixed 2026-07-13).
+ */
+function seriesRoute(marketingFamilySlug: string, code: string) {
+  return { href: seriesHref(marketingFamilySlug, code), slug: seriesSlug(code), seriesCode: code }
+}
 
 /** Compact spec row used in the family page's "Compare all series" table. */
 export type CompareSpec = {
@@ -298,9 +308,7 @@ export const PRODUCT_FAMILIES: ProductFamily[] = [
           ipRating: 'IP66',
           bestFor: 'Shallow cabinets (30–80 mm)',
         },
-        href: '/products/led-signage-modules/mini-series',
-        slug: 'mini-series',
-        seriesCode: 'envo_minilux',
+        ...seriesRoute('led-signage-modules', 'envo_minilux'),
         subtitle: 'Backlit LED module · Signage Modules',
         description:
           'A single 0.24 W SMD 2835 LED behind a Diamondback 180° × 140° optic lens, encapsulated to IP66, on a 12 V DC constant-voltage bus. Triple, Duo and Single variants share the same chip, lens and driver — pick by how much light each unit length needs to throw.',
@@ -318,9 +326,7 @@ export const PRODUCT_FAMILIES: ProductFamily[] = [
           ipRating: 'IP65',
           bestFor: 'General signage (workhorse)',
         },
-        href: '/products/led-signage-modules/eco-series',
-        slug: 'eco-series',
-        seriesCode: 'envo_ecoglo',
+        ...seriesRoute('led-signage-modules', 'envo_ecoglo'),
         subtitle: 'Backlit LED module · Signage Modules',
         description:
           'A cost-tuned backlit LED module family for channel letters and shallow cabinets. Calibrated brightness and even diffusion across the spec, in single- through quad-LED variants — built for installers spec-ing volume jobs without compromising signage quality.',
@@ -555,9 +561,7 @@ export const PRODUCT_FAMILIES: ProductFamily[] = [
         productName: 'Linear Driver',
         shortDesc: 'Slim linear-form drivers for surface-mount and channel-letter installs.',
         image: '/assets/images/cat-drivers.png',
-        href: '/products/led-drivers/linear-series',
-        slug: 'linear-series',
-        seriesCode: 'envo_sl_us',
+        ...seriesRoute('led-drivers', 'envo_sl_us'),
         subtitle: 'Linear-form driver · LED Drivers',
         description:
           'Slim linear-form drivers for surface-mount and channel-letter installs.',
@@ -577,9 +581,7 @@ export const PRODUCT_FAMILIES: ProductFamily[] = [
         productName: 'Screw-Terminal Driver',
         shortDesc: 'Panel-mount drivers with screw terminals for tidy in-cabinet wiring.',
         image: '/assets/images/cat-drivers.png',
-        href: '/products/led-drivers/screw-terminal',
-        slug: 'screw-terminal',
-        seriesCode: 'envo_se_us',
+        ...seriesRoute('led-drivers', 'envo_se_us'),
         subtitle: 'Panel-mount driver · LED Drivers',
         description:
           'Panel-mount drivers with screw terminals for tidy in-cabinet wiring.',
@@ -645,9 +647,7 @@ export const PRODUCT_FAMILIES: ProductFamily[] = [
         productName: 'Zigbee Gateway',
         shortDesc: 'Connect ENVO drivers to Zigbee-based smart-home systems.',
         image: '/assets/images/cat-controllers.png',
-        href: '/products/control-gear/zigbee-smart',
-        slug: 'zigbee-smart',
-        seriesCode: 'envo_zigbee',
+        ...seriesRoute('control-gear', 'envo_zigbee'),
         subtitle: 'Zigbee gateway & controllers · Control Gear',
         description:
           'Connect ENVO drivers to Zigbee-based smart-home systems.',

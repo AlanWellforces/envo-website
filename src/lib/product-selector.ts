@@ -6,6 +6,7 @@ import { listProducts, resolveProductImage, type Product } from './products'
 import { datasheetHref } from './asset-url'
 import { formatDims } from './units'
 import { SELECTOR_CONFIGS, type SeriesMeta, type SelectorRow } from '@/data/selector-config'
+import { dbFamilyToMarketing, seriesHref } from '@/data/family-map'
 
 export type { SelectorRow } from '@/data/selector-config'
 
@@ -36,6 +37,7 @@ export async function getProductsForSelector(family: string): Promise<SelectorRo
   // truncate signage (73 SKUs) and drivers (113).
   const { docs } = await listProducts({ family: cfg.familyCode, limit: 500 })
   const metaByCode = new Map<string, SeriesMeta>(cfg.series.map((s) => [s.code, s]))
+  const marketing = dbFamilyToMarketing(cfg.familyCode)
 
   const rows = docs.map((p): SelectorRow => {
     const meta = p.series ? metaByCode.get(p.series) : undefined
@@ -46,7 +48,9 @@ export async function getProductsForSelector(family: string): Promise<SelectorRo
       seriesLabel: meta?.label ?? (p.series ? humanise(p.series) : '—'),
       seriesType: meta?.type ?? 'backlit',
       bestFor: meta?.bestFor ?? null,
-      detailHref: meta?.detailHref ?? null,
+      // Derived, never hand-written: a row's series page always exists because
+      // both the row and the page are generated from the same DB products.
+      detailHref: p.series && marketing ? seriesHref(marketing.slug, p.series) : null,
       voltage: voltageOf(p),
       ledCount: parseLedCount(p.name),
       power_w: p.power_w,
