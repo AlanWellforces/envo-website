@@ -27,6 +27,7 @@ function mapDoc(doc: SolutionDoc): Solution {
   return {
     slug: doc.slug,
     href: `/solutions/${doc.slug}`,
+    ...(doc.updatedAt ? { updatedAt: doc.updatedAt } : {}),
     name: doc.name,
     shortDesc: doc.shortDesc ?? '',
     longDesc: doc.longDesc ?? '',

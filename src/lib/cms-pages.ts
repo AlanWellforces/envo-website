@@ -59,8 +59,15 @@ export async function getFooterLegalPages(): Promise<{ label: string; href: stri
   }
 }
 
-export async function getAllCmsPageSlugs(): Promise<string[]> {
+/** Slug + Payload's updatedAt per CMS page — feeds the sitemap's lastModified. */
+export async function getAllCmsPageStubs(): Promise<{ slug: string; updatedAt?: string }[]> {
   const payload = await getPayload({ config })
   const res = await payload.find({ collection: 'pages', limit: 200, depth: 0 })
-  return res.docs.map((d) => d.slug).filter((s): s is string => !!s)
+  return res.docs
+    .filter((d): d is typeof d & { slug: string } => !!d.slug)
+    .map((d) => ({ slug: d.slug, updatedAt: d.updatedAt ?? undefined }))
+}
+
+export async function getAllCmsPageSlugs(): Promise<string[]> {
+  return (await getAllCmsPageStubs()).map((s) => s.slug)
 }

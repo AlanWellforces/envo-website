@@ -216,3 +216,24 @@ export async function getAllSlugs(): Promise<string[]> {
   })
   return (result.docs as unknown as { slug: string }[]).map((d) => d.slug)
 }
+
+/** Slug + last real modification per published post — feeds the sitemap.
+ *  publishedAt can post-date updatedAt (scheduled posts saved in advance),
+ *  so lastModified is whichever is later. */
+export async function getPostSitemapEntries(): Promise<
+  { slug: string; lastModified: string }[]
+> {
+  const p = await payload()
+  const result = await p.find({
+    collection: 'posts',
+    where: dateFilter(),
+    limit: 500,
+    depth: 0,
+  })
+  return (result.docs as unknown as Pick<Post, 'slug' | 'publishedAt' | 'updatedAt'>[]).map(
+    (d) => ({
+      slug: d.slug,
+      lastModified: d.updatedAt > d.publishedAt ? d.updatedAt : d.publishedAt,
+    }),
+  )
+}

@@ -10,6 +10,8 @@ import { relativeMediaUrl } from './media-url'
 
 export type Product = {
   id: number
+  /** Payload system field — present at runtime (docs are cast, not mapped). */
+  updatedAt?: string
   sku: string
   name: string
   family: string | null

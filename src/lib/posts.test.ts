@@ -10,7 +10,7 @@ vi.mock('payload', () => ({
 vi.mock('@/payload.config', () => ({ default: {} }))
 
 // Import after the mocks.
-import { getPosts, getPostBySlug, getPostsByCategory, getPostsByTag, getRelatedPosts, getAllSlugs, type Post } from './posts'
+import { getPosts, getPostBySlug, getPostsByCategory, getPostsByTag, getRelatedPosts, getAllSlugs, getPostSitemapEntries, type Post } from './posts'
 
 beforeEach(() => {
   mockFind.mockReset()
@@ -115,6 +115,33 @@ describe('getAllSlugs', () => {
 
   it('passes the public filter (published + publishedAt) directly', async () => {
     await getAllSlugs()
+    const where = findCall().where
+    expect(where.and.some((c: any) => c._status?.equals === 'published')).toBe(true)
+    expect(where.and.some((c: any) => c.publishedAt?.less_than_equal)).toBe(true)
+  })
+})
+
+describe('getPostSitemapEntries', () => {
+  it('lastModified = the later of publishedAt and updatedAt', async () => {
+    mockFind.mockResolvedValue({
+      docs: [
+        // edited after publishing → updatedAt wins
+        { slug: 'edited', publishedAt: '2026-07-01T00:00:00.000Z', updatedAt: '2026-07-10T00:00:00.000Z' },
+        // scheduled ahead, never touched since → publishedAt wins
+        { slug: 'scheduled', publishedAt: '2026-07-05T00:00:00.000Z', updatedAt: '2026-07-02T00:00:00.000Z' },
+      ],
+      totalDocs: 2,
+      totalPages: 1,
+    })
+    const result = await getPostSitemapEntries()
+    expect(result).toEqual([
+      { slug: 'edited', lastModified: '2026-07-10T00:00:00.000Z' },
+      { slug: 'scheduled', lastModified: '2026-07-05T00:00:00.000Z' },
+    ])
+  })
+
+  it('only surfaces published posts (public filter applied)', async () => {
+    await getPostSitemapEntries()
     const where = findCall().where
     expect(where.and.some((c: any) => c._status?.equals === 'published')).toBe(true)
     expect(where.and.some((c: any) => c.publishedAt?.less_than_equal)).toBe(true)
