@@ -1,0 +1,52 @@
+/* Branded 404 — mirrors the contact/resources hero language. */
+
+.hero { padding: 48px 0 8px; }
+.eyebrow {
+  display: inline-flex; align-items: center; gap: 8px;
+  font-size: 12px; font-weight: 700; letter-spacing: .18em;
+  color: var(--color-brand-blue);
+}
+.eyebrow::before { content: ''; width: 18px; height: 1.5px; background: var(--color-brand-lime); }
+.title {
+  margin: 14px 0 0;
+  font-size: clamp(34px, 5vw, 52px); line-height: 1.04;
+  letter-spacing: -.03em; font-weight: 700;
+  color: var(--color-text-primary);
+}
+.desc {
+  margin: 14px 0 0; max-width: 56ch;
+  font-size: clamp(16px, 1.4vw, 18px); line-height: 1.55;
+  color: var(--color-text-muted);
+}
+.desc a { color: var(--color-brand-blue); text-decoration: underline; text-underline-offset: 2px; }
+
+.grid {
+  display: grid; grid-template-columns: repeat(3, 1fr); gap: 14px;
+  padding: 32px 0 72px;
+}
+.card {
+  position: relative;
+  display: flex; flex-direction: column; gap: 6px;
+  padding: 20px 22px 18px;
+  background: var(--color-surface-card);
+  border: 1px solid var(--color-line-strong);
+  border-radius: 14px;
+  text-decoration: none;
+  transition: border-color .15s ease, transform .15s ease, box-shadow .15s ease;
+}
+.card:hover {
+  border-color: var(--color-brand-blue);
+  transform: translateY(-2px);
+  box-shadow: 0 12px 28px -14px rgba(0, 113, 188, .45);
+}
+.cardTitle { font-size: 15px; font-weight: 700; color: var(--color-text-primary); }
+.cardDesc { font-size: 13px; line-height: 1.5; color: var(--color-text-muted); padding-right: 20px; }
+.cardArrow {
+  position: absolute; right: 18px; top: 20px;
+  color: var(--color-brand-blue); font-weight: 600;
+  transition: transform .15s ease;
+}
+.card:hover .cardArrow { transform: translateX(3px); }
+
+@media (max-width: 900px) { .grid { grid-template-columns: repeat(2, 1fr); } }
+@media (max-width: 560px) { .grid { grid-template-columns: 1fr; } }
