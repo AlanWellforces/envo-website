@@ -55,9 +55,11 @@ export async function POST(req: Request) {
   if (!result.ok) return bad(result.errors)
   const lead = result.value
 
-  // Turnstile guards the upload-bearing Free Layout form (no-op until the
-  // TURNSTILE_* keys are configured — see .env.example / DEPLOY.md).
-  if (lead.type === 'free-layout') {
+  // Turnstile guards upload-bearing submissions: the Free Layout form always,
+  // plus any other form actually carrying a file (the contact form's
+  // attachment is optional). No-op until the TURNSTILE_* keys are configured
+  // — see .env.example / DEPLOY.md.
+  if (lead.type === 'free-layout' || file) {
     const token = typeof raw['cf-turnstile-response'] === 'string' ? raw['cf-turnstile-response'] : undefined
     if (!(await verifyTurnstile(token, ip))) {
       return bad(['verification failed — please reload the page and try again'])
@@ -78,9 +80,9 @@ export async function POST(req: Request) {
   // Validate the sketch BEFORE creating anything — a rejected file must be a
   // visible error, never a silently sketch-less "success".
   if (file) {
-    if (file.size > SKETCH_MAX_BYTES) return bad(['sketch must be 20 MB or smaller'])
+    if (file.size > SKETCH_MAX_BYTES) return bad(['attached file must be 20 MB or smaller'])
     if (!SKETCH_EXT.test(file.name)) {
-      return bad(['sketch must be a JPG, PNG, PDF, SVG or DWG file'])
+      return bad(['attached file must be a JPG, PNG, PDF, SVG or DWG file'])
     }
   }
 
@@ -97,7 +99,7 @@ export async function POST(req: Request) {
       })
       sketchId = uploaded.id
     } catch {
-      return bad(['we could not store your sketch — please try again or email it to contact@envolighting.com'])
+      return bad(['we could not store your file — please try again or email it to contact@envolighting.com'])
     }
   }
 
