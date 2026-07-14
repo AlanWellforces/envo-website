@@ -12,6 +12,8 @@ import { COMPLEMENT_FAMILIES, pickRelatedProducts } from '@/lib/related-series'
 import { stripCctSuffix } from '@/components/products/catalogue-data'
 import { SERIES_EDITORIAL } from '@/data/series-editorial.generated'
 import { seriesPurchaseLinks } from '@/data/distributors'
+import { JsonLd } from '@/components/seo/JsonLd'
+import { productPageLd, productImageUrl, type Crumb, type VariantRef } from '@/lib/structured-data'
 
 type Params = Promise<{ slug: string; series: string }>
 
@@ -296,11 +298,43 @@ export default async function SeriesDetailPage({ params }: { params: Params }) {
           productsByFamily[comp] = await getProductsByMarketingFamily(comp, { depth: 0 })
         }
         const related = pickRelatedProducts(slug, product, productsByFamily)
+
+        // JSON-LD: Product + (ProductGroup when it has siblings) + BreadcrumbList.
+        // Model-grain URL — signage collapses CCT suffixes to one page.
+        const displayCode =
+          slug === 'led-signage-modules' ? stripCctSuffix(product.sku) : product.sku
+        const skuUrl = `/products/${slug}/${displayCode}`
+        const seen = new Set<string>()
+        const variants: VariantRef[] = sameSeries
+          .map((p) => ({
+            code: slug === 'led-signage-modules' ? stripCctSuffix(p.sku) : p.sku,
+            p,
+          }))
+          .filter(({ code }) => (seen.has(code) ? false : (seen.add(code), true)))
+          .map(({ code, p }) => ({ name: p.name, sku: code, url: `/products/${slug}/${code}` }))
+        const crumbs: Crumb[] = [
+          { name: 'Home', url: '/' },
+          { name: 'Products', url: '/products' },
+          { name: family.name, url: family.href },
+          { name: displayCode, url: skuUrl },
+        ]
+        const ld = productPageLd(product, crumbs, {
+          url: skuUrl,
+          name: product.name,
+          description: product.short_description ?? product.seo_description ?? undefined,
+          imageUrl: productImageUrl(product),
+          variants,
+          seriesName: product.series ?? undefined,
+        })
+
         return (
-          <MergedSeriesPage
-            {...buildSkuDetailProps(family, product, sameSeries)}
-            related={related.length ? related : undefined}
-          />
+          <>
+            <JsonLd data={ld} />
+            <MergedSeriesPage
+              {...buildSkuDetailProps(family, product, sameSeries)}
+              related={related.length ? related : undefined}
+            />
+          </>
         )
       }
     }

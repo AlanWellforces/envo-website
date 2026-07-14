@@ -10,6 +10,8 @@ import { RevealOnScroll } from '@/components/layout/reveal-on-scroll'
 import { BackToTop } from '@/components/layout/back-to-top'
 import { PointerBlur } from '@/components/layout/PointerBlur'
 import { SITE_URL } from '@/lib/site-url'
+import { JsonLd } from '@/components/seo/JsonLd'
+import { organizationLd } from '@/lib/structured-data'
 
 // Vendored variable font (latin subset) — builds must not depend on
 // fonts.googleapis.com being reachable.
@@ -61,6 +63,7 @@ export default function RootLayout({
   return (
     <html lang="en" className={interTight.variable}>
       <body>
+        <JsonLd data={organizationLd()} />
         <PageViewBeacon />
         <RegionProvider>
           {/* Region/channel banner hidden for now (user 2026-07-08) — the
