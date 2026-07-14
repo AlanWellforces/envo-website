@@ -6,8 +6,7 @@ import { dbFamilyToMarketing, seriesSlug, MARKETING_FAMILIES } from '@/data/fami
 import { stripCctSuffix } from '@/components/products/catalogue-data'
 import { getSolutions } from '@/lib/solutions'
 import { getAllCmsPageStubs, pageHref } from '@/lib/cms-pages'
-
-const BASE = (process.env.NEXT_PUBLIC_SITE_URL || 'http://localhost:3000').replace(/\/$/, '')
+import { SITE_URL as BASE } from '@/lib/site-url'
 
 const STATIC_PATHS = [
   '', '/about', '/contact', '/products', '/solutions',
