@@ -6,6 +6,7 @@ import { getPostBySlug, getAllSlugs, getRelatedPosts, type Post } from '@/lib/po
 import { PostHeader } from '@/components/blog/PostHeader'
 import { PostCard } from '@/components/blog/PostCard'
 import { RichTextRenderer } from '@/components/blog/RichTextRenderer'
+import { SITE_URL } from '@/lib/site-url'
 
 export const revalidate = 3600
 
@@ -19,6 +20,37 @@ const CATEGORY_LABEL: Record<string, string> = {
 function coverData(cover: Post['cover']): { url: string; alt?: string } | null {
   if (typeof cover === 'number' || !cover?.url) return null
   return { url: cover.url, alt: cover.alt }
+}
+
+/** Article (BlogPosting) JSON-LD. Media URLs are relative in the app
+ *  (media-url.ts strips the origin for next/image) — schema.org requires
+ *  absolute, so everything is re-anchored on SITE_URL here. Posts have no
+ *  personal byline, so author = publisher = the ENVO organisation. */
+function articleJsonLd(post: Post, slug: string): string {
+  const abs = (u: string) => (u.startsWith('http') ? u : `${SITE_URL}${u}`)
+  const cover = coverData(post.cover)
+  const og = typeof post.ogImage === 'object' && post.ogImage?.url ? post.ogImage.url : null
+  const image = og ?? cover?.url ?? null
+  const org = { '@type': 'Organization', name: 'ENVO', url: SITE_URL }
+  const jsonLd = {
+    '@context': 'https://schema.org',
+    '@type': 'BlogPosting',
+    headline: post.title,
+    description: post.seoDescription || post.excerpt,
+    ...(image ? { image: [abs(image)] } : {}),
+    author: org,
+    publisher: {
+      ...org,
+      logo: { '@type': 'ImageObject', url: `${SITE_URL}/assets/images/logo-envo.png` },
+    },
+    datePublished: post.publishedAt,
+    // dateModified must never precede datePublished (scheduled posts are
+    // saved, then publish later without another edit).
+    dateModified: post.updatedAt > post.publishedAt ? post.updatedAt : post.publishedAt,
+    mainEntityOfPage: { '@type': 'WebPage', '@id': `${SITE_URL}/blog/${slug}` },
+  }
+  // <-escape so a "</script>" inside content can't break out of the tag.
+  return JSON.stringify(jsonLd).replace(/</g, '\\u003c')
 }
 
 export async function generateStaticParams() {
@@ -59,6 +91,10 @@ export default async function PostDetailPage(
 
   return (
     <div className="theme-light" style={{ minHeight: '100vh', background: '#f4f5f7', color: '#1a2332' }}>
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: articleJsonLd(post, slug) }}
+      />
       {/* Sticky subnav */}
       <div
         style={{

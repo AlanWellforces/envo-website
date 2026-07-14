@@ -75,6 +75,9 @@ export default async function ContactPage() {
             {/* Address block hidden (user 2026-07-09) — hidden-features
                 registry §10; the Site Settings → address field stays in the
                 CMS untouched, so restoring = re-adding this block. */}
+
+            {/* Reassurance copy blocks (audit item 6) built then REMOVED at
+                the user's request 2026-07-14 — don't re-add. */}
           </aside>
         </div>
 

@@ -2857,6 +2857,15 @@
          light-bin bar — every page reserves that 59px strip. */
       body { padding-left: 0; padding-top: 59px; }
       body.sidebar-collapsed { padding-left: 0; }
+      /* The desktop collapse state (persisted as envo-c-sidebar-collapsed=1)
+         must never leak into the drawer breakpoint: its rules live outside
+         any media query and `body.sidebar-collapsed .sidebar { width:64px;
+         overflow:visible }` out-specifies the plain `.sidebar { width:0 }`
+         below — pinning a 64px rail OVER page content on any phone that ever
+         set the flag (e.g. tapping the collapse button inside the drawer).
+         Re-assert the drawer geometry at the same specificity or higher. */
+      body.sidebar-collapsed .sidebar { width: 0; overflow: hidden; }
+      body.sidebar-collapsed .sidebar.open { width: 280px; }
       body.has-topsubnav { padding-top: 99px; }      /* 59px header strip + 40px sub-nav */
       .container { padding: 0 24px; }
       .sig-stats { padding: 0 24px; }
@@ -2903,6 +2912,20 @@
         width: 280px;
         box-shadow: 12px 0 32px -8px rgba(0,0,0,.6);
       }
+      /* Dim the page behind the open drawer; any tap on it closes (the
+         element only exists while the drawer is open — sidebar.tsx). */
+      .sidebar-backdrop {
+        position: fixed;
+        inset: 0;
+        z-index: 49;                 /* under .sidebar (50), over everything else */
+        background: rgba(3, 8, 26, .55);
+        -webkit-backdrop-filter: blur(2px);
+        backdrop-filter: blur(2px);
+        animation: sidebarBackdropIn .25s ease;
+      }
+      @keyframes sidebarBackdropIn { from { opacity: 0; } to { opacity: 1; } }
+      /* No page scroll behind the open drawer */
+      body.drawer-open { overflow: hidden; }
       /* Restore label visibility inside open drawer even if collapsed flag is set */
       .sidebar.open .sidebar-label,
       .sidebar.open .sidebar-region-body,
@@ -2928,6 +2951,9 @@
     }
     @media (min-width: 981px) {
       .mobile-header { display: none; }
+      /* Safety net: drawer opened on a phone, viewport then resized/rotated
+         past the breakpoint — the backdrop element may still be mounted. */
+      .sidebar-backdrop { display: none; }
     }
 
     /* ===== 右侧竖向 panel-dot 指示器

@@ -35,6 +35,8 @@ export type Alternative = { when: string; choose: string; href?: string }
 export type Solution = {
   slug: string
   href: string
+  /** Payload's updatedAt (ISO) — absent on the hardcoded seed objects. */
+  updatedAt?: string
   name: string
   shortDesc: string
   longDesc: string

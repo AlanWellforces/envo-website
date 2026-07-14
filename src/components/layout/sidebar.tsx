@@ -295,10 +295,29 @@ export function Sidebar() {
   const toggleRef = useRef<HTMLButtonElement>(null)
   const regionRef = useRef<HTMLDivElement>(null)
 
+  // Desktop-only class: the collapsed styling is spread through envo.css and
+  // out-specifies the mobile drawer overrides (#225 fixed the geometry, but
+  // inner styles — centred icon rows, hidden section titles — still leaked
+  // when the flag was persisted). Cheapest complete fix: never put the class
+  // on <body> below the drawer breakpoint.
   useEffect(() => {
-    document.body.classList.toggle('sidebar-collapsed', collapsed)
-    return () => document.body.classList.remove('sidebar-collapsed')
+    const mql = window.matchMedia('(min-width: 981px)')
+    const apply = () =>
+      document.body.classList.toggle('sidebar-collapsed', collapsed && mql.matches)
+    apply()
+    mql.addEventListener('change', apply)
+    return () => {
+      mql.removeEventListener('change', apply)
+      document.body.classList.remove('sidebar-collapsed')
+    }
   }, [collapsed])
+
+  // Lock page scroll while the phone drawer is open. The class is inert on
+  // desktop — its only rule lives inside the ≤980px media block.
+  useEffect(() => {
+    document.body.classList.toggle('drawer-open', open)
+    return () => document.body.classList.remove('drawer-open')
+  }, [open])
 
   // Auto-expand any parent group whose route the user is currently inside.
   // Adjust-state-during-render (not an effect) so React re-renders in place
@@ -520,6 +539,11 @@ export function Sidebar() {
           </svg>
         </Link>
       </div>
+
+      {/* Phone-drawer backdrop — rendered only while open; display:none ≥981px */}
+      {open && (
+        <div className="sidebar-backdrop" aria-hidden="true" onClick={() => setOpen(false)} />
+      )}
 
       <aside
         ref={sidebarRef}

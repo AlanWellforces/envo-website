@@ -1,7 +1,7 @@
-import Image from 'next/image'
 import { RegionShippingChip } from '@/components/region/RegionShippingChip'
 import Link from 'next/link'
 import { ArrowRight } from './icons'
+import { CertBadges } from './cert-badges'
 import { Lines } from './lines'
 import { HeroVideo } from './hero-video'
 import type { HomeHeroData } from '@/lib/home-page'
@@ -46,12 +46,7 @@ export function Hero({ data = {} }: { data?: HomeHeroData }) {
             </span>
             <RegionShippingChip />
             <span className="v4-chip cert-chip">
-              <Image src="/assets/images/certs/ce.png" alt="CE" width={25} height={20} priority />
-              <Image src="/assets/images/certs/ul.png" alt="UL" width={20} height={20} priority />
-              {/* props match the file's true 528×300 ratio (44:25 = 1.76) so
-                  Next's aspect-ratio check passes; CSS sizes it to 20px tall */}
-              <Image src="/assets/images/certs/rohs.png" alt="RoHS" width={44} height={25} priority />
-              <Image src="/assets/images/certs/tuv.png" alt="TÜV" width={20} height={20} priority />
+              <CertBadges />
             </span>
           </div>
           <div className="v4-cta-row">

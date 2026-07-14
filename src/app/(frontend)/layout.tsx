@@ -9,6 +9,9 @@ import { CursorGlow } from '@/components/layout/cursor-glow'
 import { RevealOnScroll } from '@/components/layout/reveal-on-scroll'
 import { BackToTop } from '@/components/layout/back-to-top'
 import { PointerBlur } from '@/components/layout/PointerBlur'
+import { SITE_URL } from '@/lib/site-url'
+import { JsonLd } from '@/components/seo/JsonLd'
+import { organizationLd } from '@/lib/structured-data'
 
 // Vendored variable font (latin subset) — builds must not depend on
 // fonts.googleapis.com being reachable.
@@ -23,7 +26,7 @@ const SITE_DESCRIPTION =
   'ENVO designs and manufactures professional-grade LED lighting systems that power signage and architectural illumination worldwide.'
 
 export const metadata: Metadata = {
-  metadataBase: new URL(process.env.NEXT_PUBLIC_SITE_URL || 'http://localhost:3000'),
+  metadataBase: new URL(SITE_URL),
   // Search-engine site-ownership verification. Paste the token from the
   // console into /opt/envo/.env and redeploy — no DNS change needed.
   // (Google: URL-prefix property "HTML tag" method; Bing: msvalidate.01.)
@@ -60,6 +63,7 @@ export default function RootLayout({
   return (
     <html lang="en" className={interTight.variable}>
       <body>
+        <JsonLd data={organizationLd()} />
         <PageViewBeacon />
         <RegionProvider>
           {/* Region/channel banner hidden for now (user 2026-07-08) — the

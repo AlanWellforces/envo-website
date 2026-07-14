@@ -1,13 +1,12 @@
 import type { MetadataRoute } from 'next'
 import { listProducts } from '@/lib/products'
-import { getAllSlugs as getAllPostSlugs } from '@/lib/posts'
+import { getPostSitemapEntries } from '@/lib/posts'
 // import { getAllProjectSlugs } from '@/lib/projects' // projects hidden — see below
 import { dbFamilyToMarketing, seriesSlug, MARKETING_FAMILIES } from '@/data/family-map'
 import { stripCctSuffix } from '@/components/products/catalogue-data'
 import { getSolutions } from '@/lib/solutions'
-import { getAllCmsPageSlugs, pageHref } from '@/lib/cms-pages'
-
-const BASE = (process.env.NEXT_PUBLIC_SITE_URL || 'http://localhost:3000').replace(/\/$/, '')
+import { getAllCmsPageStubs, pageHref } from '@/lib/cms-pages'
+import { SITE_URL as BASE } from '@/lib/site-url'
 
 const STATIC_PATHS = [
   '', '/about', '/contact', '/products', '/solutions',
@@ -27,11 +26,19 @@ const BLOG_PATHS = [
 ]
 
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
-  const urls = new Set<string>()
-  for (const p of STATIC_PATHS) urls.add(p)
+  // path → newest real modification date (ISO), where a source provides one.
+  // Pages with no trustworthy signal (static copy, category indexes) omit
+  // lastModified on purpose — a fake date is worse than none.
+  const urls = new Map<string, string | undefined>()
+  const add = (path: string, iso?: string) => {
+    const cur = urls.get(path)
+    urls.set(path, iso && (!cur || iso > cur) ? iso : cur)
+  }
+
+  for (const p of STATIC_PATHS) add(p)
   for (const f of MARKETING_FAMILIES) {
     if (f.slug === 'accessories') continue // nav-hidden family — see header note
-    urls.add(`/products/${f.slug}`)
+    add(`/products/${f.slug}`)
   }
 
   // Dynamic — wrapped so a DB hiccup never breaks the whole sitemap.
@@ -40,32 +47,39 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     for (const p of docs) {
       const m = dbFamilyToMarketing(p.family ?? '')
       if (!m || m.slug === 'accessories') continue
-      // Series page (Set dedupes repeats) + the per-SKU detail page that #156
+      // Series page (add() dedupes repeats) + the per-SKU detail page that #156
       // re-added for every family — mirrors generateStaticParams on
       // /products/[slug]/[series], which builds both from the same visibility
       // conditions, so every URL here is a real prerendered page.
       // The no-series "other" bucket page is gone (user 2026-07-09) — those
       // products are reachable through their SKU pages only.
-      if (p.series) urls.add(`/products/${m.slug}/${seriesSlug(p.series)}`)
+      // List pages (family, series, /products) render the products they
+      // contain, so their lastModified = newest member's updatedAt.
+      add('/products', p.updatedAt)
+      add(`/products/${m.slug}`, p.updatedAt)
+      if (p.series) add(`/products/${m.slug}/${seriesSlug(p.series)}`, p.updatedAt)
       // Signage detail pages live at the MODEL grain (#173) — the raw
       // CCT-suffixed SKU URLs are 308s and must not be advertised.
       const sku = m.slug === 'led-signage-modules' ? stripCctSuffix(p.sku) : p.sku
-      urls.add(`/products/${m.slug}/${encodeURIComponent(sku)}`)
+      add(`/products/${m.slug}/${encodeURIComponent(sku)}`, p.updatedAt)
     }
   } catch { /* keep static + family URLs */ }
 
   // Blog restored 2026-07-13 (user sign-off) — index + categories + posts.
-  for (const p of BLOG_PATHS) urls.add(p)
+  for (const p of BLOG_PATHS) add(p)
   try {
-    for (const slug of await getAllPostSlugs()) urls.add(`/blog/${slug}`)
+    for (const post of await getPostSitemapEntries()) {
+      add(`/blog/${post.slug}`, post.lastModified)
+      add('/blog', post.lastModified) // index lists the posts
+    }
   } catch { /* skip posts */ }
 
   try {
-    for (const sol of await getSolutions()) urls.add(`/solutions/${sol.slug}`)
+    for (const sol of await getSolutions()) add(`/solutions/${sol.slug}`, sol.updatedAt)
   } catch { /* skip solutions */ }
 
   try {
-    for (const slug of await getAllCmsPageSlugs()) urls.add(pageHref(slug))
+    for (const page of await getAllCmsPageStubs()) add(pageHref(page.slug), page.updatedAt)
   } catch { /* skip cms pages */ }
 
   // Projects hidden from nav + sitemap until real installs exist (only seeded demos).
@@ -74,5 +88,10 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   //   for (const slug of await getAllProjectSlugs()) urls.add(`/projects/${slug}`)
   // } catch { /* skip projects */ }
 
-  return Array.from(urls).map((path) => ({ url: `${BASE}${path}`, changeFrequency: 'weekly', priority: path === '' ? 1 : 0.7 }))
+  // No changeFrequency / priority: Google documents both as ignored, and a
+  // blanket "weekly" was noise. lastModified is emitted only where real.
+  return Array.from(urls, ([path, iso]) => ({
+    url: `${BASE}${path}`,
+    ...(iso ? { lastModified: iso } : {}),
+  }))
 }
