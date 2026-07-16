@@ -7,6 +7,12 @@
 // localhost canonicals and a localhost sitemap to search engines. sitemap.ts /
 // robots.ts are evaluated during `next build`, so a missing var aborts the
 // build and the previous release keeps running.
+// Site-wide default title/description — the root layout's metadata and the
+// homepage's page-level openGraph both read these, so they can't drift apart.
+export const SITE_TITLE = 'ENVO — Engineered Illumination'
+export const SITE_DESCRIPTION =
+  'ENVO designs and manufactures professional-grade LED lighting systems that power signage and architectural illumination worldwide.'
+
 export const SITE_URL = (() => {
   const raw = process.env.NEXT_PUBLIC_SITE_URL
   if (raw) return raw.replace(/\/$/, '')

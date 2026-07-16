@@ -69,6 +69,9 @@ const DEFAULT_OG_IMAGE = '/assets/images/hero-signage-poster.jpg'
 function cleanMetaDescription(text: string | null | undefined): string | undefined {
   if (!text) return undefined
   const cleaned = text
+    // C0/DEL control chars — Akeneo PDF extraction ships some SP-series
+    // descriptions with U+007F between every word; \s does not match it.
+    .replace(/[\x00-\x1f\x7f]+/g, ' ')
     .replace(/\s+/g, ' ')
     .replace(/\s+([,.;:!?])/g, '$1')
     .replace(/([,;])(?=[A-Za-z])/g, '$1 ')
@@ -345,7 +348,12 @@ export default async function SeriesDetailPage({ params }: { params: Params }) {
         const ld = productPageLd(product, crumbs, {
           url: skuUrl,
           name: product.name,
-          description: cleanMetaDescription(product.short_description ?? product.seo_description),
+          // No seo_description fallback: that Akeneo field still carries the
+          // retired storefront's ecommerce copy ("buy direct…, in stock"),
+          // which breaks the no-direct-sales copy rules if it reaches snippets.
+          description:
+            cleanMetaDescription(product.short_description) ??
+            `${product.name} — specifications, datasheet and where to buy.`,
           imageUrl: productImageUrl(product),
           variants,
           seriesName: product.series ? seriesLabel(product.series) : undefined,

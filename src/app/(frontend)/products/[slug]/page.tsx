@@ -6,6 +6,7 @@ import { PRODUCT_FAMILIES } from '@/data/product-families'
 import { getProductsByMarketingFamily, countProductsByMarketingFamily } from '@/lib/products'
 import { buildProductCardsFor, buildGroups } from '@/components/products/catalogue-data'
 import { CatalogueFilter } from '@/components/products/CatalogueFilter'
+import { metadataForRoute } from '@/lib/page-seo'
 import '@/components/products/products-catalogue.css'
 
 type Params = Promise<{ slug: string }>
@@ -20,7 +21,10 @@ export async function generateMetadata({ params }: { params: Params }): Promise<
   const { slug } = await params
   const family = PRODUCT_FAMILIES.find((f) => f.slug === slug)
   if (!family) return {}
-  return { title: `${family.name} — ENVO`, description: family.longDesc, alternates: { canonical: `/products/${slug}` } }
+  return metadataForRoute(`/products/${slug}`, {
+    title: `${family.name} — ENVO`,
+    description: family.longDesc,
+  })
 }
 
 export default async function ProductFamilyPage({ params }: { params: Params }) {

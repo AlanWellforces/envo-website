@@ -6,6 +6,8 @@ import { seriesRedirects } from './src/data/series-registry'
 
 const nextConfig: NextConfig = {
   output: 'standalone',
+  // Don't advertise the stack ("Next.js, Payload") in response headers.
+  poweredByHeader: false,
   images: {
     // WebP ONLY — deliberately no AVIF. Cloudflare's edge cache ignores
     // `Vary: Accept` on /_next/image (verified live 2026-07-16): whichever
@@ -47,7 +49,20 @@ const nextConfig: NextConfig = {
       key: 'Cache-Control',
       value: 'public, max-age=86400, s-maxage=2592000, stale-while-revalidate=86400',
     }
+    // Baseline security headers (live audit 2026-07-17 — none were sent).
+    // HSTS deliberately has no includeSubDomains: design.envolighting.com and
+    // any future subdomain are separate apps we can't vouch for here. SAMEORIGIN
+    // keeps Payload's live-preview iframe (same origin) working while blocking
+    // third-party embedding.
+    const securityHeaders = [
+      { key: 'Strict-Transport-Security', value: 'max-age=31536000' },
+      { key: 'X-Content-Type-Options', value: 'nosniff' },
+      { key: 'X-Frame-Options', value: 'SAMEORIGIN' },
+      { key: 'Referrer-Policy', value: 'strict-origin-when-cross-origin' },
+      { key: 'Permissions-Policy', value: 'camera=(), microphone=(), geolocation=()' },
+    ]
     return [
+      { source: '/:path*', headers: securityHeaders },
       { source: '/api/media/file/:path*', headers: [longCache] },
       { source: '/assets/:path*', headers: [longCache] },
     ]
