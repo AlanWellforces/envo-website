@@ -73,7 +73,16 @@ export async function generateMetadata(
   return {
     title: post.seoTitle || post.title,
     description: post.seoDescription || post.excerpt,
-    openGraph: ogImg ? { images: [{ url: ogImg }] } : undefined,
+    // Page-level openGraph replaces the root default wholesale — restate
+    // siteName and set the article type/url so shares carry the right card.
+    openGraph: {
+      type: 'article',
+      siteName: 'ENVO',
+      url: `/blog/${slug}`,
+      publishedTime: post.publishedAt,
+      modifiedTime: post.updatedAt,
+      ...(ogImg ? { images: [{ url: ogImg }] } : {}),
+    },
     alternates: { canonical: `/blog/${slug}` },
   }
 }

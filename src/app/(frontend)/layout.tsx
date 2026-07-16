@@ -9,7 +9,7 @@ import { CursorGlow } from '@/components/layout/cursor-glow'
 import { RevealOnScroll } from '@/components/layout/reveal-on-scroll'
 import { BackToTop } from '@/components/layout/back-to-top'
 import { PointerBlur } from '@/components/layout/PointerBlur'
-import { SITE_URL } from '@/lib/site-url'
+import { SITE_URL, SITE_TITLE, SITE_DESCRIPTION } from '@/lib/site-url'
 import { JsonLd } from '@/components/seo/JsonLd'
 import { organizationLd } from '@/lib/structured-data'
 
@@ -20,10 +20,6 @@ const interTight = localFont({
   variable: '--font-inter-tight',
   weight: '100 900',
 })
-
-const SITE_TITLE = 'ENVO — Engineered Illumination'
-const SITE_DESCRIPTION =
-  'ENVO designs and manufactures professional-grade LED lighting systems that power signage and architectural illumination worldwide.'
 
 export const metadata: Metadata = {
   metadataBase: new URL(SITE_URL),

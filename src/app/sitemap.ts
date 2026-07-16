@@ -1,6 +1,6 @@
 import type { MetadataRoute } from 'next'
 import { listProducts } from '@/lib/products'
-import { getPostSitemapEntries } from '@/lib/posts'
+import { getPostSitemapEntries, getPostCounts } from '@/lib/posts'
 // import { getAllProjectSlugs } from '@/lib/projects' // projects hidden — see below
 import { dbFamilyToMarketing, seriesSlug, MARKETING_FAMILIES } from '@/data/family-map'
 import { stripCctSuffix } from '@/components/products/catalogue-data'
@@ -20,10 +20,11 @@ const STATIC_PATHS = [
 // - /products/accessories — nav-hidden family (hidden-features registry);
 //   re-add to the family loop when the family is opened up.
 
-const BLOG_PATHS = [
-  '/blog', '/blog/category/guides', '/blog/category/tech_insights',
-  '/blog/category/company_news', '/blog/category/industry',
-]
+// Category listings are added dynamically below — only those with ≥1 published
+// post. An empty, sitemapped listing page ("No articles found") reads as thin
+// content / soft-404 to crawlers (live audit 2026-07-17).
+const BLOG_PATHS = ['/blog']
+const BLOG_CATEGORIES = ['guides', 'tech_insights', 'company_news', 'industry'] as const
 
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   // path → newest real modification date (ISO), where a source provides one.
@@ -68,6 +69,10 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   // Blog restored 2026-07-13 (user sign-off) — index + categories + posts.
   for (const p of BLOG_PATHS) add(p)
   try {
+    const counts = await getPostCounts()
+    for (const c of BLOG_CATEGORIES) {
+      if (counts[c] > 0) add(`/blog/category/${c}`)
+    }
     for (const post of await getPostSitemapEntries()) {
       add(`/blog/${post.slug}`, post.lastModified)
       add('/blog', post.lastModified) // index lists the posts
