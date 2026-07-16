@@ -7,8 +7,15 @@ import { seriesRedirects } from './src/data/series-registry'
 const nextConfig: NextConfig = {
   output: 'standalone',
   images: {
-    // Serve AVIF/WebP at display size instead of original JPG/PNG.
-    formats: ['image/avif', 'image/webp'],
+    // WebP ONLY — deliberately no AVIF. Cloudflare's edge cache ignores
+    // `Vary: Accept` on /_next/image (verified live 2026-07-16): whichever
+    // format the FIRST requester negotiated gets served to every later
+    // client, so with AVIF enabled an old Safari could receive AVIF it
+    // cannot decode (broken images). WebP decodes in every browser we
+    // support, which turns that cache quirk from a correctness bug into a
+    // non-issue. Re-add 'image/avif' only after a CF cache rule keys the
+    // cache on the Accept header.
+    formats: ['image/webp'],
     // Optimized-image responses were max-age=14400 (Next's default 4h floor),
     // so Cloudflare's edge re-fetched them through the tunnel constantly.
     // Sources are content-stable (hashed media filenames / versioned assets):
