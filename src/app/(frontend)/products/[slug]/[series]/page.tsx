@@ -11,6 +11,7 @@ import { buildSkuDetailProps } from '@/lib/sku-detail'
 import { COMPLEMENT_FAMILIES, pickRelatedProducts } from '@/lib/related-series'
 import { stripCctSuffix } from '@/components/products/catalogue-data'
 import { SERIES_EDITORIAL } from '@/data/series-editorial.generated'
+import { catalogueSeriesMetaBySlug } from '@/data/series-catalogue-meta'
 import { seriesPurchaseLinks } from '@/data/distributors'
 import { JsonLd } from '@/components/seo/JsonLd'
 import { productPageLd, productImageUrl, type Crumb, type VariantRef } from '@/lib/structured-data'
@@ -62,6 +63,20 @@ export const dynamicParams = false
 // Site-wide share-image fallback — keep in sync with the root layout default.
 const DEFAULT_OG_IMAGE = '/assets/images/hero-signage-poster.jpg'
 
+/** Akeneo short_description arrives with raw newlines and broken punctuation
+ *  ("performance ,design Open circuit,short circuit") — tidy it for the meta
+ *  description without touching numbers ("8.33A", "1,000"). */
+function cleanMetaDescription(text: string | null | undefined): string | undefined {
+  if (!text) return undefined
+  const cleaned = text
+    .replace(/\s+/g, ' ')
+    .replace(/\s+([,.;:!?])/g, '$1')
+    .replace(/([,;])(?=[A-Za-z])/g, '$1 ')
+    .trim()
+  if (!cleaned) return undefined
+  return cleaned.length > 160 ? `${cleaned.slice(0, 157).replace(/\s+\S*$/, '')}…` : cleaned
+}
+
 function detailMetadata(title: string, description: string, canonical: string, image = DEFAULT_OG_IMAGE): Metadata {
   return {
     title,
@@ -86,6 +101,11 @@ export async function generateMetadata({ params }: { params: Params }): Promise<
     ([code]) => toSeriesSlug(code) === series,
   )
   if (editorial) return detailMetadata(`${editorial[1].label} — ENVO`, editorial[1].lede, canonical)
+  // Authored catalogue meta (drivers / control gear series with no editorial
+  // entry) — without this these pages fell through to the family fallback and
+  // five series shared one duplicated title/description (audit 2026-07-16).
+  const authored = catalogueSeriesMetaBySlug(slug, series)
+  if (authored) return detailMetadata(`${authored.title} — ENVO`, authored.blurb, canonical)
   // SKU detail pages (spec-driven families): title on the product itself.
   if (SKU_DETAIL_FAMILIES.has(slug)) {
     const decoded = decodeURIComponent(series)
@@ -99,9 +119,11 @@ export async function generateMetadata({ params }: { params: Params }): Promise<
         const img = resolveProductImage(rep, DEFAULT_OG_IMAGE)
         // tab/OG title = the descriptor, no SKU (user 2026-07-09 final round)
         const descriptor = rep.name.replace(/^\s*envo\s+/i, '').trim() || code
+        // model code in the <title> disambiguates SKUs that share a descriptor
+        // in SERPs (audit 2026-07-16); H1 stays descriptor-only per 2026-07-09.
         return detailMetadata(
-          `${descriptor} — ENVO`,
-          rep.short_description ?? `${descriptor} — specifications, datasheet and where to buy.`,
+          descriptor === code ? `${code} — ENVO` : `${descriptor} (${code}) — ENVO`,
+          cleanMetaDescription(rep.short_description) ?? `${descriptor} — specifications, datasheet and where to buy.`,
           `/products/${slug}/${encodeURIComponent(code)}`,
           img.src,
         )
@@ -115,9 +137,11 @@ export async function generateMetadata({ params }: { params: Params }): Promise<
         const skuRe = new RegExp(`\\b${product.sku.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')}\\b`, 'i')
         const descriptor =
           product.name.replace(skuRe, '').replace(/^\s*envo\s+/i, '').replace(/\s{2,}/g, ' ').trim() || product.sku
+        // model code in the <title> disambiguates SKUs that share a descriptor
+        // in SERPs (audit 2026-07-16); H1 stays descriptor-only per 2026-07-09.
         return detailMetadata(
-          `${descriptor} — ENVO`,
-          product.short_description ?? `${descriptor} — specifications, datasheet and where to buy.`,
+          descriptor === product.sku ? `${product.sku} — ENVO` : `${descriptor} (${product.sku}) — ENVO`,
+          cleanMetaDescription(product.short_description) ?? `${descriptor} — specifications, datasheet and where to buy.`,
           canonical,
           img.src,
         )
@@ -321,7 +345,7 @@ export default async function SeriesDetailPage({ params }: { params: Params }) {
         const ld = productPageLd(product, crumbs, {
           url: skuUrl,
           name: product.name,
-          description: product.short_description ?? product.seo_description ?? undefined,
+          description: cleanMetaDescription(product.short_description ?? product.seo_description),
           imageUrl: productImageUrl(product),
           variants,
           seriesName: product.series ?? undefined,
