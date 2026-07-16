@@ -5,7 +5,7 @@ import { PRODUCT_FAMILIES, type SeriesLink } from '@/data/product-families'
 import { datasheetHref } from '@/lib/asset-url'
 import { formatDims } from '@/lib/units'
 import { getProduct, getProductsByMarketingFamily, resolveProductImage, type Product } from '@/lib/products'
-import { seriesSlug as toSeriesSlug } from '@/data/family-map'
+import { seriesSlug as toSeriesSlug, seriesLabel } from '@/data/family-map'
 import { buildMergedSeriesProps } from '@/lib/merged-series'
 import { buildSkuDetailProps } from '@/lib/sku-detail'
 import { COMPLEMENT_FAMILIES, pickRelatedProducts } from '@/lib/related-series'
@@ -348,7 +348,7 @@ export default async function SeriesDetailPage({ params }: { params: Params }) {
           description: cleanMetaDescription(product.short_description ?? product.seo_description),
           imageUrl: productImageUrl(product),
           variants,
-          seriesName: product.series ?? undefined,
+          seriesName: product.series ? seriesLabel(product.series) : undefined,
         })
 
         return (
