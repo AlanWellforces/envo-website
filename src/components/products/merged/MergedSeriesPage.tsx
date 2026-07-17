@@ -316,9 +316,18 @@ export default function MergedSeriesPage(p: MergedSeriesProps) {
           <div key={r.key}>
             <dt>{r.label}</dt>
             <dd className={r.cls}>
-              {r.key === 'size' || r.key === 'dimensions'
-                ? dualLine(v0[r.key] as string)
-                : (v0[r.key] as string)}
+              {r.key === 'size' || r.key === 'dimensions' ? (
+                dualLine(v0[r.key] as string)
+              ) : r.key === 'modelCode' && v0.href && !v0.current ? (
+                // Single-model series (EdgeBlade/-Flare/-Lume): this dl was the
+                // model code's only appearance — plain text left the SKU page
+                // with zero crawlable inbound links.
+                <Link href={v0.href} className="mlink">
+                  {v0.modelCode}
+                </Link>
+              ) : (
+                (v0[r.key] as string)
+              )}
             </dd>
           </div>
         ))}
@@ -449,7 +458,13 @@ export default function MergedSeriesPage(p: MergedSeriesProps) {
                   <th>{row.label}</th>
                   {p.variants.map((v) => (
                     <td key={v.modelCode ?? v.name} className={[row.cls, v.current ? 'cur' : undefined].filter(Boolean).join(' ') || undefined}>
-                      {(v[row.key] as string) ?? '—'}
+                      {row.key === 'modelCode' && v.href && !v.current ? (
+                        <Link href={v.href} className="mlink">
+                          {v.modelCode}
+                        </Link>
+                      ) : (
+                        ((v[row.key] as string) ?? '—')
+                      )}
                     </td>
                   ))}
                 </tr>

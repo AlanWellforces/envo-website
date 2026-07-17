@@ -5,7 +5,7 @@ import { PRODUCT_FAMILIES, type SeriesLink } from '@/data/product-families'
 import { datasheetHref } from '@/lib/asset-url'
 import { formatDims } from '@/lib/units'
 import { getProduct, getProductsByMarketingFamily, resolveProductImage, type Product } from '@/lib/products'
-import { seriesSlug as toSeriesSlug, seriesLabel } from '@/data/family-map'
+import { seriesSlug as toSeriesSlug } from '@/data/family-map'
 import { buildMergedSeriesProps } from '@/lib/merged-series'
 import { buildSkuDetailProps } from '@/lib/sku-detail'
 import { COMPLEMENT_FAMILIES, pickRelatedProducts } from '@/lib/related-series'
@@ -326,19 +326,25 @@ export default async function SeriesDetailPage({ params }: { params: Params }) {
         }
         const related = pickRelatedProducts(slug, product, productsByFamily)
 
-        // JSON-LD: Product + (ProductGroup when it has siblings) + BreadcrumbList.
-        // Model-grain URL — signage collapses CCT suffixes to one page.
+        // JSON-LD: Product + (ProductGroup only for TRUE variants) + Breadcrumb.
+        // Model-grain URL — signage collapses CCT suffixes to one page, and
+        // those CCT SKUs are the one genuine variant set we have. Series
+        // siblings are separate products with their own pages, NOT variants.
         const displayCode =
           slug === 'led-signage-modules' ? stripCctSuffix(product.sku) : product.sku
         const skuUrl = `/products/${slug}/${displayCode}`
-        const seen = new Set<string>()
-        const variants: VariantRef[] = sameSeries
-          .map((p) => ({
-            code: slug === 'led-signage-modules' ? stripCctSuffix(p.sku) : p.sku,
-            p,
-          }))
-          .filter(({ code }) => (seen.has(code) ? false : (seen.add(code), true)))
-          .map(({ code, p }) => ({ name: p.name, sku: code, url: `/products/${slug}/${code}` }))
+        const CCT_COLOR: Record<string, string> = { WW: 'Warm white', NW: 'Neutral white', CW: 'Cool white' }
+        const variants: VariantRef[] =
+          slug === 'led-signage-modules'
+            ? all
+                .filter((p) => stripCctSuffix(p.sku) === displayCode)
+                .map((p) => ({
+                  name: p.name,
+                  sku: p.sku,
+                  url: skuUrl,
+                  color: CCT_COLOR[p.sku.slice(displayCode.length + 1)],
+                }))
+            : []
         const crumbs: Crumb[] = [
           { name: 'Home', url: '/' },
           { name: 'Products', url: '/products' },
@@ -356,7 +362,6 @@ export default async function SeriesDetailPage({ params }: { params: Params }) {
             `${product.name} — specifications, datasheet and where to buy.`,
           imageUrl: productImageUrl(product),
           variants,
-          seriesName: product.series ? seriesLabel(product.series) : undefined,
         })
 
         return (
