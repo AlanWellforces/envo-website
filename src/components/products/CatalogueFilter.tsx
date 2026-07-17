@@ -197,7 +197,7 @@ export function CatalogueFilter({
         </div>
 
         <div className="pcat-ftitle">Filters</div>
-        {groups.length > 0 && <p className="pcat-fnote">Counts are matching {noun}.</p>}
+        {groups.length > 0 && <p className="pcat-fnote">Counts show matching {noun}.</p>}
 
         {groups.map((g) => {
           const picked = selected[g.key]?.size ?? 0

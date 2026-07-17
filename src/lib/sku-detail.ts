@@ -6,7 +6,7 @@
 // table with every sibling model, the viewed SKU tinted + tagged "Current".
 import type { Product } from '@/lib/products'
 import type { ProductFamily } from '@/data/product-families'
-import { seriesLabel } from '@/data/family-map'
+import { seriesLabel, seriesSectionTitle } from '@/data/family-map'
 import { buildMergedSeriesProps } from '@/lib/merged-series'
 import { stripCctSuffix } from '@/components/products/catalogue-data'
 import { SKU_WHERE_IT_WORKS } from '@/data/sku-where-it-works.generated'
@@ -329,7 +329,9 @@ export function buildSkuDetailProps(
   return {
     ...base,
     breadcrumb: { ...base.breadcrumb, seriesLabel: displayCode },
-    eyebrow: `${family.tag.split('·')[0].trim()} · ${seriesLabel(product.series)}`,
+    // No series in the data (the 7 sensors) → seriesLabel would say "Other";
+    // the family section ("Sensors") is the honest label instead.
+    eyebrow: `${family.tag.split('·')[0].trim()} · ${product.series ? seriesLabel(product.series) : seriesSectionTitle(family.slug, [product])}`,
     title,
     heroSubtitle: title === displayCode ? (product.short_description?.trim() ?? undefined) : displayCode,
     overview: overviewContent
@@ -368,6 +370,9 @@ export function buildSkuDetailProps(
     // 2026-07-13 spec split: Specifications tab = THIS model only (opens by
     // default); siblings render below the tabs as "All models in this series".
     // `code` rides into the Downloads tab's inline file-request form.
-    skuPage: { seriesEyebrow: seriesLabel(product.series), code: displayCode },
+    skuPage: {
+      seriesEyebrow: product.series ? seriesLabel(product.series) : seriesSectionTitle(family.slug, [product]),
+      code: displayCode,
+    },
   }
 }

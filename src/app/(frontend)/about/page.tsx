@@ -21,7 +21,7 @@ const FAMILIES = [
 
 const VALUES = [
   { title: 'Quality & reliability', desc: 'Built and tested to international standards. We pride ourselves on a commitment to quality, reliability and customer satisfaction.' },
-  { title: 'Expert, personalised advice', desc: 'From a small business owner to a large corporation, our team helps you spec the right system for the job.' },
+  { title: 'Expert, personalised advice', desc: 'From small business owners to large corporations, our team helps you spec the right system for the job.' },
   { title: 'Free layout design', desc: 'Send a sketch and our engineers return a buildable module, driver and wiring layout — at no cost.' },
 ]
 

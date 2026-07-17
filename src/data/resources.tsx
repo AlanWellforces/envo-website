@@ -20,7 +20,7 @@ export type Resource = {
 export const RESOURCES: Resource[] = [
   {
     slug: 'catalog',
-    name: 'Product Catalog',
+    name: 'Product Catalogue',
     desc: 'Explore our complete product portfolio.',
     cta: 'Download PDF',
     href: '/resources/downloads',

@@ -548,7 +548,7 @@ export const PRODUCT_FAMILIES: ProductFamily[] = [
     name: 'LED Drivers',
     shortDesc: 'Stable power. Maximum performance.',
     longDesc:
-      'Constant-voltage power supplies tuned for signage and architectural duty — wide input, low ripple, full protections, weatherproof or panel-mount.',
+      'Constant-voltage and constant-current power supplies tuned for signage and architectural duty — wide input, low ripple, full protections, weatherproof or panel-mount.',
     tag: 'Drivers · Power',
     sku: '3 series · 30–320 W',
     pills: ['3 series', '12 / 24 V', 'IP20 / IP67'],

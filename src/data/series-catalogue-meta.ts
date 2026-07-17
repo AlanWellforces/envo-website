@@ -46,7 +46,7 @@ const META: Record<string, CatalogueSeriesMeta> = {
   },
   'led-drivers:sc_envo': {
     title: 'Standard Driver Range',
-    blurb: 'The everyday CV and CC driver catalogue — linear-style supplies from 10 to 360 W across 12, 24 and 48 V.',
+    blurb: 'The everyday CV and CC driver catalogue — regular, ultra-thin, waterproof and linear supplies from 12 to 200 W at 12 or 24 V.',
     formFactor: ['linear'],
   },
   'led-drivers:envo_snpv_us': {

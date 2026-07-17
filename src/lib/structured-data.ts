@@ -14,6 +14,9 @@
 import type { Product } from './products'
 import { resolveProductImage } from './products'
 import { SITE_URL } from './site-url'
+import { marketingFamilyToDbFamilies } from '@/data/family-map'
+
+const CONTROL_GEAR_DB_FAMILIES = new Set(marketingFamilyToDbFamilies('control-gear'))
 
 const SITE = SITE_URL.replace(/\/+$/, '')
 
@@ -83,7 +86,10 @@ export function specProperties(p: Product): Spec[] {
     p.input_voltage_min_v != null && p.input_voltage_max_v != null
       ? { name: 'Input voltage', value: `${p.input_voltage_min_v}–${p.input_voltage_max_v}`, unitText: 'V' }
       : null,
-    p.operation_mode
+    // Control gear carries a stray operation_mode in the PIM data —
+    // "Operation mode: Constant voltage" on a gateway is nonsense, so the
+    // property is limited to modules and drivers (mirrors merged-series).
+    p.operation_mode && !CONTROL_GEAR_DB_FAMILIES.has(p.family ?? '')
       ? { name: 'Operation mode', value: p.operation_mode === 'cc' ? 'Constant current' : p.operation_mode === 'cv' ? 'Constant voltage' : 'CV/CC' }
       : null,
     p.length_mm != null ? { name: 'Length', value: p.length_mm, unitText: 'mm' } : null,

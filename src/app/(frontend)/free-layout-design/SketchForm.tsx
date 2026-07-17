@@ -10,6 +10,10 @@ import { HoneypotField } from '@/components/forms/HoneypotField'
 // and the API skips verification.
 const TURNSTILE_SITE_KEY = process.env.NEXT_PUBLIC_TURNSTILE_SITE_KEY
 
+// API error strings are lowercase fragments ("attached file must be…") —
+// capitalise when rendering them as a sentence of their own.
+const sentenceCase = (s: string) => s.charAt(0).toUpperCase() + s.slice(1)
+
 export function SketchForm() {
   const [state, setState] = useState<'idle' | 'sending' | 'sent' | 'error'>('idle')
   const [serverError, setServerError] = useState<string | null>(null)
@@ -54,13 +58,13 @@ export function SketchForm() {
       </label>
       <label className={styles.field}>
         <span>Phone</span>
-        <input type="tel" name="phone" placeholder="+64 21 123 4567" />
+        <input type="tel" name="phone" placeholder="+1 555 123 4567" />
       </label>
       <label className={styles.field}>
         <span>Sign type *</span>
         <select name="signType" required defaultValue="">
           <option value="" disabled>
-            Choose...
+            Choose…
           </option>
           <option value="channel-letters">Channel Letters</option>
           <option value="lightbox">Lightbox</option>
@@ -101,7 +105,7 @@ export function SketchForm() {
       </label>
       <label className={`${styles.field} ${styles.fieldWide}`}>
         <span>Notes</span>
-        <textarea name="notes" rows={3} placeholder="Brand colours, control / dimming requirements, deadline..." />
+        <textarea name="notes" rows={3} placeholder="Brand colours, control / dimming requirements, deadline…" />
       </label>
 
       <HoneypotField />
@@ -134,7 +138,8 @@ export function SketchForm() {
       )}
       {state === 'error' && (
         <div className={`${styles.fieldWide} ${styles.thanks}`} role="alert">
-          <strong>Something went wrong.</strong> {serverError ? `${serverError}. ` : ''}Please try
+          <strong>Something went wrong.</strong>{' '}
+          {serverError ? `${sentenceCase(serverError)}. ` : ''}Please try
           again, or email <a href="mailto:contact@envolighting.com">contact@envolighting.com</a>.
         </div>
       )}
