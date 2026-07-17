@@ -9,7 +9,11 @@ import { HoneypotField } from '@/components/forms/HoneypotField'
 // renders nothing (and the API skips verification) until the key is configured.
 const TURNSTILE_SITE_KEY = process.env.NEXT_PUBLIC_TURNSTILE_SITE_KEY
 
-export function ContactForm() {
+// API error strings are lowercase fragments ("attached file must be…") —
+// capitalise when rendering them as a sentence of their own.
+const sentenceCase = (s: string) => s.charAt(0).toUpperCase() + s.slice(1)
+
+export function ContactForm({ phone }: { phone?: string }) {
   const [state, setState] = useState<'idle' | 'sending' | 'sent' | 'error'>('idle')
   const [serverError, setServerError] = useState<string | null>(null)
   const [fileName, setFileName] = useState<string | null>(null)
@@ -41,7 +45,8 @@ export function ContactForm() {
     return (
       <div className={styles.sent}>
         Thanks — your message has been received. For anything urgent, reach us at{' '}
-        <a href="mailto:contact@envolighting.com">contact@envolighting.com</a> or 888.228.9138.
+        <a href="mailto:contact@envolighting.com">contact@envolighting.com</a>
+        {phone ? ` or ${phone}` : ''}.
       </div>
     )
   }
@@ -109,7 +114,7 @@ export function ContactForm() {
       </button>
       {state === 'error' && (
         <p className={styles.note} role="alert">
-          {serverError ? `${serverError}. ` : 'Something went wrong — '}please try again, or email{' '}
+          {serverError ? sentenceCase(serverError) : 'Something went wrong'} — please try again, or email{' '}
           <a href="mailto:contact@envolighting.com">contact@envolighting.com</a> directly.
         </p>
       )}

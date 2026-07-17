@@ -26,6 +26,7 @@ export function rationalePrompt(a: FymAnswers, rec: Recommendation): string {
   return [
     'You are an LED signage engineer at ENVO, a components supplier. Write ONE short, factual paragraph (max 70 words)',
     "explaining why this recommended setup suits the customer's sign. Plain, helpful, NOT salesy. Do not invent specs.",
+    'Never mention prices, stock or availability, and never promise a response time — supply is via authorised channels.',
     `Customer answers: ${JSON.stringify(a)}`,
     `Recommended (from our catalogue): ${JSON.stringify({
       module: rec.module?.product.name ?? null,
