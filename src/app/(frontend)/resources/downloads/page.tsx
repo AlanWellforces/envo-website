@@ -63,7 +63,9 @@ export default function DownloadsPage() {
           <div className={styles.noteBox}>
             Looking for a specific product datasheet? Each model lists its own PDF on its{' '}
             <Link href="/products">product page</Link>. For a full catalogue or IES pack,{' '}
-            <Link href="/contact">contact our team</Link> and we&apos;ll send it over.
+            {/* {' '} is load-bearing: SWC drops a plain same-line space when the
+                following text node contains an entity (rendered "teamand" live) */}
+            <Link href="/contact">contact our team</Link>{' '}and we&apos;ll send it over.
           </div>
         </section>
       </div>
