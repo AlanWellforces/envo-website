@@ -126,7 +126,9 @@ export function SketchForm() {
 
       {state === 'sent' && (
         <div className={`${styles.fieldWide} ${styles.thanks}`} role="status">
-          <strong>✓ Got it.</strong> We&apos;ll review your project and get back to you.
+          {/* {' '} is load-bearing: SWC drops a plain same-line space when the
+              following text node contains an entity (would render "Got it.We'll") */}
+          <strong>✓ Got it.</strong>{' '}We&apos;ll review your project and get back to you.
           For anything urgent, email <a href="mailto:contact@envolighting.com">contact@envolighting.com</a>.
         </div>
       )}
