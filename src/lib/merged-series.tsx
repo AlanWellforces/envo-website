@@ -255,10 +255,17 @@ export function buildMergedSeriesProps(
   const beam = products.map((p) => num(p.beam_angle_deg)).find(Boolean) ?? null
   if (beam) sharedRows.push({ label: 'Beam angle', value: `${beam}°` })
 
-  const efficacy = products.map((p) => num(p.efficacy_lm_w)).find(Boolean) ?? null
-  // Whole numbers only — the field is computed (lm ÷ W) and "~ 114.58 lm / W"
-  // reads as false precision next to the "~".
-  if (efficacy) sharedRows.push({ label: 'Efficacy', value: `~ ${Math.round(efficacy)} lm / W` })
+  // Efficacy genuinely differs per model AND per CCT (MiniLux: Single-NW
+  // 120.83, Duo 114.58) — taking "whichever row the DB returned first" showed
+  // a value that contradicted the same page's variant JSON-LD (external audit
+  // 2026-07-21). Show the honest rounded span instead; whole numbers only —
+  // the field is computed (lm ÷ W) and decimals read as false precision.
+  const efficacies = products.map((p) => num(p.efficacy_lm_w)).filter((e): e is number => e != null)
+  if (efficacies.length) {
+    const lo = Math.round(Math.min(...efficacies))
+    const hi = Math.round(Math.max(...efficacies))
+    sharedRows.push({ label: 'Efficacy', value: lo === hi ? `~ ${lo} lm / W` : `~ ${lo}–${hi} lm / W` })
+  }
 
   // Drivers carry IP in the per-model column instead of a shared row.
   const ipField = products.map((p) => p.waterproof).find((w) => w && /^ip\d+$/i.test(w))

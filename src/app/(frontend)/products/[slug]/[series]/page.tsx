@@ -9,7 +9,7 @@ import { seriesSlug as toSeriesSlug, seriesLabel } from '@/data/family-map'
 import { buildMergedSeriesProps } from '@/lib/merged-series'
 import { buildSkuDetailProps } from '@/lib/sku-detail'
 import { COMPLEMENT_FAMILIES, pickRelatedProducts } from '@/lib/related-series'
-import { stripCctSuffix } from '@/components/products/catalogue-data'
+import { preferNwVariant, stripCctSuffix } from '@/components/products/catalogue-data'
 import { SERIES_EDITORIAL } from '@/data/series-editorial.generated'
 import { catalogueSeriesMetaBySlug } from '@/data/series-catalogue-meta'
 import { seriesPurchaseLinks } from '@/data/distributors'
@@ -118,7 +118,7 @@ export async function generateMetadata({ params }: { params: Params }): Promise<
       const all = await getProductsByMarketingFamily(slug, { depth: 0 })
       const variants = all.filter((p) => stripCctSuffix(p.sku) === code)
       if (variants.length) {
-        const rep = variants.find((v) => /-NW$/i.test(v.sku)) ?? variants[0]
+        const rep = preferNwVariant(variants)!
         const img = resolveProductImage(rep, DEFAULT_OG_IMAGE)
         // tab/OG title = the descriptor, no SKU (user 2026-07-09 final round)
         const descriptor = rep.name.replace(/^\s*envo\s+/i, '').trim() || code
@@ -304,7 +304,7 @@ export default async function SeriesDetailPage({ params }: { params: Params }) {
           permanentRedirect(`/products/${slug}/${encodeURIComponent(code)}`)
         }
         const variants = all.filter((p) => stripCctSuffix(p.sku) === code)
-        product = variants.find((v) => /-NW$/i.test(v.sku)) ?? variants[0] ?? null
+        product = preferNwVariant(variants) ?? null
         if (product) {
           const rep = product
           sameSeries = all.filter((p) => toSeriesSlug(p.series) === toSeriesSlug(rep.series))

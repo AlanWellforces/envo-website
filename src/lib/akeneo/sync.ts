@@ -68,6 +68,35 @@ function getAmount(values: any, attr: string): number | null {
   return n != null ? parseFloat(n) : null
 }
 
+// Akeneo metric values carry {amount, unit} and the unit is whatever the PIM
+// attribute is configured in — NOT necessarily the unit our column expects.
+// Weight arrives in GRAM (signage modules weigh ~2 g), which getAmount()
+// silently stored as 2 kg (external audit 2026-07-21). Convert to kilograms.
+const WEIGHT_TO_KG: Record<string, number> = {
+  MILLIGRAM: 1e-6,
+  GRAM: 1e-3,
+  KILOGRAM: 1,
+  TON: 1e3,
+  OUNCE: 0.0283495,
+  POUND: 0.453592,
+}
+
+function getWeightKg(values: any, attr: string): number | null {
+  const d = getVal(values, attr)
+  if (d == null) return null
+  const n = typeof d === 'object' ? d?.amount : d
+  if (n == null) return null
+  const amount = parseFloat(n)
+  if (!Number.isFinite(amount)) return null
+  const unit = typeof d === 'object' ? String(d?.unit ?? 'KILOGRAM').toUpperCase() : 'KILOGRAM'
+  const factor = WEIGHT_TO_KG[unit]
+  if (factor == null) {
+    console.warn(`  ⚠ unknown weight unit "${unit}" on ${attr} — skipping value`)
+    return null
+  }
+  return amount * factor
+}
+
 function getString(values: any, attr: string, scope?: string, locale?: string): string | null {
   const d = getVal(values, attr, scope, locale)
   if (d == null) return null
@@ -148,7 +177,7 @@ export function normalise(p: any): Record<string, any> {
     length_mm:               getAmount(v, 'length'),
     width_mm:                getAmount(v, 'width'),
     height_mm:               getAmount(v, 'height'),
-    weight_kg:               getAmount(v, 'weight'),
+    weight_kg:               getWeightKg(v, 'weight'),
     waterproof:              ipMap[ipRaw.toLowerCase()] ?? null,
     temp_min_c:              getAmount(v, 'temp_min'),
     temp_max_c:              getAmount(v, 'temp_max'),
