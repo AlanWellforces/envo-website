@@ -195,4 +195,18 @@ describe('buildSkuDetailProps', () => {
     const props = buildSkuDetailProps(DRIVERS, mk({ sku: 'Y', price_nzd: 9 }), [mk({ sku: 'Y' })])
     expect(JSON.stringify(props)).not.toMatch(/nzd|"price"/i)
   })
+
+  // External audit 2026-07-21: the hero linked the -NW datasheet while the
+  // model table linked -WW, and the shared Efficacy row showed whichever
+  // variant the DB returned first — contradicting the variant JSON-LD.
+  it('model table and hero agree on the -NW representative regardless of DB order', () => {
+    const SIGNAGE = PRODUCT_FAMILIES.find((f) => f.slug === 'led-signage-modules')!
+    const ww = mk({ sku: 'EV-BLML01LBY-WW', name: 'ENVO MiniLux LED Module Backlit - Single LED', series: 'envo_minilux', spec_sheet_url: 'ww.pdf', efficacy_lm_w: 114.58 })
+    const nw = mk({ sku: 'EV-BLML01LBY-NW', name: 'ENVO MiniLux LED Module Backlit - Single LED', series: 'envo_minilux', spec_sheet_url: 'nw.pdf', efficacy_lm_w: 120.83 })
+    const props = buildSkuDetailProps(SIGNAGE, nw, [ww, nw]) // WW first = the old failure order
+    expect(props.datasheetUrl).toBe('/datasheets/EV-BLML01LBY-NW')
+    expect(props.variants[0].datasheetUrl).toBe('/datasheets/EV-BLML01LBY-NW')
+    const eff = props.sharedRows?.find((r) => r.label === 'Efficacy')
+    expect(eff?.value).toBe('~ 115–121 lm / W') // honest rounded span, no false precision
+  })
 })

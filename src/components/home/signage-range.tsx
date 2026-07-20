@@ -58,10 +58,10 @@ export function SignageRange() {
             </span>
           </Link>
           <Link className="sfeat" href="/products/control-gear">
-            <div className="eb">Smart lighting · ZigBee</div>
+            <div className="eb">Smart lighting · Zigbee</div>
             <h3>Seamless control, wide compatibility.</h3>
             <p>
-              ZigBee smart control gear for energy-efficient scenes — integrating with the systems
+              Zigbee smart control gear for energy-efficient scenes — integrating with the systems
               you already run.
             </p>
             <span className="go">

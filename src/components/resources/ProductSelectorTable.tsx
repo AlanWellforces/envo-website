@@ -98,7 +98,7 @@ export function ProductSelectorTable({
         </table>
       </div>
       <p className={styles.hint}>
-        ↗ <b>View</b> opens the series detail page; greyed = page not built yet.
+        ↗ <b>View</b> opens the series detail page.
         Need the full kit? → <Link href="/free-layout-design">Get a free layout design</Link>.
       </p>
     </div>

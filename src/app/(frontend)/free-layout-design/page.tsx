@@ -145,8 +145,8 @@ export default async function FreeLayoutDesignPage() {
           <div className={styles.step}>
             <span className={styles.stepNum}>3</span>
             <div>
-              <h3>Order or quote</h3>
-              <p>Buy the exact kit, or send the spec to our engineers for a quote and second pair of eyes.</p>
+              <h3>Source or quote</h3>
+              <p>Source the exact kit through an authorised supply channel, or send the spec to our engineers for a quote and second pair of eyes.</p>
             </div>
           </div>
         </div>

@@ -1,5 +1,6 @@
 import { getPayload } from 'payload'
 import config from '@/payload.config'
+import type { Metadata } from 'next'
 
 export const LEGAL_ROOT_SLUGS: Record<string, string> = {
   'terms-of-service': '/terms-of-service',
@@ -20,6 +21,36 @@ export type CmsPage = {
   metaDescription?: string
   updatedAt?: string
   lastUpdated?: string
+}
+
+// Site-wide share image fallback — keep in sync with the root layout default.
+const DEFAULT_OG_IMAGE = '/assets/images/hero-signage-poster.jpg'
+
+/** Metadata for a CMS-authored page (legal set + /pages/[slug]) — title and
+ *  description come from the doc, with in-code fallbacks. Page-level openGraph
+ *  replaces the root-layout default wholesale, so siteName/type/url/image are
+ *  restated here (og:url in particular is never derived from the canonical). */
+export function cmsPageMetadata(
+  page: CmsPage | null,
+  canonical: string,
+  fallbackTitle: string,
+  fallbackDescription?: string,
+): Metadata {
+  const title = page?.seoTitle ?? fallbackTitle
+  const description = page?.metaDescription ?? fallbackDescription
+  return {
+    title,
+    description,
+    alternates: { canonical },
+    openGraph: {
+      type: 'website',
+      siteName: 'ENVO',
+      title,
+      description,
+      url: canonical,
+      images: [{ url: DEFAULT_OG_IMAGE }],
+    },
+  }
 }
 
 export async function getPageBySlug(slug: string): Promise<CmsPage | null> {

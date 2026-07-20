@@ -18,6 +18,7 @@
  * of genuinely triac-dimmable drivers (SP). sr_triac is DALI — its legacy
  * "Triac" label must never surface.
  */
+import { seriesSlug } from './series-registry'
 export type CatalogueSeriesMeta = {
   /** Customer-facing card title, e.g. "SNG Waterproof High-Power Driver". */
   title: string
@@ -45,7 +46,7 @@ const META: Record<string, CatalogueSeriesMeta> = {
   },
   'led-drivers:sc_envo': {
     title: 'Standard Driver Range',
-    blurb: 'The everyday CV and CC driver catalogue — linear-style supplies from 10 to 360 W across 12, 24 and 48 V.',
+    blurb: 'The everyday CV and CC driver catalogue — regular, ultra-thin, waterproof and linear supplies from 12 to 200 W at 12 or 24 V.',
     formFactor: ['linear'],
   },
   'led-drivers:envo_snpv_us': {
@@ -91,4 +92,16 @@ export function catalogueSeriesMeta(
   code: string | null | undefined,
 ): CatalogueSeriesMeta | undefined {
   return code ? META[`${familySlug}:${code}`] : undefined
+}
+
+/** Same lookup by the series' URL-slug form (route segment) instead of the
+ *  raw code — for generateMetadata, where only the slug is available. */
+export function catalogueSeriesMetaBySlug(
+  familySlug: string,
+  slug: string,
+): CatalogueSeriesMeta | undefined {
+  const key = Object.keys(META).find(
+    (k) => k.startsWith(`${familySlug}:`) && seriesSlug(k.slice(familySlug.length + 1)) === slug,
+  )
+  return key ? META[key] : undefined
 }

@@ -614,6 +614,14 @@ function signageFacts(rep: Product, ccts: number[]): string[] {
 /** CCT suffix variants (-WW/-NW/-CW) are ONE product (user 2026-07-08). */
 export const stripCctSuffix = (sku: string) => sku.replace(/-(WW|NW|CW)$/i, '')
 
+/** The neutral-white variant is a model's canonical face. Every surface must
+ * pick the SAME representative — hero datasheet, model table, JSON-LD and
+ * catalogue card all derive per-CCT values from it. Picking "whatever the DB
+ * returned first" made the hero link a -NW datasheet while the model table
+ * linked -WW on the very same page (external audit 2026-07-21). */
+export const preferNwVariant = <T extends { sku: string }>(variants: T[]): T | undefined =>
+  variants.find((v) => /-NW$/i.test(v.sku)) ?? variants[0]
+
 /** Signage collection order = the old envo-led.com menu (user 2026-07-08):
  *  Mini → Eco → Pro (ProGlo then UltraFlare) → RGB → 24V → Sidelit. */
 const SIGNAGE_SERIES_ORDER = [
@@ -639,8 +647,7 @@ export function buildSignageProductCards(family: ProductFamily, products: Produc
   }
   return [...byModel.entries()]
     .map(([code, variants]) => {
-      // neutral-white variant is the canonical face of a model
-      const rep = variants.find((v) => /-NW$/i.test(v.sku)) ?? variants[0]
+      const rep = preferNwVariant(variants)!
       const ccts = uniq(variants.map((v) => (v.cct_k != null ? String(v.cct_k) : undefined)))
         .map(Number)
         .sort((a, b) => a - b)

@@ -48,7 +48,7 @@ export default async function ContactPage() {
         <div className={styles.layout}>
           <div className={styles.card}>
             <h2 className={styles.cardTitle}>Send a message</h2>
-            <ContactForm />
+            <ContactForm phone={phones[0]?.display} />
           </div>
 
           <aside className={styles.panel}>

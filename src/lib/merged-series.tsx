@@ -37,7 +37,10 @@ function inputVoltageDisplay(p: Product): string | null {
   const out = num(p.output_voltage_v)
   return out != null ? `${out} V DC` : null
 }
-const LED_BEADS: Record<string, number> = { Single: 1, Double: 2, Triple: 3, Quad: 4, Penta: 5 }
+// Keys are parseLedCount outputs — it emits "Duo" (MiniLux/ProGlo names), not
+// just "Double" (EcoGlo/OptiLume/UltraFlare); missing either blanks the
+// LED-beads cell for that half of the catalogue.
+const LED_BEADS: Record<string, number> = { Single: 1, Duo: 2, Double: 2, Triple: 3, Quad: 4, Penta: 5 }
 
 const num = (n: unknown): number | null => (typeof n === 'number' && !Number.isNaN(n) ? n : null)
 const uniq = <T,>(a: T[]) => [...new Set(a)]
@@ -157,7 +160,10 @@ export function buildMergedSeriesProps(
   const columnisedShared = isDrivers && isRowsLayout
 
   const variants: MergedVariant[] = models.map((m) => {
-    const beads = LED_BEADS[m.leds]
+    // LED beads are a signage-module fact. The word also matches control-gear
+    // names ("Single Colour Remote" → 1), which put a meaningless LED-beads
+    // column on remote/relay tables — hence the family guard.
+    const beads = family.slug === 'led-signage-modules' ? LED_BEADS[m.leds] : undefined
     const rep = repByCode.get(m.code)
     const colour = rep?.led_chip_colour
     const name = ledsDistinguish && m.leds !== '—' ? m.leds : colour ? colour.toUpperCase() : m.code
@@ -249,8 +255,17 @@ export function buildMergedSeriesProps(
   const beam = products.map((p) => num(p.beam_angle_deg)).find(Boolean) ?? null
   if (beam) sharedRows.push({ label: 'Beam angle', value: `${beam}°` })
 
-  const efficacy = products.map((p) => num(p.efficacy_lm_w)).find(Boolean) ?? null
-  if (efficacy) sharedRows.push({ label: 'Efficacy', value: `~ ${efficacy} lm / W` })
+  // Efficacy genuinely differs per model AND per CCT (MiniLux: Single-NW
+  // 120.83, Duo 114.58) — taking "whichever row the DB returned first" showed
+  // a value that contradicted the same page's variant JSON-LD (external audit
+  // 2026-07-21). Show the honest rounded span instead; whole numbers only —
+  // the field is computed (lm ÷ W) and decimals read as false precision.
+  const efficacies = products.map((p) => num(p.efficacy_lm_w)).filter((e): e is number => e != null)
+  if (efficacies.length) {
+    const lo = Math.round(Math.min(...efficacies))
+    const hi = Math.round(Math.max(...efficacies))
+    sharedRows.push({ label: 'Efficacy', value: lo === hi ? `~ ${lo} lm / W` : `~ ${lo}–${hi} lm / W` })
+  }
 
   // Drivers carry IP in the per-model column instead of a shared row.
   const ipField = products.map((p) => p.waterproof).find((w) => w && /^ip\d+$/i.test(w))
@@ -259,8 +274,11 @@ export function buildMergedSeriesProps(
   const lifetime = products.map((p) => num(p.lifetime_hrs)).find(Boolean) ?? null
   if (lifetime) sharedRows.push({ label: 'Lifetime', value: `${lifetime.toLocaleString()} h` })
 
-  // Skipped when the rows-layout driver table carries mode per row ("Type").
-  if (!columnisedShared) {
+  // Skipped when the rows-layout driver table carries mode per row ("Type"),
+  // and for control gear entirely — gateways/remotes/sensors carry a stray
+  // operation_mode in the PIM data, and "Operation mode: Constant voltage"
+  // on a gateway page is nonsense.
+  if (!columnisedShared && family.slug !== 'control-gear') {
     if (modes.length === 1 && modes[0] !== 'cv_cc') {
       sharedRows.push({
         label: 'Operation mode',
@@ -396,8 +414,24 @@ export function buildMergedSeriesProps(
   } else {
     // control gear / accessories — whatever identity facts the data carries
     key('input', 'Input voltage', sharedVoltage)
-    const protoDims = uniq(products.flatMap(dimmingValuesOf)).filter((d) => d !== 'none')
-    key('dimming', 'Protocol', protoDims.length ? protoDims.map((d) => DIMMING_LABEL[d]).join(' / ') : null)
+    // Protocol needs the NAME as well as dimming_control: the PIM's dimming
+    // vocabulary can never say Zigbee/Casambi, so the Zigbee series hero used
+    // to read "Protocol DALI" from its DT8 units alone (audit 2026-07-17).
+    // Same inference as catalogue-data's protocolValues.
+    const PROTOCOL_ORDER = ['zigbee', 'casambi', 'dali', 'triac', 'pwm', '0_10v'] as const
+    const PROTOCOL_LABEL: Record<string, string> = {
+      zigbee: 'Zigbee', casambi: 'Casambi', ...DIMMING_LABEL,
+    }
+    const protoDims = uniq(
+      products.flatMap((p) => {
+        const vals = new Set(dimmingValuesOf(p).filter((d) => d !== 'none'))
+        if (/zig.?bee/i.test(p.name)) vals.add('zigbee')
+        if (/dali/i.test(p.name)) vals.add('dali')
+        if (/casambi/i.test(p.name)) vals.add('casambi')
+        return [...vals]
+      }),
+    ).sort((a, b) => PROTOCOL_ORDER.indexOf(a as (typeof PROTOCOL_ORDER)[number]) - PROTOCOL_ORDER.indexOf(b as (typeof PROTOCOL_ORDER)[number]))
+    key('dimming', 'Protocol', protoDims.length ? protoDims.map((d) => PROTOCOL_LABEL[d]).join(' / ') : null)
     key('power', 'Power', powerRange)
     key('ip', 'IP rating', ipField ? ipField.toUpperCase() : null)
     key('lifetime', 'Lifetime', lifetime ? `${lifetime.toLocaleString()} h` : null)

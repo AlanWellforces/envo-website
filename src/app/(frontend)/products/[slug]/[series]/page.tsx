@@ -5,12 +5,13 @@ import { PRODUCT_FAMILIES, type SeriesLink } from '@/data/product-families'
 import { datasheetHref } from '@/lib/asset-url'
 import { formatDims } from '@/lib/units'
 import { getProduct, getProductsByMarketingFamily, resolveProductImage, type Product } from '@/lib/products'
-import { seriesSlug as toSeriesSlug } from '@/data/family-map'
+import { seriesSlug as toSeriesSlug, seriesLabel } from '@/data/family-map'
 import { buildMergedSeriesProps } from '@/lib/merged-series'
 import { buildSkuDetailProps } from '@/lib/sku-detail'
 import { COMPLEMENT_FAMILIES, pickRelatedProducts } from '@/lib/related-series'
-import { stripCctSuffix } from '@/components/products/catalogue-data'
+import { preferNwVariant, stripCctSuffix } from '@/components/products/catalogue-data'
 import { SERIES_EDITORIAL } from '@/data/series-editorial.generated'
+import { catalogueSeriesMetaBySlug } from '@/data/series-catalogue-meta'
 import { seriesPurchaseLinks } from '@/data/distributors'
 import { JsonLd } from '@/components/seo/JsonLd'
 import { productPageLd, productImageUrl, type Crumb, type VariantRef } from '@/lib/structured-data'
@@ -62,6 +63,23 @@ export const dynamicParams = false
 // Site-wide share-image fallback — keep in sync with the root layout default.
 const DEFAULT_OG_IMAGE = '/assets/images/hero-signage-poster.jpg'
 
+/** Akeneo short_description arrives with raw newlines and broken punctuation
+ *  ("performance ,design Open circuit,short circuit") — tidy it for the meta
+ *  description without touching numbers ("8.33A", "1,000"). */
+function cleanMetaDescription(text: string | null | undefined): string | undefined {
+  if (!text) return undefined
+  const cleaned = text
+    // C0/DEL control chars — Akeneo PDF extraction ships some SP-series
+    // descriptions with U+007F between every word; \s does not match it.
+    .replace(/[\x00-\x1f\x7f]+/g, ' ')
+    .replace(/\s+/g, ' ')
+    .replace(/\s+([,.;:!?])/g, '$1')
+    .replace(/([,;])(?=[A-Za-z])/g, '$1 ')
+    .trim()
+  if (!cleaned) return undefined
+  return cleaned.length > 160 ? `${cleaned.slice(0, 157).replace(/\s+\S*$/, '')}…` : cleaned
+}
+
 function detailMetadata(title: string, description: string, canonical: string, image = DEFAULT_OG_IMAGE): Metadata {
   return {
     title,
@@ -86,6 +104,11 @@ export async function generateMetadata({ params }: { params: Params }): Promise<
     ([code]) => toSeriesSlug(code) === series,
   )
   if (editorial) return detailMetadata(`${editorial[1].label} — ENVO`, editorial[1].lede, canonical)
+  // Authored catalogue meta (drivers / control gear series with no editorial
+  // entry) — without this these pages fell through to the family fallback and
+  // five series shared one duplicated title/description (audit 2026-07-16).
+  const authored = catalogueSeriesMetaBySlug(slug, series)
+  if (authored) return detailMetadata(`${authored.title} — ENVO`, authored.blurb, canonical)
   // SKU detail pages (spec-driven families): title on the product itself.
   if (SKU_DETAIL_FAMILIES.has(slug)) {
     const decoded = decodeURIComponent(series)
@@ -95,13 +118,15 @@ export async function generateMetadata({ params }: { params: Params }): Promise<
       const all = await getProductsByMarketingFamily(slug, { depth: 0 })
       const variants = all.filter((p) => stripCctSuffix(p.sku) === code)
       if (variants.length) {
-        const rep = variants.find((v) => /-NW$/i.test(v.sku)) ?? variants[0]
+        const rep = preferNwVariant(variants)!
         const img = resolveProductImage(rep, DEFAULT_OG_IMAGE)
         // tab/OG title = the descriptor, no SKU (user 2026-07-09 final round)
         const descriptor = rep.name.replace(/^\s*envo\s+/i, '').trim() || code
+        // model code in the <title> disambiguates SKUs that share a descriptor
+        // in SERPs (audit 2026-07-16); H1 stays descriptor-only per 2026-07-09.
         return detailMetadata(
-          `${descriptor} — ENVO`,
-          rep.short_description ?? `${descriptor} — specifications, datasheet and where to buy.`,
+          descriptor === code ? `${code} — ENVO` : `${descriptor} (${code}) — ENVO`,
+          cleanMetaDescription(rep.short_description) ?? `${descriptor} — specifications, datasheet and where to buy.`,
           `/products/${slug}/${encodeURIComponent(code)}`,
           img.src,
         )
@@ -115,9 +140,11 @@ export async function generateMetadata({ params }: { params: Params }): Promise<
         const skuRe = new RegExp(`\\b${product.sku.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')}\\b`, 'i')
         const descriptor =
           product.name.replace(skuRe, '').replace(/^\s*envo\s+/i, '').replace(/\s{2,}/g, ' ').trim() || product.sku
+        // model code in the <title> disambiguates SKUs that share a descriptor
+        // in SERPs (audit 2026-07-16); H1 stays descriptor-only per 2026-07-09.
         return detailMetadata(
-          `${descriptor} — ENVO`,
-          product.short_description ?? `${descriptor} — specifications, datasheet and where to buy.`,
+          descriptor === product.sku ? `${product.sku} — ENVO` : `${descriptor} (${product.sku}) — ENVO`,
+          cleanMetaDescription(product.short_description) ?? `${descriptor} — specifications, datasheet and where to buy.`,
           canonical,
           img.src,
         )
@@ -277,7 +304,7 @@ export default async function SeriesDetailPage({ params }: { params: Params }) {
           permanentRedirect(`/products/${slug}/${encodeURIComponent(code)}`)
         }
         const variants = all.filter((p) => stripCctSuffix(p.sku) === code)
-        product = variants.find((v) => /-NW$/i.test(v.sku)) ?? variants[0] ?? null
+        product = preferNwVariant(variants) ?? null
         if (product) {
           const rep = product
           sameSeries = all.filter((p) => toSeriesSlug(p.series) === toSeriesSlug(rep.series))
@@ -321,10 +348,15 @@ export default async function SeriesDetailPage({ params }: { params: Params }) {
         const ld = productPageLd(product, crumbs, {
           url: skuUrl,
           name: product.name,
-          description: product.short_description ?? product.seo_description ?? undefined,
+          // No seo_description fallback: that Akeneo field still carries the
+          // retired storefront's ecommerce copy ("buy direct…, in stock"),
+          // which breaks the no-direct-sales copy rules if it reaches snippets.
+          description:
+            cleanMetaDescription(product.short_description) ??
+            `${product.name} — specifications, datasheet and where to buy.`,
           imageUrl: productImageUrl(product),
           variants,
-          seriesName: product.series ?? undefined,
+          seriesName: product.series ? seriesLabel(product.series) : undefined,
         })
 
         return (

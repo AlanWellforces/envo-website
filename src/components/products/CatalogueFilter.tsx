@@ -37,6 +37,72 @@ const SORT_LABELS: Record<SortKey, string> = {
   'brightness-desc': 'Brightness: high to low',
 }
 
+/** The facet checkbox groups — rendered twice (desktop rail + mobile drawer),
+ *  sharing one selection/open state so a pick in either place is one pick. */
+function FacetGroups({
+  groups,
+  noun,
+  selected,
+  open,
+  onToggleOpen,
+  onToggle,
+}: {
+  groups: FacetGroup[]
+  noun: string
+  selected: Record<string, Set<string>>
+  open: Record<string, boolean>
+  onToggleOpen: (key: string) => void
+  onToggle: (groupKey: string, value: string) => void
+}) {
+  return (
+    <>
+      {groups.map((g) => {
+        const picked = selected[g.key]?.size ?? 0
+        const isOpen = open[g.key] ?? false
+        return (
+          <div key={g.key} className={`pcat-fgroup${isOpen ? '' : ' closed'}`}>
+            <h4>
+              <button
+                type="button"
+                className="pcat-fgroup-toggle"
+                aria-expanded={isOpen}
+                onClick={() => onToggleOpen(g.key)}
+              >
+                {g.label}
+                {picked > 0 && <span className="picked">{picked}</span>}
+                <svg className="caret" viewBox="0 0 24 24" aria-hidden>
+                  <path d="M6 9l6 6 6-6" />
+                </svg>
+              </button>
+            </h4>
+            {isOpen && (
+              <div className="pcat-fopts">
+                {g.options.map((o) => {
+                  const on = selected[g.key]?.has(o.value) ?? false
+                  return (
+                    <label key={o.value} className={`pcat-check${on ? ' on' : ''}`}>
+                      <input type="checkbox" checked={on} onChange={() => onToggle(g.key, o.value)} />
+                      <span className="box" aria-hidden />
+                      <span className="lab">{o.label}</span>
+                      <span className="ct" title={`${o.count} matching ${noun}`}>{o.count}</span>
+                    </label>
+                  )
+                })}
+              </div>
+            )}
+          </div>
+        )
+      })}
+    </>
+  )
+}
+
+// Phones/tablets get the results in batches — 117 full cards at once made the
+// page ~54,000 px tall (external audit 2026-07-21). Desktop keeps the full
+// list: the 3-column grid + facet rail digest it fine.
+const MOBILE_INITIAL = 12
+const MOBILE_BATCH = 24
+
 /**
  * Unified catalogue body: search + facet rail (left) and the results grid.
  * A card matches when, for every group with a selection, its values for that
@@ -91,14 +157,37 @@ export function CatalogueFilter({
       setPreset(serializeSelection(urlSelection))
     }
   }
-  // ?search=1 (mobile-header search button): the search box sits below the
-  // results on phones, so scroll it into view and focus it on arrival.
+  // ?search=1 (mobile-header search button): the ref points at the mobile
+  // bar's input (above the results since audit 2026-07-21) — scroll + focus.
   const searchInputRef = useRef<HTMLInputElement>(null)
   useEffect(() => {
     if (searchParams.get('search') == null) return
     searchInputRef.current?.scrollIntoView({ block: 'center' })
     searchInputRef.current?.focus({ preventScroll: true })
   }, [searchParams])
+
+  // ── mobile: filter drawer + batched rendering (external audit 2026-07-21:
+  // the facet rail used to render BELOW all ~117 cards, ~52,000 px down) ──
+  const [drawerOpen, setDrawerOpen] = useState(false)
+  const [isMobile, setIsMobile] = useState(false)
+  useEffect(() => {
+    const mq = window.matchMedia('(max-width: 1000px)') // .pcat-body's collapse point
+    const apply = () => setIsMobile(mq.matches)
+    apply()
+    mq.addEventListener('change', apply)
+    return () => mq.removeEventListener('change', apply)
+  }, [])
+  useEffect(() => {
+    if (!drawerOpen) return
+    const prev = document.body.style.overflow
+    document.body.style.overflow = 'hidden' // scroll-lock behind the sheet
+    const onKey = (e: KeyboardEvent) => e.key === 'Escape' && setDrawerOpen(false)
+    document.addEventListener('keydown', onKey)
+    return () => {
+      document.body.style.overflow = prev
+      document.removeEventListener('keydown', onKey)
+    }
+  }, [drawerOpen])
   // All groups open by default (user 2026-07-10; reverses the 2026-07-08
   // lead-group-only accordion) — selectors scan every facet at a glance.
   // Groups remain individually collapsible.
@@ -107,6 +196,7 @@ export function CatalogueFilter({
   )
   const toggleOpen = (key: string) => setOpen((prev) => ({ ...prev, [key]: !prev[key] }))
   const noun = resultKind === 'products' ? 'products' : 'series'
+  const nounFor = (n: number) => (resultKind === 'products' && n === 1 ? 'product' : noun)
 
   const toggle = (groupKey: string, value: string) =>
     setSelected((prev) => {
@@ -178,9 +268,24 @@ export function CatalogueFilter({
   const atPreset = !query && serializeSelection(selected) === preset
   const sectioned = showSections && sortBy === 'default' && (activeCount === 0 || atPreset)
 
+  // Batched rendering on phones/tablets; back to the first page whenever the
+  // result set changes (new filter/search/sort = a new list). Same
+  // adjust-state-during-render pattern as the URL-preset handling above.
+  const [shownCount, setShownCount] = useState(MOBILE_INITIAL)
+  const resultKey = `${query}|${sortBy}|${serializeSelection(selected)}`
+  const [appliedResultKey, setAppliedResultKey] = useState(resultKey)
+  if (appliedResultKey !== resultKey) {
+    setAppliedResultKey(resultKey)
+    setShownCount(MOBILE_INITIAL)
+  }
+  const capped = isMobile ? sorted.slice(0, shownCount) : sorted
+  const remaining = sorted.length - capped.length
+
   return (
     <div className="pcat-body">
-      <aside className="pcat-filters">
+      {/* Mobile bar — search + filter trigger ABOVE the results (audit
+          2026-07-21: both used to sit below every card). Hidden on desktop. */}
+      <div className="pcat-mbar">
         <div className="pcat-search">
           <svg viewBox="0 0 24 24" aria-hidden>
             <circle cx="11" cy="11" r="7" />
@@ -195,51 +300,43 @@ export function CatalogueFilter({
             aria-label="Search the catalogue"
           />
         </div>
+        {groups.length > 0 && (
+          <button type="button" className="pcat-mfilter" onClick={() => setDrawerOpen(true)}>
+            <svg viewBox="0 0 24 24" aria-hidden>
+              <path d="M3 5h18M6 12h12M10 19h4" />
+            </svg>
+            Filters
+            {activeCount > 0 && <span className="picked">{activeCount}</span>}
+          </button>
+        )}
+      </div>
+
+      <aside className="pcat-filters">
+        <div className="pcat-search">
+          <svg viewBox="0 0 24 24" aria-hidden>
+            <circle cx="11" cy="11" r="7" />
+            <path d="M21 21l-4.3-4.3" />
+          </svg>
+          <input
+            type="search"
+            placeholder={resultKind === 'products' ? 'Search product or SKU…' : 'Search series or model…'}
+            value={query}
+            onChange={(e) => setQuery(e.target.value)}
+            aria-label="Search the catalogue"
+          />
+        </div>
 
         <div className="pcat-ftitle">Filters</div>
-        {groups.length > 0 && <p className="pcat-fnote">Counts are matching {noun}.</p>}
+        {groups.length > 0 && <p className="pcat-fnote">Counts show matching {noun}.</p>}
 
-        {groups.map((g) => {
-          const picked = selected[g.key]?.size ?? 0
-          const isOpen = open[g.key] ?? false
-          return (
-            <div key={g.key} className={`pcat-fgroup${isOpen ? '' : ' closed'}`}>
-              <h4>
-                <button
-                  type="button"
-                  className="pcat-fgroup-toggle"
-                  aria-expanded={isOpen}
-                  onClick={() => toggleOpen(g.key)}
-                >
-                  {g.label}
-                  {picked > 0 && <span className="picked">{picked}</span>}
-                  <svg className="caret" viewBox="0 0 24 24" aria-hidden>
-                    <path d="M6 9l6 6 6-6" />
-                  </svg>
-                </button>
-              </h4>
-              {isOpen && (
-                <div className="pcat-fopts">
-                  {g.options.map((o) => {
-                    const on = selected[g.key]?.has(o.value) ?? false
-                    return (
-                      <label key={o.value} className={`pcat-check${on ? ' on' : ''}`}>
-                        <input
-                          type="checkbox"
-                          checked={on}
-                          onChange={() => toggle(g.key, o.value)}
-                        />
-                        <span className="box" aria-hidden />
-                        <span className="lab">{o.label}</span>
-                        <span className="ct" title={`${o.count} matching series`}>{o.count}</span>
-                      </label>
-                    )
-                  })}
-                </div>
-              )}
-            </div>
-          )
-        })}
+        <FacetGroups
+          groups={groups}
+          noun={noun}
+          selected={selected}
+          open={open}
+          onToggleOpen={toggleOpen}
+          onToggle={toggle}
+        />
       </aside>
 
       <section className="pcat-results">
@@ -296,12 +393,12 @@ export function CatalogueFilter({
           (() => {
             // Sectioned while the page is untouched OR still at a sidebar
             // collection preset; user narrowing/sorting flattens the list.
-            const sections = sectioned ? [...new Set(sorted.map((c) => c.section))] : []
+            const sections = sectioned ? [...new Set(capped.map((c) => c.section))] : []
             const buckets = sections.length > 1
-              ? sections.map((s) => ({ title: s, cards: sorted.filter((c) => c.section === s) }))
-              : [{ title: null as string | null, cards: sorted }]
+              ? sections.map((s) => ({ title: s, cards: capped.filter((c) => c.section === s) }))
+              : [{ title: null as string | null, cards: capped }]
             // First grid row is above the fold — eager-load those images (LCP).
-            const eager = new Set(sorted.slice(0, 4).map((c) => c.key))
+            const eager = new Set(capped.slice(0, 4).map((c) => c.key))
             return buckets.map((b) => (
               <div key={b.title ?? 'all'}>
                 {b.title && <h2 className="pcat-section">{b.title}</h2>}
@@ -392,7 +489,69 @@ export function CatalogueFilter({
             ))
           })()
         )}
+
+        {remaining > 0 && (
+          <button
+            type="button"
+            className="pcat-more"
+            onClick={() => setShownCount((n) => n + MOBILE_BATCH)}
+          >
+            Load more ({remaining} more {nounFor(remaining)})
+          </button>
+        )}
       </section>
+
+      {/* Mobile filter trigger — fixed above the thumb, always reachable no
+          matter how deep the list goes. Hidden on desktop and while open. */}
+      {groups.length > 0 && !drawerOpen && (
+        <button type="button" className="pcat-fab" onClick={() => setDrawerOpen(true)}>
+          <svg viewBox="0 0 24 24" aria-hidden>
+            <path d="M3 5h18M6 12h12M10 19h4" />
+          </svg>
+          Filters
+          {activeCount > 0 && <span className="picked">{activeCount}</span>}
+        </button>
+      )}
+
+      {/* Mobile filter drawer — bottom sheet with the same facet state. */}
+      {drawerOpen && (
+        <div className="pcat-drawer-wrap" role="dialog" aria-modal="true" aria-label="Filter the catalogue">
+          <div className="pcat-drawer-scrim" onClick={() => setDrawerOpen(false)} />
+          <div className="pcat-drawer">
+            <div className="pcat-drawer-head">
+              <span>Filters</span>
+              <button
+                type="button"
+                className="pcat-drawer-x"
+                onClick={() => setDrawerOpen(false)}
+                aria-label="Close filters"
+              >
+                ×
+              </button>
+            </div>
+            <div className="pcat-drawer-body">
+              <FacetGroups
+                groups={groups}
+                noun={noun}
+                selected={selected}
+                open={open}
+                onToggleOpen={toggleOpen}
+                onToggle={toggle}
+              />
+            </div>
+            <div className="pcat-drawer-foot">
+              {activeCount > 0 && (
+                <button type="button" className="pcat-clear" onClick={reset}>
+                  Clear all
+                </button>
+              )}
+              <button type="button" className="pcat-drawer-apply" onClick={() => setDrawerOpen(false)}>
+                Show {visible.length} {nounFor(visible.length)}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   )
 }
