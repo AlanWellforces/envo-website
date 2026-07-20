@@ -258,14 +258,59 @@ div:first-child > .pcat-section { margin-top:0; }
 }
 .pcat-product-card:hover .pcat-card-go span { transform:translateX(4px); }
 
+/* ── mobile catalogue chrome (external audit 2026-07-21: search + facets
+   rendered BELOW all ~117 cards, ~52,000 px down — undiscoverable). Under
+   1000px the rail becomes: a search bar + Filters button above the results,
+   a fixed thumb-reach Filters pill, and a bottom-sheet drawer. ── */
+.pcat-mbar { display:none; }
+.pcat-fab { display:none; }
+.pcat-drawer-wrap { display:none; }
+
+.pcat-more { display:block; width:100%; margin-top:18px; padding:12px; appearance:none; cursor:pointer;
+  font-family:inherit; font-size:13px; font-weight:600; color:var(--envo-blue);
+  background:var(--bg-card); border:1px solid var(--line-strong); border-radius:10px; }
+.pcat-more:hover { border-color:var(--envo-blue); }
+
 @media (max-width:1000px) {
   .pcat-body { grid-template-columns:1fr; gap:16px; }
-  .pcat-filters { position:static; padding:0 0 6px; max-height:none; overflow:visible; }
+  .pcat-filters { display:none; } /* facets live in the drawer below 1000px */
   .pcat .breadcrumb { display:flex; align-items:center; flex-wrap:wrap; }
+
+  .pcat-mbar { display:flex; gap:8px; align-items:stretch; }
+  .pcat-mbar .pcat-search { flex:1; margin-bottom:0; }
+  .pcat-mfilter { display:inline-flex; align-items:center; gap:6px; appearance:none; cursor:pointer;
+    font-family:inherit; font-size:12.5px; font-weight:600; color:var(--fg-mute);
+    background:var(--bg-card); border:1px solid var(--line-strong); border-radius:9px; padding:8px 13px; }
+  .pcat-mfilter svg, .pcat-fab svg { width:14px; height:14px; stroke:currentColor; fill:none; stroke-width:2; stroke-linecap:round; }
+  .pcat-mfilter .picked, .pcat-fab .picked { background:var(--envo-blue); color:#fff; font-size:10px; font-weight:700;
+    min-width:16px; height:16px; padding:0 5px; border-radius:999px; display:inline-flex; align-items:center; justify-content:center; }
+
+  /* mobile header is z-index 60; sit above it but under the drawer */
+  .pcat-fab { position:fixed; left:50%; transform:translateX(-50%); bottom:18px; z-index:70;
+    display:inline-flex; align-items:center; gap:7px; appearance:none; cursor:pointer;
+    font-family:inherit; font-size:13px; font-weight:600; color:#fff;
+    background:var(--envo-blue); border:0; border-radius:999px; padding:11px 20px;
+    box-shadow:0 10px 24px -8px rgba(0,60,120,.5); }
+
+  .pcat-drawer-wrap { display:block; position:fixed; inset:0; z-index:80; }
+  .pcat-drawer-scrim { position:absolute; inset:0; background:rgba(15,25,40,.45); }
+  .pcat-drawer { position:absolute; left:0; right:0; bottom:0; max-height:78vh;
+    display:flex; flex-direction:column; background:var(--bg, #fff);
+    border-radius:16px 16px 0 0; box-shadow:0 -12px 40px -12px rgba(15,25,40,.35); }
+  .pcat-drawer-head { display:flex; align-items:center; justify-content:space-between;
+    padding:14px 18px 10px; border-bottom:1px solid var(--line);
+    font-size:13px; font-weight:700; color:var(--fg); }
+  .pcat-drawer-x { appearance:none; border:0; background:none; cursor:pointer; color:var(--fg-mute);
+    font-size:22px; line-height:1; padding:2px 6px; }
+  .pcat-drawer-body { overflow-y:auto; overscroll-behavior:contain; padding:2px 18px 10px; }
+  .pcat-drawer-foot { display:flex; align-items:center; gap:12px; padding:12px 18px;
+    padding-bottom:calc(12px + env(safe-area-inset-bottom)); border-top:1px solid var(--line); }
+  .pcat-drawer-foot .pcat-clear { flex:none; }
+  .pcat-drawer-apply { flex:1; appearance:none; border:0; cursor:pointer; font-family:inherit;
+    font-size:13.5px; font-weight:700; color:#fff; background:var(--envo-blue);
+    border-radius:10px; padding:12px 16px; }
 }
 @media (max-width:680px) {
-  .pcat-results { order:1; }
-  .pcat-filters { order:2; }
   .pcat-row { grid-template-columns:1fr; gap:12px; }
   .pcat-row-media { flex-direction:row; width:auto; justify-content:flex-start; }
   .pcat-row-side { flex-direction:row; align-items:center; gap:12px; }
@@ -273,4 +318,7 @@ div:first-child > .pcat-section { margin-top:0; }
   .pcat-product-card { grid-template-rows:200px 1fr auto; }
   .pcat-product-media { height:200px; }
   .pcat-product-media img { height:168px; }
+  /* Phones lead with the hard facts (model, power, voltage, IP chips) — the
+     marketing blurb is what made every card ~450 px tall (audit 2026-07-21). */
+  .pcat-product-desc { display:none; }
 }

@@ -14,7 +14,8 @@
     "payload": "payload",
     "generate:types": "tsx --tsconfig tsconfig.json scripts/generate-types.mts",
     "generate:importmap": "tsx --tsconfig tsconfig.json scripts/generate-importmap.mts",
-    "postinstall": "patch-package"
+    "postinstall": "patch-package",
+    "validate:products": "tsx --tsconfig tsconfig.json scripts/validate-product-data.ts"
   },
   "dependencies": {
     "@anthropic-ai/sdk": "^0.100.1",

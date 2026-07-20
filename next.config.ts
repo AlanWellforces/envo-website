@@ -33,9 +33,23 @@ const nextConfig: NextConfig = {
     ],
   },
   async redirects() {
-    // Retired series slugs 308 to their canonical pages — the list lives in
-    // src/data/series-registry.ts next to the slug rules themselves.
-    return seriesRedirects()
+    return [
+      // www → apex, origin-side backstop (external audit 2026-07-21:
+      // https://www.envolighting.com served 200 instead of redirecting).
+      // The canonical fix is a Cloudflare redirect rule + "Always Use HTTPS"
+      // (Lenny — CF also owns http→https, which never reaches this origin
+      // config); this keeps the duplicate host from resolving even before
+      // that lands. Host changes on redirect, so no loop is possible.
+      {
+        source: '/:path*',
+        has: [{ type: 'host', value: 'www.envolighting.com' }],
+        destination: 'https://envolighting.com/:path*',
+        permanent: true,
+      },
+      // Retired series slugs 308 to their canonical pages — the list lives in
+      // src/data/series-registry.ts next to the slug rules themselves.
+      ...seriesRedirects(),
+    ]
   },
   async headers() {
     // Payload's /api/media/file/* route sends NO Cache-Control, so every

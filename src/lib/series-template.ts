@@ -2,6 +2,7 @@ import type { Product } from './products'
 import { resolveProductImage } from './products'
 import { datasheetHref } from './asset-url'
 import { parseLedCount } from './product-selector'
+import { preferNwVariant } from '@/components/products/catalogue-data'
 import { SERIES_EDITORIAL } from '@/data/series-editorial.generated'
 
 export type SeriesModel = {
@@ -29,9 +30,14 @@ export function groupSeriesModels(products: Product[]): SeriesModel[] {
   }
   const rows: SeriesModel[] = []
   for (const [code, skus] of byCode) {
-    const rep = skus[0]
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    const productName: string | null = (rep as any).productName ?? null
+    // Same canonical rep as the SKU page hero / JSON-LD — an arbitrary skus[0]
+    // made the model table link -WW datasheets under a -NW hero link.
+    const rep = preferNwVariant(skus)!
+    // productName may be authored on only SOME CCT variants — take it from
+    // whichever carries it, so the rep switch can't drop the model label.
+    const productName: string | null =
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      skus.map((s) => (s as any).productName as string | null).find(Boolean) ?? null
     const labelSource: string = productName ?? rep.name
     const lwh = [num(rep.length_mm), num(rep.width_mm), num(rep.height_mm)]
     rows.push({
