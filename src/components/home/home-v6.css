@@ -223,7 +223,7 @@
 .va-item:first-child { border-left: 0; padding-left: 0; }
 .va-top { display: flex; align-items: center; margin-bottom: 16px; }
 .va-ic svg { width: 23px; height: 23px; color: #5f7700; }
-.va-item h3 { font: 700 15px/1.2 var(--font-sans); color: var(--v4-ink); margin: 0 0 8px; letter-spacing: -.012em; white-space: nowrap; }
+.va-item .va-t { font: 700 15px/1.2 var(--font-sans); color: var(--v4-ink); margin: 0 0 8px; letter-spacing: -.012em; white-space: nowrap; }
 .va-item p { font: 500 13px/1.6 var(--font-sans); color: var(--v4-muted); margin: 0; }
 
 /* --- shop by category (feature card + stacked side cards) --- */
@@ -361,7 +361,7 @@
   .va-item { border-left: 0; padding: 4px 0 18px; }
   /* let headings wrap in the 2-col layout — nowrap headings push the grid's
      min-content past 375px and phones zoom the whole page out to fit */
-  .va-item h3 { white-space: normal; }
+  .va-item .va-t { white-space: normal; }
   .mk-cat-grid, .sgrid, .sfeat-grid, .pj-grid, .wd-grid { grid-template-columns: 1fr; }
   /* mobile: text block on top, scene photo below it (its baked-in studio bg
      blends with the card), instead of text over the bright letter */

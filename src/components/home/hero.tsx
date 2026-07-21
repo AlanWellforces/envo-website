@@ -47,6 +47,10 @@ export function Hero({ data = {} }: { data?: HomeHeroData }) {
             <RegionShippingChip />
             <span className="v4-chip cert-chip">
               <CertBadges />
+              {/* The bare mark alts (CE, UL…) don't tell assistive tech what
+                  the site-wide copy rule requires: certifications cover
+                  selected ranges only, not the whole catalogue (#151). */}
+              <span className="sr-only">certifications on selected product ranges</span>
             </span>
           </div>
           <div className="v4-cta-row">
