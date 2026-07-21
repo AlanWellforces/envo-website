@@ -44,16 +44,18 @@
   font-family:inherit; font-size:12px; }
 .pcat-search input::placeholder { color:var(--fg-soft); }
 
-.pcat-fgroup { padding:13px 0; border-bottom:1px solid var(--line); }
+.pcat-fgroup { padding:0 0 13px; border-bottom:1px solid var(--line); }
 .pcat-fgroup:last-child { border-bottom:0; }
-.pcat-fgroup h4 { display:flex; align-items:center; gap:7px; font-size:12px; font-weight:700; margin:0 0 6px; color:var(--fg); }
-/* accordion header (user 2026-07-08): whole title row toggles the group */
-.pcat-fgroup-toggle { appearance:none; border:0; background:none; padding:0; cursor:pointer;
+.pcat-fgroup h4 { display:flex; align-items:center; gap:7px; font-size:12px; font-weight:700; margin:0; color:var(--fg); }
+/* accordion header (user 2026-07-08): whole title row toggles the group.
+   The group's former vertical padding lives on the BUTTON so the whole
+   ~44px row is tappable — the bare text was a ~19px target (audit 2026-07-21). */
+.pcat-fgroup-toggle { appearance:none; border:0; background:none; padding:13px 0 12px; cursor:pointer;
   display:flex; align-items:center; gap:7px; width:100%; font:inherit; color:inherit; text-align:left; }
 .pcat-fgroup-toggle .caret { width:13px; height:13px; margin-left:auto; fill:none; stroke:var(--fg-soft);
   stroke-width:2; stroke-linecap:round; stroke-linejoin:round; transition:transform .16s; }
 .pcat-fgroup:not(.closed) .pcat-fgroup-toggle .caret { transform:rotate(180deg); }
-.pcat-fgroup.closed h4 { margin-bottom:0; }
+.pcat-fgroup.closed { padding-bottom:0; } /* the button's own padding carries the row */
 .pcat-fgroup-toggle:hover .caret { stroke:var(--envo-blue); }
 .pcat-fgroup h4 .picked { font-size:9.5px; font-weight:700; line-height:1; color:#fff; background:var(--envo-blue);
   min-width:15px; height:15px; padding:0 4px; border-radius:999px; display:inline-flex; align-items:center; justify-content:center; }

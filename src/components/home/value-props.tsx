@@ -60,7 +60,9 @@ export function ValueProps() {
                   </svg>
                 </span>
               </div>
-              <h3>{p.t}</h3>
+              {/* Not a heading: these are feature-card labels, and as <h3>s
+                  they broke the outline (h1 → h3 skip, audit 2026-07-21). */}
+              <div className="va-t">{p.t}</div>
               <p>{p.d}</p>
             </div>
           ))}
