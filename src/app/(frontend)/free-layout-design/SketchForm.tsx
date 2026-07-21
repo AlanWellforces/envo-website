@@ -43,22 +43,25 @@ export function SketchForm() {
   }
 
   return (
-    <form className={styles.formGrid} onSubmit={handleSubmit}>
+    // method="post": JS always intercepts the submit, but if hydration ever
+    // fails the browser's native fallback must not GET the field values into
+    // the URL / access logs (external audit 2026-07-21).
+    <form className={styles.formGrid} method="post" onSubmit={handleSubmit}>
       <label className={styles.field}>
         <span>Your name *</span>
-        <input type="text" name="name" required placeholder="Jane Smith" />
+        <input type="text" name="name" autoComplete="name" required placeholder="Jane Smith" />
       </label>
       <label className={styles.field}>
         <span>Company</span>
-        <input type="text" name="company" placeholder="Acme Signs" />
+        <input type="text" name="company" autoComplete="organization" placeholder="Acme Signs" />
       </label>
       <label className={styles.field}>
         <span>Email *</span>
-        <input type="email" name="email" required placeholder="jane@acmesigns.com" />
+        <input type="email" name="email" autoComplete="email" required placeholder="jane@acmesigns.com" />
       </label>
       <label className={styles.field}>
         <span>Phone</span>
-        <input type="tel" name="phone" placeholder="+1 555 123 4567" />
+        <input type="tel" name="phone" autoComplete="tel" placeholder="+1 555 123 4567" />
       </label>
       <label className={styles.field}>
         <span>Sign type *</span>
