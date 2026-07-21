@@ -59,6 +59,9 @@ export default function RootLayout({
   return (
     <html lang="en" className={interTight.variable}>
       <body>
+        {/* First focusable element on every page (audit 2026-07-21) — lets
+            keyboard/screen-reader users jump past the sidebar navigation. */}
+        <a href="#main-content" className="skip-link">Skip to main content</a>
         <JsonLd data={organizationLd()} />
         <PageViewBeacon />
         <RegionProvider>
@@ -71,6 +74,10 @@ export default function RootLayout({
               on detail pages was a duplicate. Restore <TopSubnav /> if a
               horizontal category bar is ever wanted again. */}
           <CursorGlow />
+          {/* Skip-link target: an empty focus anchor BEFORE the page content —
+              pages own their roots (the homepage renders its own <main>), so
+              the id can't live on a shared wrapper without nesting mains. */}
+          <div id="main-content" tabIndex={-1} />
           {children}
           <Footer />
           <RevealOnScroll />
