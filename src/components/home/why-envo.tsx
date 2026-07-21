@@ -38,11 +38,13 @@ const DEFAULT_PILLARS = [
 // visible modules rate lifetime_hrs = 50,000 → 200+ and 50,000h stand as-is).
 // Cert coverage is partial, NOT range-wide (CE 172/219, TÜV 107, RoHS 91,
 // UL 69), so the cert claims say "selected ranges", not "across the range".
+// Families = 3 while Accessories is nav-hidden (2026-07-22); restore to '4'
+// when it returns — see docs/superpowers/plans/2026-07-08-hidden-features.md §1.
 // Editable via the Homepage global (Why ENVO → Stats).
 const DEFAULT_STATS = [
   { value: '200+', label: 'catalogue SKUs' },
   { value: '50,000h', label: 'rated module lifetime' },
-  { value: '4', label: 'product families' },
+  { value: '3', label: 'product families' },
   { value: 'CE·UL·TÜV', label: 'certified on selected ranges', lime: true },
 ]
 

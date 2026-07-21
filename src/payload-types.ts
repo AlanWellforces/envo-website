@@ -1803,7 +1803,7 @@ export interface HomePage {
       }[]
     | null;
   /**
-   * Proof numbers. Built-in defaults (200+ SKUs, 50,000h module lifetime, 4 families, CE·UL·TÜV) were verified against the product data on 2026-07-03. Keep any replacement verifiable — no response-time promises.
+   * Proof numbers. Built-in defaults (200+ SKUs, 50,000h module lifetime, 3 families, CE·UL·TÜV) were verified against the product data on 2026-07-03 (families recounted 2026-07-22 — 3 while Accessories is hidden). Keep any replacement verifiable — no response-time promises.
    */
   why_stats?:
     | {
