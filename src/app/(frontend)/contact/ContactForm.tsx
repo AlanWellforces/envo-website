@@ -52,26 +52,29 @@ export function ContactForm({ phone }: { phone?: string }) {
   }
 
   return (
-    <form className={styles.form} onSubmit={handleSubmit}>
+    // method="post": JS always intercepts the submit, but if hydration ever
+    // fails the browser's native fallback must not GET the field values into
+    // the URL / access logs (external audit 2026-07-21).
+    <form className={styles.form} method="post" onSubmit={handleSubmit}>
       <HoneypotField />
       <div className={styles.row2}>
         <div className={styles.field}>
           <label className={styles.label} htmlFor="cf-name">Name</label>
-          <input className={styles.input} id="cf-name" name="name" required />
+          <input className={styles.input} id="cf-name" name="name" autoComplete="name" required />
         </div>
         <div className={styles.field}>
           <label className={styles.label} htmlFor="cf-company">Company</label>
-          <input className={styles.input} id="cf-company" name="company" />
+          <input className={styles.input} id="cf-company" name="company" autoComplete="organization" />
         </div>
       </div>
       <div className={styles.row2}>
         <div className={styles.field}>
           <label className={styles.label} htmlFor="cf-email">Email</label>
-          <input className={styles.input} id="cf-email" name="email" type="email" required />
+          <input className={styles.input} id="cf-email" name="email" type="email" autoComplete="email" required />
         </div>
         <div className={styles.field}>
           <label className={styles.label} htmlFor="cf-phone">Phone</label>
-          <input className={styles.input} id="cf-phone" name="phone" type="tel" />
+          <input className={styles.input} id="cf-phone" name="phone" type="tel" autoComplete="tel" />
         </div>
       </div>
       <div className={styles.field}>
