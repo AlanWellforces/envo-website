@@ -279,7 +279,9 @@ export function buildSkuDetailProps(
   // unsuffixed, so modelCode === sku — with a startsWith fallback just in case.
   const tagged = base.variants.map((v) =>
     v.modelCode === product.sku || (v.modelCode && product.sku.startsWith(v.modelCode))
-      ? { ...v, current: true }
+      ? // href stripped: the current model never self-links (the assembler now
+        // fills href in both layouts, not just rows — 2026-07-17).
+        { ...v, current: true, href: undefined }
       : v,
   )
   // The viewed SKU leads the models table (user 2026-07-13); siblings keep

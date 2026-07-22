@@ -110,8 +110,8 @@ only — its connection details no longer apply.)
 Core prompt lives in Git:
 
 ```txt
-src/lib/ai/prompts/find-your-match.ts
-src/lib/ai/prompts/find-your-match.test-cases.ts
+src/lib/find-your-match/explain.ts    LLM prompt + canned fallback template
+src/lib/find-your-match/match.ts      rules engine (with match.test.ts)
 ```
 
 Payload stores supporting copy only (CTA, fallback text, tone, enabled/disabled flag).
@@ -159,7 +159,7 @@ Reasoning:   [why]
 
 ```txt
 src/lib/products.ts                          product accessors (hottest code path)
-src/lib/ai/prompts/find-your-match.ts        core AI prompt
+src/lib/find-your-match/explain.ts           core AI prompt
 src/payload/collections/                     Payload collection configs
 drizzle/schema.ts                            Drizzle product schema
 scripts/akeneo-sync.ts                       Akeneo sync script
