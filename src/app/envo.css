@@ -3472,6 +3472,28 @@
   font-weight: 500;
 }
 .blog-article-body blockquote p:last-child { margin: 0; }
+/* Tables authored via the raw-HTML block (guide articles). Wrap in
+   .blog-table-wrap for horizontal scroll on narrow screens. */
+.blog-article-body .blog-table-wrap { overflow-x: auto; margin: 0 0 24px; }
+.blog-article-body table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 15px;
+  line-height: 1.45;
+}
+.blog-article-body th,
+.blog-article-body td {
+  padding: 10px 14px;
+  border: 1px solid rgba(15, 35, 71, 0.12);
+  text-align: left;
+  vertical-align: top;
+}
+.blog-article-body th {
+  background: rgba(15, 35, 71, 0.04);
+  font-weight: 600;
+  white-space: nowrap;
+}
+.blog-article-body tbody tr:nth-child(even) { background: rgba(15, 35, 71, 0.02); }
 
 /* ===== Project cards (case study list) ===== */
 .project-card {
