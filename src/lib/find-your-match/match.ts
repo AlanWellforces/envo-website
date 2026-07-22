@@ -3,7 +3,7 @@ import type { FymAnswers, Recommendation, DriverPick, ControlPick, ModulePick } 
 
 const SIZE_MODULE_COUNT: Record<FymAnswers['size'], number> = { small: 20, medium: 60, large: 150 }
 const SAFETY = 1.2
-const IP_RATED = new Set(['ip65', 'ip67', 'ip68'])
+const IP_RATED = new Set(['ip65', 'ip66', 'ip67', 'ip68'])
 const WHITE_BY_COLOUR: Record<string, string> = {
   white_warm: 'warm_white', white_neutral: 'natural_white', white_cool: 'cool_white',
 }
