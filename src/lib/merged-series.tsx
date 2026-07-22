@@ -177,12 +177,16 @@ export function buildMergedSeriesProps(
       },
       modelCode: m.code,
       datasheetUrl: m.datasheetUrl ?? undefined,
-      // The code IS a live SKU (no CCT grouping) — link it to its own detail
-      // page in BOTH layouts; until 2026-07-17 only rows tables linked, which
-      // left the single-SKU sidelit series pages (EdgeBlade/-Flare/-Lume) with
-      // zero crawlable links to their model pages. Guarded on an exact-SKU
-      // match so a grouped/stripped code can never emit a 404 link.
-      href: rep?.sku === m.code ? `/products/${family.slug}/${m.code}` : undefined,
+      // Link the code to its own detail page in BOTH layouts; until 2026-07-17
+      // only rows tables linked, which left the single-SKU sidelit series pages
+      // (EdgeBlade/-Flare/-Lume) with zero crawlable links to their model pages.
+      // 404 guard: exact SKU for spec-driven families; signage codes are
+      // CCT-stripped, and the signage route resolves that same grain
+      // (stripCctSuffix(sku) === code), so any code with a rep is a live page.
+      href:
+        rep && (rep.sku === m.code || family.slug === 'led-signage-modules')
+          ? `/products/${family.slug}/${m.code}`
+          : undefined,
       ledBeads: beads ? String(beads) : undefined,
       output: m.lumens ? `~ ${m.lumens} lm` : undefined,
       power: m.powerW != null ? `${m.powerW} W` : undefined,
