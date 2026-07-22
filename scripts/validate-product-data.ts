@@ -12,6 +12,8 @@
  *   weight    plausible kg for the family (modules are grams-light)
  *   dims      0 < mm < 2000
  *   spelling  known catalogue typos in name/short_description
+ *   style     brand casing (ENVO), term canon (Zigbee/Colour/In-Wall/…),
+ *             stray whitespace — rules live in scripts/lib/product-lexicon.ts
  *   datasheet CCT-variant groups where only SOME variants carry a datasheet
  *
  * Usage:  npx tsx --tsconfig tsconfig.json scripts/validate-product-data.ts
@@ -21,6 +23,7 @@
  */
 import * as dotenv from 'dotenv'
 import * as fs from 'fs'
+import { lintCopy } from './lib/product-lexicon'
 dotenv.config({ path: fs.existsSync('.env.local') ? '.env.local' : '.env' })
 
 // Verified-correct outliers that a naive P = V·I check would "fix" back into
@@ -28,19 +31,6 @@ dotenv.config({ path: fs.existsSync('.env.local') ? '.env.local' : '.env' })
 // 0–11 A and 132 W rated on the 150 W/12 V nameplate (checked 2026-07-17 —
 // see notes/prod-data-fixes-2026-07-17.md §5). Never flag these.
 const CURRENT_WHITELIST = new Set(['EV-SL-150-12', 'EV-SNL-150-12'])
-
-// Known catalogue misspellings (all found in real PIM data). Word-boundary
-// matched, case-insensitive. Extend as new ones surface.
-const TYPOS: Array<[RegExp, string]> = [
-  [/\bCurrnt\b/i, 'Current'],
-  [/\bContol\b/i, 'Control'],
-  [/\bZigbBee\b/i, 'ZigBee'],
-  [/\bConveter\b/i, 'Converter'],
-  [/\bCurent\b/i, 'Current'],
-  [/\bVoltag\b/i, 'Voltage'],
-  [/\bModul\b/i, 'Module'],
-  [/\bWaterproff\b/i, 'Waterproof'],
-]
 
 type Row = {
   sku: string
@@ -110,11 +100,11 @@ export function validate(rows: Row[]): Issue[] {
       if (v != null && (v <= 0 || v > 2000)) push(p.sku, 'dims', `${field}=${v} — outside 0–2000 mm`)
     }
 
-    // ── spelling ──
-    for (const [re, fix] of TYPOS) {
-      for (const [field, text] of [['name', p.name], ['short_description', p.short_description]] as const) {
-        const m = text?.match(re)
-        if (m) push(p.sku, 'spelling', `${field} contains "${m[0]}" → "${fix}"`)
+    // ── spelling & style (rules: scripts/lib/product-lexicon.ts) ──
+    for (const [field, text] of [['name', p.name], ['short_description', p.short_description]] as const) {
+      if (!text) continue
+      for (const i of lintCopy(text)) {
+        push(p.sku, i.kind === 'typo' ? 'spelling' : 'style', `${field}: "${i.found}" → "${i.fix}"`)
       }
     }
   }

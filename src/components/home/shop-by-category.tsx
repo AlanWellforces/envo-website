@@ -3,8 +3,8 @@ import Link from 'next/link'
 import { ArrowRight } from './icons'
 
 // Feature-plus-stack layout: Signage Modules is the hero card (full scene
-// photo, text over its flat left area), the other three families stack beside
-// it. Scene images live in public/assets/images/home-categories/ and carry
+// photo, text over its flat left area), the other visible families stack
+// beside it. Scene images live in public/assets/images/home-categories/ and carry
 // their own studio background, so the cards blend seamlessly.
 const SIDE_CATEGORIES = [
   {
@@ -40,8 +40,8 @@ export function ShopByCategory() {
             <div className="v4-eyebrow">Shop by category</div>
             <h2>Everything to build a sign.</h2>
             <p className="lead">
-              A matched range of LED modules, drivers, control gear and accessories for
-              professional signage projects.
+              A matched range of LED modules, drivers and control gear for professional
+              signage projects.
             </p>
           </div>
           <Link className="v4-seelink" href="/products">

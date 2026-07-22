@@ -31,7 +31,7 @@ export function Hero({ data = {} }: { data?: HomeHeroData }) {
           <p className="lead">
             {data.lead ?? (
               <>
-                LED <b>modules, drivers, controllers and accessories</b> — engineered for sign-makers,
+                LED <b>modules, drivers and control gear</b> — engineered for sign-makers,
                 backed by free layout design and shipped fast.
               </>
             )}

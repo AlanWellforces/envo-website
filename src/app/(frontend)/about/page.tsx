@@ -8,7 +8,7 @@ export async function generateMetadata(): Promise<Metadata> {
   return metadataForRoute('/about', {
     title: 'About ENVO',
     description:
-      'ENVO designs and manufactures professional-grade LED modules, drivers, controllers and accessories for signage and architectural illumination worldwide.',
+      'ENVO designs and manufactures professional-grade LED modules, drivers and control gear for signage and architectural illumination worldwide.',
   })
 }
 
@@ -16,7 +16,9 @@ const FAMILIES = [
   { name: 'Signage Modules', desc: 'LED modules for channel letters, light boxes and facades — backlit and sidelit.' },
   { name: 'LED Drivers', desc: 'Stable indoor and IP-rated outdoor power supplies, sized to the install.' },
   { name: 'Control Gear', desc: 'Dimming, signal conversion, sensors and Zigbee smart control.' },
-  { name: 'Accessories', desc: 'Connectors, cabling and mounting to complete the system.' },
+  // Accessories hidden until it has live products — see
+  // docs/superpowers/plans/2026-07-08-hidden-features.md §1
+  // { name: 'Accessories', desc: 'Connectors, cabling and mounting to complete the system.' },
 ]
 
 const VALUES = [
@@ -41,8 +43,8 @@ export default function AboutPage() {
             Illuminating the world with <em>innovative LED solutions.</em>
           </h1>
           <p className={styles.heroDesc}>
-            ENVO designs and manufactures professional-grade LED modules, drivers, controllers and
-            accessories — engineered, certified and supported end to end for signage and
+            ENVO designs and manufactures professional-grade LED modules, drivers and control
+            gear — engineered, certified and supported end to end for signage and
             architectural illumination worldwide.
           </p>
         </section>
@@ -51,7 +53,7 @@ export default function AboutPage() {
       <section className={`${styles.band} ${styles.bandGray}`}>
         <div className="container">
           <span className={styles.sectionEyebrow}>What we make</span>
-          <h2 className={styles.sectionTitle}>One system, four families.</h2>
+          <h2 className={styles.sectionTitle}>One system, three families.</h2>
           <p className={styles.sectionLede}>
             A complete ecosystem for LED signage and lighting — every component engineered to work
             together for clean, reliable installations.

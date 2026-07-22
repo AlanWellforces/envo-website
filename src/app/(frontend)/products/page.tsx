@@ -12,7 +12,7 @@ export function generateMetadata(): Promise<Metadata> {
   return metadataForRoute('/products', {
     title: 'Product catalogue — ENVO',
     description:
-      'Modules, drivers, control gear and accessories — engineered to work together as one signage system. Filter the full ENVO catalogue by application, colour temperature and certification.',
+      'Modules, drivers and control gear — engineered to work together as one signage system. Filter the full ENVO catalogue by application, colour temperature and certification.',
   })
 }
 
@@ -44,7 +44,7 @@ export default async function ProductsPage() {
         <div className="pcat-head">
           <h1>Product catalogue</h1>
           <p className="pcat-lede">
-            Modules, drivers, control gear and accessories — engineered to work together as one
+            Modules, drivers and control gear — engineered to work together as one
             signage system.
           </p>
           <div className="pcat-pills">

@@ -19,7 +19,7 @@ export function SignageRange() {
         <div className="v4-sec-head">
           <div>
             <div className="v4-eyebrow">Explore the signage module range</div>
-            <h2>Six series, one fit for every face.</h2>
+            <h2>A series for every face.</h2>
           </div>
           <Link className="v4-seelink" href="/products">
             View full catalogue <ArrowRight />

@@ -16,6 +16,23 @@ still works (empty state) — only navigation to it is removed.
 | Footer "Products" column | `src/components/layout/footer.tsx` | commented-out `<li>` — uncomment |
 | Home "Shop by category" tile | `src/components/home/shop-by-category.tsx` | commented-out array entry — uncomment |
 
+**Site copy counts 3 families while Accessories is hidden (2026-07-22 audit —
+homepage claimed "4 product families" but only 3 were browsable). ALL of the
+following must revert to the 4-family wording when Accessories returns:**
+
+| Where | File | Restore to |
+|---|---|---|
+| Home "Why ENVO" stat | `src/components/home/why-envo.tsx` `DEFAULT_STATS` | `'3'` → `'4'` product families (if Payload HomePage → Why → Stats rows exist in prod, update there too) |
+| Home hero lead | `src/components/home/hero.tsx` | "modules, drivers and control gear" → "modules, drivers, control gear and accessories" |
+| Home "Shop by category" lead | `src/components/home/shop-by-category.tsx` | re-add "and accessories" |
+| /products meta + intro (×2) | `src/app/(frontend)/products/page.tsx` | re-add "and accessories" |
+| /about meta, hero, FAMILIES array, heading | `src/app/(frontend)/about/page.tsx` | re-add accessories wording; "One system, three families." → "four families"; uncomment FAMILIES entry |
+| Payload admin hint | `src/payload/globals/HomePage.ts` why_stats description | "3 families" → "4 families" (+ regen payload-types) |
+
+Terminology (2026-07-22): the family is always "control gear" / "Control Gear"
+in customer-facing copy — never "controllers" (as a family name) and never
+"Lighting Controls".
+
 Notes:
 - `/products` index already self-heals: family chips are count-gated
   (`countBySlug > 0`), so Accessories reappears there automatically once
