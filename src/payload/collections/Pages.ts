@@ -19,6 +19,8 @@ export const Pages: CollectionConfig = {
     description: 'Standalone rich-text pages. Publish to make a page Visible on the website.',
   },
   access: { read: publishedOrAuthed },
+  // Soft delete: deleted docs land in the admin Trash (restorable).
+  trash: true,
   versions: { drafts: true },
   fields: [
     {

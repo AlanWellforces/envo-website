@@ -523,6 +523,7 @@ export interface Post {
   readingTime?: number | null;
   updatedAt: string;
   createdAt: string;
+  deletedAt?: string | null;
   _status?: ('draft' | 'published') | null;
 }
 /**
@@ -615,7 +616,7 @@ export interface Project {
    */
   ogImage?: (number | null) | Media;
   /**
-   * When the project goes live. Set a future date/time to schedule it.
+   * When the project goes live. A future date/time keeps a Published project hidden until then (appears within the hour after it passes).
    */
   publishedAt: string;
   /**
@@ -641,6 +642,7 @@ export interface Project {
     | null;
   updatedAt: string;
   createdAt: string;
+  deletedAt?: string | null;
   _status?: ('draft' | 'published') | null;
 }
 /**
@@ -693,6 +695,7 @@ export interface Page {
   ogImage?: (number | null) | Media;
   updatedAt: string;
   createdAt: string;
+  deletedAt?: string | null;
   _status?: ('draft' | 'published') | null;
 }
 /**
@@ -1346,6 +1349,7 @@ export interface PostsSelect {
   readingTime?: boolean;
   updatedAt?: boolean;
   createdAt?: boolean;
+  deletedAt?: boolean;
   _status?: boolean;
 }
 /**
@@ -1396,6 +1400,7 @@ export interface ProjectsSelect {
       };
   updatedAt?: boolean;
   createdAt?: boolean;
+  deletedAt?: boolean;
   _status?: boolean;
 }
 /**
@@ -1413,6 +1418,7 @@ export interface PagesSelect {
   ogImage?: boolean;
   updatedAt?: boolean;
   createdAt?: boolean;
+  deletedAt?: boolean;
   _status?: boolean;
 }
 /**

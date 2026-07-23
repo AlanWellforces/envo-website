@@ -29,6 +29,9 @@ export const Projects: CollectionConfig = {
   access: {
     read: publishedOrAuthed,
   },
+  // Soft delete: deleted docs land in the admin Trash (restorable) instead
+  // of vanishing — recovery path for accidental deletions.
+  trash: true,
   versions: {
     drafts: true,
   },
