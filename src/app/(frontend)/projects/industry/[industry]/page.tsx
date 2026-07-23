@@ -27,7 +27,10 @@ export async function generateStaticParams() {
   return VALID.map((industry) => ({ industry }))
 }
 
-export const dynamicParams = false
+// true, or layout-level revalidation NoFallbackError-404s these pages until
+// the next rebuild (prod incident 2026-07-23) — see products/[slug]/[series].
+// isValid() below keeps unknown industries at 404.
+export const dynamicParams = true
 
 export async function generateMetadata({ params }: { params: Params }): Promise<Metadata> {
   const { industry } = await params
