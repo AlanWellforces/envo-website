@@ -117,6 +117,7 @@ export async function POST(req: Request) {
         message: lead.message,
         details: buildLeadDetails(lead.data) || undefined,
         data: lead.data,
+        ...lead.attribution,
         ...(sketchId ? { sketch: sketchId } : {}),
       },
     })

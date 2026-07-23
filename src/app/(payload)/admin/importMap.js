@@ -29,6 +29,7 @@ import { UploadFeatureClient as UploadFeatureClient_e70f5e05f09f93e00b997edb1ef0
 import { HorizontalRuleFeatureClient as HorizontalRuleFeatureClient_e70f5e05f09f93e00b997edb1ef0c864 } from '@payloadcms/richtext-lexical/client'
 import { InlineToolbarFeatureClient as InlineToolbarFeatureClient_e70f5e05f09f93e00b997edb1ef0c864 } from '@payloadcms/richtext-lexical/client'
 import { PostCoverCell as PostCoverCell_43b84654e8dc9bd683f062b98c3ff9cc } from '../../../payload/components/PostCoverCell'
+import { NzDateCell as NzDateCell_4d4ed8264ae2dfc88d1dac02331c3529 } from '../../../payload/components/NzDateCell'
 import { SolutionThumbCell as SolutionThumbCell_8a8f580c271240c20987e168a9922c28 } from '../../../payload/components/SolutionThumbCell'
 import { BrandIcon as BrandIcon_8f07872f3b3df16e30228d25de566b95 } from '../../../payload/components/BrandIcon'
 import { BrandLogo as BrandLogo_c403c2ac45aae66e87f2efb12e3bb4a1 } from '../../../payload/components/BrandLogo'
@@ -73,6 +74,7 @@ export const importMap = {
   "@payloadcms/richtext-lexical/client#HorizontalRuleFeatureClient": HorizontalRuleFeatureClient_e70f5e05f09f93e00b997edb1ef0c864,
   "@payloadcms/richtext-lexical/client#InlineToolbarFeatureClient": InlineToolbarFeatureClient_e70f5e05f09f93e00b997edb1ef0c864,
   "/payload/components/PostCoverCell#PostCoverCell": PostCoverCell_43b84654e8dc9bd683f062b98c3ff9cc,
+  "/payload/components/NzDateCell#NzDateCell": NzDateCell_4d4ed8264ae2dfc88d1dac02331c3529,
   "/payload/components/SolutionThumbCell#SolutionThumbCell": SolutionThumbCell_8a8f580c271240c20987e168a9922c28,
   "/payload/components/BrandIcon#BrandIcon": BrandIcon_8f07872f3b3df16e30228d25de566b95,
   "/payload/components/BrandLogo#BrandLogo": BrandLogo_c403c2ac45aae66e87f2efb12e3bb4a1,

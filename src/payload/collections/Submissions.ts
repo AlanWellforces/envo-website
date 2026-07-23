@@ -9,7 +9,7 @@ export const Submissions: CollectionConfig = {
   labels: { singular: 'Lead', plural: 'Leads' },
   admin: {
     useAsTitle: 'email',
-    defaultColumns: ['email', 'type', 'company', 'status', 'notify', 'createdAt'],
+    defaultColumns: ['email', 'type', 'company', 'status', 'notify', 'receivedNZ'],
     group: 'Sales',
     description: 'Enquiries captured from the website. Newest first.',
     pagination: { defaultLimit: 50 },
@@ -100,6 +100,41 @@ export const Submissions: CollectionConfig = {
       type: 'text',
       label: 'Submitted from page',
       admin: { position: 'sidebar', readOnly: true },
+    },
+    {
+      // Attribution — where this lead came from (first-party, cookieless;
+      // captured client-side, see lib/attribution.ts). Read-only; empty when
+      // the visitor's browser blocked storage or arrived with no UTM/referrer.
+      type: 'collapsible',
+      label: 'Attribution',
+      admin: { initCollapsed: true },
+      fields: [
+        {
+          type: 'row',
+          fields: [
+            { name: 'firstTouchSource', type: 'text', label: 'First-touch source', admin: { readOnly: true, width: '50%' } },
+            { name: 'landingPage', type: 'text', label: 'Landing page', admin: { readOnly: true, width: '50%' } },
+          ],
+        },
+        { name: 'referrer', type: 'text', label: 'Referrer', admin: { readOnly: true } },
+        {
+          type: 'row',
+          fields: [
+            { name: 'utmSource', type: 'text', label: 'UTM source', admin: { readOnly: true, width: '33%' } },
+            { name: 'utmMedium', type: 'text', label: 'UTM medium', admin: { readOnly: true, width: '33%' } },
+            { name: 'utmCampaign', type: 'text', label: 'UTM campaign', admin: { readOnly: true, width: '34%' } },
+          ],
+        },
+      ],
+    },
+    {
+      // List-view "Received" column rendered in Pacific/Auckland (the team's
+      // timezone) — Payload's default createdAt column shows the viewer's local
+      // time. No stored data; the Cell reads rowData.createdAt.
+      name: 'receivedNZ',
+      type: 'ui',
+      label: 'Received',
+      admin: { components: { Cell: '/payload/components/NzDateCell#NzDateCell' } },
     },
     {
       // Raw capture kept for the record; hidden so the editing view stays

@@ -4,6 +4,7 @@ import Script from 'next/script'
 import { useState } from 'react'
 import styles from './page.module.css'
 import { HoneypotField } from '@/components/forms/HoneypotField'
+import { attachAttribution } from '@/lib/attribution'
 
 // Turnstile guards this upload-bearing form only when the site key is
 // configured — locally (and until the key lands on the VPS) nothing renders
@@ -26,6 +27,7 @@ export function SketchForm() {
     const form = new FormData(e.currentTarget)
     form.set('type', 'free-layout')
     form.set('sourcePath', '/free-layout-design')
+    attachAttribution(form)
     try {
       const res = await fetch('/api/submissions', { method: 'POST', body: form })
       if (res.ok) {
