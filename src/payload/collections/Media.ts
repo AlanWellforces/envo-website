@@ -2,9 +2,27 @@
 // Images are auto-resized to thumbnail, card, and detail sizes on upload.
 
 import type { CollectionConfig } from 'payload'
+import { APIError } from 'payload'
+import { findMediaUsage } from '../hooks/media-in-use'
 
 export const Media: CollectionConfig = {
   slug: 'media',
+  hooks: {
+    // Refuse to delete a file that content still references — deleting it
+    // would silently break images on the live site. The error lists where
+    // it's used so the editor can swap those first.
+    beforeDelete: [
+      async ({ req, id }) => {
+        const uses = await findMediaUsage(req.payload, id)
+        if (uses.length > 0) {
+          throw new APIError(
+            `This file is still in use — remove it from: ${uses.join(', ')} first.`,
+            400,
+          )
+        }
+      },
+    ],
+  },
   admin: {
     useAsTitle: 'alt',
     group: 'Catalogue',
