@@ -101,6 +101,13 @@ not the prod DB. To load a fresh copy of real prod content:
 ./scripts/db-refresh-from-prod.sh --with-media # also copy media so images render locally
 ```
 
+**Sanitized by default.** After the restore, the script scrubs customer PII (lead
+names/emails/phones/messages, uploaded-drawing filenames), deletes active admin
+sessions, and resets every team account's password to a shared dev password so real
+credentials never live on a laptop. Log into the local `/admin` with your usual email
+and the dev password **`envodev`** (override with `ENVO_DEV_PASSWORD=…`; opt out — for
+debugging a data issue only — with `NO_SANITIZE=1`).
+
 One-way only (prod → local). It **overwrites** your local DB — any un-pushed local data is
 lost. It never reads `/opt/envo/.env` — it dumps using the prod Postgres container's own
 internal creds over an SSH tunnel. It needs two things that are **not** in the repo:
