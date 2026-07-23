@@ -24,6 +24,12 @@ export function PageViewBeacon() {
   const referrerSent = useRef(false)
   useEffect(() => {
     if (process.env.NODE_ENV !== 'production') return
+    // Self-excluded browser (team member flagged via /exclude-me) — never report.
+    try {
+      if (localStorage.getItem('envo-analytics-optout') === '1') return
+    } catch {
+      /* storage blocked — count normally */
+    }
     const referrer = referrerSent.current ? null : externalReferrer()
     referrerSent.current = true
     const body = JSON.stringify({ path: pathname, referrer })

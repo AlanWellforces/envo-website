@@ -446,7 +446,7 @@ export async function Dashboard(props: DashboardProps) {
           <div className="ed-panel">
             <h2>Top pages</h2>
             <div className="desc">Most viewed, last 7 days.</div>
-            <Bars data={d.paths.map((p) => ({ label: p.path, count: p.count }))} color={BLUE} />
+            <Bars data={d.paths.map((p) => ({ label: p.path === '/' ? '/ (Home)' : p.path, count: p.count }))} color={BLUE} />
           </div>
 
           <div className="ed-panel">

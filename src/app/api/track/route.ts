@@ -6,6 +6,12 @@ export async function POST(req: Request) {
   const ua = req.headers.get('user-agent')
   if (isBot(ua)) return new Response(null, { status: 204 })
 
+  // Team traffic: any browser with a Payload admin session (the HttpOnly
+  // payload-token cookie rides along on same-origin fetch) doesn't count.
+  // Presence is enough — a stale cookie is deleted on logout.
+  const cookies = req.headers.get('cookie') ?? ''
+  if (/(?:^|;\s*)payload-token=/.test(cookies)) return new Response(null, { status: 204 })
+
   let body: { path?: unknown; referrer?: unknown } = {}
   try {
     body = await req.json()
@@ -14,6 +20,8 @@ export async function POST(req: Request) {
   }
   const path = typeof body.path === 'string' ? body.path.slice(0, 512) : null
   if (!path) return new Response(null, { status: 204 })
+  // The self-exclude utility page is internal by definition.
+  if (path.startsWith('/exclude-me')) return new Response(null, { status: 204 })
   const referrer = typeof body.referrer === 'string' && body.referrer ? body.referrer.slice(0, 512) : null
 
   // Cookieless, no stored IP: hash IP+UA+UTC-day+salt.
