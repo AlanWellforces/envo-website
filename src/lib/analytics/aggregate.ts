@@ -11,6 +11,8 @@ export type AnalyticsSummary = {
   paths: { path: string; count: number }[]
   referrers: { referrer: string; count: number }[]
   fym: { total: number; byApplication: { application: string; count: number }[] }
+  /** Same-length window immediately before this one — for period-over-period deltas. */
+  prev: { totalPv: number; uniques: number; fymTotal: number }
 }
 
 type Rows = { rows: Record<string, unknown>[] }
@@ -29,6 +31,23 @@ export function fillDays(counts: Map<string, number>, days: number, today: strin
   return out
 }
 
+/**
+ * Aggregate a zero-filled daily series into trailing buckets of `bucketDays`.
+ * The newest bucket always ends on the series' last day; the oldest bucket may
+ * be partial. Each bucket is labelled with its first day.
+ */
+export function bucketSeries(
+  series: { date: string; count: number }[],
+  bucketDays: number,
+): { date: string; count: number }[] {
+  const out: { date: string; count: number }[] = []
+  for (let end = series.length; end > 0; end -= bucketDays) {
+    const slice = series.slice(Math.max(0, end - bucketDays), end)
+    out.unshift({ date: slice[0].date, count: slice.reduce((sum, d) => sum + d.count, 0) })
+  }
+  return out
+}
+
 /** All Dashboard analytics numbers for the trailing `days`-day window (UTC day buckets). */
 export async function analyticsSummary(payload: Payload, days: number): Promise<AnalyticsSummary> {
   const db = (payload.db as unknown as { drizzle: Drizzle }).drizzle
@@ -36,6 +55,9 @@ export async function analyticsSummary(payload: Payload, days: number): Promise<
   since.setUTCDate(since.getUTCDate() - (days - 1))
   since.setUTCHours(0, 0, 0, 0)
   const sinceISO = since.toISOString()
+  const prevSince = new Date(since)
+  prevSince.setUTCDate(prevSince.getUTCDate() - days)
+  const prevSinceISO = prevSince.toISOString()
 
   // Sequential on purpose: the Dashboard already fans out a large Promise.all
   // and the Supabase session pooler has a tight connection cap.
@@ -58,6 +80,12 @@ export async function analyticsSummary(payload: Payload, days: number): Promise<
     select coalesce(data ->> 'application', 'unknown') as application, count(*)::int as count
     from events where kind = 'find-your-match' and created_at >= ${sinceISO}
     group by 1 order by count desc, application asc`)
+  const prevTotals = await db.execute(sql`
+    select count(*)::int as total, count(distinct session_hash)::int as uniques
+    from events where kind = 'pageview' and created_at >= ${prevSinceISO} and created_at < ${sinceISO}`)
+  const prevFym = await db.execute(sql`
+    select count(*)::int as total
+    from events where kind = 'find-your-match' and created_at >= ${prevSinceISO} and created_at < ${sinceISO}`)
 
   const dayCounts = new Map(byDay.rows.map((r) => [String(r.date), Number(r.count)]))
   const fymGroups = fym.rows.map((r) => ({ application: String(r.application), count: Number(r.count) }))
@@ -71,6 +99,11 @@ export async function analyticsSummary(payload: Payload, days: number): Promise<
     fym: {
       total: fymGroups.reduce((sum, g) => sum + g.count, 0),
       byApplication: fymGroups.slice(0, 10),
+    },
+    prev: {
+      totalPv: Number(prevTotals.rows[0]?.total ?? 0),
+      uniques: Number(prevTotals.rows[0]?.uniques ?? 0),
+      fymTotal: Number(prevFym.rows[0]?.total ?? 0),
     },
   }
 }
