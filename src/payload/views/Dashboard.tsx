@@ -30,14 +30,17 @@ async function loadData() {
     productsLive,
     productsSynced,
     pagesTotal,
+    pagesPublished,
     postsPublished,
     postsDraft,
     projectsTotal,
+    projectsPublished,
     faqsTotal,
     leadsTotal,
     leadsThisWeek,
     recentLeads,
     analytics,
+    eventsEver,
     recentPosts,
     recentPages,
     recentProjects,
@@ -51,9 +54,11 @@ async function loadData() {
     }),
     payload.count({ collection: 'products', where: { akeneo_synced_at: { exists: true } } }),
     payload.count({ collection: 'pages' }),
+    payload.count({ collection: 'pages', where: { _status: { equals: 'published' } } }),
     payload.count({ collection: 'posts', where: { _status: { equals: 'published' } } }),
     payload.count({ collection: 'posts', where: { _status: { equals: 'draft' } } }),
     payload.count({ collection: 'projects' }),
+    payload.count({ collection: 'projects', where: { _status: { equals: 'published' } } }),
     payload.count({ collection: 'faqs' }),
     payload.count({ collection: 'submissions' }),
     payload.count({
@@ -62,6 +67,9 @@ async function loadData() {
     }),
     payload.find({ collection: 'submissions', limit: 5, sort: '-createdAt', depth: 0 }),
     analyticsSummary(payload, 7),
+    // Any pageview ever — distinguishes "analytics never received data" (not
+    // set up) from "genuinely zero in the last 7 days".
+    payload.count({ collection: 'events', where: { kind: { equals: 'pageview' } } }),
     payload.find({ collection: 'posts', limit: 3, sort: '-updatedAt', depth: 0 }),
     payload.find({ collection: 'pages', limit: 3, sort: '-updatedAt', depth: 0 }),
     payload.find({ collection: 'projects', limit: 3, sort: '-updatedAt', depth: 0 }),
@@ -106,10 +114,13 @@ async function loadData() {
     productsLive: productsLive.totalDocs,
     productsSynced: productsSynced.totalDocs,
     pagesTotal: pagesTotal.totalDocs,
+    pagesPublished: pagesPublished.totalDocs,
     postsPublished: postsPublished.totalDocs,
     postsDraft: postsDraft.totalDocs,
     projectsTotal: projectsTotal.totalDocs,
+    projectsPublished: projectsPublished.totalDocs,
     faqsTotal: faqsTotal.totalDocs,
+    eventsEver: eventsEver.totalDocs,
     leadsTotal: leadsTotal.totalDocs,
     leadsThisWeek: leadsThisWeek.totalDocs,
     recentLeads: recentLeads.docs as Array<{
@@ -153,9 +164,9 @@ function lastSyncLabel(iso: string | null | undefined): string {
 }
 
 /** Horizontal ranked bars (top pages / referrers / FYM applications). */
-function Bars({ data, color }: { data: { label: string; count: number }[]; color: string }) {
+function Bars({ data, color, emptyText }: { data: { label: string; count: number }[]; color: string; emptyText?: string }) {
   const max = Math.max(1, ...data.map((d) => d.count))
-  if (data.length === 0) return <p className="ed-empty">No data yet — fills in after launch.</p>
+  if (data.length === 0) return <p className="ed-empty">{emptyText ?? 'No data in the last 7 days.'}</p>
   return (
     <div className="ed-bars">
       {data.map((d) => (
@@ -225,7 +236,16 @@ const QUICK_ACTIONS: { label: string; desc: string; href: string; lime?: boolean
 type DashboardProps = { user?: { name?: string | null; email?: string | null } | null }
 
 export async function Dashboard(props: DashboardProps) {
-  const d = await loadData()
+  let d: Awaited<ReturnType<typeof loadData>> | null = null
+  let loadError = false
+  try {
+    d = await loadData()
+  } catch (err) {
+    // A DB/aggregation failure must not blank the whole admin landing or, worse,
+    // render every metric as a fake "0". Surface it honestly instead.
+    console.error('[Dashboard] loadData failed:', err)
+    loadError = true
+  }
 
   const hour = Number(
     new Intl.DateTimeFormat('en-NZ', { hour: 'numeric', hourCycle: 'h23', timeZone: TZ }).format(new Date()),
@@ -236,10 +256,35 @@ export async function Dashboard(props: DashboardProps) {
     .toLocaleDateString('en-NZ', { weekday: 'short', day: 'numeric', month: 'short', year: 'numeric', timeZone: TZ })
     .replace(/,/g, ' ·')
 
+  if (!d) {
+    // Data failed to load — say so plainly rather than painting fake zeros.
+    return (
+      <div style={{ padding: '30px 20px 60px', fontFamily: ADMIN_FONT_FAMILY, color: ADMIN_COLORS.ink, background: ADMIN_COLORS.canvas }}>
+        <div style={{ maxWidth: 640, margin: '0 auto', background: '#fff', border: `1px solid ${ADMIN_COLORS.line}`, borderRadius: 16, padding: 28 }}>
+          <h1 style={{ margin: 0, fontSize: 22, fontWeight: 800 }}>Dashboard data couldn&apos;t load</h1>
+          <p style={{ color: ADMIN_COLORS.subtle, fontSize: 14, marginTop: 10 }}>
+            The metrics query failed, so nothing is shown rather than misleading zeros. This is
+            usually a temporary database hiccup — reload in a moment. If it persists, check the
+            server logs.
+          </p>
+          <p style={{ marginTop: 16 }}>
+            <a href="/admin" style={{ color: ADMIN_COLORS.blue, fontWeight: 600 }}>Reload dashboard →</a>
+          </p>
+        </div>
+      </div>
+    )
+  }
+
+  // Analytics state: separate "never received any data" (not wired up) from a
+  // genuine zero over the last 7 days.
+  const analyticsConfigured = d.eventsEver > 0
+  const trafficWindowEmpty = d.totalPv === 0
+
   return (
     <div className="ed-root">
       <style>{`
-        .ed-root { --blue: ${BLUE}; --blue-d: ${ADMIN_COLORS.blueDark}; --blue-soft: ${ADMIN_COLORS.blueSoft}; --lime: ${LIME}; --lime-d: ${ADMIN_COLORS.limeDark}; --lime-soft: ${ADMIN_COLORS.limeSoft}; --ink: ${ADMIN_COLORS.ink}; --muted: ${ADMIN_COLORS.muted}; --subtle: ${ADMIN_COLORS.subtle}; --line: ${ADMIN_COLORS.line}; background: ${ADMIN_COLORS.canvas}; padding: 30px 40px 60px; font-family: ${ADMIN_FONT_FAMILY}; color: var(--ink); -webkit-font-smoothing: antialiased; }
+        .ed-root { --blue: ${BLUE}; --blue-d: ${ADMIN_COLORS.blueDark}; --blue-soft: ${ADMIN_COLORS.blueSoft}; --lime: ${LIME}; --lime-d: ${ADMIN_COLORS.limeDark}; --lime-soft: ${ADMIN_COLORS.limeSoft}; --ink: ${ADMIN_COLORS.ink}; --muted: ${ADMIN_COLORS.muted}; --subtle: ${ADMIN_COLORS.subtle}; --line: ${ADMIN_COLORS.line}; background: ${ADMIN_COLORS.canvas}; padding: 30px 40px 60px; font-family: ${ADMIN_FONT_FAMILY}; color: var(--ink); -webkit-font-smoothing: antialiased; overflow-x: hidden; }
+        .ed-root * { min-width: 0; }
         .ed-root a { text-decoration: none; color: inherit; }
         .ed-wrap { max-width: 1200px; margin: 0 auto; }
 
@@ -251,7 +296,7 @@ export async function Dashboard(props: DashboardProps) {
         .ed-hero p { font-size: 14.5px; opacity: .9; margin: 10px 0 0; max-width: 560px; }
         .ed-hero .date { position: absolute; top: 34px; right: 36px; font-size: 12.5px; background: rgba(255,255,255,.15); padding: 7px 14px; border-radius: 999px; backdrop-filter: blur(4px); }
 
-        .ed-grid5 { display: grid; grid-template-columns: repeat(auto-fit, minmax(160px, 1fr)); gap: 14px; margin-bottom: 26px; }
+        .ed-grid5 { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 160px), 1fr)); gap: 14px; margin-bottom: 26px; }
         .ed-stat { display: block; border-radius: 16px; padding: 20px; border: 1px solid var(--line); background: #fff; transition: transform .15s ease, box-shadow .15s ease; }
         .ed-stat:hover { transform: translateY(-2px); box-shadow: 0 8px 24px rgba(16,24,40,.1); }
         .ed-stat.b { background: linear-gradient(160deg, #0071bc, #0086df); color: #fff; border: 0; }
@@ -265,7 +310,7 @@ export async function Dashboard(props: DashboardProps) {
 
         .ed-sectit { font-size: 13px; font-weight: 700; text-transform: uppercase; letter-spacing: .06em; color: var(--subtle); margin: 0 2px 12px; }
 
-        .ed-actions { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 14px; margin-bottom: 28px; }
+        .ed-actions { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 200px), 1fr)); gap: 14px; margin-bottom: 28px; }
         .ed-acard { background: #fff; border: 1px solid var(--line); border-radius: 16px; padding: 20px; display: flex; flex-direction: column; gap: 12px; transition: .15s; }
         .ed-acard:hover { border-color: var(--blue); box-shadow: 0 8px 24px rgba(0,113,188,.1); transform: translateY(-2px); }
         .ed-acard .ic { width: 42px; height: 42px; border-radius: 12px; background: var(--blue-soft); color: var(--blue); display: grid; place-items: center; }
@@ -274,7 +319,7 @@ export async function Dashboard(props: DashboardProps) {
         .ed-acard .t { font-size: 15px; font-weight: 700; }
         .ed-acard .d { font-size: 12.5px; color: var(--subtle); margin-top: -6px; }
 
-        .ed-panels { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 20px; margin-bottom: 28px; }
+        .ed-panels { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 300px), 1fr)); gap: 20px; margin-bottom: 28px; }
         .ed-cols { display: grid; grid-template-columns: 1.5fr 1fr; gap: 20px; }
         @media (max-width: 900px) { .ed-cols { grid-template-columns: 1fr; } }
         .ed-panel { background: #fff; border: 1px solid var(--line); border-radius: 16px; padding: 24px; }
@@ -314,6 +359,20 @@ export async function Dashboard(props: DashboardProps) {
         .ed-empty { margin: 0; font-size: 13px; color: var(--subtle); }
         .ed-more { display: inline-block; margin-top: 12px; font-size: 13px; font-weight: 600; color: var(--blue); }
         .ed-more:hover { text-decoration: underline; }
+
+        /* Narrow phones (≤480px, incl. 360px): the absolutely-positioned date
+           pill overlapped the greeting and the 40px side padding + fixed grid
+           minimums forced horizontal overflow. Put the date in flow and shrink
+           the frame so everything fits within the viewport. */
+        @media (max-width: 480px) {
+          .ed-root { padding: 18px 14px 44px; }
+          .ed-hero { padding: 22px 20px; }
+          .ed-hero h1 { font-size: 25px; }
+          .ed-hero .date { position: static; display: inline-block; margin-bottom: 12px; top: auto; right: auto; }
+          .ed-kpis { gap: 18px; }
+          .ed-panel { padding: 18px; }
+          .ed-bar-row { grid-template-columns: minmax(64px, 40%) 1fr 26px; }
+        }
       `}</style>
 
       <div className="ed-wrap">
@@ -322,7 +381,7 @@ export async function Dashboard(props: DashboardProps) {
           <h1>
             {greeting}, {firstName}
           </h1>
-          <p>Catalogue synced, content fresh. Here&apos;s your snapshot for today — leads, AI usage and traffic included.</p>
+          <p>Here&apos;s your snapshot for today — leads, traffic and content at a glance.</p>
           <div className="date">{dateStr}</div>
         </div>
 
@@ -330,12 +389,21 @@ export async function Dashboard(props: DashboardProps) {
           <Link href="/admin/collections/products" className="ed-stat b">
             <div className="num">{d.productsTotal}</div>
             <div className="lbl">Products</div>
-            <div className="sub">{d.productsLive} live · synced</div>
+            <div className="sub">
+              {d.productsLive} live
+              {d.productsTotal > d.productsLive ? ` · ${d.productsTotal - d.productsLive} hidden` : ''}
+            </div>
           </Link>
           <Link href="/admin/collections/pages" className="ed-stat">
             <div className="num">{d.pagesTotal}</div>
             <div className="lbl">CMS Pages</div>
-            <div className="sub">{d.pagesTotal === 0 ? 'none yet' : 'all published'}</div>
+            <div className="sub">
+              {d.pagesTotal === 0
+                ? 'none yet'
+                : d.pagesPublished === d.pagesTotal
+                  ? 'all published'
+                  : `${d.pagesPublished} published · ${d.pagesTotal - d.pagesPublished} draft`}
+            </div>
           </Link>
           <Link href="/admin/collections/posts" className="ed-stat l">
             <div className="num">{d.postsPublished + d.postsDraft}</div>
@@ -347,8 +415,11 @@ export async function Dashboard(props: DashboardProps) {
           <Link href="/admin/collections/projects" className="ed-stat">
             <div className="num">{d.projectsTotal}</div>
             <div className="lbl">Projects</div>
-            {/* /projects is unlinked on the site until real installs exist (#111-era decision) */}
-            <div className="sub">case studies · not linked on site yet</div>
+            <div className="sub">
+              {d.projectsTotal === 0
+                ? 'none yet'
+                : `${d.projectsPublished} published · ${d.projectsTotal - d.projectsPublished} draft`}
+            </div>
           </Link>
           <Link href="/admin/collections/faqs" className="ed-stat">
             <div className="num">{d.faqsTotal}</div>
@@ -393,7 +464,9 @@ export async function Dashboard(props: DashboardProps) {
               </div>
             </div>
             {d.recentLeads.length === 0 ? (
-              <p className="ed-empty">No leads yet — fills in after launch.</p>
+              <p className="ed-empty">
+                {d.leadsTotal === 0 ? 'No leads captured yet.' : 'No recent leads.'}
+              </p>
             ) : (
               <div>
                 {d.recentLeads.map((l) => (
@@ -414,19 +487,29 @@ export async function Dashboard(props: DashboardProps) {
           <div className="ed-panel">
             <h2>Traffic</h2>
             <div className="desc">First-party, cookieless — page views per day.</div>
-            <div className="ed-kpis">
-              <div>
-                <div className="ed-kpi-n" style={{ color: BLUE }}>
-                  {d.totalPv}
+            {!analyticsConfigured ? (
+              <p className="ed-empty">No page views recorded yet — the analytics beacon hasn&apos;t received any traffic.</p>
+            ) : (
+              <>
+                <div className="ed-kpis">
+                  <div>
+                    <div className="ed-kpi-n" style={{ color: BLUE }}>
+                      {d.totalPv}
+                    </div>
+                    <div className="ed-kpi-l">page views</div>
+                  </div>
+                  <div>
+                    <div className="ed-kpi-n">{d.uniques}</div>
+                    <div className="ed-kpi-l">visitors (est.)</div>
+                  </div>
                 </div>
-                <div className="ed-kpi-l">page views</div>
-              </div>
-              <div>
-                <div className="ed-kpi-n">{d.uniques}</div>
-                <div className="ed-kpi-l">visitors (est.)</div>
-              </div>
-            </div>
-            <TrendChart data={d.byDay} />
+                {trafficWindowEmpty ? (
+                  <p className="ed-empty">No page views in the last 7 days.</p>
+                ) : (
+                  <TrendChart data={d.byDay} />
+                )}
+              </>
+            )}
           </div>
 
           <div className="ed-panel">
@@ -440,19 +523,31 @@ export async function Dashboard(props: DashboardProps) {
                 <div className="ed-kpi-l">total runs</div>
               </div>
             </div>
-            <Bars data={d.fym.byApplication.map((a) => ({ label: a.application, count: a.count }))} color={LIME} />
+            <Bars
+              data={d.fym.byApplication.map((a) => ({ label: a.application, count: a.count }))}
+              color={LIME}
+              emptyText="No Find Your Match runs in the last 7 days."
+            />
           </div>
 
           <div className="ed-panel">
             <h2>Top pages</h2>
             <div className="desc">Most viewed, last 7 days.</div>
-            <Bars data={d.paths.map((p) => ({ label: p.path === '/' ? '/ (Home)' : p.path, count: p.count }))} color={BLUE} />
+            <Bars
+              data={d.paths.map((p) => ({ label: p.path === '/' ? '/ (Home)' : p.path, count: p.count }))}
+              color={BLUE}
+              emptyText={analyticsConfigured ? 'No page views in the last 7 days.' : 'No traffic recorded yet.'}
+            />
           </div>
 
           <div className="ed-panel">
             <h2>Top referrers</h2>
             <div className="desc">Where visitors come from.</div>
-            <Bars data={d.referrers.map((r) => ({ label: r.referrer, count: r.count }))} color={LIME} />
+            <Bars
+              data={d.referrers.map((r) => ({ label: r.referrer, count: r.count }))}
+              color={LIME}
+              emptyText={analyticsConfigured ? 'No referrers in the last 7 days.' : 'No traffic recorded yet.'}
+            />
           </div>
         </div>
 
@@ -474,17 +569,19 @@ export async function Dashboard(props: DashboardProps) {
           </div>
 
           <div className="ed-panel">
-            <h2>Akeneo sync</h2>
-            <div className="desc">Product data source health.</div>
+            <h2>Product data</h2>
+            <div className="desc">Where the catalogue comes from and when it last changed.</div>
             <div className="ed-sync-big">
-              <span className={d.lastSyncedAt ? 'ed-dot' : 'ed-dot off'} />
+              {/* Akeneo sync was retired 2026-07 — the catalogue is now maintained
+                  in the CMS, so this is a neutral status, not a live-sync health light. */}
+              <span className="ed-dot off" />
               <div>
-                <div className="ed-sync-lab">Last sync</div>
+                <div className="ed-sync-lab">Last Akeneo import</div>
                 <div className="ed-sync-val">{lastSyncLabel(d.lastSyncedAt)}</div>
               </div>
             </div>
             <div className="ed-kv">
-              <span>Products synced</span>
+              <span>Imported from Akeneo</span>
               <b>
                 {d.productsSynced} / {d.productsTotal}
               </b>
@@ -494,13 +591,17 @@ export async function Dashboard(props: DashboardProps) {
               <b>{d.productsLive}</b>
             </div>
             <div className="ed-kv">
-              <span>Sync-locked (manual)</span>
+              <span>Manually edited (sync-locked)</span>
               <b>{d.syncLockedCount}</b>
             </div>
             <div className="ed-kv">
               <span>Source</span>
-              <b>Akeneo PIM · envo</b>
+              <b>ENVO CMS · Payload</b>
             </div>
+            <p className="ed-empty" style={{ marginTop: 12 }}>
+              Akeneo sync retired — the catalogue is edited directly in the CMS. Dates above are the
+              last import from Akeneo.
+            </p>
           </div>
         </div>
       </div>
