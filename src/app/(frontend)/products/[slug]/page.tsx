@@ -15,7 +15,9 @@ export async function generateStaticParams() {
   return PRODUCT_FAMILIES.map((f) => ({ slug: f.slug }))
 }
 
-export const dynamicParams = false
+// true, or layout-level revalidation NoFallbackError-404s the family pages
+// until the next rebuild (prod incident 2026-07-23) — see [series]/page.tsx.
+export const dynamicParams = true
 
 export async function generateMetadata({ params }: { params: Params }): Promise<Metadata> {
   const { slug } = await params

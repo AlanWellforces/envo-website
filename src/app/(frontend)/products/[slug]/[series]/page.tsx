@@ -5,7 +5,7 @@ import { PRODUCT_FAMILIES, type SeriesLink } from '@/data/product-families'
 import { datasheetHref } from '@/lib/asset-url'
 import { formatDims } from '@/lib/units'
 import { getProduct, getProductsByMarketingFamily, resolveProductImage, type Product } from '@/lib/products'
-import { seriesSlug as toSeriesSlug, seriesLabel } from '@/data/family-map'
+import { seriesSlug as toSeriesSlug } from '@/data/family-map'
 import { buildMergedSeriesProps } from '@/lib/merged-series'
 import { buildSkuDetailProps } from '@/lib/sku-detail'
 import { COMPLEMENT_FAMILIES, pickRelatedProducts } from '@/lib/related-series'
@@ -37,8 +37,8 @@ export async function generateStaticParams() {
     const products = await getProductsByMarketingFamily(f, { depth: 0 })
     const slugs = new Set(products.map((p) => toSeriesSlug(p.series)))
     // No page for the no-series "other" bucket (user 2026-07-09) — nothing
-    // links to it and dynamicParams=false turns the URL into a 404. The
-    // bucket's products keep their SKU detail pages below.
+    // links to it and the render guard below 404s the URL. The bucket's
+    // products keep their SKU detail pages below.
     slugs.delete('other')
     for (const s of slugs) params.push({ slug: f, series: s })
     if (SKU_DETAIL_FAMILIES.has(f)) {
@@ -58,7 +58,12 @@ export async function generateStaticParams() {
   return params
 }
 
-export const dynamicParams = false
+// dynamicParams MUST stay true: with false, any layout-level revalidation
+// (Site Settings publish → /api/revalidate /__site-settings) drops the
+// prerendered entries and Next 16 then throws NoFallbackError — every product
+// page 404s until the next full rebuild (prod incident 2026-07-23). Unknown
+// params render on demand and fall through to notFound().
+export const dynamicParams = true
 
 // Site-wide share-image fallback — keep in sync with the root layout default.
 const DEFAULT_OG_IMAGE = '/assets/images/hero-signage-poster.jpg'
@@ -158,6 +163,10 @@ export default async function SeriesDetailPage({ params }: { params: Params }) {
   const { slug, series } = await params
   const family = PRODUCT_FAMILIES.find((f) => f.slug === slug)
   if (!family) notFound()
+  // The no-series "other" bucket has no page (user 2026-07-09); with
+  // dynamicParams=true this needs an explicit guard instead of relying on
+  // the param simply not being prerendered.
+  if (series === 'other') notFound()
 
   // MiniLux keeps its hand-curated showcase merged page (richest editorial +
   // real specs); every other series renders the same merged template assembled
@@ -326,19 +335,25 @@ export default async function SeriesDetailPage({ params }: { params: Params }) {
         }
         const related = pickRelatedProducts(slug, product, productsByFamily)
 
-        // JSON-LD: Product + (ProductGroup when it has siblings) + BreadcrumbList.
-        // Model-grain URL — signage collapses CCT suffixes to one page.
+        // JSON-LD: Product + (ProductGroup only for TRUE variants) + Breadcrumb.
+        // Model-grain URL — signage collapses CCT suffixes to one page, and
+        // those CCT SKUs are the one genuine variant set we have. Series
+        // siblings are separate products with their own pages, NOT variants.
         const displayCode =
           slug === 'led-signage-modules' ? stripCctSuffix(product.sku) : product.sku
         const skuUrl = `/products/${slug}/${displayCode}`
-        const seen = new Set<string>()
-        const variants: VariantRef[] = sameSeries
-          .map((p) => ({
-            code: slug === 'led-signage-modules' ? stripCctSuffix(p.sku) : p.sku,
-            p,
-          }))
-          .filter(({ code }) => (seen.has(code) ? false : (seen.add(code), true)))
-          .map(({ code, p }) => ({ name: p.name, sku: code, url: `/products/${slug}/${code}` }))
+        const CCT_COLOR: Record<string, string> = { WW: 'Warm white', NW: 'Neutral white', CW: 'Cool white' }
+        const variants: VariantRef[] =
+          slug === 'led-signage-modules'
+            ? all
+                .filter((p) => stripCctSuffix(p.sku) === displayCode)
+                .map((p) => ({
+                  name: p.name,
+                  sku: p.sku,
+                  url: skuUrl,
+                  color: CCT_COLOR[p.sku.slice(displayCode.length + 1)],
+                }))
+            : []
         const crumbs: Crumb[] = [
           { name: 'Home', url: '/' },
           { name: 'Products', url: '/products' },
@@ -356,7 +371,6 @@ export default async function SeriesDetailPage({ params }: { params: Params }) {
             `${product.name} — specifications, datasheet and where to buy.`,
           imageUrl: productImageUrl(product),
           variants,
-          seriesName: product.series ? seriesLabel(product.series) : undefined,
         })
 
         return (

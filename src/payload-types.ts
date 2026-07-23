@@ -271,7 +271,7 @@ export interface Product {
   width_mm?: number | null;
   height_mm?: number | null;
   weight_kg?: number | null;
-  waterproof?: ('non_waterproof' | 'ip20' | 'ip44' | 'ip65' | 'ip67' | 'ip68') | null;
+  waterproof?: ('non_waterproof' | 'ip20' | 'ip44' | 'ip65' | 'ip66' | 'ip67' | 'ip68') | null;
   temp_min_c?: number | null;
   temp_max_c?: number | null;
   sensor_type?: ('pir' | 'microwave' | 'daylight' | 'dual') | null;

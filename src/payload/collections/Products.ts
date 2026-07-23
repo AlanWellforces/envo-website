@@ -371,6 +371,7 @@ export const Products: CollectionConfig = {
                         { label: 'IP20',           value: 'ip20'           },
                         { label: 'IP44',           value: 'ip44'           },
                         { label: 'IP65',           value: 'ip65'           },
+                        { label: 'IP66',           value: 'ip66'           },
                         { label: 'IP67',           value: 'ip67'           },
                         { label: 'IP68',           value: 'ip68'           },
                       ],

@@ -124,22 +124,26 @@ describe('productPageLd', () => {
     })
     expect(single.some((n) => (n as Record<string, unknown>)['@type'] === 'ProductGroup')).toBe(false)
 
+    // True variants = the CCT SKUs one signage model page collapses.
     const multi = productPageLd(mk(), crumbs, {
-      url: '/products/led-drivers/EV-TEST-1',
+      url: '/products/led-signage-modules/EV-TEST01LBY',
       name: 'ENVO Test Module',
-      seriesName: 'Test Series',
       variants: [
-        { name: 'ENVO Test Module', sku: 'EV-TEST-1', url: '/products/led-drivers/EV-TEST-1' },
-        { name: 'ENVO Test Module 2', sku: 'EV-TEST-2', url: '/products/led-drivers/EV-TEST-2' },
+        { name: 'ENVO Test Module', sku: 'EV-TEST01LBY-WW', url: '/products/led-signage-modules/EV-TEST01LBY', color: 'Warm white' },
+        { name: 'ENVO Test Module', sku: 'EV-TEST01LBY-NW', url: '/products/led-signage-modules/EV-TEST01LBY', color: 'Neutral white' },
       ],
     }) as Record<string, unknown>[]
     const group = multi.find((n) => n['@type'] === 'ProductGroup') as Record<string, unknown>
     const product = multi.find((n) => n['@type'] === 'Product') as Record<string, unknown>
     expect(group).toBeDefined()
-    expect((group.hasVariant as unknown[]).length).toBe(2)
+    const hasVariant = group.hasVariant as Record<string, unknown>[]
+    expect(hasVariant.length).toBe(2)
+    expect(hasVariant[0].color).toBe('Warm white')
+    expect(group.variesBy).toEqual(['https://schema.org/color'])
     // variant relationship wired both ways via matching @id
     expect((product.isVariantOf as Record<string, unknown>)['@id']).toBe(group['@id'])
-    expect(group.name).toBe('ENVO Test Series')
+    // group name = the product itself (the page IS the group), not a series label
+    expect(group.name).toBe('ENVO Test Module')
   })
 
   it('always ends with a BreadcrumbList', () => {

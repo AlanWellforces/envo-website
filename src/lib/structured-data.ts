@@ -113,7 +113,7 @@ function toPropertyValues(specs: Spec[]) {
 
 // ---------------------------------------------------------------- Product / Group
 
-export type VariantRef = { name: string; sku: string; url: string }
+export type VariantRef = { name: string; sku: string; url: string; color?: string }
 
 type ProductPageParts = {
   /** Canonical page path, e.g. `/products/led-drivers/EV-SE-15-12US`. */
@@ -122,16 +122,20 @@ type ProductPageParts = {
   name: string
   description?: string | null
   imageUrl?: string | null
-  /** Sibling models in the same series, each with its own canonical page. */
+  /** TRUE variants of this one product (the CCT SKUs a signage model page
+   *  collapses), NOT catalogue siblings. Until 2026-07-17 this carried the
+   *  whole series — 30 unrelated driver models each claiming a different
+   *  ProductGroup containing the same 30 "variants", which is not what
+   *  Google's variant markup means and diluted eligibility. Sibling models
+   *  with their own pages are separate Products, not variants. */
   variants?: VariantRef[]
-  /** Series display label for the ProductGroup name, e.g. "Mini Series". */
-  seriesName?: string | null
 }
 
 /**
  * Build the JSON-LD graph for a single SKU page: the Product itself, its parent
- * ProductGroup (when it has siblings) with the variant relationship wired both
- * ways, and a BreadcrumbList. Returns an array of nodes to render as separate
+ * ProductGroup (only when the page really collapses variant SKUs — CCT options)
+ * with the variant relationship wired both ways and `variesBy`, and a
+ * BreadcrumbList. Returns an array of nodes to render as separate
  * <script> tags.
  */
 export function productPageLd(
@@ -167,17 +171,21 @@ export function productPageLd(
       '@context': 'https://schema.org',
       '@type': 'ProductGroup',
       '@id': groupId,
-      name: parts.seriesName ? `ENVO ${parts.seriesName}` : parts.name,
+      name: parts.name,
       url: abs(parts.url),
       brand: { '@type': 'Brand', name: 'ENVO' },
       ...(image ? { image } : {}),
       ...(parts.description ? { description: parts.description } : {}),
+      // CCT (warm/neutral/cool white) is the only axis our variant SKUs
+      // differ on — schema.org/color is the closest standard property.
+      variesBy: ['https://schema.org/color'],
       hasVariant: parts.variants!.map((v) => ({
         '@type': 'Product',
         name: v.name,
         sku: v.sku,
         url: abs(v.url),
         brand: { '@type': 'Brand', name: 'ENVO' },
+        ...(v.color ? { color: v.color } : {}),
       })),
     })
   }

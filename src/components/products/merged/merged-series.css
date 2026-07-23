@@ -253,9 +253,14 @@
 .pdetail .cmp-table.rows .shared-item .val { color: var(--text); font-weight: 600; }
 /* Model code → its own SKU page. Dark like every other cell (2026-07-13:
    a column of blue codes reads as noise) — hover carries the affordance. */
-.pdetail .cmp-table.rows .mlink { color: var(--text); text-decoration: none; }
-.pdetail .cmp-table.rows tr:hover .mlink { color: var(--blue); }
-.pdetail .cmp-table.rows .mlink:hover { text-decoration: underline; }
+/* Model-code links — both layouts + the single-model dl (columns/dl gained
+   them 2026-07-17: the single-SKU sidelit series pages had zero crawlable
+   links to their model pages). Same quiet treatment everywhere. */
+.pdetail .cmp-table .mlink,
+.pdetail .shared-specs .mlink { color: var(--text); text-decoration: none; }
+.pdetail .cmp-table tr:hover .mlink { color: var(--blue); }
+.pdetail .cmp-table .mlink:hover,
+.pdetail .shared-specs .mlink:hover { color: var(--blue); text-decoration: underline; }
 /* Per-model spec-sheet download link — self-coloured red PDF file mark */
 .pdetail .cmp-table.rows .ds-head,
 .pdetail .cmp-table.rows td.ds { white-space: nowrap; }
