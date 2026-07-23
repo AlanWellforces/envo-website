@@ -7,7 +7,7 @@
 import { getPayload } from 'payload'
 import Link from 'next/link'
 import config from '@payload-config'
-import { analyticsSummary } from '@/lib/analytics/aggregate'
+import { analyticsSummary, bucketSeries } from '@/lib/analytics/aggregate'
 import { ADMIN_COLORS, ADMIN_FONT_FAMILY, ICON_GEOMETRY } from '../admin-theme'
 
 const BLUE = ADMIN_COLORS.blue
@@ -19,11 +19,25 @@ const tzDay = (d: Date): string => d.toLocaleDateString('en-CA', { timeZone: TZ 
 
 type RecentDoc = { id: number | string; title: string; kind: 'post' | 'page' | 'project'; href: string; updatedAt: string }
 
-async function loadData() {
+// Selectable trailing windows for the "Website data" section (?range=). Same
+// steps Google Search Console uses; default 7.
+const RANGES = [7, 28, 90] as const
+type RangeDays = (typeof RANGES)[number]
+
+function parseRange(value: string | string[] | undefined): RangeDays {
+  const n = Number(Array.isArray(value) ? value[0] : value)
+  return (RANGES as readonly number[]).includes(n) ? (n as RangeDays) : 7
+}
+
+async function loadData(days: RangeDays) {
   const payload = await getPayload({ config })
 
-  const weekStart = new Date()
-  weekStart.setUTCDate(weekStart.getUTCDate() - 7)
+  // Lead-count windows aligned with analyticsSummary: trailing `days` window
+  // plus the same-length window before it, for the period-over-period delta.
+  const rangeStart = new Date()
+  rangeStart.setUTCDate(rangeStart.getUTCDate() - days)
+  const prevRangeStart = new Date(rangeStart)
+  prevRangeStart.setUTCDate(prevRangeStart.getUTCDate() - days)
 
   const [
     productsTotal,
@@ -37,7 +51,8 @@ async function loadData() {
     projectsPublished,
     faqsTotal,
     leadsTotal,
-    leadsThisWeek,
+    leadsInRange,
+    leadsPrevRange,
     recentLeads,
     analytics,
     eventsEver,
@@ -63,12 +78,21 @@ async function loadData() {
     payload.count({ collection: 'submissions' }),
     payload.count({
       collection: 'submissions',
-      where: { createdAt: { greater_than: weekStart.toISOString() } },
+      where: { createdAt: { greater_than: rangeStart.toISOString() } },
+    }),
+    payload.count({
+      collection: 'submissions',
+      where: {
+        and: [
+          { createdAt: { greater_than: prevRangeStart.toISOString() } },
+          { createdAt: { less_than_equal: rangeStart.toISOString() } },
+        ],
+      },
     }),
     payload.find({ collection: 'submissions', limit: 5, sort: '-createdAt', depth: 0 }),
-    analyticsSummary(payload, 7),
+    analyticsSummary(payload, days),
     // Any pageview ever — distinguishes "analytics never received data" (not
-    // set up) from "genuinely zero in the last 7 days".
+    // set up) from "genuinely zero in the selected window".
     payload.count({ collection: 'events', where: { kind: { equals: 'pageview' } } }),
     payload.find({ collection: 'posts', limit: 3, sort: '-updatedAt', depth: 0 }),
     payload.find({ collection: 'pages', limit: 3, sort: '-updatedAt', depth: 0 }),
@@ -122,7 +146,8 @@ async function loadData() {
     faqsTotal: faqsTotal.totalDocs,
     eventsEver: eventsEver.totalDocs,
     leadsTotal: leadsTotal.totalDocs,
-    leadsThisWeek: leadsThisWeek.totalDocs,
+    leadsInRange: leadsInRange.totalDocs,
+    leadsPrevRange: leadsPrevRange.totalDocs,
     recentLeads: recentLeads.docs as Array<{
       id: number | string
       email?: string | null
@@ -135,6 +160,7 @@ async function loadData() {
     paths: analytics.paths,
     referrers: analytics.referrers,
     fym: analytics.fym,
+    prev: analytics.prev,
     recent,
     lastSyncedAt: (lastSynced.docs[0] as { akeneo_synced_at?: string | null } | undefined)
       ?.akeneo_synced_at,
@@ -163,10 +189,33 @@ function lastSyncLabel(iso: string | null | undefined): string {
   return d.toLocaleDateString('en-NZ', { day: 'numeric', month: 'short', timeZone: TZ }) + `, ${time}`
 }
 
+/**
+ * Period-over-period delta chip: this window vs the same-length window before
+ * it. Percentages need a base — when the previous window is 0 we say "new"
+ * (or an em-dash when both are 0) instead of a fake ∞%.
+ */
+function Delta({ now, prev, days }: { now: number; prev: number; days: number }) {
+  let text: string
+  let color = '#76828f'
+  if (prev === 0) {
+    text = now === 0 ? '—' : 'new'
+    if (now > 0) color = '#2e7d32'
+  } else {
+    const pct = Math.round(((now - prev) / prev) * 100)
+    text = pct > 0 ? `↑ ${pct}%` : pct < 0 ? `↓ ${Math.abs(pct)}%` : '± 0%'
+    color = pct > 0 ? '#2e7d32' : pct < 0 ? '#c62828' : '#76828f'
+  }
+  return (
+    <div className="ed-delta" style={{ color }} title={`${prev} in the previous ${days} days`}>
+      {text} <span className="vs">vs prev {days}d</span>
+    </div>
+  )
+}
+
 /** Horizontal ranked bars (top pages / referrers / FYM applications). */
 function Bars({ data, color, emptyText }: { data: { label: string; count: number }[]; color: string; emptyText?: string }) {
   const max = Math.max(1, ...data.map((d) => d.count))
-  if (data.length === 0) return <p className="ed-empty">{emptyText ?? 'No data in the last 7 days.'}</p>
+  if (data.length === 0) return <p className="ed-empty">{emptyText ?? 'No data in this window.'}</p>
   return (
     <div className="ed-bars">
       {data.map((d) => (
@@ -184,32 +233,50 @@ function Bars({ data, color, emptyText }: { data: { label: string; count: number
   )
 }
 
-/** 7-day page-view column chart (inline SVG). */
-function TrendChart({ data }: { data: { date: string; count: number }[] }) {
+/**
+ * Page-view column chart (inline SVG). Daily bars up to 28 days; beyond a
+ * month the daily series is folded into 7-day buckets so 90 days stays
+ * readable. Per-bar count labels and every-date labels only when they fit.
+ */
+function TrendChart({ data, days }: { data: { date: string; count: number }[]; days: number }) {
+  const weekly = data.length > 31
+  const series = weekly ? bucketSeries(data, 7) : data
+  const showCounts = series.length <= 16
+  // At most ~8 x-axis labels; anchor to the newest bar so "today" is labelled.
+  const labelEvery = Math.ceil(series.length / 8)
   const W = 320
   const H = 92
   const PAD = 4
   const LABEL_H = 16
-  const max = Math.max(1, ...data.map((d) => d.count))
-  const slot = (W - PAD * 2) / data.length
-  const barW = Math.min(30, slot * 0.55)
+  const max = Math.max(1, ...series.map((d) => d.count))
+  const slot = (W - PAD * 2) / series.length
+  const barW = Math.max(2, Math.min(30, slot * 0.55))
   return (
-    <svg viewBox={`0 0 ${W} ${H + LABEL_H}`} className="ed-trend" role="img" aria-label="Page views per day, last 7 days">
-      {data.map((d, i) => {
+    <svg
+      viewBox={`0 0 ${W} ${H + LABEL_H}`}
+      className="ed-trend"
+      role="img"
+      aria-label={`Page views per ${weekly ? 'week' : 'day'}, last ${days} days`}
+    >
+      {series.map((d, i) => {
         const h = Math.max(d.count > 0 ? 4 : 2, (d.count / max) * (H - 18))
         const x = PAD + slot * i + (slot - barW) / 2
         const y = H - h
         return (
           <g key={d.date}>
-            <rect x={x} y={y} width={barW} height={h} rx={3} fill={d.count > 0 ? BLUE : '#e6e9ee'} />
-            {d.count > 0 && (
-              <text x={x + barW / 2} y={y - 5} textAnchor="middle" fontSize="10" fontWeight="700" fill="#141d2b">
+            <rect x={x} y={y} width={barW} height={h} rx={Math.min(3, barW / 2)} fill={d.count > 0 ? BLUE : '#e6e9ee'}>
+              <title>{`${weekly ? 'Week of ' : ''}${d.date}: ${d.count}`}</title>
+            </rect>
+            {showCounts && d.count > 0 && (
+              <text x={x + barW / 2} y={y - 5} textAnchor="middle" fontSize={series.length > 10 ? 9 : 10} fontWeight="700" fill="#141d2b">
                 {d.count}
               </text>
             )}
-            <text x={x + barW / 2} y={H + 12} textAnchor="middle" fontSize="9" fill="#76828f">
-              {d.date.slice(5)}
-            </text>
+            {(series.length - 1 - i) % labelEvery === 0 && (
+              <text x={x + barW / 2} y={H + 12} textAnchor="middle" fontSize="9" fill="#76828f">
+                {d.date.slice(5)}
+              </text>
+            )}
           </g>
         )
       })}
@@ -233,13 +300,17 @@ const QUICK_ACTIONS: { label: string; desc: string; href: string; lime?: boolean
   { label: 'View products', desc: 'Catalogue', href: '/admin/collections/products', icon: 'box', lime: true },
 ]
 
-type DashboardProps = { user?: { name?: string | null; email?: string | null } | null }
+type DashboardProps = {
+  user?: { name?: string | null; email?: string | null } | null
+  searchParams?: { [key: string]: string | string[] | undefined }
+}
 
 export async function Dashboard(props: DashboardProps) {
+  const range = parseRange(props.searchParams?.range)
   let d: Awaited<ReturnType<typeof loadData>> | null = null
   let loadError = false
   try {
-    d = await loadData()
+    d = await loadData(range)
   } catch (err) {
     // A DB/aggregation failure must not blank the whole admin landing or, worse,
     // render every metric as a fake "0". Surface it honestly instead.
@@ -276,7 +347,7 @@ export async function Dashboard(props: DashboardProps) {
   }
 
   // Analytics state: separate "never received any data" (not wired up) from a
-  // genuine zero over the last 7 days.
+  // genuine zero over the selected window.
   const analyticsConfigured = d.eventsEver > 0
   const trafficWindowEmpty = d.totalPv === 0
 
@@ -309,6 +380,13 @@ export async function Dashboard(props: DashboardProps) {
         .ed-stat:not(.b):not(.l) .sub { color: var(--subtle); }
 
         .ed-sectit { font-size: 13px; font-weight: 700; text-transform: uppercase; letter-spacing: .06em; color: var(--subtle); margin: 0 2px 12px; }
+        .ed-sectit-row { display: flex; align-items: baseline; justify-content: space-between; gap: 12px; flex-wrap: wrap; }
+        .ed-range { display: inline-flex; gap: 4px; background: #eef1f4; border-radius: 999px; padding: 3px; margin-bottom: 12px; }
+        .ed-range a { font-size: 12px; font-weight: 700; padding: 4px 12px; border-radius: 999px; color: var(--subtle); }
+        .ed-range a:hover { color: var(--ink); }
+        .ed-range a.on { background: #fff; color: var(--blue); box-shadow: 0 1px 3px rgba(16,24,40,.12); }
+        .ed-delta { font-size: 12px; font-weight: 700; margin-top: 6px; }
+        .ed-delta .vs { font-weight: 500; color: var(--subtle); }
 
         .ed-actions { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 200px), 1fr)); gap: 14px; margin-bottom: 28px; }
         .ed-acard { background: #fff; border: 1px solid var(--line); border-radius: 16px; padding: 20px; display: flex; flex-direction: column; gap: 12px; transition: .15s; }
@@ -446,7 +524,21 @@ export async function Dashboard(props: DashboardProps) {
           ))}
         </div>
 
-        <div className="ed-sectit">Website data · last 7 days</div>
+        <div className="ed-sectit-row">
+          <div className="ed-sectit">Website data · last {range} days</div>
+          <div className="ed-range" role="group" aria-label="Date range">
+            {RANGES.map((r) => (
+              <Link
+                key={r}
+                href={r === 7 ? '/admin' : `/admin?range=${r}`}
+                className={r === range ? 'on' : undefined}
+                aria-current={r === range ? 'true' : undefined}
+              >
+                {r}d
+              </Link>
+            ))}
+          </div>
+        </div>
         <div className="ed-panels">
           <div className="ed-panel">
             <h2>Leads</h2>
@@ -454,9 +546,10 @@ export async function Dashboard(props: DashboardProps) {
             <div className="ed-kpis">
               <div>
                 <div className="ed-kpi-n" style={{ color: BLUE }}>
-                  {d.leadsThisWeek}
+                  {d.leadsInRange}
                 </div>
-                <div className="ed-kpi-l">this week</div>
+                <div className="ed-kpi-l">last {range} days</div>
+                <Delta now={d.leadsInRange} prev={d.leadsPrevRange} days={range} />
               </div>
               <div>
                 <div className="ed-kpi-n">{d.leadsTotal}</div>
@@ -497,16 +590,18 @@ export async function Dashboard(props: DashboardProps) {
                       {d.totalPv}
                     </div>
                     <div className="ed-kpi-l">page views</div>
+                    <Delta now={d.totalPv} prev={d.prev.totalPv} days={range} />
                   </div>
                   <div>
                     <div className="ed-kpi-n">{d.uniques}</div>
                     <div className="ed-kpi-l">visitors (est.)</div>
+                    <Delta now={d.uniques} prev={d.prev.uniques} days={range} />
                   </div>
                 </div>
                 {trafficWindowEmpty ? (
-                  <p className="ed-empty">No page views in the last 7 days.</p>
+                  <p className="ed-empty">No page views in the last {range} days.</p>
                 ) : (
-                  <TrendChart data={d.byDay} />
+                  <TrendChart data={d.byDay} days={range} />
                 )}
               </>
             )}
@@ -521,22 +616,23 @@ export async function Dashboard(props: DashboardProps) {
                   {d.fym.total}
                 </div>
                 <div className="ed-kpi-l">total runs</div>
+                <Delta now={d.fym.total} prev={d.prev.fymTotal} days={range} />
               </div>
             </div>
             <Bars
               data={d.fym.byApplication.map((a) => ({ label: a.application, count: a.count }))}
               color={LIME}
-              emptyText="No Find Your Match runs in the last 7 days."
+              emptyText={`No Find Your Match runs in the last ${range} days.`}
             />
           </div>
 
           <div className="ed-panel">
             <h2>Top pages</h2>
-            <div className="desc">Most viewed, last 7 days.</div>
+            <div className="desc">Most viewed, last {range} days.</div>
             <Bars
               data={d.paths.map((p) => ({ label: p.path === '/' ? '/ (Home)' : p.path, count: p.count }))}
               color={BLUE}
-              emptyText={analyticsConfigured ? 'No page views in the last 7 days.' : 'No traffic recorded yet.'}
+              emptyText={analyticsConfigured ? `No page views in the last ${range} days.` : 'No traffic recorded yet.'}
             />
           </div>
 
@@ -546,7 +642,7 @@ export async function Dashboard(props: DashboardProps) {
             <Bars
               data={d.referrers.map((r) => ({ label: r.referrer, count: r.count }))}
               color={LIME}
-              emptyText={analyticsConfigured ? 'No referrers in the last 7 days.' : 'No traffic recorded yet.'}
+              emptyText={analyticsConfigured ? `No referrers in the last ${range} days.` : 'No traffic recorded yet.'}
             />
           </div>
         </div>
