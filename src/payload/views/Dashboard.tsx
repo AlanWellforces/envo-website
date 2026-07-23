@@ -4,7 +4,7 @@
 // cards, website-data panels (leads / traffic / Find Your Match) with inline
 // SVG charts, then Recently-edited + Akeneo-sync panels. Server component —
 // every number aggregates live via the Payload Local API.
-import { getPayload } from 'payload'
+import { getPayload, type Payload } from 'payload'
 import Link from 'next/link'
 import config from '@payload-config'
 import { analyticsSummary, bucketSeries } from '@/lib/analytics/aggregate'
@@ -18,6 +18,41 @@ const TZ = 'Pacific/Auckland'
 const tzDay = (d: Date): string => d.toLocaleDateString('en-CA', { timeZone: TZ })
 
 type RecentDoc = { id: number | string; title: string; kind: 'post' | 'page' | 'project'; href: string; updatedAt: string }
+type SeoGap = { id: number | string; title: string; kind: 'post' | 'page' | 'project'; href: string }
+
+const blank = (v: unknown): boolean => typeof v !== 'string' || v.trim() === ''
+
+/**
+ * Published docs that would ship without a <meta name="description">, mirroring
+ * each route's actual fallback chain: posts/projects fall back to their excerpt
+ * (blog/[slug], projects/[slug] generateMetadata), CMS pages have no fallback
+ * at all. Solutions, products and PageSeo always have in-code defaults — never
+ * listed here.
+ */
+async function findSeoGaps(payload: Payload): Promise<SeoGap[]> {
+  const published = { _status: { equals: 'published' as const } }
+  const [posts, pages, projects] = await Promise.all([
+    payload.find({ collection: 'posts', where: published, limit: 300, depth: 0 }),
+    payload.find({ collection: 'pages', where: published, limit: 300, depth: 0 }),
+    payload.find({ collection: 'projects', where: published, limit: 300, depth: 0 }),
+  ])
+  const gap = <T extends { id: number | string; title?: string | null }>(
+    docs: T[],
+    kind: SeoGap['kind'],
+    missing: (d: T) => boolean,
+  ): SeoGap[] =>
+    docs.filter(missing).map((d) => ({
+      id: d.id,
+      title: d.title || '(untitled)',
+      kind,
+      href: `/admin/collections/${kind}s/${d.id}`,
+    }))
+  return [
+    ...gap(posts.docs, 'post', (d) => blank(d.seoDescription) && blank(d.excerpt)),
+    ...gap(pages.docs, 'page', (d) => blank(d.metaDescription)),
+    ...gap(projects.docs, 'project', (d) => blank(d.seoDescription) && blank(d.excerpt)),
+  ]
+}
 
 // Selectable trailing windows for the "Website data" section (?range=). Same
 // steps Google Search Console uses; default 7.
@@ -61,6 +96,7 @@ async function loadData(days: RangeDays) {
     recentProjects,
     lastSynced,
     syncLocked,
+    seoGaps,
   ] = await Promise.all([
     payload.count({ collection: 'products' }),
     payload.count({
@@ -105,6 +141,7 @@ async function loadData(days: RangeDays) {
       where: { akeneo_synced_at: { exists: true } },
     }),
     payload.count({ collection: 'products', where: { sync_locked: { equals: true } } }),
+    findSeoGaps(payload),
   ])
 
   const recent: RecentDoc[] = [
@@ -165,6 +202,7 @@ async function loadData(days: RangeDays) {
     lastSyncedAt: (lastSynced.docs[0] as { akeneo_synced_at?: string | null } | undefined)
       ?.akeneo_synced_at,
     syncLockedCount: syncLocked.totalDocs,
+    seoGaps,
   }
 }
 
@@ -644,6 +682,38 @@ export async function Dashboard(props: DashboardProps) {
               color={LIME}
               emptyText={analyticsConfigured ? `No referrers in the last ${range} days.` : 'No traffic recorded yet.'}
             />
+          </div>
+        </div>
+
+        <div className="ed-sectit">Content health</div>
+        <div className="ed-panels" style={{ gridTemplateColumns: '1fr' }}>
+          <div className="ed-panel">
+            <h2>Missing SEO descriptions</h2>
+            <div className="desc">
+              Published content that ships without a meta description — Google picks arbitrary page
+              text for the snippet. Fix by filling the SEO description (or excerpt) on each item.
+            </div>
+            {d.seoGaps.length === 0 ? (
+              <p className="ed-empty">
+                <span style={{ color: '#2e7d32', fontWeight: 700 }}>✓</span> All published posts,
+                pages and projects have one.
+              </p>
+            ) : (
+              <>
+                {d.seoGaps.slice(0, 8).map((g) => (
+                  <a key={`${g.kind}-${g.id}`} href={g.href} className="ed-row">
+                    <span className={`ed-chip ${g.kind}`}>{g.kind.charAt(0).toUpperCase() + g.kind.slice(1)}</span>
+                    <span className="t">{g.title}</span>
+                    <span className="ago">add description →</span>
+                  </a>
+                ))}
+                {d.seoGaps.length > 8 && (
+                  <p className="ed-empty" style={{ marginTop: 10 }}>
+                    …and {d.seoGaps.length - 8} more.
+                  </p>
+                )}
+              </>
+            )}
           </div>
         </div>
 
