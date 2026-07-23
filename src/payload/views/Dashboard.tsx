@@ -4,10 +4,10 @@
 // cards, website-data panels (leads / traffic / Find Your Match) with inline
 // SVG charts, then Recently-edited + Akeneo-sync panels. Server component —
 // every number aggregates live via the Payload Local API.
-import { getPayload } from 'payload'
+import { getPayload, type Payload } from 'payload'
 import Link from 'next/link'
 import config from '@payload-config'
-import { analyticsSummary, bucketSeries } from '@/lib/analytics/aggregate'
+import { analyticsSummary, bucketSeries, describeDelta } from '@/lib/analytics/aggregate'
 import { ADMIN_COLORS, ADMIN_FONT_FAMILY, ICON_GEOMETRY } from '../admin-theme'
 
 const BLUE = ADMIN_COLORS.blue
@@ -18,6 +18,41 @@ const TZ = 'Pacific/Auckland'
 const tzDay = (d: Date): string => d.toLocaleDateString('en-CA', { timeZone: TZ })
 
 type RecentDoc = { id: number | string; title: string; kind: 'post' | 'page' | 'project'; href: string; updatedAt: string }
+type SeoGap = { id: number | string; title: string; kind: 'post' | 'page' | 'project'; href: string }
+
+const blank = (v: unknown): boolean => typeof v !== 'string' || v.trim() === ''
+
+/**
+ * Published docs that would ship without a <meta name="description">, mirroring
+ * each route's actual fallback chain: posts/projects fall back to their excerpt
+ * (blog/[slug], projects/[slug] generateMetadata), CMS pages have no fallback
+ * at all. Solutions, products and PageSeo always have in-code defaults — never
+ * listed here.
+ */
+async function findSeoGaps(payload: Payload): Promise<SeoGap[]> {
+  const published = { _status: { equals: 'published' as const } }
+  const [posts, pages, projects] = await Promise.all([
+    payload.find({ collection: 'posts', where: published, limit: 300, depth: 0 }),
+    payload.find({ collection: 'pages', where: published, limit: 300, depth: 0 }),
+    payload.find({ collection: 'projects', where: published, limit: 300, depth: 0 }),
+  ])
+  const gap = <T extends { id: number | string; title?: string | null }>(
+    docs: T[],
+    kind: SeoGap['kind'],
+    missing: (d: T) => boolean,
+  ): SeoGap[] =>
+    docs.filter(missing).map((d) => ({
+      id: d.id,
+      title: d.title || '(untitled)',
+      kind,
+      href: `/admin/collections/${kind}s/${d.id}`,
+    }))
+  return [
+    ...gap(posts.docs, 'post', (d) => blank(d.seoDescription) && blank(d.excerpt)),
+    ...gap(pages.docs, 'page', (d) => blank(d.metaDescription)),
+    ...gap(projects.docs, 'project', (d) => blank(d.seoDescription) && blank(d.excerpt)),
+  ]
+}
 
 // Selectable trailing windows for the "Website data" section (?range=). Same
 // steps Google Search Console uses; default 7.
@@ -61,6 +96,7 @@ async function loadData(days: RangeDays) {
     recentProjects,
     lastSynced,
     syncLocked,
+    seoGaps,
   ] = await Promise.all([
     payload.count({ collection: 'products' }),
     payload.count({
@@ -105,6 +141,7 @@ async function loadData(days: RangeDays) {
       where: { akeneo_synced_at: { exists: true } },
     }),
     payload.count({ collection: 'products', where: { sync_locked: { equals: true } } }),
+    findSeoGaps(payload),
   ])
 
   const recent: RecentDoc[] = [
@@ -165,6 +202,7 @@ async function loadData(days: RangeDays) {
     lastSyncedAt: (lastSynced.docs[0] as { akeneo_synced_at?: string | null } | undefined)
       ?.akeneo_synced_at,
     syncLockedCount: syncLocked.totalDocs,
+    seoGaps,
   }
 }
 
@@ -189,24 +227,13 @@ function lastSyncLabel(iso: string | null | undefined): string {
   return d.toLocaleDateString('en-NZ', { day: 'numeric', month: 'short', timeZone: TZ }) + `, ${time}`
 }
 
-/**
- * Period-over-period delta chip: this window vs the same-length window before
- * it. Percentages need a base — when the previous window is 0 we say "new"
- * (or an em-dash when both are 0) instead of a fake ∞%.
- */
+/** Period-over-period delta chip — calculation lives in describeDelta (tested). */
+const DELTA_TONE_COLOR = { up: '#2e7d32', down: '#c62828', flat: ADMIN_COLORS.subtle } as const
+
 function Delta({ now, prev, days }: { now: number; prev: number; days: number }) {
-  let text: string
-  let color = '#76828f'
-  if (prev === 0) {
-    text = now === 0 ? '—' : 'new'
-    if (now > 0) color = '#2e7d32'
-  } else {
-    const pct = Math.round(((now - prev) / prev) * 100)
-    text = pct > 0 ? `↑ ${pct}%` : pct < 0 ? `↓ ${Math.abs(pct)}%` : '± 0%'
-    color = pct > 0 ? '#2e7d32' : pct < 0 ? '#c62828' : '#76828f'
-  }
+  const { text, tone } = describeDelta(now, prev)
   return (
-    <div className="ed-delta" style={{ color }} title={`${prev} in the previous ${days} days`}>
+    <div className="ed-delta" style={{ color: DELTA_TONE_COLOR[tone] }} title={`${prev} in the previous ${days} days`}>
       {text} <span className="vs">vs prev {days}d</span>
     </div>
   )
@@ -273,7 +300,7 @@ function TrendChart({ data, days }: { data: { date: string; count: number }[]; d
               </text>
             )}
             {(series.length - 1 - i) % labelEvery === 0 && (
-              <text x={x + barW / 2} y={H + 12} textAnchor="middle" fontSize="9" fill="#76828f">
+              <text x={x + barW / 2} y={H + 12} textAnchor="middle" fontSize="9" fill={ADMIN_COLORS.subtle}>
                 {d.date.slice(5)}
               </text>
             )}
@@ -359,22 +386,29 @@ export async function Dashboard(props: DashboardProps) {
         .ed-root a { text-decoration: none; color: inherit; }
         .ed-wrap { max-width: 1200px; margin: 0 auto; }
 
-        .ed-hero { position: relative; border-radius: 20px; padding: 34px 36px; margin-bottom: 26px; overflow: hidden; color: #fff; background: linear-gradient(115deg, #005a98 0%, #0071bc 42%, #3a9e3f 100%); }
-        .ed-hero::before { content: ''; position: absolute; inset: 0; background: radial-gradient(60% 120% at 88% 0%, rgba(174,201,11,.55), transparent 60%); }
+        /* Gradient stops + overlay strengths are WCAG-bounded (audit 2026-07-24):
+           body text is full-opacity white and every stop keeps it ≥4.5:1
+           (h1 ≥3:1 as large text, incl. under the lime glow at .4). */
+        .ed-hero { position: relative; border-radius: 20px; padding: 34px 36px; margin-bottom: 26px; overflow: hidden; color: #fff; background: linear-gradient(115deg, #005a98 0%, #0071bc 42%, #2e7d32 100%); }
+        /* Glow ellipse is height-capped so it fades out above the body copy
+           (only the ≥3:1-large h1 and the dark-pill date can intersect it). */
+        .ed-hero::before { content: ''; position: absolute; inset: 0; background: radial-gradient(50% 55% at 88% 0%, rgba(174,201,11,.4), transparent 60%); }
         .ed-hero > * { position: relative; }
         .ed-hero .ey { font-size: 12px; letter-spacing: .12em; text-transform: uppercase; font-weight: 700; opacity: .85; margin-bottom: 10px; }
         .ed-hero h1 { margin: 0; font-size: 32px; font-weight: 900; letter-spacing: -.025em; line-height: 1.05; }
-        .ed-hero p { font-size: 14.5px; opacity: .9; margin: 10px 0 0; max-width: 560px; }
-        .ed-hero .date { position: absolute; top: 34px; right: 36px; font-size: 12.5px; background: rgba(255,255,255,.15); padding: 7px 14px; border-radius: 999px; backdrop-filter: blur(4px); }
+        .ed-hero p { font-size: 14.5px; margin: 10px 0 0; max-width: 560px; }
+        .ed-hero .date { position: absolute; top: 34px; right: 36px; font-size: 12.5px; background: rgba(20,29,43,.4); padding: 7px 14px; border-radius: 999px; backdrop-filter: blur(4px); }
 
         .ed-grid5 { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 160px), 1fr)); gap: 14px; margin-bottom: 26px; }
         .ed-stat { display: block; border-radius: 16px; padding: 20px; border: 1px solid var(--line); background: #fff; transition: transform .15s ease, box-shadow .15s ease; }
         .ed-stat:hover { transform: translateY(-2px); box-shadow: 0 8px 24px rgba(16,24,40,.1); }
-        .ed-stat.b { background: linear-gradient(160deg, #0071bc, #0086df); color: #fff; border: 0; }
+        /* Blue tile capped at #0071bc (not #0086df) and .sub at full opacity:
+           13px text needs ≥4.5:1 on every gradient stop (audit 2026-07-24). */
+        .ed-stat.b { background: linear-gradient(160deg, #005a98, #0071bc); color: #fff; border: 0; }
         .ed-stat.l { background: linear-gradient(160deg, #aec90b, #c2de1a); color: #21280a; border: 0; }
         .ed-stat .num { font-size: 32px; font-weight: 900; letter-spacing: -.03em; line-height: 1; }
         .ed-stat .lbl { font-size: 13px; margin-top: 8px; font-weight: 600; }
-        .ed-stat .sub { font-size: 12px; margin-top: 3px; opacity: .7; }
+        .ed-stat .sub { font-size: 12px; margin-top: 3px; }
         .ed-stat.b .lbl, .ed-stat.l .lbl { opacity: .95; }
         .ed-stat:not(.b):not(.l) .num { color: var(--blue); }
         .ed-stat:not(.b):not(.l) .sub { color: var(--subtle); }
@@ -644,6 +678,38 @@ export async function Dashboard(props: DashboardProps) {
               color={LIME}
               emptyText={analyticsConfigured ? `No referrers in the last ${range} days.` : 'No traffic recorded yet.'}
             />
+          </div>
+        </div>
+
+        <div className="ed-sectit">Content health</div>
+        <div className="ed-panels" style={{ gridTemplateColumns: '1fr' }}>
+          <div className="ed-panel">
+            <h2>Missing SEO descriptions</h2>
+            <div className="desc">
+              Published content that ships without a meta description — Google picks arbitrary page
+              text for the snippet. Fix by filling the SEO description (or excerpt) on each item.
+            </div>
+            {d.seoGaps.length === 0 ? (
+              <p className="ed-empty">
+                <span style={{ color: '#2e7d32', fontWeight: 700 }}>✓</span> All published posts,
+                pages and projects have one.
+              </p>
+            ) : (
+              <>
+                {d.seoGaps.slice(0, 8).map((g) => (
+                  <a key={`${g.kind}-${g.id}`} href={g.href} className="ed-row">
+                    <span className={`ed-chip ${g.kind}`}>{g.kind.charAt(0).toUpperCase() + g.kind.slice(1)}</span>
+                    <span className="t">{g.title}</span>
+                    <span className="ago">add description →</span>
+                  </a>
+                ))}
+                {d.seoGaps.length > 8 && (
+                  <p className="ed-empty" style={{ marginTop: 10 }}>
+                    …and {d.seoGaps.length - 8} more.
+                  </p>
+                )}
+              </>
+            )}
           </div>
         </div>
 
