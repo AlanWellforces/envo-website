@@ -8,6 +8,8 @@
 import type { CollectionConfig } from 'payload'
 import { CERT_OPTIONS } from '@/lib/cert-codes'
 import { visibleProductOrAuthed, authedFieldRead } from '@/payload/access/public-read'
+import { revalidatePaths } from '@/lib/revalidate'
+import { productPaths } from '@/lib/product-paths'
 
 export const Products: CollectionConfig = {
   slug: 'products',
@@ -696,4 +698,23 @@ export const Products: CollectionConfig = {
       ],
     },
   ],
+  hooks: {
+    // Product pages are fully static (generateStaticParams, no ISR fallback),
+    // so an edit/sync/delete was invisible on the live site until the next
+    // deploy. Invalidate every page the SKU appears on — plus the previous
+    // family/series paths when those change, so the SKU leaves its old pages.
+    afterChange: [
+      async ({ doc, previousDoc }) => {
+        const paths = new Set([...productPaths(doc), ...(previousDoc ? productPaths(previousDoc) : [])])
+        await revalidatePaths(paths, 'Products.afterChange')
+        return doc
+      },
+    ],
+    afterDelete: [
+      async ({ doc }) => {
+        await revalidatePaths(productPaths(doc), 'Products.afterDelete')
+        return doc
+      },
+    ],
+  },
 }
