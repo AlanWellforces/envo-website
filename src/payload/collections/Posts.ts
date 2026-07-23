@@ -6,6 +6,7 @@
 import type { CollectionConfig } from 'payload'
 import { lexicalEditor, FixedToolbarFeature, BlocksFeature } from '@payloadcms/richtext-lexical'
 import { slugify } from '../../lib/slugify.ts'
+import { publishedOrAuthed } from '@/payload/access/public-read'
 import { lexicalToText, readingTimeMinutes } from '../../lib/lexical-text.ts'
 
 export const Posts: CollectionConfig = {
@@ -24,7 +25,7 @@ export const Posts: CollectionConfig = {
     group: 'Content',
   },
   access: {
-    read: () => true,
+    read: publishedOrAuthed,
   },
   versions: {
     drafts: true,

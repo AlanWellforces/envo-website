@@ -7,6 +7,7 @@
 
 import type { CollectionConfig } from 'payload'
 import { CERT_OPTIONS } from '@/lib/cert-codes'
+import { visibleProductOrAuthed, authedFieldRead } from '@/payload/access/public-read'
 
 export const Products: CollectionConfig = {
   slug: 'products',
@@ -20,7 +21,10 @@ export const Products: CollectionConfig = {
     baseListFilter: () => ({ family: { exists: true } }),
   },
   access: {
-    read: () => true,
+    // Anonymous public API sees only live catalogue rows; SSR uses the Local
+    // API (overrideAccess) so it still sees everything. Internal fields below
+    // carry their own field-level read gate.
+    read: visibleProductOrAuthed,
   },
   fields: [
     {
@@ -75,6 +79,7 @@ export const Products: CollectionConfig = {
               fields: [
                 {
                   name: 'enabled',
+                  access: { read: authedFieldRead },
                   type: 'checkbox',
                   defaultValue: true,
                   admin: {
@@ -84,6 +89,7 @@ export const Products: CollectionConfig = {
                 },
                 {
                   name: 'hidden',
+                  access: { read: authedFieldRead },
                   type: 'checkbox',
                   defaultValue: false,
                   admin: {
@@ -460,12 +466,14 @@ export const Products: CollectionConfig = {
               fields: [
                 {
                   name: 'price_nzd',
+                  access: { read: authedFieldRead },
                   type: 'number',
                   label: 'Price (NZD)',
                   admin: { width: '33%', description: 'Retail price ex-GST. Internal — never rendered on the site.' },
                 },
                 {
                   name: 'inventory_type',
+                  access: { read: authedFieldRead },
                   type: 'select',
                   label: 'Availability',
                   options: [
@@ -476,6 +484,7 @@ export const Products: CollectionConfig = {
                 },
                 {
                   name: 'pack_qty',
+                  access: { read: authedFieldRead },
                   type: 'number',
                   label: 'Pack Qty',
                   admin: { width: '33%', description: 'Units per carton.' },
@@ -487,12 +496,14 @@ export const Products: CollectionConfig = {
               fields: [
                 {
                   name: 'shipping_lead_days',
+                  access: { read: authedFieldRead },
                   type: 'number',
                   label: 'Shipping Lead (days)',
                   admin: { width: '50%' },
                 },
                 {
                   name: 'manufacturing_lead_days',
+                  access: { read: authedFieldRead },
                   type: 'number',
                   label: 'Manufacturing Lead (days)',
                   admin: { width: '50%' },
@@ -538,6 +549,7 @@ export const Products: CollectionConfig = {
             },
             {
               name: 'marketing_note',
+              access: { read: authedFieldRead },
               type: 'textarea',
               admin: { description: 'Short note on the product page. e.g. "Popular for commercial signage."' },
             },
@@ -634,6 +646,7 @@ export const Products: CollectionConfig = {
           fields: [
             {
               name: 'sync_locked',
+              access: { read: authedFieldRead },
               type: 'checkbox',
               defaultValue: false,
               admin: {

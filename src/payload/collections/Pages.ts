@@ -6,6 +6,7 @@
 import type { CollectionConfig } from 'payload'
 import { lexicalEditor, FixedToolbarFeature, BlocksFeature } from '@payloadcms/richtext-lexical'
 import { slugify } from '../../lib/slugify.ts'
+import { publishedOrAuthed } from '@/payload/access/public-read'
 
 export const Pages: CollectionConfig = {
   slug: 'pages',
@@ -16,7 +17,7 @@ export const Pages: CollectionConfig = {
     group: 'Content',
     description: 'Standalone rich-text pages. Publish to make a page Visible on the website.',
   },
-  access: { read: () => true },
+  access: { read: publishedOrAuthed },
   versions: { drafts: true },
   fields: [
     {
