@@ -10,6 +10,7 @@
 import type { CollectionConfig } from 'payload'
 import { lexicalEditor, FixedToolbarFeature, BlocksFeature } from '@payloadcms/richtext-lexical'
 import { slugify } from '../../lib/slugify.ts'
+import { publishedOrAuthed } from '@/payload/access/public-read'
 
 export const Projects: CollectionConfig = {
   slug: 'projects',
@@ -25,7 +26,7 @@ export const Projects: CollectionConfig = {
     group: 'Content',
   },
   access: {
-    read: () => true,
+    read: publishedOrAuthed,
   },
   versions: {
     drafts: true,

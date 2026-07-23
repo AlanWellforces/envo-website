@@ -9,6 +9,7 @@
 // Storage creds land.
 import type { CollectionConfig } from 'payload'
 import { slugify } from '../../lib/slugify.ts'
+import { publishedOrAuthed } from '@/payload/access/public-read'
 
 export const Solutions: CollectionConfig = {
   slug: 'solutions',
@@ -22,7 +23,7 @@ export const Solutions: CollectionConfig = {
     group: 'Content',
   },
   access: {
-    read: () => true,
+    read: publishedOrAuthed,
   },
   versions: {
     drafts: true,
