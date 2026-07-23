@@ -7,6 +7,7 @@ import type { CollectionConfig } from 'payload'
 import { lexicalEditor, FixedToolbarFeature, BlocksFeature } from '@payloadcms/richtext-lexical'
 import { slugify } from '../../lib/slugify.ts'
 import { publishedOrAuthed } from '@/payload/access/public-read'
+import { revalidatePaths } from '@/lib/revalidate'
 import { lexicalToText, readingTimeMinutes } from '../../lib/lexical-text.ts'
 
 export const Posts: CollectionConfig = {
@@ -253,6 +254,17 @@ export const Posts: CollectionConfig = {
           console.error('[Posts.afterChange] revalidate fetch failed:', err)
         }
 
+        return doc
+      },
+    ],
+    // Deleting a published post must clear the cached blog pages it appeared
+    // on (hub, its own page, its category) — afterChange never fires on delete.
+    afterDelete: [
+      async ({ doc }) => {
+        const paths = new Set<string>(['/blog'])
+        if (doc?.slug) paths.add(`/blog/${doc.slug}`)
+        if (doc?.category) paths.add(`/blog/category/${doc.category}`)
+        await revalidatePaths(paths, 'Posts.afterDelete')
         return doc
       },
     ],

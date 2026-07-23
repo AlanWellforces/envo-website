@@ -23,6 +23,9 @@ function isValid(v: string): v is ProjectIndustry {
   return (VALID as string[]).includes(v)
 }
 
+// Hourly ISR so a future-dated (scheduled) project appears without a manual
+// revalidate once its publishedAt passes; hooks still purge instantly on edits.
+export const revalidate = 3600
 export async function generateStaticParams() {
   return VALID.map((industry) => ({ industry }))
 }
