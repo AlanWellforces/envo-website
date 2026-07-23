@@ -123,7 +123,7 @@ export const Projects: CollectionConfig = {
                     label: 'Raw HTML',
                     admin: {
                       language: 'html',
-                      description: 'Custom HTML for special layouts. Rendered as-is on the published page.',
+                      description: 'Custom HTML for special layouts. Sanitized on render: layout tags/classes/styles keep working; scripts, iframes, forms and event handlers are stripped.',
                     },
                   },
                 ],

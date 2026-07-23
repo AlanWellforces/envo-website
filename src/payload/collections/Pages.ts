@@ -46,7 +46,7 @@ export const Pages: CollectionConfig = {
                     name: 'html',
                     type: 'code',
                     label: 'Raw HTML',
-                    admin: { language: 'html', description: 'Custom HTML, rendered as-is on the published page.' },
+                    admin: { language: 'html', description: 'Custom HTML for special layouts. Sanitized on render: layout tags/classes/styles keep working; scripts, iframes, forms and event handlers are stripped.' },
                   },
                 ],
               },
