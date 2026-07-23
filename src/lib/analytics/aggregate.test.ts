@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest'
-import { bucketSeries, fillDays } from './aggregate'
+import { bucketSeries, describeDelta, fillDays } from './aggregate'
 
 describe('fillDays', () => {
   it('zero-fills the window oldest→newest', () => {
@@ -40,5 +40,32 @@ describe('bucketSeries', () => {
 
   it('handles an empty series', () => {
     expect(bucketSeries([], 7)).toEqual([])
+  })
+})
+
+describe('describeDelta', () => {
+  it('reports growth as a rounded percentage', () => {
+    expect(describeDelta(1240, 1052)).toEqual({ text: '↑ 18%', tone: 'up' })
+  })
+
+  it('reports decline as a rounded percentage', () => {
+    expect(describeDelta(52, 80)).toEqual({ text: '↓ 35%', tone: 'down' })
+  })
+
+  it('treats unchanged (incl. sub-1% rounding) as flat', () => {
+    expect(describeDelta(10, 10)).toEqual({ text: '± 0%', tone: 'flat' })
+    expect(describeDelta(1001, 1000)).toEqual({ text: '± 0%', tone: 'flat' })
+  })
+
+  it('never divides by a zero base: says "new" instead of ∞%', () => {
+    expect(describeDelta(6, 0)).toEqual({ text: 'new', tone: 'up' })
+  })
+
+  it('says nothing meaningful when both windows are empty', () => {
+    expect(describeDelta(0, 0)).toEqual({ text: '—', tone: 'flat' })
+  })
+
+  it('handles a drop to zero', () => {
+    expect(describeDelta(0, 12)).toEqual({ text: '↓ 100%', tone: 'down' })
   })
 })

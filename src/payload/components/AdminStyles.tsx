@@ -82,12 +82,12 @@ aside.nav {
   font-size: 11px;
   letter-spacing: .09em;
   text-transform: uppercase;
-  color: #76828f;
+  color: #5f6a78;
   font-weight: 700;
   margin: 16px 0 6px;
   padding: 0 10px;
 }
-.nav-group__toggle .nav-group__label { color: #76828f; }
+.nav-group__toggle .nav-group__label { color: #5f6a78; }
 .nav-group__indicator { opacity: 0; transition: opacity .15s; }
 .nav-group__toggle:hover .nav-group__indicator { opacity: .7; }
 
@@ -177,7 +177,7 @@ ${iconRules}
   font-size: 11px;
   text-transform: uppercase;
   letter-spacing: .06em;
-  color: #76828f;
+  color: #5f6a78;
   font-weight: 700;
 }
 .table table tbody td { border-bottom: 1px solid #f0f2f5; }
