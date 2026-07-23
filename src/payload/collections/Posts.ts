@@ -79,7 +79,7 @@ export const Posts: CollectionConfig = {
           // links, quote… all already in defaultFeatures).
           FixedToolbarFeature(),
           // Escape hatch for custom layout: insert a raw-HTML block anywhere in
-          // the content. Rendered verbatim on the published page.
+          // the content. Sanitized at render (sanitize-embedded-html) before output.
           BlocksFeature({
             blocks: [
               {
@@ -92,7 +92,7 @@ export const Posts: CollectionConfig = {
                     label: 'Raw HTML',
                     admin: {
                       language: 'html',
-                      description: 'Custom HTML for special layouts. Rendered as-is on the published page.',
+                      description: 'Custom HTML for special layouts. Sanitized on render: layout tags/classes/styles keep working; scripts, iframes, forms and event handlers are stripped.',
                     },
                   },
                 ],
