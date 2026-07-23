@@ -117,8 +117,15 @@ export async function getProjects(opts: GetProjectsOpts = {}): Promise<{
 }> {
   const payload = await getPayload({ config })
 
+  // publishedAt <= now makes the admin's "set a future date to schedule it"
+  // promise real (same pattern as posts.ts) — a future-dated Published project
+  // must not leak early. Pages regenerate hourly (revalidate = 3600), so a
+  // scheduled project appears within the hour after its time passes.
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  const where: Record<string, any> = { _status: { equals: 'published' } }
+  const where: Record<string, any> = {
+    _status: { equals: 'published' },
+    publishedAt: { less_than_equal: new Date().toISOString() },
+  }
   if (opts.featured) where.featured = { equals: true }
   if (opts.industry) where.industry = { contains: opts.industry }
   if (opts.tag) where['tags.tag'] = { equals: opts.tag }
@@ -141,7 +148,11 @@ export async function getProjectBySlug(slug: string): Promise<Project | null> {
   const payload = await getPayload({ config })
   const res = await payload.find({
     collection: 'projects',
-    where: { slug: { equals: slug }, _status: { equals: 'published' } },
+    where: {
+      slug: { equals: slug },
+      _status: { equals: 'published' },
+      publishedAt: { less_than_equal: new Date().toISOString() },
+    },
     limit: 1,
     depth: 2,
   })
@@ -162,7 +173,10 @@ export async function getAllProjectSlugs(): Promise<string[]> {
   const payload = await getPayload({ config })
   const res = await payload.find({
     collection: 'projects',
-    where: { _status: { equals: 'published' } },
+    where: {
+      _status: { equals: 'published' },
+      publishedAt: { less_than_equal: new Date().toISOString() },
+    },
     limit: 500,
     pagination: false,
     depth: 0,

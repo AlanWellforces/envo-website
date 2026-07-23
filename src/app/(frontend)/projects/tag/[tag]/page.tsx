@@ -3,6 +3,10 @@ import Link from 'next/link'
 import { ProjectCard } from '@/components/projects/ProjectCard'
 import { getProjects } from '@/lib/projects'
 
+// Hourly ISR so a future-dated (scheduled) project appears without a manual
+// revalidate once its publishedAt passes; hooks still purge instantly on edits.
+export const revalidate = 3600
+
 type Params = Promise<{ tag: string }>
 
 export async function generateMetadata({ params }: { params: Params }): Promise<Metadata> {
