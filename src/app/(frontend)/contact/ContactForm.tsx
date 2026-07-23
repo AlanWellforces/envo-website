@@ -4,6 +4,7 @@ import Script from 'next/script'
 import { useState } from 'react'
 import styles from './page.module.css'
 import { HoneypotField } from '@/components/forms/HoneypotField'
+import { attachAttribution } from '@/lib/attribution'
 
 // Same guard as the Free Layout form: Turnstile protects upload-bearing forms,
 // renders nothing (and the API skips verification) until the key is configured.
@@ -25,6 +26,7 @@ export function ContactForm({ phone }: { phone?: string }) {
     const form = new FormData(e.currentTarget)
     form.set('type', 'contact')
     form.set('sourcePath', '/contact')
+    attachAttribution(form)
     try {
       const res = await fetch('/api/submissions', { method: 'POST', body: form })
       if (res.ok) {

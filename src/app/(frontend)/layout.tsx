@@ -2,6 +2,7 @@ import type { Metadata } from 'next'
 import localFont from 'next/font/local'
 import '../globals.css'
 import { PageViewBeacon } from '@/components/analytics/PageViewBeacon'
+import { AttributionCapture } from '@/components/analytics/AttributionCapture'
 import { Sidebar } from '@/components/layout/sidebar'
 import { RegionProvider } from '@/components/region/RegionProvider'
 import { Footer } from '@/components/layout/footer'
@@ -64,6 +65,7 @@ export default function RootLayout({
         <a href="#main-content" className="skip-link">Skip to main content</a>
         <JsonLd data={organizationLd()} />
         <PageViewBeacon />
+        <AttributionCapture />
         <RegionProvider>
           {/* Region/channel banner hidden for now (user 2026-07-08) — the
               region picker under each purchase CTA still covers the choice.
