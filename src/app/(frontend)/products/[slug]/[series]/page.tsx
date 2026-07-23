@@ -37,8 +37,8 @@ export async function generateStaticParams() {
     const products = await getProductsByMarketingFamily(f, { depth: 0 })
     const slugs = new Set(products.map((p) => toSeriesSlug(p.series)))
     // No page for the no-series "other" bucket (user 2026-07-09) — nothing
-    // links to it and dynamicParams=false turns the URL into a 404. The
-    // bucket's products keep their SKU detail pages below.
+    // links to it and the render guard below 404s the URL. The bucket's
+    // products keep their SKU detail pages below.
     slugs.delete('other')
     for (const s of slugs) params.push({ slug: f, series: s })
     if (SKU_DETAIL_FAMILIES.has(f)) {
@@ -58,7 +58,12 @@ export async function generateStaticParams() {
   return params
 }
 
-export const dynamicParams = false
+// dynamicParams MUST stay true: with false, any layout-level revalidation
+// (Site Settings publish → /api/revalidate /__site-settings) drops the
+// prerendered entries and Next 16 then throws NoFallbackError — every product
+// page 404s until the next full rebuild (prod incident 2026-07-23). Unknown
+// params render on demand and fall through to notFound().
+export const dynamicParams = true
 
 // Site-wide share-image fallback — keep in sync with the root layout default.
 const DEFAULT_OG_IMAGE = '/assets/images/hero-signage-poster.jpg'
@@ -158,6 +163,10 @@ export default async function SeriesDetailPage({ params }: { params: Params }) {
   const { slug, series } = await params
   const family = PRODUCT_FAMILIES.find((f) => f.slug === slug)
   if (!family) notFound()
+  // The no-series "other" bucket has no page (user 2026-07-09); with
+  // dynamicParams=true this needs an explicit guard instead of relying on
+  // the param simply not being prerendered.
+  if (series === 'other') notFound()
 
   // MiniLux keeps its hand-curated showcase merged page (richest editorial +
   // real specs); every other series renders the same merged template assembled
