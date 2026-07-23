@@ -7,6 +7,7 @@ import type { CollectionConfig } from 'payload'
 import { lexicalEditor, FixedToolbarFeature, BlocksFeature } from '@payloadcms/richtext-lexical'
 import { slugify } from '../../lib/slugify.ts'
 import { publishedOrAuthed } from '@/payload/access/public-read'
+import { revalidatePaths } from '@/lib/revalidate'
 
 export const Pages: CollectionConfig = {
   slug: 'pages',
@@ -103,6 +104,29 @@ export const Pages: CollectionConfig = {
         if (data.slug) data.slug = slugify(data.slug)
         else if (operation === 'create' && data.title) data.slug = slugify(data.title)
         return data
+      },
+    ],
+    // CMS pages render statically. A page's content appears at /pages/<slug>
+    // and, for the legal set, also at the root route /<slug> (dedicated route
+    // files call getPageBySlug). Revalidate both, plus the old slug on rename.
+    afterChange: [
+      async ({ doc, previousDoc }) => {
+        const slugs = [doc.slug, previousDoc?.slug].filter(Boolean) as string[]
+        const paths = new Set<string>(['/sitemap.xml'])
+        for (const s of slugs) {
+          paths.add(`/pages/${s}`)
+          paths.add(`/${s}`)
+        }
+        await revalidatePaths(paths, 'Pages.afterChange')
+        return doc
+      },
+    ],
+    afterDelete: [
+      async ({ doc }) => {
+        const paths = ['/sitemap.xml']
+        if (doc.slug) paths.push(`/pages/${doc.slug}`, `/${doc.slug}`)
+        await revalidatePaths(paths, 'Pages.afterDelete')
+        return doc
       },
     ],
   },

@@ -4,6 +4,7 @@
 // getPageSeo() with fallback to each page's in-code defaults. CMS pages
 // (Posts/Projects/Products/Faqs) manage their own SEO and are NOT listed here.
 import type { CollectionConfig } from 'payload'
+import { revalidatePaths } from '@/lib/revalidate'
 
 export const PageSeo: CollectionConfig = {
   slug: 'page-seo',
@@ -32,4 +33,22 @@ export const PageSeo: CollectionConfig = {
     },
     { name: 'ogImage', type: 'upload', relationTo: 'media', admin: { description: 'Optional social share image.' } },
   ],
+  hooks: {
+    // SEO overrides are read into <head> at build time. Revalidate the exact
+    // route the record targets so a title/description edit shows without a
+    // deploy; on rename, clear the old route too.
+    afterChange: [
+      async ({ doc, previousDoc }) => {
+        const routes = [doc.route, previousDoc?.route].filter(Boolean) as string[]
+        await revalidatePaths([...routes, '/sitemap.xml'], 'PageSeo.afterChange')
+        return doc
+      },
+    ],
+    afterDelete: [
+      async ({ doc }) => {
+        await revalidatePaths([doc.route, '/sitemap.xml'].filter(Boolean) as string[], 'PageSeo.afterDelete')
+        return doc
+      },
+    ],
+  },
 }
