@@ -2,10 +2,18 @@ export type LeadType = 'free-layout' | 'find-your-match' | 'contact'
 const TYPES: LeadType[] = ['free-layout', 'find-your-match', 'contact']
 // website = honeypot, cf-turnstile-response = bot-check token — both are
 // consumed by the route's abuse guards and must never store into lead.data.
+// Attribution fields ride in with the lead but are typed columns, not free-form
+// data — keep them out of the `data` catch-all.
+const ATTRIBUTION_KEYS = [
+  'landingPage', 'referrer', 'utmSource', 'utmMedium', 'utmCampaign', 'firstTouchSource',
+] as const
+
 const KNOWN = new Set([
   'type', 'name', 'email', 'company', 'phone', 'sourcePath', 'message', 'notes',
-  'website', 'cf-turnstile-response',
+  'website', 'cf-turnstile-response', ...ATTRIBUTION_KEYS,
 ])
+
+export type LeadAttribution = Partial<Record<(typeof ATTRIBUTION_KEYS)[number], string>>
 
 export type NormalizedLead = {
   type: LeadType
@@ -16,6 +24,8 @@ export type NormalizedLead = {
   sourcePath?: string
   /** Customer's free-text message (contact `message` / free-layout `notes`). */
   message?: string
+  /** First-party attribution captured client-side (cookieless). */
+  attribution: LeadAttribution
   data: Record<string, unknown>
 }
 
@@ -39,7 +49,14 @@ export function normalizeSubmission(
   const data: Record<string, unknown> = {}
   for (const [k, v] of Object.entries(obj)) if (!KNOWN.has(k)) data[k] = v
 
-  const value: NormalizedLead = { type, name, email, data }
+  // Attribution: trim + cap each field; empty values are simply omitted.
+  const attribution: LeadAttribution = {}
+  for (const k of ATTRIBUTION_KEYS) {
+    const v = str(obj[k]).slice(0, 512)
+    if (v) attribution[k] = v
+  }
+
+  const value: NormalizedLead = { type, name, email, attribution, data }
   const company = str(obj.company)
   const phone = str(obj.phone)
   const sourcePath = str(obj.sourcePath)

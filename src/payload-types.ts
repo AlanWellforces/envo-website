@@ -929,6 +929,12 @@ export interface Submission {
   details?: string | null;
   sketch?: (number | null) | LeadFile;
   sourcePath?: string | null;
+  firstTouchSource?: string | null;
+  landingPage?: string | null;
+  referrer?: string | null;
+  utmSource?: string | null;
+  utmMedium?: string | null;
+  utmCampaign?: string | null;
   data?:
     | {
         [k: string]: unknown;
@@ -1530,6 +1536,12 @@ export interface SubmissionsSelect {
   details?: boolean;
   sketch?: boolean;
   sourcePath?: boolean;
+  firstTouchSource?: boolean;
+  landingPage?: boolean;
+  referrer?: boolean;
+  utmSource?: boolean;
+  utmMedium?: boolean;
+  utmCampaign?: boolean;
   data?: boolean;
   updatedAt?: boolean;
   createdAt?: boolean;

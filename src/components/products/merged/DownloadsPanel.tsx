@@ -9,6 +9,7 @@
 import Link from 'next/link'
 import { useState, type FormEvent } from 'react'
 import { HoneypotField } from '@/components/forms/HoneypotField'
+import { getAttribution } from '@/lib/attribution'
 
 export type DownloadFile = {
   /** type kicker, e.g. "Datasheet" — falls back to "Document" */
@@ -52,6 +53,7 @@ function RequestForm({ sku, options }: { sku: string; options: string[] }) {
           model: sku,
           // honeypot — forwarded so the API can drop bot fills
           website: fields.website || undefined,
+          ...getAttribution(),
         }),
       })
       setState(res.ok ? 'sent' : 'error')
