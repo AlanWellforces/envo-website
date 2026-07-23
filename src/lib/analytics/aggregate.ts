@@ -32,6 +32,19 @@ export function fillDays(counts: Map<string, number>, days: number, today: strin
 }
 
 /**
+ * Period-over-period movement as display text + semantic tone. Percentages
+ * need a base — a zero previous window yields "new" (or "—" when the current
+ * window is also zero) instead of a fake ∞%.
+ */
+export function describeDelta(now: number, prev: number): { text: string; tone: 'up' | 'down' | 'flat' } {
+  if (prev === 0) return now === 0 ? { text: '—', tone: 'flat' } : { text: 'new', tone: 'up' }
+  const pct = Math.round(((now - prev) / prev) * 100)
+  if (pct > 0) return { text: `↑ ${pct}%`, tone: 'up' }
+  if (pct < 0) return { text: `↓ ${Math.abs(pct)}%`, tone: 'down' }
+  return { text: '± 0%', tone: 'flat' }
+}
+
+/**
  * Aggregate a zero-filled daily series into trailing buckets of `bucketDays`.
  * The newest bucket always ends on the series' last day; the oldest bucket may
  * be partial. Each bucket is labelled with its first day.

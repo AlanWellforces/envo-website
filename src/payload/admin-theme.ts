@@ -21,7 +21,8 @@ export const ADMIN_COLORS = {
   limeSoft: '#f3f7d9',
   ink: '#141d2b',
   muted: '#4a5568',
-  subtle: '#76828f',
+  // WCAG AA: ≥4.5:1 on white AND on the #eef1f4 pill/track gray (audit 2026-07-24).
+  subtle: '#5f6a78',
   line: '#e6e9ee',
   canvas: '#f6f7f9',
 } as const
