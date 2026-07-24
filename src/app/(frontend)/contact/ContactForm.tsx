@@ -92,7 +92,7 @@ export function ContactForm({ phone }: { phone?: string }) {
             type="file"
             id="cf-attachment"
             name="attachment"
-            accept="image/*,.pdf,.dwg,.svg"
+            accept=".jpg,.jpeg,.png,.gif,.webp,.pdf,.dwg"
             aria-describedby="cf-attachment-hint"
             className={styles.dropInput}
             onChange={(e) => setFileName(e.currentTarget.files?.[0]?.name ?? null)}
@@ -101,7 +101,7 @@ export function ContactForm({ phone }: { phone?: string }) {
             {fileName ?? 'Drop a drawing, photo or dimension sheet'}
           </span>
           <small id="cf-attachment-hint" className={styles.dropHint}>
-            JPG · PNG · PDF · DWG · SVG · up to 20 MB
+            JPG · PNG · PDF · DWG · up to 20 MB
           </small>
         </span>
       </div>

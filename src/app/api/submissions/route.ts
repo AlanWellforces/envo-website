@@ -6,9 +6,12 @@ import { buildLeadDetails, normalizeSubmission } from '@/lib/leads/submission'
 import { notifyNewLead } from '@/lib/leads/notify'
 import { clientIp, rateLimited, isDuplicate, clearSeen } from '@/lib/leads/abuse-guard'
 import { verifyTurnstile } from '@/lib/leads/turnstile'
+import { detectType } from '@/lib/leads/file-signature'
 
-// Matches the Free Layout form's advertised list: JPG · PNG · PDF · DWG · SVG.
-const SKETCH_EXT = /\.(jpe?g|png|webp|gif|pdf|svg|dwg)$/i
+// Advertised list: JPG · PNG · PDF · DWG (SVG dropped 2026-07-24 — it can carry
+// <script>, and has no binary signature to validate). Extension is the first
+// gate; the real check is the magic-byte signature below.
+const SKETCH_EXT = /\.(jpe?g|png|webp|gif|pdf|dwg)$/i
 const SKETCH_MAX_BYTES = 20 * 1024 * 1024 // 20 MB, as advertised
 const DATA_MAX_CHARS = 20_000 // free-form field payload cap
 
@@ -85,24 +88,30 @@ export async function POST(req: Request) {
   }
 
   // Validate the sketch BEFORE creating anything — a rejected file must be a
-  // visible error, never a silently sketch-less "success".
+  // visible error, never a silently sketch-less "success". Read the bytes once
+  // and verify by magic-byte signature (extension + browser MIME are both
+  // spoofable); reuse the same buffer for the upload.
+  let sketchBuffer: Buffer | undefined
   if (file) {
     if (file.size > SKETCH_MAX_BYTES) return fail(['attached file must be 20 MB or smaller'])
     if (!SKETCH_EXT.test(file.name)) {
-      return fail(['attached file must be a JPG, PNG, PDF, SVG or DWG file'])
+      return fail(['attached file must be a JPG, PNG, PDF or DWG file'])
+    }
+    sketchBuffer = Buffer.from(await file.arrayBuffer())
+    if (!detectType(sketchBuffer)) {
+      return fail(["that file isn't a valid JPG, PNG, PDF or DWG — please re-export and try again"])
     }
   }
 
   const payload = await getPayload({ config })
 
   let sketchId: number | undefined
-  if (file) {
+  if (file && sketchBuffer) {
     try {
-      const buffer = Buffer.from(await file.arrayBuffer())
       const uploaded = await payload.create({
         collection: 'lead-files', // staff-only read — sketches are customer PII
         data: { alt: `Sketch — ${lead.name}` },
-        file: { data: buffer, name: file.name, mimetype: file.type, size: file.size },
+        file: { data: sketchBuffer, name: file.name, mimetype: file.type, size: file.size },
       })
       sketchId = uploaded.id
     } catch {

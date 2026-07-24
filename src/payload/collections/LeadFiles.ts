@@ -10,7 +10,17 @@ import { isAdmin } from '../access/is-admin'
 export const LeadFiles: CollectionConfig = {
   slug: 'lead-files',
   labels: { singular: 'Lead file', plural: 'Lead files' },
-  upload: true,
+  upload: {
+    // Customer-uploaded files must never render inline in a staff browser
+    // (a booby-trapped file opening same-origin in the admin). Force download
+    // and stop MIME sniffing — defence in depth on top of the upload-time
+    // signature check.
+    modifyResponseHeaders: ({ headers }) => {
+      headers.set('Content-Disposition', 'attachment')
+      headers.set('X-Content-Type-Options', 'nosniff')
+      return headers
+    },
+  },
   admin: {
     hidden: true, // reached through the lead's `sketch` field, not the nav
   },
