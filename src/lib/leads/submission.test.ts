@@ -58,6 +58,7 @@ describe('buildLeadEmail', () => {
       email: 'jane@acme.com',
       company: 'Acme',
       message: 'Need a layout for our new store.',
+      attribution: {},
       data: { signType: 'channel letters', dimensions: '600x1800' },
     })
     expect(subject).toContain('Jane')

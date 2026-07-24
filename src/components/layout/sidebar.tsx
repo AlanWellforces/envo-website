@@ -392,6 +392,7 @@ export function Sidebar() {
     if (!open || !isMobile) return
     const drawer = sidebarRef.current
     if (!drawer) return
+    const toggle = toggleRef.current // capture for the cleanup (ref may change later)
     const SEL = 'a[href],button:not([disabled]),input,select,textarea,[tabindex]:not([tabindex="-1"])'
     const visible = () =>
       Array.from(drawer.querySelectorAll<HTMLElement>(SEL)).filter((el) => el.offsetParent !== null)
@@ -417,7 +418,7 @@ export function Sidebar() {
     document.addEventListener('keydown', onKey)
     return () => {
       document.removeEventListener('keydown', onKey)
-      toggleRef.current?.focus()
+      toggle?.focus()
     }
   }, [open, isMobile])
 

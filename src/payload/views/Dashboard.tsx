@@ -335,14 +335,13 @@ type DashboardProps = {
 export async function Dashboard(props: DashboardProps) {
   const range = parseRange(props.searchParams?.range)
   let d: Awaited<ReturnType<typeof loadData>> | null = null
-  let loadError = false
   try {
     d = await loadData(range)
   } catch (err) {
     // A DB/aggregation failure must not blank the whole admin landing or, worse,
-    // render every metric as a fake "0". Surface it honestly instead.
+    // render every metric as a fake "0". The `if (!d)` branch below surfaces it
+    // honestly.
     console.error('[Dashboard] loadData failed:', err)
-    loadError = true
   }
 
   const hour = Number(
@@ -366,6 +365,9 @@ export async function Dashboard(props: DashboardProps) {
             server logs.
           </p>
           <p style={{ marginTop: 16 }}>
+            {/* Intentional full-page reload of the Payload admin (not an app-router
+                page) to re-run the metrics query — next/link client nav would not. */}
+            {/* eslint-disable-next-line @next/next/no-html-link-for-pages */}
             <a href="/admin" style={{ color: ADMIN_COLORS.blue, fontWeight: 600 }}>Reload dashboard →</a>
           </p>
         </div>
