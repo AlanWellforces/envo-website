@@ -96,7 +96,7 @@ export function SketchForm() {
           <input
             type="file"
             name="sketch"
-            accept="image/*,.pdf,.dwg,.svg"
+            accept=".jpg,.jpeg,.png,.gif,.webp,.pdf,.dwg"
             aria-describedby="sketch-hint"
             className={styles.dropInput}
             onChange={(e) => setSketchName(e.currentTarget.files?.[0]?.name ?? null)}
@@ -105,7 +105,7 @@ export function SketchForm() {
           <span className={styles.dropText}>
             {sketchName ?? 'Drop a photo, drawing or vector file'}
           </span>
-          <small id="sketch-hint">JPG · PNG · PDF · DWG · SVG · up to 20 MB</small>
+          <small id="sketch-hint">JPG · PNG · PDF · DWG · up to 20 MB</small>
         </span>
       </label>
       <label className={`${styles.field} ${styles.fieldWide}`}>
