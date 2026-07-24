@@ -4,6 +4,7 @@
 // Hooks (autoSlug, calcReadingTime, revalidate) are added in later tasks.
 
 import type { CollectionConfig } from 'payload'
+import { isAdmin } from '../access/is-admin'
 import { lexicalEditor, FixedToolbarFeature, BlocksFeature } from '@payloadcms/richtext-lexical'
 import { slugify } from '../../lib/slugify.ts'
 import { publishedOrAuthed } from '@/payload/access/public-read'
@@ -26,6 +27,7 @@ export const Posts: CollectionConfig = {
     group: 'Content',
   },
   access: {
+    delete: isAdmin,
     read: publishedOrAuthed,
   },
   // Soft delete: deleted docs land in the admin Trash (restorable) instead

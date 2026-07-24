@@ -4,6 +4,7 @@
 import type { CollectionConfig } from 'payload'
 import { APIError } from 'payload'
 import { findMediaUsage } from '../hooks/media-in-use'
+import { isAdmin } from '../access/is-admin'
 
 export const Media: CollectionConfig = {
   slug: 'media',
@@ -35,6 +36,11 @@ export const Media: CollectionConfig = {
   },
   access: {
     read: () => true,
+    // Writes are admin-only (P0 2026-07-24): a non-admin login token must not
+    // be able to replace or delete site imagery via REST.
+    create: isAdmin,
+    update: isAdmin,
+    delete: isAdmin,
   },
   upload: {
     staticDir: 'media',

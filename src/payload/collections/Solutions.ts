@@ -8,6 +8,7 @@
 // work on every machine today; uploads become fully portable once Supabase
 // Storage creds land.
 import type { CollectionConfig } from 'payload'
+import { isAdmin } from '../access/is-admin'
 import { slugify } from '../../lib/slugify.ts'
 import { publishedOrAuthed } from '@/payload/access/public-read'
 
@@ -23,6 +24,7 @@ export const Solutions: CollectionConfig = {
     group: 'Content',
   },
   access: {
+    delete: isAdmin,
     read: publishedOrAuthed,
   },
   versions: {
