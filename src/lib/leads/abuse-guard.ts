@@ -39,16 +39,19 @@ export function rateLimited(ip: string, now = Date.now()): boolean {
   return false
 }
 
-/** Short-term duplicate: the same email re-sending the same content within
- *  the window. True = caller should skip the write (and still report success
- *  — the sender already has their submission in the pipeline). The recorded
- *  timestamp is NOT refreshed on a duplicate, so a legitimate resend after
- *  the window always lands. */
-export function isDuplicate(
-  parts: { type: string; email: string; message?: string },
-  now = Date.now(),
-): boolean {
-  const key = `${parts.type}|${parts.email}|${(parts.message ?? '').trim().slice(0, 500)}`
+type DedupParts = { type: string; email: string; message?: string }
+const dedupKey = (p: DedupParts) => `${p.type}|${p.email}|${(p.message ?? '').trim().slice(0, 500)}`
+
+/** Short-term duplicate: the same email re-sending the same content within the
+ *  window. True = caller should skip the write and report success (the sender
+ *  already has a submission in flight). Marking is provisional — a marker is
+ *  recorded on the first sighting so a concurrent double-click is caught, but
+ *  the caller MUST call clearSeen() if the write ultimately fails, otherwise a
+ *  legitimate retry would get a false "success" with no lead in the database.
+ *  The recorded timestamp is not refreshed on a duplicate, so a genuine resend
+ *  after the window always lands. */
+export function isDuplicate(parts: DedupParts, now = Date.now()): boolean {
+  const key = dedupKey(parts)
   const last = seenContent.get(key)
   if (last !== undefined && now - last < DEDUP_WINDOW_MS) return true
   seenContent.set(key, now)
@@ -56,6 +59,12 @@ export function isDuplicate(
     for (const [k, t] of seenContent) if (now - t >= DEDUP_WINDOW_MS) seenContent.delete(k)
   }
   return false
+}
+
+/** Undo the provisional mark from isDuplicate() when the submission failed to
+ *  persist — so the sender's retry is treated as fresh, not a false success. */
+export function clearSeen(parts: DedupParts): void {
+  seenContent.delete(dedupKey(parts))
 }
 
 /** Test hook — the maps are module-level state. */

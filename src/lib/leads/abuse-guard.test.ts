@@ -1,5 +1,5 @@
 import { describe, it, expect, beforeEach } from 'vitest'
-import { clientIp, rateLimited, isDuplicate, resetAbuseGuards } from './abuse-guard'
+import { clientIp, rateLimited, isDuplicate, clearSeen, resetAbuseGuards } from './abuse-guard'
 
 const T0 = 1_700_000_000_000
 const MIN = 60 * 1000
@@ -48,5 +48,18 @@ describe('isDuplicate', () => {
     isDuplicate(lead, T0)
     expect(isDuplicate({ ...lead, message: 'other' }, T0)).toBe(false)
     expect(isDuplicate({ ...lead, email: 'c@d.co' }, T0)).toBe(false)
+  })
+
+  it('clearSeen undoes the provisional mark so a retry is treated as fresh', () => {
+    // First attempt marks the content; its write then fails → clearSeen.
+    expect(isDuplicate(lead, T0)).toBe(false)
+    clearSeen(lead)
+    // Retry within the window must NOT be a (false) duplicate.
+    expect(isDuplicate(lead, T0 + MIN)).toBe(false)
+  })
+
+  it('without clearSeen, a concurrent double-click is still deduped', () => {
+    expect(isDuplicate(lead, T0)).toBe(false)
+    expect(isDuplicate(lead, T0 + 100)).toBe(true)
   })
 })

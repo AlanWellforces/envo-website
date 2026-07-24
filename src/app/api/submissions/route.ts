@@ -4,7 +4,7 @@ import { getPayload } from 'payload'
 import config from '@payload-config'
 import { buildLeadDetails, normalizeSubmission } from '@/lib/leads/submission'
 import { notifyNewLead } from '@/lib/leads/notify'
-import { clientIp, rateLimited, isDuplicate } from '@/lib/leads/abuse-guard'
+import { clientIp, rateLimited, isDuplicate, clearSeen } from '@/lib/leads/abuse-guard'
 import { verifyTurnstile } from '@/lib/leads/turnstile'
 
 // Matches the Free Layout form's advertised list: JPG · PNG · PDF · DWG · SVG.
@@ -68,21 +68,28 @@ export async function POST(req: Request) {
 
   // Same sender, same content, minutes apart = double-click / retry spam.
   // The first submission is already in the pipeline, so report success.
-  if (isDuplicate({ type: lead.type, email: lead.email, message: lead.message })) {
+  // isDuplicate marks provisionally to catch a concurrent double-click; if the
+  // write below fails we clearSeen() so the retry isn't a false success.
+  const dedupParts = { type: lead.type, email: lead.email, message: lead.message }
+  if (isDuplicate(dedupParts)) {
     return NextResponse.json({ ok: true })
+  }
+  const fail = (errors: string[], status = 400) => {
+    clearSeen(dedupParts)
+    return bad(errors, status)
   }
 
   // Cap the free-form remainder so a hostile body can't store megabytes.
   if (JSON.stringify(lead.data).length > DATA_MAX_CHARS) {
-    return bad(['form data too large'])
+    return fail(['form data too large'])
   }
 
   // Validate the sketch BEFORE creating anything — a rejected file must be a
   // visible error, never a silently sketch-less "success".
   if (file) {
-    if (file.size > SKETCH_MAX_BYTES) return bad(['attached file must be 20 MB or smaller'])
+    if (file.size > SKETCH_MAX_BYTES) return fail(['attached file must be 20 MB or smaller'])
     if (!SKETCH_EXT.test(file.name)) {
-      return bad(['attached file must be a JPG, PNG, PDF, SVG or DWG file'])
+      return fail(['attached file must be a JPG, PNG, PDF, SVG or DWG file'])
     }
   }
 
@@ -99,7 +106,7 @@ export async function POST(req: Request) {
       })
       sketchId = uploaded.id
     } catch {
-      return bad(['we could not store your file — please try again or email it to contact@envolighting.com'])
+      return fail(['we could not store your file — please try again or email it to contact@envolighting.com'])
     }
   }
 
@@ -123,9 +130,19 @@ export async function POST(req: Request) {
     })
     createdId = created.id
   } catch {
-    // e.g. Payload's stricter email validation — surface as a client error,
-    // not a 500 with the lead lost.
-    return bad(['please check your details and try again'])
+    // The lead itself failed to persist. Delete the sketch we just uploaded so
+    // it doesn't linger as an orphaned PII file with no owning lead, and clear
+    // the dedup mark so the sender's retry is treated as fresh, not a false
+    // success. e.g. Payload's stricter email validation — surface as a client
+    // error, not a 500 with the lead lost.
+    if (sketchId !== undefined) {
+      try {
+        await payload.delete({ collection: 'lead-files', id: sketchId })
+      } catch {
+        // best-effort cleanup — a rare orphan is caught by the lead-files sweep
+      }
+    }
+    return fail(['please check your details and try again'])
   }
 
   // Notify sales off the response path (retried inside notifyNewLead; never
