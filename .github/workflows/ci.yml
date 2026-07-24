@@ -1,0 +1,37 @@
+# Code-quality gate: typecheck + lint + test on every dev/main push and on the
+# dev→main release PR. These need no database, so they run reliably in CI.
+#
+# NOT here: `next build`. The build prerenders pages by querying the database
+# at build time (generateStaticParams, analyticsSummary), so it needs a
+# populated schema — which this repo deliberately has no baseline migration
+# for. The real build gate is the box: it rebuilds with the live DB on every
+# push to main and keeps the current image if the build fails (see DEPLOY.md /
+# deploy.log "BUILD FAILED for <sha> — kept current image"). `npm ci` here
+# still catches lockfile drift, which is what broke a deploy on 2026-07-24.
+
+name: ci
+
+on:
+  push:
+    branches: [dev, main]
+  pull_request:
+    branches: [main]
+
+jobs:
+  quality:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+      # Full install (runs patch-package via postinstall — Payload needs its patch).
+      - run: npm ci
+      - name: Typecheck
+        run: npm run typecheck
+      - name: Lint
+        run: npm run lint
+      - name: Test
+        run: npm test

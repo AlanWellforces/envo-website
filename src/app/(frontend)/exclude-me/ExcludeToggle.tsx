@@ -1,32 +1,42 @@
 'use client'
 
-import { useEffect, useState } from 'react'
+import { useSyncExternalStore } from 'react'
 
 const KEY = 'envo-analytics-optout'
+const EVENT = 'envo-optout-change'
+
+// Read the opt-out flag from localStorage as an external store — avoids the
+// setState-in-effect / hydration-mismatch dance. getServerSnapshot returns
+// false (the page is client-only content anyway).
+function subscribe(cb: () => void) {
+  window.addEventListener('storage', cb) // other tabs
+  window.addEventListener(EVENT, cb) // this tab (storage event doesn't self-fire)
+  return () => {
+    window.removeEventListener('storage', cb)
+    window.removeEventListener(EVENT, cb)
+  }
+}
+function getSnapshot(): boolean {
+  try {
+    return localStorage.getItem(KEY) === '1'
+  } catch {
+    return false
+  }
+}
 
 export function ExcludeToggle() {
-  // null until mounted — localStorage doesn't exist during SSR.
-  const [excluded, setExcluded] = useState<boolean | null>(null)
-
-  useEffect(() => {
-    try {
-      setExcluded(localStorage.getItem(KEY) === '1')
-    } catch {
-      setExcluded(false)
-    }
-  }, [])
+  const excluded = useSyncExternalStore(subscribe, getSnapshot, () => false)
 
   const toggle = () => {
     try {
       if (excluded) localStorage.removeItem(KEY)
       else localStorage.setItem(KEY, '1')
-      setExcluded(!excluded)
+      window.dispatchEvent(new Event(EVENT))
     } catch {
       /* storage blocked — nothing to toggle */
     }
   }
 
-  if (excluded === null) return null
   return (
     <div>
       <p style={{ fontWeight: 600, marginBottom: 16 }}>
