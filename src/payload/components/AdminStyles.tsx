@@ -215,6 +215,23 @@ ${iconRules}
 /* Focus ring → brand blue (stock rule reads this var for its shadow) */
 input:focus, textarea:focus, select:focus { --theme-success-400: rgba(0, 113, 188, .35); }
 
+/* ── Mobile: opening the nav must not widen the page ─────────────────────
+   Stock Payload gives the list .table max-width:unset plus a negative-margin
+   bleed; once the mobile nav opens, the content's intrinsic width exceeds the
+   viewport, so the browser zooms out (innerWidth jumps 390 → ~576) and the
+   nav's close button lands off-screen, forcing a horizontal swipe to close.
+   Pin the whole admin layout to the viewport and keep the wide list table
+   scrolling inside its own region instead of widening the page. */
+@media (max-width: 1024px) {
+  html, body { overflow-x: hidden; max-width: 100vw; }
+  .template-default, .template-default__wrap, .app-header, .collection-list,
+  .collection-list__wrap { max-width: 100vw; min-width: 0; }
+  .collection-list__wrap { overflow-x: hidden; }
+  /* Neutralise the desktop negative-margin bleed so the table scrolls in place */
+  .table { max-width: 100%; width: 100%; left: 0; padding-left: 0; overflow-x: auto; }
+  aside.nav { max-width: 100vw; }
+}
+
 /* Login / minimal template — ENVO branding (graphics.Logo supplies the wordmark) */
 .template-minimal { background: linear-gradient(180deg, #f7f9fc 0%, #eef2f7 100%); }
 .template-minimal .brand { display: flex; justify-content: center; margin-bottom: 12px; }
