@@ -1,5 +1,6 @@
 // src/app/(frontend)/resources/tools/signage-selector/page.tsx
 import type { Metadata } from 'next'
+import { notFound } from 'next/navigation'
 import Link from 'next/link'
 import { getProductsForSelector } from '@/lib/product-selector'
 import { SIGNAGE_SELECTOR } from '@/data/selector-config'
@@ -18,6 +19,11 @@ export async function generateMetadata(): Promise<Metadata> {
 export const revalidate = 3600
 
 export default async function SignageSelectorPage() {
+  // Hidden again (user 2026-07-24): the tool's data/links aren't ready. 404s
+  // direct URLs; entry points removed (tools page, resources hub, sitemap,
+  // site-pages). Re-enable by removing this line and restoring those entries.
+  notFound()
+
   const rows = await getProductsForSelector('signage')
 
   return (
