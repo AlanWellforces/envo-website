@@ -1,4 +1,5 @@
 import type { Metadata } from 'next'
+import { notFound } from 'next/navigation'
 import { metadataForRoute } from '@/lib/page-seo'
 import Link from 'next/link'
 import styles from './page.module.css'
@@ -24,6 +25,12 @@ const TOOLS = [
 ]
 
 export default function ToolsPage() {
+  // Hidden 2026-07-24: both tools that lived here are gated (Find Your Match,
+  // Signage selector), leaving only Free layout design — which has its own
+  // /free-layout-design page. With no inbound links, this hub was an orphan
+  // indexable page, so it 404s. Re-enable when a real tool returns here.
+  notFound()
+
   return (
     <div className="theme-light">
       <div className="container">

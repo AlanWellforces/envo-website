@@ -10,7 +10,7 @@ import { SITE_URL as BASE } from '@/lib/site-url'
 
 const STATIC_PATHS = [
   '', '/about', '/contact', '/products', '/solutions',
-  '/resources', '/resources/faq', '/resources/tools',
+  '/resources', '/resources/faq',
   '/free-layout-design',
 ]
 // Deliberately NOT in the sitemap:
@@ -20,8 +20,8 @@ const STATIC_PATHS = [
 //   populated ones stay crawlable via on-page links but aren't advertised.
 // - /products/accessories — not-yet-open family; the page 404s while it has
 //   no live products, so it must not be advertised here either.
-// - /resources/downloads + /resources/tools/signage-selector — hidden again
-//   2026-07-24 (not finished); both 404 direct URLs.
+// - /resources/downloads, /resources/tools + /resources/tools/signage-selector
+//   — hidden again 2026-07-24 (not finished / orphan hub); all 404.
 
 // Category listings are added dynamically below — only those with ≥1 published
 // post. An empty, sitemapped listing page ("No articles found") reads as thin
