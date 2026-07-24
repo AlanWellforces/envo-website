@@ -2,7 +2,7 @@
 // lexicalEditor() produces today: { root: { children: [...] } }, plus
 // arbitrary nesting through `children` arrays and leaf `text` strings.
 
-type LexicalNode =
+export type LexicalNode =
   | { text?: string; children?: LexicalNode[]; root?: LexicalNode }
   | null
   | undefined

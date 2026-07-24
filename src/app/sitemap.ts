@@ -10,15 +10,17 @@ import { SITE_URL as BASE } from '@/lib/site-url'
 
 const STATIC_PATHS = [
   '', '/about', '/contact', '/products', '/solutions',
-  '/resources', '/resources/downloads', '/resources/tools', '/resources/tools/signage-selector',
+  '/resources', '/resources/downloads', '/resources/faq',
+  '/resources/tools', '/resources/tools/signage-selector',
   '/free-layout-design',
 ]
 // Deliberately NOT in the sitemap:
 // - /datasheets/<sku> PDFs — the proxy route sends X-Robots-Tag: noindex
 //   (PDFs must not compete with product pages in search results).
-// - /blog/tag/* — thin pages; crawlable via on-page links but not advertised.
-// - /products/accessories — nav-hidden family (hidden-features registry);
-//   re-add to the family loop when the family is opened up.
+// - /blog/tag/* + /projects/tag/* — thin pages; now 404 when empty, and the
+//   populated ones stay crawlable via on-page links but aren't advertised.
+// - /products/accessories — not-yet-open family; the page 404s while it has
+//   no live products, so it must not be advertised here either.
 
 // Category listings are added dynamically below — only those with ≥1 published
 // post. An empty, sitemapped listing page ("No articles found") reads as thin

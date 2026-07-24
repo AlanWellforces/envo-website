@@ -38,6 +38,10 @@ export default async function ProductFamilyPage({ params }: { params: Params }) 
   // products fully (depth 0 — images come from URL columns); the other families
   // contribute only a cheap count for their pill badge.
   const products = await getProductsByMarketingFamily(slug, { depth: 0 })
+  // A family with no live products (e.g. the not-yet-open Accessories family)
+  // must 404, not serve an indexable empty catalogue. Auto-recovers when the
+  // family gets its first live product.
+  if (products.length === 0) notFound()
   const countEntries = await Promise.all(
     PRODUCT_FAMILIES.map(
       async (f) =>
