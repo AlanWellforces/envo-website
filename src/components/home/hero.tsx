@@ -54,7 +54,10 @@ export function Hero({ data = {} }: { data?: HomeHeroData }) {
             </span>
           </div>
           <div className="v4-cta-row">
-            <Link className="v4-btn v4-btn-primary" href={data.primary_url ?? '/products'}>
+            {/* Default matches the label ("signage modules") — the signage
+                catalogue, not the whole product index. Payload's
+                hero_primary_url still overrides when set. */}
+            <Link className="v4-btn v4-btn-primary" href={data.primary_url ?? '/products/led-signage-modules'}>
               {data.primary_label ?? 'Explore signage modules'} <ArrowRight />
             </Link>
             <Link className="v4-btn v4-btn-ghost" href={data.ghost_url ?? '/free-layout-design'}>
