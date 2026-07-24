@@ -76,11 +76,13 @@ export default function RootLayout({
               on detail pages was a duplicate. Restore <TopSubnav /> if a
               horizontal category bar is ever wanted again. */}
           <CursorGlow />
-          {/* Skip-link target: an empty focus anchor BEFORE the page content —
-              pages own their roots (the homepage renders its own <main>), so
-              the id can't live on a shared wrapper without nesting mains. */}
-          <div id="main-content" tabIndex={-1} />
-          {children}
+          {/* The single <main> landmark for every page and the skip-link
+              target. Pages render their own content root inside it (the
+              homepage uses a plain .v4 <div>, not another <main>, to avoid a
+              nested landmark). tabIndex=-1 so the skip link can focus it. */}
+          <main id="main-content" tabIndex={-1}>
+            {children}
+          </main>
           <Footer />
           <RevealOnScroll />
           <BackToTop />

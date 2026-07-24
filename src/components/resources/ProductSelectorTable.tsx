@@ -1,7 +1,7 @@
 // src/components/resources/ProductSelectorTable.tsx
 'use client'
 
-import { useMemo, useState } from 'react'
+import { useId, useMemo, useState } from 'react'
 import Image from 'next/image'
 import Link from 'next/link'
 import type { SelectorRow, FamilySelectorConfig, SelectorFilter } from '@/data/selector-config'
@@ -53,13 +53,15 @@ export function ProductSelectorTable({
   const reset = () => {
     setQ(''); setSeries(''); setLed(''); setVolt(''); setCct(''); setIp(''); setMaxH(40)
   }
+  const searchId = useId()
+  const maxHId = useId()
 
   return (
     <div>
       <div className={styles.bar}>
         <div className={`${styles.f} ${styles.search}`}>
-          <label>Search</label>
-          <input value={q} onChange={(e) => setQ(e.target.value)} placeholder="model or SKU…" />
+          <label htmlFor={searchId}>Search</label>
+          <input id={searchId} value={q} onChange={(e) => setQ(e.target.value)} placeholder="model or SKU…" />
         </div>
         <Select label="Series" value={series} set={setSeries} opts={opts.series} filter="series" />
         <Select label="LED count" value={led} set={setLed} opts={opts.led} filter="ledCount" />
@@ -68,8 +70,8 @@ export function ProductSelectorTable({
         <Select label="IP rating" value={ip} set={setIp} opts={opts.ip} filter="ip" />
         {config.filters.includes('maxHeight') && (
           <div className={styles.f}>
-            <label>Max height {maxH >= 40 ? 'any' : `≤${maxH}mm`}</label>
-            <input type="range" min={6} max={40} step={1} value={maxH} onChange={(e) => setMaxH(+e.target.value)} />
+            <label htmlFor={maxHId}>Max height {maxH >= 40 ? 'any' : `≤${maxH}mm`}</label>
+            <input id={maxHId} type="range" min={6} max={40} step={1} value={maxH} onChange={(e) => setMaxH(+e.target.value)} aria-valuetext={maxH >= 40 ? 'any' : `${maxH} millimetres or less`} />
           </div>
         )}
         <div className={styles.right}>
@@ -105,11 +107,12 @@ export function ProductSelectorTable({
   )
 
   function Select({ label, value, set, opts, filter }: { label: string; value: string; set: (v: string) => void; opts: string[]; filter: SelectorFilter }) {
+    const id = useId()
     if (!config.filters.includes(filter)) return null
     return (
       <div className={styles.f}>
-        <label>{label}</label>
-        <select value={value} onChange={(e) => set(e.target.value)}>
+        <label htmlFor={id}>{label}</label>
+        <select id={id} value={value} onChange={(e) => set(e.target.value)}>
           <option value="">All</option>
           {opts.map((o) => <option key={o}>{o}</option>)}
         </select>

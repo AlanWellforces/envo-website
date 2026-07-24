@@ -19,7 +19,7 @@ import '@/components/home/home-v6.css'
 export default async function HomePage() {
   const home = await getHomePage()
   return (
-    <main className="v4">
+    <div className="v4">
       <Hero data={home.hero} />
       <ValueProps />
       <ShopByCategory />
@@ -27,6 +27,6 @@ export default async function HomePage() {
       {/* <Projects /> hidden until real installs exist */}
       <WhyEnvo data={home.why} />
       <FreeLayoutCta data={home.flCta} />
-    </main>
+    </div>
   )
 }
