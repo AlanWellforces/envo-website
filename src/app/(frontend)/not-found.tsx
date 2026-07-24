@@ -4,9 +4,18 @@ import styles from './not-found.module.css'
 
 export const metadata: Metadata = {
   title: 'Page not found — ENVO',
+  description: 'This page doesn’t exist. Browse ENVO products, solutions and resources instead.',
   // notFound() responses are 404s; robots is belt-and-braces for any edge
   // that renders this without the status.
   robots: { index: false },
+  // Override the root layout's site-wide openGraph so a shared 404 link
+  // doesn't preview as the homepage.
+  openGraph: {
+    title: 'Page not found — ENVO',
+    description: 'This page doesn’t exist.',
+    type: 'website',
+    siteName: 'ENVO',
+  },
 }
 
 export default function NotFound() {

@@ -38,8 +38,9 @@ export default function DownloadsPage() {
           <span className={styles.eyebrow}>Resources · Downloads</span>
           <h1 className={styles.title}>Catalogues, datasheets, IES files.</h1>
           <p className={styles.desc}>
-            The ENVO technical library. Every product page carries its own datasheet; bundled
-            catalogues and photometric files are below.
+            The ENVO technical library. Every product page carries its own datasheet; for bundled
+            catalogues and photometric files, use the links below to the product ranges or request
+            them from our team.
           </p>
         </section>
 

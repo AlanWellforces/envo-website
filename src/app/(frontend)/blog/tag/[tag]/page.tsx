@@ -1,4 +1,5 @@
 import type { Metadata } from 'next'
+import { notFound } from 'next/navigation'
 import Link from 'next/link'
 import { getPostsByTag } from '@/lib/posts'
 import { PostCard } from '@/components/blog/PostCard'
@@ -20,6 +21,8 @@ export default async function TagPage(
 ) {
   const { tag } = await params
   const posts = await getPostsByTag(tag, { limit: 50 })
+  // Nonexistent / empty tag → 404 instead of an indexable "No articles" page.
+  if (posts.length === 0) notFound()
 
   return (
     <div className="bi-wrap">
