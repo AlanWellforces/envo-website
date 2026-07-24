@@ -11,7 +11,7 @@ export function productPaths(doc: ProductLike): string[] {
   const paths = new Set<string>([
     '/products', // catalogue grid
     '/sitemap.xml', // model-grain sitemap
-    '/resources/downloads', // datasheet hub lists every SKU
+    // (/resources/downloads dropped 2026-07-24 — the hub is hidden/404 now)
   ])
 
   const m = doc.family ? dbFamilyToMarketing(doc.family) : null

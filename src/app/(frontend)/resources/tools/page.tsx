@@ -1,4 +1,5 @@
 import type { Metadata } from 'next'
+import { notFound } from 'next/navigation'
 import { metadataForRoute } from '@/lib/page-seo'
 import Link from 'next/link'
 import styles from './page.module.css'
@@ -12,14 +13,9 @@ export async function generateMetadata(): Promise<Metadata> {
 }
 
 const TOOLS = [
-  // ('Find your match' stays gated — hidden-features registry, user
-  // 2026-07-08. Only the Product selector returns with #120.)
-  {
-    name: 'Product selector',
-    desc: 'Filter the signage module range by series, LED count, voltage, CCT and IP rating to compare models side by side.',
-    cta: 'Open selector →',
-    href: '/resources/tools/signage-selector',
-  },
+  // Gated (hidden-features registry): 'Find your match' (2026-07-08) and the
+  // 'Product selector' / signage-selector (2026-07-24, data/links not ready).
+  // Only Free layout design is live here for now.
   {
     name: 'Free layout design',
     desc: 'Send an elevation or sign face and our engineers return a buildable module, driver and wiring layout — free.',
@@ -29,6 +25,12 @@ const TOOLS = [
 ]
 
 export default function ToolsPage() {
+  // Hidden 2026-07-24: both tools that lived here are gated (Find Your Match,
+  // Signage selector), leaving only Free layout design — which has its own
+  // /free-layout-design page. With no inbound links, this hub was an orphan
+  // indexable page, so it 404s. Re-enable when a real tool returns here.
+  notFound()
+
   return (
     <div className="theme-light">
       <div className="container">
