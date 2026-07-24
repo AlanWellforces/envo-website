@@ -3,10 +3,30 @@ import { getPayload } from 'payload'
 import config from '@payload-config'
 import { listProducts } from '@/lib/products'
 import { recommend } from '@/lib/find-your-match/match'
+import { toRecommendationDto } from '@/lib/find-your-match/dto'
 import { templateExplanation, rationalePrompt } from '@/lib/find-your-match/explain'
 import type { FymAnswers } from '@/lib/find-your-match/types'
+import { clientIp, rateLimited } from '@/lib/leads/abuse-guard'
+
+// Find Your Match is parked — the /find-your-match page hard-404s (planned
+// rework into a layout calculator, #124/#125). This endpoint 404s to match:
+// while parked it must not run the catalogue query, write analytics, or call
+// the paid AI for anonymous callers. To re-enable, flip FEATURE_PARKED
+// (alongside restoring the page's entry points) — the handler below already
+// ships a price-free DTO and is rate-limited, so it's safe to expose.
+const FEATURE_PARKED = true
 
 export async function POST(req: Request) {
+  if (FEATURE_PARKED) {
+    return NextResponse.json({ error: 'Not found' }, { status: 404 })
+  }
+
+  // Cheap anonymous abuse cap (shared with the lead forms): bounds catalogue
+  // reads and paid-AI calls per IP.
+  if (rateLimited(clientIp(req.headers))) {
+    return NextResponse.json({ error: 'Too many requests' }, { status: 429 })
+  }
+
   let answers: FymAnswers
   try {
     answers = (await req.json()) as FymAnswers
@@ -57,5 +77,6 @@ export async function POST(req: Request) {
     }
   }
 
-  return NextResponse.json({ ...rec, explanation })
+  // Ship a whitelisted DTO — never the raw Product (price/stock/lead-time).
+  return NextResponse.json({ ...toRecommendationDto(rec), explanation })
 }
