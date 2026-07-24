@@ -27,7 +27,15 @@ export function SignageRange() {
         </div>
         <div className="sgrid">
           {SERIES.map((s) => (
-            <Link className="scard" href="/products/led-signage-modules" key={s.name}>
+            // Deep-link into the signage catalogue pre-filtered to this series
+            // (the ?series= facet value is the series name verbatim, per
+            // SIGNAGE_CATEGORY_ORDER in family-map). Was an unfiltered link to
+            // the same page for all six cards.
+            <Link
+              className="scard"
+              href={`/products/led-signage-modules?series=${encodeURIComponent(s.name)}`}
+              key={s.name}
+            >
               <div className="ph">
                 <Image
                   src={`/assets/images/${s.scene}`}
