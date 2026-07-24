@@ -166,6 +166,9 @@ ${iconRules}
 .btn__label { font-weight: 600; }
 
 /* List views — table becomes a white card */
+/* Breathing room above the page title (stock is a cramped 5px against the
+   top bar) — applies to every collection list. */
+.collection-list { margin-top: 30px; }
 .list-header__title { font-weight: 800; letter-spacing: -.02em; color: #141d2b; }
 .collection-list .table-wrap {
   background: #fff;
