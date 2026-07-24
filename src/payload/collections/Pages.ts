@@ -4,6 +4,7 @@
 // draft = Hidden. Routing: policy slugs render at root; everything else at
 // /pages/<slug> — see src/lib/cms-pages.ts.
 import type { CollectionConfig } from 'payload'
+import { isAdmin } from '../access/is-admin'
 import { lexicalEditor, FixedToolbarFeature, BlocksFeature } from '@payloadcms/richtext-lexical'
 import { slugify } from '../../lib/slugify.ts'
 import { publishedOrAuthed } from '@/payload/access/public-read'
@@ -18,7 +19,9 @@ export const Pages: CollectionConfig = {
     group: 'Content',
     description: 'Standalone rich-text pages. Publish to make a page Visible on the website.',
   },
-  access: { read: publishedOrAuthed },
+  access: { read: publishedOrAuthed, delete: isAdmin },
+  // Soft delete: deleted docs land in the admin Trash (restorable).
+  trash: true,
   versions: { drafts: true },
   fields: [
     {
@@ -46,7 +49,7 @@ export const Pages: CollectionConfig = {
                     name: 'html',
                     type: 'code',
                     label: 'Raw HTML',
-                    admin: { language: 'html', description: 'Custom HTML, rendered as-is on the published page.' },
+                    admin: { language: 'html', description: 'Custom HTML for special layouts. Sanitized on render: layout tags/classes/styles keep working; scripts, iframes, forms and event handlers are stripped.' },
                   },
                 ],
               },

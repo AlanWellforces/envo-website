@@ -4,6 +4,9 @@ import { ProjectsCatalogue } from '@/components/projects/ProjectsCatalogue'
 import { getProjects } from '@/lib/projects'
 import '@/components/projects/projects-redesign.css'
 
+// Hourly ISR so a future-dated (scheduled) project appears without a manual
+// revalidate once its publishedAt passes; hooks still purge instantly on edits.
+export const revalidate = 3600
 export const metadata: Metadata = {
   alternates: { canonical: '/projects' },
   title: 'Projects — ENVO',

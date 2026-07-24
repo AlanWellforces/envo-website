@@ -5,6 +5,7 @@
 import React from 'react'
 import Image from 'next/image'
 import { slugify } from '@/lib/slugify'
+import { sanitizeEmbeddedHtml } from '@/lib/sanitize-embedded-html'
 
 type LexicalNode = {
   type?: string
@@ -128,10 +129,12 @@ function Node({ node }: { node: LexicalNode }): React.ReactNode {
       return <img src={media.url} alt={media.alt || ''} loading="lazy" decoding="async" style={{ maxWidth: '100%', height: 'auto' }} />
     }
     case 'block': {
-      // Custom blocks from BlocksFeature. The "html" block renders its raw
-      // HTML verbatim — authored by trusted editors, used for special layouts.
+      // Custom blocks from BlocksFeature. The "html" block is for special
+      // layouts — sanitized through an allowlist at render so stored content
+      // can never carry scripts/handlers to visitors (stored-XSS guard),
+      // whoever authored it.
       if (node.fields?.blockType === 'html' && typeof node.fields.html === 'string') {
-        return <div className="blog-html-block" dangerouslySetInnerHTML={{ __html: node.fields.html }} />
+        return <div className="blog-html-block" dangerouslySetInnerHTML={{ __html: sanitizeEmbeddedHtml(node.fields.html) }} />
       }
       return <>{renderChildren(node.children)}</>
     }

@@ -4,9 +4,11 @@
 // Hooks (autoSlug, calcReadingTime, revalidate) are added in later tasks.
 
 import type { CollectionConfig } from 'payload'
+import { isAdmin } from '../access/is-admin'
 import { lexicalEditor, FixedToolbarFeature, BlocksFeature } from '@payloadcms/richtext-lexical'
 import { slugify } from '../../lib/slugify.ts'
 import { publishedOrAuthed } from '@/payload/access/public-read'
+import { revalidatePaths } from '@/lib/revalidate'
 import { lexicalToText, readingTimeMinutes } from '../../lib/lexical-text.ts'
 
 export const Posts: CollectionConfig = {
@@ -25,8 +27,12 @@ export const Posts: CollectionConfig = {
     group: 'Content',
   },
   access: {
+    delete: isAdmin,
     read: publishedOrAuthed,
   },
+  // Soft delete: deleted docs land in the admin Trash (restorable) instead
+  // of vanishing — recovery path for accidental deletions.
+  trash: true,
   versions: {
     drafts: true,
   },
@@ -78,7 +84,7 @@ export const Posts: CollectionConfig = {
           // links, quote… all already in defaultFeatures).
           FixedToolbarFeature(),
           // Escape hatch for custom layout: insert a raw-HTML block anywhere in
-          // the content. Rendered verbatim on the published page.
+          // the content. Sanitized at render (sanitize-embedded-html) before output.
           BlocksFeature({
             blocks: [
               {
@@ -91,7 +97,7 @@ export const Posts: CollectionConfig = {
                     label: 'Raw HTML',
                     admin: {
                       language: 'html',
-                      description: 'Custom HTML for special layouts. Rendered as-is on the published page.',
+                      description: 'Custom HTML for special layouts. Sanitized on render: layout tags/classes/styles keep working; scripts, iframes, forms and event handlers are stripped.',
                     },
                   },
                 ],
@@ -253,6 +259,17 @@ export const Posts: CollectionConfig = {
           console.error('[Posts.afterChange] revalidate fetch failed:', err)
         }
 
+        return doc
+      },
+    ],
+    // Deleting a published post must clear the cached blog pages it appeared
+    // on (hub, its own page, its category) — afterChange never fires on delete.
+    afterDelete: [
+      async ({ doc }) => {
+        const paths = new Set<string>(['/blog'])
+        if (doc?.slug) paths.add(`/blog/${doc.slug}`)
+        if (doc?.category) paths.add(`/blog/category/${doc.category}`)
+        await revalidatePaths(paths, 'Posts.afterDelete')
         return doc
       },
     ],

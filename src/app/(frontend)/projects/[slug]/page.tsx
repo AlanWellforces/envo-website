@@ -15,6 +15,9 @@ import '@/components/projects/projects-redesign.css'
 
 type Params = Promise<{ slug: string }>
 
+// Hourly ISR so a future-dated (scheduled) project appears without a manual
+// revalidate once its publishedAt passes; hooks still purge instantly on edits.
+export const revalidate = 3600
 export async function generateStaticParams() {
   const slugs = await getAllProjectSlugs()
   return slugs.map((slug) => ({ slug }))

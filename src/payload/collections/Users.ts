@@ -12,13 +12,15 @@ export const Users: CollectionConfig = {
     useAsTitle: 'email',
     group: 'Settings',
     defaultColumns: ['email', 'name', 'role'],
-    // Hide this collection from the sidebar for non-admins.
-    // NOTE: do NOT use access.admin for this — Payload uses that to gate
-    // the entire admin panel, which would lock out all editors.
     // Payload's ClientUser type doesn't carry our custom `role` field — narrow it here.
     hidden: ({ user }) => (user as MaybeUser)?.role !== 'admin',
   },
   access: {
+    // The whole admin panel is admins-only (P0 decision 2026-07-24: the team
+    // is all-admin and the editor tier is deliberately non-functional — a
+    // non-admin account, e.g. one created with the default role, gets no UI).
+    // REST/GraphQL for sensitive surfaces is gated separately via isAdmin.
+    admin: ({ req: { user } }) => (user as MaybeUser)?.role === 'admin',
     // Only admins can create or delete user accounts
     create: isAdmin,
     delete: isAdmin,

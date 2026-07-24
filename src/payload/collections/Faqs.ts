@@ -4,6 +4,7 @@
 // `group` stores the short key; the human label lives in src/lib/faqs.ts
 // (FAQ_GROUP_LABELS).
 import type { CollectionConfig } from 'payload'
+import { isAdmin } from '../access/is-admin'
 import { publishedOrAuthed } from '@/payload/access/public-read'
 import { lexicalEditor, FixedToolbarFeature } from '@payloadcms/richtext-lexical'
 
@@ -16,7 +17,7 @@ export const Faqs: CollectionConfig = {
     group: 'Content',
     description: 'Questions answered on /resources/faq. Publish to make one visible.',
   },
-  access: { read: publishedOrAuthed },
+  access: { read: publishedOrAuthed, delete: isAdmin },
   versions: { drafts: true },
   fields: [
     { name: 'question', type: 'text', required: true, admin: { placeholder: 'The question, as a customer would ask it.' } },

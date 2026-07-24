@@ -1,4 +1,5 @@
 import type { GlobalConfig } from 'payload'
+import { isAdmin } from '../access/is-admin'
 
 // Only fields that the site actually renders live here — anything not wired
 // yet says so in its label. Deliberately NOT here: primary navigation (the
@@ -14,6 +15,8 @@ export const SiteSettings: GlobalConfig = {
   },
   access: {
     read: () => true,
+    // Site-wide settings are admin-only to write (P0 2026-07-24).
+    update: isAdmin,
   },
   hooks: {
     afterChange: [

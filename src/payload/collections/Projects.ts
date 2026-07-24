@@ -8,9 +8,11 @@
 // slug, tags). No tabs — the layout itself guides the author top-to-bottom.
 
 import type { CollectionConfig } from 'payload'
+import { isAdmin } from '../access/is-admin'
 import { lexicalEditor, FixedToolbarFeature, BlocksFeature } from '@payloadcms/richtext-lexical'
 import { slugify } from '../../lib/slugify.ts'
 import { publishedOrAuthed } from '@/payload/access/public-read'
+import { revalidatePaths } from '@/lib/revalidate'
 
 export const Projects: CollectionConfig = {
   slug: 'projects',
@@ -26,8 +28,12 @@ export const Projects: CollectionConfig = {
     group: 'Content',
   },
   access: {
+    delete: isAdmin,
     read: publishedOrAuthed,
   },
+  // Soft delete: deleted docs land in the admin Trash (restorable) instead
+  // of vanishing — recovery path for accidental deletions.
+  trash: true,
   versions: {
     drafts: true,
   },
@@ -122,7 +128,7 @@ export const Projects: CollectionConfig = {
                     label: 'Raw HTML',
                     admin: {
                       language: 'html',
-                      description: 'Custom HTML for special layouts. Rendered as-is on the published page.',
+                      description: 'Custom HTML for special layouts. Sanitized on render: layout tags/classes/styles keep working; scripts, iframes, forms and event handlers are stripped.',
                     },
                   },
                 ],
@@ -242,7 +248,7 @@ export const Projects: CollectionConfig = {
       defaultValue: () => new Date().toISOString(),
       admin: {
         position: 'sidebar',
-        description: 'When the project goes live. Set a future date/time to schedule it.',
+        description: 'When the project goes live. A future date/time keeps a Published project hidden until then (appears within the hour after it passes).',
         date: { displayFormat: 'dd/MM/yyyy HH:mm' },
       },
     },
@@ -347,6 +353,23 @@ export const Projects: CollectionConfig = {
         } catch (err) {
           console.error('[Projects.afterChange] revalidate fetch failed:', err)
         }
+        return doc
+      },
+    ],
+    // Deleting a published project must clear every cached page it appeared
+    // on — without this, an emergency takedown left the hub/industry/tag/
+    // detail pages serving the deleted project until the next full rebuild.
+    afterDelete: [
+      async ({ doc }) => {
+        const paths = new Set<string>(['/projects'])
+        if (doc?.slug) paths.add(`/projects/${doc.slug}`)
+        for (const i of Array.isArray(doc?.industry) ? doc.industry : []) {
+          paths.add(`/projects/industry/${i}`)
+        }
+        for (const t of (doc?.tags ?? []).map((x: { tag: string }) => x.tag).filter(Boolean)) {
+          paths.add(`/projects/tag/${t}`)
+        }
+        await revalidatePaths(paths, 'Projects.afterDelete')
         return doc
       },
     ],

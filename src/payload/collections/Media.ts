@@ -2,9 +2,28 @@
 // Images are auto-resized to thumbnail, card, and detail sizes on upload.
 
 import type { CollectionConfig } from 'payload'
+import { APIError } from 'payload'
+import { findMediaUsage } from '../hooks/media-in-use'
+import { isAdmin } from '../access/is-admin'
 
 export const Media: CollectionConfig = {
   slug: 'media',
+  hooks: {
+    // Refuse to delete a file that content still references — deleting it
+    // would silently break images on the live site. The error lists where
+    // it's used so the editor can swap those first.
+    beforeDelete: [
+      async ({ req, id }) => {
+        const uses = await findMediaUsage(req.payload, id)
+        if (uses.length > 0) {
+          throw new APIError(
+            `This file is still in use — remove it from: ${uses.join(', ')} first.`,
+            400,
+          )
+        }
+      },
+    ],
+  },
   admin: {
     useAsTitle: 'alt',
     group: 'Catalogue',
@@ -17,6 +36,11 @@ export const Media: CollectionConfig = {
   },
   access: {
     read: () => true,
+    // Writes are admin-only (P0 2026-07-24): a non-admin login token must not
+    // be able to replace or delete site imagery via REST.
+    create: isAdmin,
+    update: isAdmin,
+    delete: isAdmin,
   },
   upload: {
     staticDir: 'media',
