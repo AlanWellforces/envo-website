@@ -295,6 +295,18 @@ export function Sidebar() {
   const toggleRef = useRef<HTMLButtonElement>(null)
   const regionRef = useRef<HTMLDivElement>(null)
 
+  // Track the phone-drawer breakpoint so the a11y guards below (inert + focus
+  // trap) apply ONLY to the mobile drawer, never the always-visible desktop
+  // sidebar (which shares this same <aside>).
+  const [isMobile, setIsMobile] = useState(false)
+  useEffect(() => {
+    const mq = window.matchMedia('(max-width: 980px)')
+    const sync = () => setIsMobile(mq.matches)
+    sync()
+    mq.addEventListener('change', sync)
+    return () => mq.removeEventListener('change', sync)
+  }, [])
+
   // Desktop-only class: the collapsed styling is spread through envo.css and
   // out-specifies the mobile drawer overrides (#225 fixed the geometry, but
   // inner styles — centred icon rows, hidden section titles — still leaked
@@ -372,6 +384,42 @@ export function Sidebar() {
     document.addEventListener('click', onDocClick)
     return () => document.removeEventListener('click', onDocClick)
   }, [open])
+
+  // Phone drawer focus management: on open, move focus into the drawer and trap
+  // Tab inside it; Escape closes; on close, focus returns to the toggle. Only
+  // while the drawer pattern is active (mobile) — desktop is untouched.
+  useEffect(() => {
+    if (!open || !isMobile) return
+    const drawer = sidebarRef.current
+    if (!drawer) return
+    const SEL = 'a[href],button:not([disabled]),input,select,textarea,[tabindex]:not([tabindex="-1"])'
+    const visible = () =>
+      Array.from(drawer.querySelectorAll<HTMLElement>(SEL)).filter((el) => el.offsetParent !== null)
+    visible()[0]?.focus()
+    const onKey = (e: KeyboardEvent) => {
+      if (e.key === 'Escape') {
+        setOpen(false)
+        return
+      }
+      if (e.key !== 'Tab') return
+      const items = visible()
+      if (items.length === 0) return
+      const first = items[0]
+      const last = items[items.length - 1]
+      if (e.shiftKey && document.activeElement === first) {
+        e.preventDefault()
+        last.focus()
+      } else if (!e.shiftKey && document.activeElement === last) {
+        e.preventDefault()
+        first.focus()
+      }
+    }
+    document.addEventListener('keydown', onKey)
+    return () => {
+      document.removeEventListener('keydown', onKey)
+      toggleRef.current?.focus()
+    }
+  }, [open, isMobile])
 
   const toggleCollapsed = useCallback((e: React.MouseEvent<HTMLButtonElement>) => {
     // Blur so the global :focus-visible ring doesn't linger on the control.
@@ -550,6 +598,10 @@ export function Sidebar() {
         id="sidebar"
         className={cn('sidebar', open && 'open')}
         aria-label="Primary navigation"
+        // On mobile the off-screen closed drawer must not be tabbable or
+        // screen-reader reachable; inert removes its ~26 controls from the tab
+        // order. Never inert on desktop, where the sidebar is the live nav.
+        inert={isMobile && !open}
       >
         <div className="sidebar-inner">
           <Link href="/" className="sidebar-logo" aria-label="ENVO home" onClick={handleNavClick}>

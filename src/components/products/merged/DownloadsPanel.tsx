@@ -65,7 +65,7 @@ function RequestForm({ sku, options }: { sku: string; options: string[] }) {
   if (state === 'sent') {
     return (
       <div className="reqform">
-        <p className="rf-title">
+        <p className="rf-title" role="status" aria-live="polite">
           Request received — thanks. Our engineers will send the files to your email.
         </p>
       </div>
@@ -73,7 +73,9 @@ function RequestForm({ sku, options }: { sku: string; options: string[] }) {
   }
 
   return (
-    <form className="reqform" onSubmit={handleSubmit}>
+    // method/action are the no-JS fallback: without them a submit defaults to
+    // GET and would put name/email/message in the URL, history and referrer.
+    <form className="reqform" method="post" action="/api/submissions" onSubmit={handleSubmit}>
       <HoneypotField />
       <p className="rf-title">
         Need other files for <span className="rf-sku">{sku}</span>?
