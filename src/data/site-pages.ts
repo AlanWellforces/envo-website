@@ -34,9 +34,8 @@ export const SITE_PAGES: SitePage[] = [
   { label: 'Products', route: '/products', section: 'Content collections', source: 'cms', editHref: '/admin/collections/products' },
 
   { label: 'Resources', route: '/resources', section: 'Resources', source: 'code', editHref: '/admin/collections/page-seo?where[route][equals]=/resources' },
-  { label: 'Downloads', route: '/resources/downloads', section: 'Resources', source: 'code', editHref: '/admin/collections/page-seo?where[route][equals]=/resources/downloads' },
   { label: 'Tools', route: '/resources/tools', section: 'Resources', source: 'code', editHref: '/admin/collections/page-seo?where[route][equals]=/resources/tools' },
-  { label: 'Signage Selector', route: '/resources/tools/signage-selector', section: 'Resources', source: 'code', editHref: '/admin/collections/page-seo?where[route][equals]=/resources/tools/signage-selector' },
+  // Downloads + Signage Selector hidden 2026-07-24 (pages 404) — omitted here.
   { label: 'FAQ', route: '/resources/faq', section: 'Resources', source: 'cms', editHref: '/admin/collections/faqs' },
 
   { label: 'Terms of Service', route: '/terms-of-service', section: 'Legal', source: 'cms', editHref: '/admin/collections/pages' },

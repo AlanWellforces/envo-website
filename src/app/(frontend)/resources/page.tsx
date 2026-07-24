@@ -33,14 +33,6 @@ export default async function ResourcesPage() {
           </p>
         </header>
 
-        {/* Section nav — the hub's public entry to its sub-pages (previously
-            only reachable via sitemap / direct URL). */}
-        <nav className="rd-subnav" aria-label="Resources sections">
-          <Link href="/resources/downloads">Downloads &amp; catalogues</Link>
-          <Link href="/resources/tools/signage-selector">Signage selector</Link>
-          <Link href="/resources/faq">FAQ</Link>
-        </nav>
-
         {/* ===== LIBRARY (search + filters + list) ===== */}
         <ResourceLibrary docs={datasheets} />
 

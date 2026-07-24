@@ -1,4 +1,5 @@
 import type { Metadata } from 'next'
+import { notFound } from 'next/navigation'
 import { metadataForRoute } from '@/lib/page-seo'
 import Link from 'next/link'
 import { RESOURCES } from '@/data/resources'
@@ -23,6 +24,12 @@ const DEST: Record<string, { href: string; cta: string }> = {
 }
 
 export default function DownloadsPage() {
+  // Hidden (user 2026-07-24): the download library isn't finished — cards only
+  // route out to product/contact pages, no real bundled files yet. 404s direct
+  // URLs; entry points removed (resources hub, sitemap, site-pages). Re-enable
+  // by removing this line and restoring those entries.
+  notFound()
+
   return (
     <div className="theme-light">
       <div className="container">

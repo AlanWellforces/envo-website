@@ -21,9 +21,6 @@
 .rd-eyebrow::before { content:''; width:24px; height:1px; background:var(--envo-lime-deep); }
 .rd-head h1 { font-size:clamp(30px,3.6vw,52px); font-weight:700; line-height:1.03; letter-spacing:-.035em; color:#1a2332; margin:0 0 var(--space-14); }
 .rd-sub { font-size:15.5px; color:#4a5568; max-width:62ch; line-height:1.55; margin:0; }
-.rd-subnav { display:flex; flex-wrap:wrap; gap:10px; margin:0 0 var(--space-18); }
-.rd-subnav a { font-size:13px; font-weight:600; color:#0071bc; border:1px solid #d7dee6; border-radius:999px; padding:7px 14px; text-decoration:none; transition:background .15s ease, border-color .15s ease; }
-.rd-subnav a:hover { background:#eef4f9; border-color:#0071bc; }
 
 /* ============ LIBRARY ============ */
 .rd-lib { padding:0 0 var(--space-56); }
