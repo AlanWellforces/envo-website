@@ -4,6 +4,7 @@
 // getPageSeo() with fallback to each page's in-code defaults. CMS pages
 // (Posts/Projects/Products/Faqs) manage their own SEO and are NOT listed here.
 import type { CollectionConfig } from 'payload'
+import { isAdmin } from '../access/is-admin'
 import { revalidatePaths } from '@/lib/revalidate'
 
 export const PageSeo: CollectionConfig = {
@@ -15,7 +16,7 @@ export const PageSeo: CollectionConfig = {
     group: 'Website',
     description: 'SEO title / description / share image for code-built pages, keyed by route. Empty fields fall back to the page’s in-code defaults.',
   },
-  access: { read: () => true },
+  access: { read: () => true, delete: isAdmin },
   fields: [
     {
       name: 'route',

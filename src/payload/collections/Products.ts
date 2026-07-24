@@ -6,6 +6,7 @@
 //   - sync_locked = true: sync skips this product entirely — editor owns it fully
 
 import type { CollectionConfig } from 'payload'
+import { isAdmin } from '../access/is-admin'
 import { CERT_OPTIONS } from '@/lib/cert-codes'
 import { visibleProductOrAuthed, authedFieldRead } from '@/payload/access/public-read'
 import { revalidatePaths } from '@/lib/revalidate'
@@ -23,6 +24,7 @@ export const Products: CollectionConfig = {
     baseListFilter: () => ({ family: { exists: true } }),
   },
   access: {
+    delete: isAdmin,
     // Anonymous public API sees only live catalogue rows; SSR uses the Local
     // API (overrideAccess) so it still sees everything. Internal fields below
     // carry their own field-level read gate.

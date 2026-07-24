@@ -1,4 +1,5 @@
 import type { GlobalConfig } from 'payload'
+import { isAdmin } from '../access/is-admin'
 
 // Fields mirror the live v4 homepage sections (src/components/home/*). Sections
 // with no fields here (Value Props, Shop by Category, Signage Range) are
@@ -16,6 +17,8 @@ export const HomePage: GlobalConfig = {
   },
   access: {
     read: () => true,
+    // Site-wide settings are admin-only to write (P0 2026-07-24).
+    update: isAdmin,
   },
   hooks: {
     afterChange: [

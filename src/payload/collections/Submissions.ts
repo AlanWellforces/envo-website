@@ -3,6 +3,7 @@
 // contact). PII — readable only by authenticated admins. Rows are created by
 // the public /api/submissions route via the Local API.
 import type { CollectionConfig } from 'payload'
+import { isAdmin } from '../access/is-admin'
 
 export const Submissions: CollectionConfig = {
   slug: 'submissions',
@@ -15,13 +16,14 @@ export const Submissions: CollectionConfig = {
     pagination: { defaultLimit: 50 },
   },
   access: {
-    read: ({ req }) => Boolean(req.user),
+    // Leads are PII — admin role required, not just any login (P0 2026-07-24).
+    read: isAdmin,
     // The public site posts via /api/submissions (Local API, bypasses access
     // control) — Payload's own REST/GraphQL create stays CLOSED so spam can't
     // skip normalizeSubmission or set internal fields like status/sketch.
     create: () => false,
-    update: ({ req }) => Boolean(req.user),
-    delete: ({ req }) => Boolean(req.user),
+    update: isAdmin,
+    delete: isAdmin,
   },
   fields: [
     {
