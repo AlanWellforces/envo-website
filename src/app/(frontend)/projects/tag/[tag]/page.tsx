@@ -1,4 +1,5 @@
 import type { Metadata } from 'next'
+import { notFound } from 'next/navigation'
 import Link from 'next/link'
 import { ProjectCard } from '@/components/projects/ProjectCard'
 import { getProjects } from '@/lib/projects'
@@ -23,6 +24,8 @@ export default async function TagPage({ params }: { params: Params }) {
   const { tag } = await params
   const decoded = decodeURIComponent(tag)
   const { docs, totalDocs } = await getProjects({ tag: decoded, limit: 60 })
+  // Nonexistent / empty tag → 404, not an indexable empty page.
+  if (docs.length === 0) notFound()
 
   return (
     <div className="theme-light">

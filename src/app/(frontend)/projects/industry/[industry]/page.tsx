@@ -50,6 +50,8 @@ export default async function IndustryPage({ params }: { params: Params }) {
   if (!isValid(industry)) notFound()
 
   const { docs, totalDocs } = await getProjects({ industry, limit: 60 })
+  // Valid industry but nothing published for it → 404, not an empty indexable page.
+  if (docs.length === 0) notFound()
   const label = INDUSTRY_LABELS[industry]
 
   return (

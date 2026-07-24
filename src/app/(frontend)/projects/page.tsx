@@ -1,4 +1,5 @@
 import type { Metadata } from 'next'
+import { notFound } from 'next/navigation'
 import Link from 'next/link'
 import { ProjectsCatalogue } from '@/components/projects/ProjectsCatalogue'
 import { getProjects } from '@/lib/projects'
@@ -16,6 +17,9 @@ export const metadata: Metadata = {
 
 export default async function ProjectsPage() {
   const { docs: projects } = await getProjects({ limit: 60 })
+  // No published projects yet → 404 rather than an indexable empty hub
+  // (soft-404). Auto-recovers when the first real install is published.
+  if (projects.length === 0) notFound()
 
   return (
     <div className="pj-wrap">

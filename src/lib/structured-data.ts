@@ -65,6 +65,20 @@ export function breadcrumbLd(items: Crumb[]) {
   }
 }
 
+/** FAQPage rich-result markup. Answers must be plain text (callers flatten
+ *  richText via lexicalToText); empty items are dropped by the caller. */
+export function faqPageLd(items: { question: string; answer: string }[]) {
+  return {
+    '@context': 'https://schema.org',
+    '@type': 'FAQPage',
+    mainEntity: items.map((it) => ({
+      '@type': 'Question',
+      name: it.question,
+      acceptedAnswer: { '@type': 'Answer', text: it.answer },
+    })),
+  }
+}
+
 // ---------------------------------------------------------------- Product specs
 
 type Spec = { name: string; value: string | number; unitText?: string }

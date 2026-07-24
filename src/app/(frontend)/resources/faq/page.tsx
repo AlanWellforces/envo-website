@@ -2,6 +2,9 @@ import type { Metadata } from 'next'
 import Link from 'next/link'
 import { getFaqs } from '@/lib/faqs'
 import { RichTextRenderer } from '@/components/blog/RichTextRenderer'
+import { lexicalToText, type LexicalNode } from '@/lib/lexical-text'
+import { faqPageLd } from '@/lib/structured-data'
+import { JsonLd } from '@/components/seo/JsonLd'
 import styles from './page.module.css'
 
 export const revalidate = 3600
@@ -15,8 +18,15 @@ export const metadata: Metadata = {
 export default async function FaqPage() {
   const groups = await getFaqs()
 
+  // FAQPage rich-result markup, flattening each answer's richText to plain text.
+  const faqItems = groups
+    .flatMap((g) => g.items)
+    .map((it) => ({ question: it.question, answer: lexicalToText(it.answer as LexicalNode).trim() }))
+    .filter((it) => it.question && it.answer)
+
   return (
     <div className="theme-light">
+      {faqItems.length > 0 && <JsonLd data={faqPageLd(faqItems)} />}
       <div className="container">
         <div className="breadcrumb">
           <Link href="/">Home</Link>
