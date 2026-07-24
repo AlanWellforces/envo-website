@@ -5,6 +5,7 @@
 // Rows are created exclusively by /api/submissions via the Local API — the
 // route enforces the extension allowlist and the 20 MB cap.
 import type { CollectionConfig } from 'payload'
+import { isAdmin } from '../access/is-admin'
 
 export const LeadFiles: CollectionConfig = {
   slug: 'lead-files',
@@ -14,10 +15,12 @@ export const LeadFiles: CollectionConfig = {
     hidden: true, // reached through the lead's `sketch` field, not the nav
   },
   access: {
-    read: ({ req }) => Boolean(req.user),
+    // Customer-submitted PII — admin role only, matching Submissions. (Any
+    // logged-in user was too broad now that non-admins can hold API tokens.)
+    read: isAdmin,
     create: () => false, // Local API only (bypasses access control)
     update: () => false,
-    delete: ({ req }) => Boolean(req.user),
+    delete: isAdmin,
   },
   fields: [{ name: 'alt', type: 'text' }],
 }
