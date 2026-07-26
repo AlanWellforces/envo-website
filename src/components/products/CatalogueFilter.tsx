@@ -177,6 +177,28 @@ export function CatalogueFilter({
     mq.addEventListener('change', apply)
     return () => mq.removeEventListener('change', apply)
   }, [])
+  // Phones (≤680px, the 2-col card breakpoint): the toolbar packs search +
+  // Filters + sort into one line, so the search placeholder must be short.
+  const [isPhone, setIsPhone] = useState(false)
+  useEffect(() => {
+    const mq = window.matchMedia('(max-width: 680px)')
+    const apply = () => setIsPhone(mq.matches)
+    apply()
+    mq.addEventListener('change', apply)
+    return () => mq.removeEventListener('change', apply)
+  }, [])
+  // The floating Filters pill only appears once the top bar (which already has
+  // a Filters button) scrolls out of view — no duplicate entry on screen, and
+  // nothing floats over the first cards (external audit 2026-07-27).
+  const mbarRef = useRef<HTMLDivElement>(null)
+  const [mbarGone, setMbarGone] = useState(false)
+  useEffect(() => {
+    const el = mbarRef.current
+    if (!el || typeof IntersectionObserver === 'undefined') return
+    const io = new IntersectionObserver(([entry]) => setMbarGone(!entry.isIntersecting))
+    io.observe(el)
+    return () => io.disconnect()
+  }, [])
   useEffect(() => {
     if (!drawerOpen) return
     const prev = document.body.style.overflow
@@ -285,7 +307,7 @@ export function CatalogueFilter({
     <div className="pcat-body">
       {/* Mobile bar — search + filter trigger ABOVE the results (audit
           2026-07-21: both used to sit below every card). Hidden on desktop. */}
-      <div className="pcat-mbar">
+      <div className="pcat-mbar" ref={mbarRef}>
         <div className="pcat-search">
           <svg viewBox="0 0 24 24" aria-hidden>
             <circle cx="11" cy="11" r="7" />
@@ -294,7 +316,9 @@ export function CatalogueFilter({
           <input
             ref={searchInputRef}
             type="search"
-            placeholder={resultKind === 'products' ? 'Search product or SKU…' : 'Search series or model…'}
+            placeholder={
+              isPhone ? 'Search…' : resultKind === 'products' ? 'Search product or SKU…' : 'Search series or model…'
+            }
             value={query}
             onChange={(e) => setQuery(e.target.value)}
             aria-label="Search the catalogue"
@@ -309,6 +333,19 @@ export function CatalogueFilter({
             {activeCount > 0 && <span className="picked">{activeCount}</span>}
           </button>
         )}
+        {/* phone-only twin of the toolbar sort — same state, one visible at a time */}
+        <select
+          className="pcat-sort pcat-msort"
+          aria-label="Sort results"
+          value={sortBy}
+          onChange={(e) => setSortBy(e.target.value as SortKey)}
+        >
+          {sortOptions.map((k) => (
+            <option key={k} value={k}>
+              {SORT_LABELS[k]}
+            </option>
+          ))}
+        </select>
       </div>
 
       <aside className="pcat-filters">
@@ -501,9 +538,9 @@ export function CatalogueFilter({
         )}
       </section>
 
-      {/* Mobile filter trigger — fixed above the thumb, always reachable no
-          matter how deep the list goes. Hidden on desktop and while open. */}
-      {groups.length > 0 && !drawerOpen && (
+      {/* Mobile filter trigger — fixed bottom-right (above back-to-top), only
+          once the top bar has scrolled away. Hidden on desktop and while open. */}
+      {groups.length > 0 && !drawerOpen && mbarGone && (
         <button type="button" className="pcat-fab" onClick={() => setDrawerOpen(true)}>
           <svg viewBox="0 0 24 24" aria-hidden>
             <path d="M3 5h18M6 12h12M10 19h4" />
