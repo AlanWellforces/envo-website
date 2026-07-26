@@ -25,6 +25,29 @@ export function resolveAssetUrl(path: string | null | undefined): string | null 
 }
 
 /**
+ * SSRF guard for the datasheet proxy: a URL may only be fetched server-side
+ * if it points at the Akeneo asset bucket itself — same https origin as
+ * AKENEO_ASSET_BASE (host compared case-insensitively, no port tricks).
+ * Relative keys resolved by `resolveAssetUrl` always pass; any other absolute
+ * URL (external hosts, private IPs, http downgrade) is rejected.
+ */
+export function isAllowedAssetUrl(url: string): boolean {
+  let target: URL
+  let base: URL
+  try {
+    target = new URL(url)
+    base = new URL(AKENEO_ASSET_BASE)
+  } catch {
+    return false
+  }
+  return (
+    target.protocol === 'https:' &&
+    target.hostname.toLowerCase() === base.hostname.toLowerCase() &&
+    target.port === base.port
+  )
+}
+
+/**
  * Customer-facing datasheet link. Routes through our own domain
  * (`/datasheets/<sku>`) so the raw Akeneo S3 host (which carries the
  * "wellforces" bucket name) is never exposed — see the proxy route at
