@@ -13,7 +13,14 @@ export async function generateMetadata(
   { params }: { params: Promise<{ tag: string }> },
 ): Promise<Metadata> {
   const { tag } = await params
-  return { title: `#${tag} — ENVO Blog`, alternates: { canonical: `/blog/tag/${tag}` } }
+  return {
+    title: `#${tag} — ENVO Blog`,
+    alternates: { canonical: `/blog/tag/${tag}` },
+    // Tag pages are thin post lists deliberately kept out of the sitemap
+    // (#172) — noindex them so they don't surface as near-duplicate results;
+    // follow keeps them passing link equity to the posts themselves.
+    robots: { index: false, follow: true },
+  }
 }
 
 export default async function TagPage(
