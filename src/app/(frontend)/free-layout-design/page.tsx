@@ -75,12 +75,32 @@ export default async function FreeLayoutDesignPage() {
             </div>
 
             <div className={styles.heroCtas}>
-              <EnvoButton href={TOOL_URL} variant="primary" arrow target="_blank" rel="noopener">
-                Start designing — free
-              </EnvoButton>
-              <EnvoButton href="#start" variant="ghost">
-                Prefer we draw it? Send a sketch
-              </EnvoButton>
+              {/* Desktop keeps studio-first. Mobile swaps to sketch-first: the
+                  studio itself is desktop-only (needs a mouse + larger screen),
+                  so the primary mobile action is the on-page sketch form. */}
+              <span className={styles.ctaSetDesktop}>
+                <EnvoButton href={TOOL_URL} variant="primary" arrow target="_blank" rel="noopener">
+                  Start designing — free
+                </EnvoButton>
+                <EnvoButton href="#start" variant="ghost">
+                  Prefer we draw it? Send a sketch
+                </EnvoButton>
+              </span>
+              <span className={styles.ctaSetMobile}>
+                <EnvoButton href="#start" variant="primary" arrow>
+                  Send a sketch — we draw it free
+                </EnvoButton>
+                <EnvoButton href={TOOL_URL} variant="ghost" target="_blank" rel="noopener">
+                  Open Layout Studio
+                  <span className={styles.desktopChip}>
+                    <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.4" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true"><rect x="2" y="4" width="20" height="13" rx="2" /><path d="M8 21h8M12 17v4" /></svg>
+                    Desktop
+                  </span>
+                </EnvoButton>
+                <span className={styles.ctaHint}>
+                  The studio needs a mouse and a larger screen — best opened on a computer.
+                </span>
+              </span>
             </div>
           </div>
 
@@ -101,7 +121,13 @@ export default async function FreeLayoutDesignPage() {
                 <span className={styles.specStatus}>Live tool</span>
               </div>
               <div className={styles.specCanvas}>
-                <span className={styles.specCaption}>Open the studio · draw your sign</span>
+                <span className={styles.specCaption}>
+                  Open the studio · draw your sign
+                  <span className={`${styles.desktopChip} ${styles.mobileOnlyInline}`}>
+                    <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.4" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true"><rect x="2" y="4" width="20" height="13" rx="2" /><path d="M8 21h8M12 17v4" /></svg>
+                    Desktop
+                  </span>
+                </span>
               </div>
               <div className={styles.specStats}>
                 <div className={styles.specStat}>
@@ -243,6 +269,10 @@ export default async function FreeLayoutDesignPage() {
           <div className="sig-cta-actions">
             <EnvoButton href={TOOL_URL} variant="primary" arrow target="_blank" rel="noopener">
               Open ENVO Layout Studio
+              <span className={`${styles.desktopChip} ${styles.mobileOnlyInline}`}>
+                <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.4" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true"><rect x="2" y="4" width="20" height="13" rx="2" /><path d="M8 21h8M12 17v4" /></svg>
+                Desktop
+              </span>
             </EnvoButton>
             <EnvoButton href="/products" variant="ghost">
               Browse Products
