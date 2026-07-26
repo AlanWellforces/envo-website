@@ -65,6 +65,55 @@
   border-color: var(--envo-blue);
 }
 
+/* ---- mobile/desktop CTA variants ----
+   The studio (MapMySign) is desktop-only — on phones it renders a hard
+   "Desktop only" wall. Mobile therefore leads with the sketch form and keeps
+   the studio as a labelled secondary. display:contents keeps both sets laid
+   out by .heroCtas itself. */
+.ctaSetDesktop,
+.ctaSetMobile {
+  display: contents;
+}
+@media (min-width: 769px) {
+  .ctaSetMobile { display: none; }
+}
+@media (max-width: 768px) {
+  .ctaSetDesktop { display: none; }
+}
+
+/* grey "Desktop" pill inside studio-opening buttons (mobile notice) */
+.desktopChip {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  margin-left: 9px;
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: #5f6a78;
+  background: #eef1f5;
+  border-radius: 999px;
+  padding: 3px 9px;
+}
+.desktopChip svg { flex-shrink: 0; }
+
+/* caption under the mobile studio button */
+.ctaHint {
+  flex-basis: 100%;
+  margin-top: -4px;
+  padding-left: 24px;
+  font-size: 13px;
+  line-height: 1.5;
+  color: #5f6a78;
+}
+
+/* chip variants shown on mobile only (launch card, bottom banner) */
+.mobileOnlyInline { display: none; }
+@media (max-width: 768px) {
+  .mobileOnlyInline { display: inline-flex; }
+}
+
 /* ---- mock deliverable card ---- */
 .heroVisual {
   display: grid;
