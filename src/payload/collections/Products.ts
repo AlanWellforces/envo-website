@@ -10,7 +10,7 @@ import { isAdmin } from '../access/is-admin'
 import { CERT_OPTIONS } from '@/lib/cert-codes'
 import { visibleProductOrAuthed, authedFieldRead } from '@/payload/access/public-read'
 import { revalidatePaths } from '@/lib/revalidate'
-import { productPaths } from '@/lib/product-paths'
+import { productLiveUrl, productPaths } from '@/lib/product-paths'
 
 export const Products: CollectionConfig = {
   slug: 'products',
@@ -19,6 +19,11 @@ export const Products: CollectionConfig = {
     defaultColumns: ['thumbnail', 'sku', 'name', 'family', 'enabled', 'featured'],
     description: 'ENVO product catalogue. ⚠️ The nightly Akeneo sync OVERWRITES every "Synced from Akeneo" field — turn on Sync locked (sidebar) before hand-editing a product, or your changes disappear on the next sync. Payload-only fields (uploads, subtitle, pricing) are always safe.',
     group: 'Catalogue',
+    // "Preview" button in the edit view → the product's live page. Null for
+    // Akeneo shells (no family = no public page), which hides the button.
+    // Note: a disabled product 404s on the frontend — preview shows what the
+    // public sees, not a draft.
+    preview: (doc) => productLiveUrl(doc as { sku?: string | null; family?: string | null }),
     // Hide un-enriched Akeneo shells (no family — never categorisable on the
     // frontend) from the default list. Clear the Filters panel to see them.
     baseListFilter: () => ({ family: { exists: true } }),
@@ -58,7 +63,11 @@ export const Products: CollectionConfig = {
               name: 'name',
               type: 'text',
               required: true,
-              admin: { description: 'Synced from Akeneo — the nightly sync overwrites edits unless Sync locked is on.' },
+              admin: {
+                description: 'Synced from Akeneo — the nightly sync overwrites edits unless Sync locked is on.',
+                // list column: clickable into the edit view (see sku)
+                components: { Cell: '/payload/components/LinkedTextCell#LinkedTextCell' },
+              },
             },
             {
               name: 'subtitle',
@@ -667,12 +676,15 @@ export const Products: CollectionConfig = {
               admin: {
                 description: 'Akeneo SKU — do not edit.',
                 readOnly: false,
+                // list column: clickable into the edit view (only the first
+                // column's default cell auto-links, and ours is the thumbnail)
+                components: { Cell: '/payload/components/LinkedTextCell#LinkedTextCell' },
               },
             },
             {
               type: 'row',
               fields: [
-                { name: 'family',  type: 'text', admin: { width: '33%', readOnly: true } },
+                { name: 'family',  type: 'text', admin: { width: '33%', readOnly: true, components: { Cell: '/payload/components/LinkedTextCell#LinkedTextCell' } } },
                 { name: 'series',  type: 'text', admin: { width: '33%', readOnly: true } },
                 { name: 'brand',   type: 'text', admin: { width: '33%', readOnly: true } },
               ],
