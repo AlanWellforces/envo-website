@@ -76,13 +76,15 @@ const nextConfig: NextConfig = {
     // tighten this later. The S3 host serves *_url_fallback product images
     // (products without a local media upload). After a quiet observation
     // window, rename the key to Content-Security-Policy to enforce.
+    // cloudflareinsights: CF Web Analytics beacon injected at the edge —
+    // invisible in local builds, caught by the live RO trial on day one.
     const csp = [
       "default-src 'self'",
-      "script-src 'self' 'unsafe-inline'",
+      "script-src 'self' 'unsafe-inline' https://static.cloudflareinsights.com",
       "style-src 'self' 'unsafe-inline'",
       "img-src 'self' data: https://wellforces-akeneo-pim.s3.ap-southeast-2.amazonaws.com",
       "font-src 'self' data:",
-      "connect-src 'self'",
+      "connect-src 'self' https://cloudflareinsights.com",
       "media-src 'self'",
       "object-src 'none'",
       "base-uri 'self'",
