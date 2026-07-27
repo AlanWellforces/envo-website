@@ -23,3 +23,13 @@ export function productPaths(doc: ProductLike): string[] {
 
   return Array.from(paths)
 }
+
+/** The one public page that IS this product — the model detail URL — or null
+ *  for un-categorisable Akeneo shells (no family → no page). Drives the
+ *  admin "Preview" button on the Products collection. */
+export function productLiveUrl(doc: ProductLike): string | null {
+  if (!doc.sku || !doc.family) return null
+  const m = dbFamilyToMarketing(doc.family)
+  if (!m) return null
+  return `/products/${m.slug}/${stripCctSuffix(doc.sku)}`
+}

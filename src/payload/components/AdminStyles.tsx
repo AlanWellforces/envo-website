@@ -242,6 +242,29 @@ input:focus, textarea:focus, select:focus { --theme-success-400: rgba(0, 113, 18
   --hover-bg: #005a98;
   --hover-color: #fff;
 }
+
+/* ---- Products list: fat click targets into the edit view --------------- */
+/* Only the 36px thumbnail (custom first cell) auto-linked, so the row's hit
+   area was a sliver (user 2026-07-27). A true whole-row overlay is out —
+   Chrome never treats a <tr> as a containing block for absolute children —
+   so instead every linked cell's anchor is inflated to fill its whole cell
+   (negative margin + equal padding), giving one contiguous clickable band
+   across photo / SKU / name / family. */
+.collection-list--products .table .cell-sku a,
+.collection-list--products .table .cell-name a,
+.collection-list--products .table .cell-family a {
+  display: block;
+  margin: -12px;
+  padding: 12px;
+}
+.collection-list--products .table .cell-thumbnail a {
+  display: block;
+  margin: -8px -12px;
+  padding: 8px 12px;
+}
+.collection-list--products .table tbody tr:hover td {
+  background: var(--theme-elevation-50);
+}
 `
 
 export const AdminStyles: React.FC<{ children?: React.ReactNode }> = ({ children }) => (
