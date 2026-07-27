@@ -68,12 +68,39 @@ const nextConfig: NextConfig = {
     // any future subdomain are separate apps we can't vouch for here. SAMEORIGIN
     // keeps Payload's live-preview iframe (same origin) working while blocking
     // third-party embedding.
+    // CSP in REPORT-ONLY mode (audit 2026-07-27): nothing is blocked yet;
+    // violations beacon to /api/csp-report → `docker logs envo-website`.
+    // The site has no third-party scripts/embeds, so the policy is tight.
+    // 'unsafe-inline' script/style: Next App Router bootstraps with inline
+    // scripts and React ships inline style attrs — a nonce pipeline can
+    // tighten this later. The S3 host serves *_url_fallback product images
+    // (products without a local media upload). After a quiet observation
+    // window, rename the key to Content-Security-Policy to enforce.
+    const csp = [
+      "default-src 'self'",
+      "script-src 'self' 'unsafe-inline'",
+      "style-src 'self' 'unsafe-inline'",
+      "img-src 'self' data: https://wellforces-akeneo-pim.s3.ap-southeast-2.amazonaws.com",
+      "font-src 'self' data:",
+      "connect-src 'self'",
+      "media-src 'self'",
+      "object-src 'none'",
+      "base-uri 'self'",
+      "form-action 'self'",
+      "frame-ancestors 'self'",
+      'report-uri /api/csp-report',
+    ].join('; ')
     const securityHeaders = [
       { key: 'Strict-Transport-Security', value: 'max-age=31536000' },
       { key: 'X-Content-Type-Options', value: 'nosniff' },
       { key: 'X-Frame-Options', value: 'SAMEORIGIN' },
       { key: 'Referrer-Policy', value: 'strict-origin-when-cross-origin' },
       { key: 'Permissions-Policy', value: 'camera=(), microphone=(), geolocation=()' },
+      // dev mode needs unsafe-eval (eval source maps / HMR) — the report-only
+      // trial only makes sense against production output, so skip it in dev.
+      ...(process.env.NODE_ENV === 'production'
+        ? [{ key: 'Content-Security-Policy-Report-Only', value: csp }]
+        : []),
     ]
     return [
       { source: '/:path*', headers: securityHeaders },

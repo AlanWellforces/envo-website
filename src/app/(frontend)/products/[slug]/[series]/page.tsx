@@ -3,6 +3,7 @@ import { notFound, permanentRedirect } from 'next/navigation'
 import MergedSeriesPage from '@/components/products/merged/MergedSeriesPage'
 import { PRODUCT_FAMILIES, type SeriesLink } from '@/data/product-families'
 import { datasheetHref } from '@/lib/asset-url'
+import { productMetaDescription } from '@/lib/product-meta'
 import { formatDims } from '@/lib/units'
 import { getProduct, getProductsByMarketingFamily, resolveProductImage, type Product } from '@/lib/products'
 import { seriesSlug as toSeriesSlug } from '@/data/family-map'
@@ -68,23 +69,6 @@ export const dynamicParams = true
 // Site-wide share-image fallback — keep in sync with the root layout default.
 const DEFAULT_OG_IMAGE = '/assets/images/hero-signage-poster.jpg'
 
-/** Akeneo short_description arrives with raw newlines and broken punctuation
- *  ("performance ,design Open circuit,short circuit") — tidy it for the meta
- *  description without touching numbers ("8.33A", "1,000"). */
-function cleanMetaDescription(text: string | null | undefined): string | undefined {
-  if (!text) return undefined
-  const cleaned = text
-    // C0/DEL control chars — Akeneo PDF extraction ships some SP-series
-    // descriptions with U+007F between every word; \s does not match it.
-    .replace(/[\x00-\x1f\x7f]+/g, ' ')
-    .replace(/\s+/g, ' ')
-    .replace(/\s+([,.;:!?])/g, '$1')
-    .replace(/([,;])(?=[A-Za-z])/g, '$1 ')
-    .trim()
-  if (!cleaned) return undefined
-  return cleaned.length > 160 ? `${cleaned.slice(0, 157).replace(/\s+\S*$/, '')}…` : cleaned
-}
-
 function detailMetadata(title: string, description: string, canonical: string, image = DEFAULT_OG_IMAGE): Metadata {
   return {
     title,
@@ -131,7 +115,7 @@ export async function generateMetadata({ params }: { params: Params }): Promise<
         // in SERPs (audit 2026-07-16); H1 stays descriptor-only per 2026-07-09.
         return detailMetadata(
           descriptor === code ? `${code} — ENVO` : `${descriptor} (${code}) — ENVO`,
-          cleanMetaDescription(rep.short_description) ?? `${descriptor} — specifications, datasheet and where to buy.`,
+          productMetaDescription(rep.short_description, code, descriptor),
           `/products/${slug}/${encodeURIComponent(code)}`,
           img.src,
         )
@@ -149,7 +133,7 @@ export async function generateMetadata({ params }: { params: Params }): Promise<
         // in SERPs (audit 2026-07-16); H1 stays descriptor-only per 2026-07-09.
         return detailMetadata(
           descriptor === product.sku ? `${product.sku} — ENVO` : `${descriptor} (${product.sku}) — ENVO`,
-          cleanMetaDescription(product.short_description) ?? `${descriptor} — specifications, datasheet and where to buy.`,
+          productMetaDescription(product.short_description, product.sku, descriptor),
           canonical,
           img.src,
         )
@@ -366,9 +350,7 @@ export default async function SeriesDetailPage({ params }: { params: Params }) {
           // No seo_description fallback: that Akeneo field still carries the
           // retired storefront's ecommerce copy ("buy direct…, in stock"),
           // which breaks the no-direct-sales copy rules if it reaches snippets.
-          description:
-            cleanMetaDescription(product.short_description) ??
-            `${product.name} — specifications, datasheet and where to buy.`,
+          description: productMetaDescription(product.short_description, product.sku, product.name),
           imageUrl: productImageUrl(product),
           variants,
         })
