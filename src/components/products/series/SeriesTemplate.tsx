@@ -90,7 +90,7 @@ export default function SeriesTemplate(props: SeriesTemplateProps) {
             </tbody>
           </table>
           <p className={styles.specFoot}>
-            All models · {[specs.beamDeg && `${specs.beamDeg}° beam`, specs.ip, specs.voltsDc && `${specs.voltsDc} V DC`, specs.lifetimeHrs && `${specs.lifetimeHrs.toLocaleString()} h`, ...specs.certs].filter(Boolean).join(' · ')}
+            All models · {[specs.beam && `${specs.beam} beam`, specs.ip, specs.voltsDc && `${specs.voltsDc} V DC`, specs.lifetimeHrs && `${specs.lifetimeHrs.toLocaleString()} h`, ...specs.certs].filter(Boolean).join(' · ')}
           </p>
         </section>
       )}

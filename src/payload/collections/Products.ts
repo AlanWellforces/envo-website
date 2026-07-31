@@ -332,7 +332,7 @@ export const Products: CollectionConfig = {
                 {
                   type: 'row',
                   fields: [
-                    { name: 'beam_angle_deg',   type: 'number', label: 'Beam Angle (°)',    admin: { width: '25%' } },
+                    { name: 'beam_angle',       type: 'text',   label: 'Beam Angle',        admin: { width: '25%', description: 'Display-ready, e.g. "170°" or "180° × 140°" — synced from the Akeneo select.' } },
                     { name: 'lifetime_hrs',     type: 'number', label: 'Lifetime (hrs)',    admin: { width: '25%' } },
                     { name: 'max_in_series',    type: 'number', label: 'Max in Series',     admin: { width: '25%' } },
                     {

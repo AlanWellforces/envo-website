@@ -22,7 +22,7 @@ function mk(over: Partial<Product> = {}): Product {
     efficacy_lm_w: null,
     cct_k: null,
     cri: null,
-    beam_angle_deg: null,
+    beam_angle: null,
     waterproof: null,
     output_voltage_v: null,
     input_voltage_min_v: null,

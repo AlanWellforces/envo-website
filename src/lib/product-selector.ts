@@ -56,7 +56,7 @@ export async function getProductsForSelector(family: string): Promise<SelectorRo
       power_w: p.power_w,
       brightness_lm: p.brightness_lm,
       efficacy_lm_w: p.efficacy_lm_w,
-      beam: p.beam_angle_deg != null ? `${p.beam_angle_deg}°` : null,
+      beam: p.beam_angle ?? null,
       cct: p.cct_k != null ? `${Math.round(p.cct_k / 1000)}K` : null,
       cri: p.cri,
       ip: p.waterproof ? p.waterproof.toUpperCase() : null,

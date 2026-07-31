@@ -15,7 +15,7 @@ const p = (over: Partial<Product> & Record<string, unknown>): Product => ({
   clean_image_url_fallback: null, spec_sheet_url: null, power_w: null,
   output_voltage_v: null, input_voltage_min_v: null, input_voltage_max_v: null,
   brightness_lm: null, efficacy_lm_w: null, cct_k: null, cri: null,
-  beam_angle_deg: null, lifetime_hrs: null, waterproof: null, standards_met: [],
+  beam_angle: null, lifetime_hrs: null, waterproof: null, standards_met: [],
   led_chip_colour: null, length_mm: null, width_mm: null, height_mm: null,
   ...over,
 } as unknown as Product)
