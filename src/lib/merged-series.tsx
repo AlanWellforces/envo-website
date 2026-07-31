@@ -255,8 +255,8 @@ export function buildMergedSeriesProps(
 
   if (sharedVoltage) sharedRows.push({ label: 'Input voltage', value: sharedVoltage })
 
-  const beam = products.map((p) => num(p.beam_angle_deg)).find(Boolean) ?? null
-  if (beam) sharedRows.push({ label: 'Beam angle', value: `${beam}°` })
+  const beam = products.map((p) => p.beam_angle).find(Boolean) ?? null
+  if (beam) sharedRows.push({ label: 'Beam angle', value: beam })
 
   // Efficacy genuinely differs per model AND per CCT (MiniLux: Single-NW
   // 120.83, Duo 114.58) — taking "whichever row the DB returned first" showed

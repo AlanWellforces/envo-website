@@ -94,7 +94,9 @@ export function specProperties(p: Product): Spec[] {
     p.efficacy_lm_w != null ? { name: 'Efficacy', value: p.efficacy_lm_w, unitText: 'lm/W' } : null,
     p.cct_k != null ? { name: 'Colour temperature', value: p.cct_k, unitText: 'K' } : null,
     p.cri != null ? { name: 'CRI', value: p.cri } : null,
-    p.beam_angle_deg != null ? { name: 'Beam angle', value: p.beam_angle_deg, unitText: '°' } : null,
+    // beam_angle is a display-ready string ("170°", "180° × 140°") — the unit
+    // lives inside the value, so no unitText.
+    p.beam_angle != null ? { name: 'Beam angle', value: p.beam_angle } : null,
     ip ? { name: 'Ingress protection', value: ip } : null,
     p.output_voltage_v != null ? { name: 'Output voltage', value: p.output_voltage_v, unitText: 'V' } : null,
     p.input_voltage_min_v != null && p.input_voltage_max_v != null

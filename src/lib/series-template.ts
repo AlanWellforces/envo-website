@@ -56,7 +56,7 @@ export function groupSeriesModels(products: Product[]): SeriesModel[] {
 // ─── Spec assemblers ────────────────────────────────────────────────────────
 
 export type SeriesSpecs = {
-  beamDeg: number | null
+  beam: string | null
   ip: string | null
   voltsDc: number | null
   lifetimeHrs: number | null
@@ -69,7 +69,7 @@ export type Feature = { title: string; note: string }
 export function buildStats(specs: SeriesSpecs, maxLm: number | null): { value: string; label: string }[] {
   return [
     maxLm ? { value: `${maxLm} lm`, label: 'max / module' } : null,
-    specs.beamDeg ? { value: `${specs.beamDeg}°`, label: 'beam angle' } : null,
+    specs.beam ? { value: specs.beam, label: 'beam angle' } : null,
     specs.ip ? { value: specs.ip, label: 'ingress' } : null,
     specs.cctOptions.length ? { value: `${specs.cctOptions.length} CCT`, label: 'colour temps' } : null,
   ].filter(Boolean) as { value: string; label: string }[]
@@ -115,7 +115,7 @@ export async function getSeriesTemplateProps(
   if (!copy || !products.length) return null
 
   const models = groupSeriesModels(products)
-  const beam = products.map((d) => num(d.beam_angle_deg)).find(Boolean) ?? null
+  const beam = products.map((d) => d.beam_angle).find(Boolean) ?? null
   const ipField = products.map((d) => d.waterproof).find((w) => w && /^ip\d+$/i.test(w))
   const ipSub = products.map((d) => d.subtitle?.match(/IP\s?(\d{2})/i)?.[1]).find(Boolean)
   const ip = ipField ? ipField.toUpperCase() : ipSub ? `IP${ipSub}` : null
@@ -131,7 +131,7 @@ export async function getSeriesTemplateProps(
   const lifetimeHrs = products.map((d) => num(d.lifetime_hrs)).find(Boolean) ?? null
   const maxLm = Math.max(0, ...products.map((d) => num(d.brightness_lm) ?? 0)) || null
 
-  const specs: SeriesSpecs = { beamDeg: beam, ip, voltsDc: volts, lifetimeHrs, cctOptions, certs }
+  const specs: SeriesSpecs = { beam, ip, voltsDc: volts, lifetimeHrs, cctOptions, certs }
   return {
     label: copy.label,
     headline: copy.headline,

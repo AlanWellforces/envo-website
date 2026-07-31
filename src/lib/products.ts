@@ -59,7 +59,7 @@ export type Product = {
   efficacy_lm_w: number | null
   cct_k: number | null
   cri: number | null
-  beam_angle_deg: number | null
+  beam_angle: string | null
   lifetime_hrs: number | null
   max_in_series: number | null
   led_chip_colour: string | null

@@ -16,7 +16,7 @@ const p = (over: Partial<Product> & Record<string, unknown>): Product => ({
   controller_type: null, output_channel: null, output_type: null, module_size: null,
   switch_no_module: null, switch_operation_method: null, switch_back_light: false,
   mounting_info: null, finish_colour: null, material: null, brightness_lm: null,
-  efficacy_lm_w: null, cct_k: null, cri: null, beam_angle_deg: null, lifetime_hrs: null,
+  efficacy_lm_w: null, cct_k: null, cri: null, beam_angle: null, lifetime_hrs: null,
   ...over,
 } as unknown as Product)
 
@@ -53,7 +53,7 @@ describe('groupSeriesModels', () => {
 import { buildStats, buildFeatures, type SeriesSpecs } from './series-template'
 
 const specs: SeriesSpecs = {
-  beamDeg: 170, ip: 'IP67', voltsDc: 12, lifetimeHrs: 50000,
+  beam: '170°', ip: 'IP67', voltsDc: 12, lifetimeHrs: 50000,
   cctOptions: ['WW=3000K', 'NW=4000K', 'CW=6500K'], certs: ['UL', 'CE', 'TÜV'],
 }
 

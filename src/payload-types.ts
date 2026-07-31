@@ -250,7 +250,10 @@ export interface Product {
   efficacy_lm_w?: number | null;
   cct_k?: number | null;
   cri?: number | null;
-  beam_angle_deg?: number | null;
+  /**
+   * Display-ready, e.g. "170°" or "180° × 140°" — synced from the Akeneo select.
+   */
+  beam_angle?: string | null;
   lifetime_hrs?: number | null;
   max_in_series?: number | null;
   led_chip_colour?: ('warm_white' | 'natural_white' | 'cool_white' | 'rgb' | 'rgbw' | 'tunable_white') | null;
@@ -1206,7 +1209,7 @@ export interface ProductsSelect {
   efficacy_lm_w?: boolean;
   cct_k?: boolean;
   cri?: boolean;
-  beam_angle_deg?: boolean;
+  beam_angle?: boolean;
   lifetime_hrs?: boolean;
   max_in_series?: boolean;
   led_chip_colour?: boolean;

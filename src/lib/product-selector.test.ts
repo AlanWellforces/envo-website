@@ -30,7 +30,7 @@ describe('getProductsForSelector', () => {
     mockList.mockResolvedValue({ docs: [{
       sku: 'EV-BLEG04LBY-NW', name: 'ENVO EcoGlo LED Module Backlit - Quad LED',
       series: 'envo_ecoglo', led_light_power_input: ['power_input_12V'],
-      power_w: 1.6, brightness_lm: 160, efficacy_lm_w: 100, cri: 80, beam_angle_deg: 170,
+      power_w: 1.6, brightness_lm: 160, efficacy_lm_w: 100, cri: 80, beam_angle: '170°',
       waterproof: 'ip65', max_in_series: 20, length_mm: 70, width_mm: 22, height_mm: 12,
       cct_k: 4000, clean_image_url_fallback: 'https://x/clean.png', image_url_fallback: null,
     }], totalDocs: 1, totalPages: 1 })

@@ -104,6 +104,28 @@ function getString(values: any, attr: string, scope?: string, locale?: string): 
   return String(d)
 }
 
+// Akeneo `beam_angle` is a SIMPLE SELECT; option codes encode plain degrees
+// ('170'), dual-axis optics ('180_140' = 180°×140°), ranges ('15_36' = 15–36°),
+// decimals ('7_3' = 7.3°) and stray '_degree' suffixes. The underscore alone
+// can't tell those apart, so every irregular code is mapped explicitly
+// (checked against the PIM option labels, 2026-07-31). Output is the
+// display-ready string the site renders verbatim.
+const BEAM_ANGLE_CODES: Record<string, string> = {
+  '180_140': '180° × 140°', '10_40': '10° × 40°', '10_65': '10° × 65°',
+  '15_30': '15° × 30°', '15_45': '15° × 45°', '5_30': '5° × 30°',
+  '15_36': '15–36°', '18_31': '18–31°', '36_60': '36–60°', '7_3': '7.3°',
+}
+
+function formatBeamAngle(codeRaw: unknown, sku: string): string | null {
+  if (codeRaw == null) return null
+  const code = String(codeRaw)
+  if (BEAM_ANGLE_CODES[code]) return BEAM_ANGLE_CODES[code]
+  const plain = code.replace(/_degree$/, '')
+  if (/^\d+(\.\d+)?$/.test(plain)) return `${plain}°`
+  console.warn(`[akeneo-sync] ${sku}: unrecognised beam_angle option '${code}' — add it to BEAM_ANGLE_CODES`)
+  return null
+}
+
 export function normalise(p: any): Record<string, any> {
   const v = p.values ?? {}
 
@@ -192,7 +214,7 @@ export function normalise(p: any): Record<string, any> {
     efficacy_lm_w:           getVal(v, 'efficacy') != null ? parseFloat(String(getVal(v, 'efficacy'))) : null,
     cct_k:                   getVal(v, 'cct_value') != null ? parseFloat(String(getVal(v, 'cct_value'))) : null,
     cri:                     getVal(v, 'cri') != null ? parseFloat(String(getVal(v, 'cri'))) : null,
-    beam_angle_deg:          getVal(v, 'beam_angle') != null ? parseFloat(String(getVal(v, 'beam_angle'))) : null,
+    beam_angle:              formatBeamAngle(getVal(v, 'beam_angle'), p.identifier),
     lifetime_hrs:            getAmount(v, 'life_time'),
     max_in_series:           getVal(v, 'max_no_series') != null ? parseFloat(String(getVal(v, 'max_no_series'))) : null,
     led_chip_colour:         (() => {
@@ -249,15 +271,14 @@ export function normalise(p: any): Record<string, any> {
  * - name / short_description / description / seo_*: the site carries manual
  *   lexicon + spelling corrections that are not yet backported to the PIM —
  *   syncing these would clobber them (audit notes/pim-vs-site-audit-2026-07-31.md).
- * - rated_current_a / beam_angle_deg: the PIM currently holds unit/format
- *   errors on these ("300" mA in the amp field, "180140" for 180°×140°).
- *   Remove from this list once the PIM values are fixed.
+ * - rated_current_a: the PIM currently holds unit errors here ("300" mA in
+ *   the amp field on the ENC drivers). Remove once the PIM values are fixed.
  * - hidden: admin-owned visibility flag, never synced.
  * Full-field updates (--full-fields) are for deliberate one-off runs only.
  */
 export const SYNC_PROTECTED_FIELDS = [
   'name', 'short_description', 'description', 'seo_title', 'seo_description',
-  'rated_current_a', 'beam_angle_deg', 'hidden',
+  'rated_current_a', 'hidden',
 ] as const
 
 export async function upsertProduct(
