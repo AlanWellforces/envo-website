@@ -409,11 +409,11 @@ export function buildMergedSeriesProps(
         : `L${lensMm} mm\n(${lensIn} in)`
       key('dims', 'Dimensions', value)
     }
-    // Every module line carries the same warranty on the distributor sites
-    // (envo-led.com, verified 2026-07-06). Prefer the PIM column the moment
-    // the sync fills it.
+    // Warranty comes from the PIM column (backfilled 2026-07-31; module lines
+    // carry 5/7/8 years per series). Mixed or missing data hides the row —
+    // never guess a number here.
     const warrantyYears = uniq(products.map((p) => num(p.warranty_years)).filter((w): w is number => w != null))
-    key('warranty', 'Warranty', warrantyYears.length === 1 ? `${warrantyYears[0]} years` : '5 years')
+    key('warranty', 'Warranty', warrantyYears.length === 1 ? `${warrantyYears[0]} years` : null)
   } else {
     // control gear / accessories — whatever identity facts the data carries
     key('input', 'Input voltage', sharedVoltage)

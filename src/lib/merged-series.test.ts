@@ -206,8 +206,8 @@ describe('hero key specs', () => {
 
   it('signage series: old-envo key-spec set — power, input V, max series, waterproof, dims, warranty', () => {
     const props = buildMergedSeriesProps(modulesFamily, 'envo_minilux', [
-      p({ sku: 'EV-BLML01LBY-NW', series: 'envo_minilux', family: 'led_module', name: 'MiniLux Single', subtitle: '12V 0.24W IP66', power_w: 0.24, max_in_series: 40, length_mm: 14, width_mm: 9, height_mm: 9 }),
-      p({ sku: 'EV-BLML03LBY-NW', series: 'envo_minilux', family: 'led_module', name: 'MiniLux Triple', subtitle: '12V 0.72W IP66', power_w: 0.72, max_in_series: 40, length_mm: 38.1, width_mm: 9, height_mm: 9 }),
+      p({ sku: 'EV-BLML01LBY-NW', series: 'envo_minilux', family: 'led_module', name: 'MiniLux Single', subtitle: '12V 0.24W IP66', power_w: 0.24, max_in_series: 40, length_mm: 14, width_mm: 9, height_mm: 9, warranty_years: 7 }),
+      p({ sku: 'EV-BLML03LBY-NW', series: 'envo_minilux', family: 'led_module', name: 'MiniLux Triple', subtitle: '12V 0.72W IP66', power_w: 0.72, max_in_series: 40, length_mm: 38.1, width_mm: 9, height_mm: 9, warranty_years: 7 }),
     ])
     const byLabel = Object.fromEntries((props.keySpecs ?? []).map((s) => [s.label, s.value]))
     expect(byLabel['Power']).toBe('0.24–0.72 W')
@@ -218,7 +218,7 @@ describe('hero key specs', () => {
     // multiple sizes → shared cross-section once, lengths slash-listed;
     // imperial twin on its own equal-size line
     expect(byLabel['Dimensions']).toBe('W9 × H9 × L14/38.1 mm\n(0.35 × 0.35 × 0.55/1.5 in)')
-    expect(byLabel['Warranty']).toBe('5 years')
+    expect(byLabel['Warranty']).toBe('7 years')
     expect((props.keySpecs ?? []).length).toBeLessThanOrEqual(6)
   })
 
