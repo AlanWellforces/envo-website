@@ -74,7 +74,7 @@ export const SOLUTIONS: Solution[] = [
       'Crisp, even-lit signage that reads at distance, day or night — matched modules and drivers for any face depth, engineered to stay even letter to letter.',
     checklist: [
       'Uniform brightness across faces',
-      'IP66 modules for outdoor faces',
+      'IP67 modules for outdoor faces',
       'Driver sizing done for you',
     ],
     useCases: ['Channel letters', 'Light boxes', 'Edge-lit signage', 'Pylon signs'],
@@ -112,8 +112,8 @@ export const SOLUTIONS: Solution[] = [
         text: 'Letter count and cable runs set the driver size and circuit split. We spec headroom into every layout so the last letter is as bright as the first.',
       },
       {
-        title: 'Outdoor faces need IP66',
-        text: 'Weather-exposed faces call for IP66-rated modules and outdoor-rated drivers — the difference between a warranty-grade install and a call-back.',
+        title: 'Outdoor faces need IP67',
+        text: 'Weather-exposed faces call for IP67-rated modules and outdoor-rated drivers — the difference between a warranty-grade install and a call-back.',
       },
       {
         title: 'Plan for serviceability',
@@ -156,7 +156,7 @@ export const SOLUTIONS: Solution[] = [
         name: 'MiniLux Backlit Module',
         desc: 'Compact backlit module for channel letters and shallow cabinets, with a wide beam for even fill at close depth.',
         img: '/assets/images/mod-mini.png',
-        spec: [['Beam angle', '180° × 140°'], ['Ingress', 'IP66'], ['CCT options', '3 (warm–cool)']],
+        spec: [['Beam angle', '180° × 140°'], ['Ingress', 'IP67'], ['CCT options', '3 (warm–cool)']],
         href: '/products/led-signage-modules?series=Mini%20Series',
       },
       {
@@ -292,7 +292,7 @@ export const SOLUTIONS: Solution[] = [
         name: 'EdgeLume Sidelit Module',
         desc: 'Side-lit module for slim edge-lit panels and facade bands, with uniform throw across long continuous runs.',
         img: '/assets/images/mod-sidelit.png',
-        spec: [['Type', 'Side-lit'], ['Ingress', 'IP66'], ['CCT options', 'Multiple']],
+        spec: [['Type', 'Side-lit'], ['Ingress', 'IP67'], ['CCT options', 'Multiple']],
         href: '/products/led-signage-modules?series=Sidelit',
       },
       {
