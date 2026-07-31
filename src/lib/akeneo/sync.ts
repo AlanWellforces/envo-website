@@ -281,11 +281,57 @@ export const SYNC_PROTECTED_FIELDS = [
   'hidden',
 ] as const
 
+export function stripProtectedFields(data: Record<string, any>): Record<string, any> {
+  const out = { ...data }
+  for (const f of SYNC_PROTECTED_FIELDS) delete out[f]
+  return out
+}
+
+/**
+ * Fields the sync writes but that must not count as "a change" when deciding
+ * whether a product needs an update: akeneo_synced_at is a timestamp we mint
+ * ourselves every run.
+ */
+const DIFF_IGNORED = new Set(['akeneo_synced_at', 'sku', 'brand'])
+
+function eqField(existing: any, incoming: any): boolean {
+  if (existing == null && incoming == null) return true
+  // booleans: Payload checkboxes come back false where the PIM has no value
+  if (typeof existing === 'boolean' || typeof incoming === 'boolean') {
+    return Boolean(existing ?? false) === Boolean(incoming ?? false)
+  }
+  if (Array.isArray(existing) || Array.isArray(incoming)) {
+    const norm = (arr: any) =>
+      (Array.isArray(arr) ? arr : arr == null ? [] : [arr])
+        .map((x: any) => (x && typeof x === 'object' ? String(x.code ?? JSON.stringify(x)) : String(x)))
+        .sort()
+    return JSON.stringify(norm(existing)) === JSON.stringify(norm(incoming))
+  }
+  // numbers survive the DB round-trip as numbers or numeric strings
+  const en = Number(existing)
+  const inn = Number(incoming)
+  if (existing != null && incoming != null && existing !== '' && incoming !== '' &&
+      Number.isFinite(en) && Number.isFinite(inn)) {
+    return en === inn
+  }
+  return String(existing ?? '') === String(incoming ?? '')
+}
+
+/** Which of `data`'s fields differ from the stored product. */
+export function diffProductFields(existing: Record<string, any>, data: Record<string, any>): string[] {
+  const changed: string[] = []
+  for (const [k, v] of Object.entries(data)) {
+    if (DIFF_IGNORED.has(k)) continue
+    if (!eqField(existing[k], v)) changed.push(k)
+  }
+  return changed
+}
+
 export async function upsertProduct(
   payload: PayloadInstance,
   data: Record<string, any>,
   opts: { specOnly?: boolean } = {},
-): Promise<{ status: 'created' | 'updated' | 'skipped_locked' | 'error'; error?: string }> {
+): Promise<{ status: 'created' | 'updated' | 'unchanged' | 'skipped_locked' | 'error'; error?: string }> {
   const existing = await payload.find({
     collection: 'products',
     where: { sku: { equals: data.sku } },
@@ -295,11 +341,8 @@ export async function upsertProduct(
     // sync_locked = editor owns this product fully — the sync must not touch it
     // (semantics documented on the Products collection field).
     if ((existing.docs[0] as any).sync_locked) return { status: 'skipped_locked' }
-    let updateData = data
-    if (opts.specOnly) {
-      updateData = { ...data }
-      for (const f of SYNC_PROTECTED_FIELDS) delete updateData[f]
-    }
+    const updateData = opts.specOnly ? stripProtectedFields(data) : data
+    if (diffProductFields(existing.docs[0] as any, updateData).length === 0) return { status: 'unchanged' }
     await payload.update({ collection: 'products', id: existing.docs[0].id, data: updateData as any })
     return { status: 'updated' }
   }
