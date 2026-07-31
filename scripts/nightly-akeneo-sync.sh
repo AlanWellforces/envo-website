@@ -69,9 +69,13 @@ log "running spec-only sync against prod..."
 # REVALIDATE_SECRET is blanked so the per-product afterChange hook no-ops
 # (it would ECONNREFUSED against the local dev URL from .env.local anyway);
 # the single full-tree revalidate below covers everything in one shot.
+# A partial failure must NOT abort the run: whatever DID sync is already in
+# the prod DB, so the revalidate below has to happen regardless.
+SYNC_RC=0
 PAYLOAD_DB_PUSH=false REVALIDATE_SECRET="" \
 DATABASE_URL="postgresql://$PGUSER:$PGPW@127.0.0.1:$TUNNEL_PORT/$PGDB" \
-  npx tsx --tsconfig tsconfig.json scripts/akeneo-sync.ts
+  npx tsx --tsconfig tsconfig.json scripts/akeneo-sync.ts || SYNC_RC=$?
+[ "$SYNC_RC" -eq 0 ] || log "WARNING: sync exited $SYNC_RC (some products failed) — revalidating anyway"
 
 # --- re-render + CF purge (route validates x-revalidate-secret; secret lives
 #     only in the prod container env, fetched fresh so it never sits on disk)
@@ -83,4 +87,5 @@ HTTP=$(curl -s -o /tmp/envo-reval-resp.json -w '%{http_code}' -X POST \
 log "revalidate HTTP $HTTP $(cat /tmp/envo-reval-resp.json 2>/dev/null)"
 [ "$HTTP" = "200" ] || { log "ERROR: revalidate failed"; exit 1; }
 
+[ "$SYNC_RC" -eq 0 ] || { log "nightly sync finished WITH FAILURES (rc=$SYNC_RC)"; exit "$SYNC_RC"; }
 log "nightly sync complete"
