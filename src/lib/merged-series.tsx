@@ -255,8 +255,8 @@ export function buildMergedSeriesProps(
 
   if (sharedVoltage) sharedRows.push({ label: 'Input voltage', value: sharedVoltage })
 
-  const beam = products.map((p) => num(p.beam_angle_deg)).find(Boolean) ?? null
-  if (beam) sharedRows.push({ label: 'Beam angle', value: `${beam}°` })
+  const beam = products.map((p) => p.beam_angle).find(Boolean) ?? null
+  if (beam) sharedRows.push({ label: 'Beam angle', value: beam })
 
   // Efficacy genuinely differs per model AND per CCT (MiniLux: Single-NW
   // 120.83, Duo 114.58) — taking "whichever row the DB returned first" showed
@@ -409,11 +409,11 @@ export function buildMergedSeriesProps(
         : `L${lensMm} mm\n(${lensIn} in)`
       key('dims', 'Dimensions', value)
     }
-    // Every module line carries the same warranty on the distributor sites
-    // (envo-led.com, verified 2026-07-06). Prefer the PIM column the moment
-    // the sync fills it.
+    // Warranty comes from the PIM column (backfilled 2026-07-31; module lines
+    // carry 5/7/8 years per series). Mixed or missing data hides the row —
+    // never guess a number here.
     const warrantyYears = uniq(products.map((p) => num(p.warranty_years)).filter((w): w is number => w != null))
-    key('warranty', 'Warranty', warrantyYears.length === 1 ? `${warrantyYears[0]} years` : '5 years')
+    key('warranty', 'Warranty', warrantyYears.length === 1 ? `${warrantyYears[0]} years` : null)
   } else {
     // control gear / accessories — whatever identity facts the data carries
     key('input', 'Input voltage', sharedVoltage)
