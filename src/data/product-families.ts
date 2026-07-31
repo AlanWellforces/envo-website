@@ -298,20 +298,20 @@ export const PRODUCT_FAMILIES: ProductFamily[] = [
       {
         label: 'Mini Series',
         productName: 'MiniLux Backlit',
-        shortDesc: 'The thinnest backlit module ENVO makes — 8.9 mm, Diamondback lens, IP66.',
+        shortDesc: 'The thinnest backlit module ENVO makes — 8.9 mm, Diamondback lens, IP67.',
         image: '/assets/images/mod-mini.png',
         compareSpec: {
           ledConfig: 'Single · Duo · Triple',
           voltage: '12V DC',
           power: '0.24 / 0.48 / 0.72 W',
           beam: '180° × 140°',
-          ipRating: 'IP66',
+          ipRating: 'IP67',
           bestFor: 'Shallow cabinets (30–80 mm)',
         },
         ...seriesRoute('led-signage-modules', 'envo_minilux'),
         subtitle: 'Backlit LED module · Signage Modules',
         description:
-          'A single 0.24 W SMD 2835 LED behind a Diamondback 180° × 140° optic lens, encapsulated to IP66, on a 12 V DC constant-voltage bus. Triple, Duo and Single variants share the same chip, lens and driver — pick by how much light each unit length needs to throw.',
+          'A single 0.24 W SMD 2835 LED behind a Diamondback 180° × 140° optic lens, encapsulated to IP67, on a 12 V DC constant-voltage bus. Triple, Duo and Single variants share the same chip, lens and driver — pick by how much light each unit length needs to throw.',
       },
       {
         label: 'Eco Series',

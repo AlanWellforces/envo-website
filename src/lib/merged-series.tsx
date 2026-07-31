@@ -367,8 +367,8 @@ export function buildMergedSeriesProps(
   } else if (family.slug === 'led-signage-modules') {
     // Old-envo "Key Specifications" set (user screenshot 2026-07-06):
     // Power rating / Input voltage / Max series / Waterproof / Dimensions
-    // + Warranty. Voltage and IP fall back to the Akeneo SUBTITLE
-    // ("12V 0.48W IP66") — the sync drops those columns for modules.
+    // + Warranty. Voltage and IP keep the Akeneo SUBTITLE ("12V 0.48W IP67")
+    // as a fallback for rows the columns don't cover.
     key('power', 'Power', powerRange)
     const volts = uniq(
       products
