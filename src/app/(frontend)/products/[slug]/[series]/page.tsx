@@ -204,11 +204,11 @@ export default async function SeriesDetailPage({ params }: { params: Params }) {
         eyebrow="Signage modules · Backlit"
         title="MiniLux Series"
         heroSubtitle="Ultra-compact backlit modules for small letters and shallow, intricate depths — even spread with no hotspots."
-        intro="The compact backlit module for small letters and intricate detail. A 180° × 140° Diamondback lens spreads light evenly with no hotspots, even on shallow returns — silicone-potted to IP66."
+        intro="The compact backlit module for small letters and intricate detail. A 180° × 140° Diamondback lens spreads light evenly with no hotspots, even on shallow returns — silicone-potted to IP67."
         beadtag="MiniLux range · 1–3 LED beads"
         checklist={[
           'Even spread, no hotspots — Diamondback 180° × 140° optic',
-          'Silicone-potted IP66 — built for outdoor channel letters',
+          'Silicone-potted IP67 — built for outdoor channel letters',
           'Up to ~40 modules per power-injection feed',
           '50,000-hour L70 rated life',
         ]}
@@ -216,11 +216,11 @@ export default async function SeriesDetailPage({ params }: { params: Params }) {
           { icon: 'power', label: 'Power', value: '0.24–0.72 W' },
           { icon: 'vsource', label: 'Input voltage', value: '12 V DC' },
           { icon: 'maxseries', label: 'Max series', value: '40' },
-          { icon: 'waterproof', label: 'IP rating', value: 'IP66' },
+          { icon: 'waterproof', label: 'IP rating', value: 'IP67' },
           // mm line + imperial twin line — shared 9×9 profile once, the
           // varying lengths slash-listed
           { icon: 'dims', label: 'Dimensions', value: 'W9 × H9 × L14/26/38 mm\n(0.35 × 0.35 × 0.55/1.02/1.5 in)' },
-          { icon: 'warranty', label: 'Warranty', value: '5 years' },
+          { icon: 'warranty', label: 'Warranty', value: '7 years' },
         ]}
         datasheetUrl={datasheetUrl}
         purchaseLinks={seriesPurchaseLinks('envo_minilux', 'MiniLux')}
@@ -239,7 +239,7 @@ export default async function SeriesDetailPage({ params }: { params: Params }) {
           { label: 'Input voltage', value: '12 V DC · constant voltage' },
           { label: 'Beam angle', value: '180° × 140° · Diamondback optic' },
           { label: 'Efficacy', value: '~ 125 lm / W' },
-          { label: 'IP rating', value: 'IP66 · silicone-potted' },
+          { label: 'IP rating', value: 'IP67 · silicone-potted' },
           {
             label: 'Operating temp',
             value: (
@@ -264,13 +264,13 @@ export default async function SeriesDetailPage({ params }: { params: Params }) {
         ]}
         overview={{
           heading: 'Engineered to specify with confidence.',
-          body: 'The MiniLux range is one to three binned SMD LEDs behind a Diamondback lens that throws a 180° × 140° beam — so light reaches the face evenly with no scalloping, even on shallow returns and tight radii. Every module is silicone-potted to IP66 and rated for −25 °C to +60 °C, so the same part number performs across climates. Run up to ~40 modules per power-injection point on a 12 V constant-voltage feed.',
+          body: 'The MiniLux range is one to three binned SMD LEDs behind a Diamondback lens that throws a 180° × 140° beam — so light reaches the face evenly with no scalloping, even on shallow returns and tight radii. Every module is silicone-potted to IP67 and rated for −25 °C to +60 °C, so the same part number performs across climates. Run up to ~40 modules per power-injection point on a 12 V constant-voltage feed.',
         }}
         solutions={[
           { title: 'Channel letters', pick: 'small & intricate faces', image: img('app-mini-channel-letters.jpg', 'Channel letters', true) },
           { title: 'Light boxes', pick: 'even backlight, no hotspots', image: img('app-mini-thin-lightbox.jpg', 'Thin light box', true) },
           { title: 'Outline & trim', pick: 'wide 180°×140° spread', image: img('app-mini-outline-trim.jpg', 'Outline trim', true) },
-          { title: 'Outdoor signage', pick: 'IP66 · −25 to +60 °C', image: img('app-mini-hospitality-facade.jpg', 'Hospitality facade', true) },
+          { title: 'Outdoor signage', pick: 'IP67 · −25 to +60 °C', image: img('app-mini-hospitality-facade.jpg', 'Hospitality facade', true) },
         ]}
         downloads={[{ name: 'MiniLux datasheet', meta: 'PDF', href: datasheetUrl }]}
         related={related.length ? related : undefined}

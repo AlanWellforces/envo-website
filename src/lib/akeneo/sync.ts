@@ -132,7 +132,7 @@ export function normalise(p: any): Record<string, any> {
   const ipRaw = getString(v, 'waterproof') ?? ''
   const ipMap: Record<string, string> = {
     non_waterproof: 'non_waterproof', ip20: 'ip20', ip44: 'ip44',
-    ip65: 'ip65', ip67: 'ip67', ip68: 'ip68',
+    ip65: 'ip65', ip66: 'ip66', ip67: 'ip67', ip68: 'ip68',
   }
 
   const opRaw = getString(v, 'operation_mode') ?? ''
@@ -243,17 +243,43 @@ export function normalise(p: any): Record<string, any> {
   }
 }
 
+/**
+ * Fields the sync must NOT overwrite on existing products (spec-only mode,
+ * the default for the nightly run):
+ * - name / short_description / description / seo_*: the site carries manual
+ *   lexicon + spelling corrections that are not yet backported to the PIM —
+ *   syncing these would clobber them (audit notes/pim-vs-site-audit-2026-07-31.md).
+ * - rated_current_a / beam_angle_deg: the PIM currently holds unit/format
+ *   errors on these ("300" mA in the amp field, "180140" for 180°×140°).
+ *   Remove from this list once the PIM values are fixed.
+ * - hidden: admin-owned visibility flag, never synced.
+ * Full-field updates (--full-fields) are for deliberate one-off runs only.
+ */
+export const SYNC_PROTECTED_FIELDS = [
+  'name', 'short_description', 'description', 'seo_title', 'seo_description',
+  'rated_current_a', 'beam_angle_deg', 'hidden',
+] as const
+
 export async function upsertProduct(
   payload: PayloadInstance,
   data: Record<string, any>,
-): Promise<{ status: 'created' | 'updated' | 'error'; error?: string }> {
+  opts: { specOnly?: boolean } = {},
+): Promise<{ status: 'created' | 'updated' | 'skipped_locked' | 'error'; error?: string }> {
   const existing = await payload.find({
     collection: 'products',
     where: { sku: { equals: data.sku } },
     limit: 1,
   })
   if (existing.docs.length > 0) {
-    await payload.update({ collection: 'products', id: existing.docs[0].id, data: data as any })
+    // sync_locked = editor owns this product fully — the sync must not touch it
+    // (semantics documented on the Products collection field).
+    if ((existing.docs[0] as any).sync_locked) return { status: 'skipped_locked' }
+    let updateData = data
+    if (opts.specOnly) {
+      updateData = { ...data }
+      for (const f of SYNC_PROTECTED_FIELDS) delete updateData[f]
+    }
+    await payload.update({ collection: 'products', id: existing.docs[0].id, data: updateData as any })
     return { status: 'updated' }
   }
   await payload.create({ collection: 'products', data: data as any })
