@@ -271,14 +271,14 @@ export function normalise(p: any): Record<string, any> {
  * - name / short_description / description / seo_*: the site carries manual
  *   lexicon + spelling corrections that are not yet backported to the PIM —
  *   syncing these would clobber them (audit notes/pim-vs-site-audit-2026-07-31.md).
- * - rated_current_a: the PIM currently holds unit errors here ("300" mA in
- *   the amp field on the ENC drivers). Remove once the PIM values are fixed.
  * - hidden: admin-owned visibility flag, never synced.
+ * (rated_current_a was protected while the PIM held mA-as-A unit errors on
+ * the ENC drivers; those were corrected in the PIM on 2026-07-31.)
  * Full-field updates (--full-fields) are for deliberate one-off runs only.
  */
 export const SYNC_PROTECTED_FIELDS = [
   'name', 'short_description', 'description', 'seo_title', 'seo_description',
-  'rated_current_a', 'hidden',
+  'hidden',
 ] as const
 
 export async function upsertProduct(
