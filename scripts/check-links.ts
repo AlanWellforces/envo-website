@@ -48,8 +48,13 @@ function warn(check: string, url: string, detail: string, foundOn?: string) {
   warnings.push({ check, url, detail, foundOn })
 }
 
+// Backoff long enough to ride out the ~1 min container swap when a crawl
+// overlaps a deploy — a plain double-tap turned that window into 6 phantom
+// dead links (run #84).
+const RETRY_DELAYS_MS = [5_000, 15_000, 30_000]
+
 async function request(url: string, redirect: 'follow' | 'manual'): Promise<Response | null> {
-  for (let attempt = 1; attempt <= 2; attempt++) {
+  for (let attempt = 0; ; attempt++) {
     try {
       const res = await fetch(url, {
         redirect,
@@ -58,13 +63,13 @@ async function request(url: string, redirect: 'follow' | 'manual'): Promise<Resp
       })
       return res
     } catch (e) {
-      if (attempt === 2) {
-        fail('network', url, `request failed twice: ${(e as Error).message}`)
+      if (attempt >= RETRY_DELAYS_MS.length) {
+        fail('network', url, `request failed ${attempt + 1} times: ${(e as Error).message}`)
         return null
       }
+      await new Promise((r) => setTimeout(r, RETRY_DELAYS_MS[attempt]))
     }
   }
-  return null
 }
 
 /** Fetch headers + drop the body (don't download PDFs/videos). */
