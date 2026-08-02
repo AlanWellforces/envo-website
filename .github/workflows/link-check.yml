@@ -27,7 +27,7 @@ on:
 jobs:
   check-links:
     runs-on: ubuntu-latest
-    timeout-minutes: 30
+    timeout-minutes: 40
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
@@ -37,5 +37,21 @@ jobs:
       - run: npm ci --ignore-scripts
       - name: Wait for the box to deploy this push
         if: github.event_name == 'push'
-        run: sleep 420 # poll timer ~3 min + build; generous margin
+        # A fixed sleep raced slow builds (run #84 hit a mid-deploy outage and
+        # reported 6 phantom dead links) — after the usual poll-timer + build
+        # window, poll until the site is actually serving again: 3 consecutive
+        # 200s so we don't start crawling in the middle of the container swap.
+        run: |
+          sleep 420 # poll timer ~3 min + typical build
+          deadline=$(( $(date +%s) + 900 ))
+          streak=0
+          while [ "$(date +%s)" -lt "$deadline" ]; do
+            code=$(curl -s -o /dev/null -w '%{http_code}' --max-time 10 https://envolighting.com/ || echo 000)
+            if [ "$code" = "200" ]; then streak=$((streak + 1)); else streak=0; fi
+            echo "homepage → $code (healthy streak $streak/3)"
+            if [ "$streak" -ge 3 ]; then exit 0; fi
+            sleep 10
+          done
+          echo "::error::site not healthy 22+ min after push — deploy stuck or site down"
+          exit 1
       - run: npx tsx scripts/check-links.ts --base https://envolighting.com
