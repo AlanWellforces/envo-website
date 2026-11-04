@@ -136,7 +136,8 @@ export function normalise(p: any): Record<string, any> {
     pwm: 'pwm', triac: 'triac', casambi: 'casambi', dmx: 'dmx', knx: 'knx',
     matter: 'matter', zigbee: 'zigbee',
   }
-  const dimming_control = dimmingArr.map(d => dimmingMap[String(d).toLowerCase()] ?? null).filter(Boolean) as string[]
+  // dali + dali2 both map to 'dali' (and 0_10v + 1_10v to '0_10v'): de-duplicate.
+  const dimming_control = [...new Set(dimmingArr.map(d => dimmingMap[String(d).toLowerCase()] ?? null).filter(Boolean))] as string[]
 
   // Akeneo emits canonical cert codes (e.g. 'c_ce', 'c_cul') that match our
   // Payload select values 1:1 — keep the known ones, log unknowns (don't drop
@@ -317,11 +318,21 @@ function eqField(existing: any, incoming: any): boolean {
   return String(existing ?? '') === String(incoming ?? '')
 }
 
+/**
+ * Old Akeneo had both 'non_waterproof' and 'ip20'; the new PIM (2026-11-05)
+ * merged them into 'ip20'. A stored 'non_waterproof' is the same fact, so it
+ * must not count as a change (it would rewrite ~46 products every night).
+ */
+function sameWaterproof(existing: any, incoming: any): boolean {
+  return existing === 'non_waterproof' && incoming === 'ip20'
+}
+
 /** Which of `data`'s fields differ from the stored product. */
 export function diffProductFields(existing: Record<string, any>, data: Record<string, any>): string[] {
   const changed: string[] = []
   for (const [k, v] of Object.entries(data)) {
     if (DIFF_IGNORED.has(k)) continue
+    if (k === 'waterproof' && sameWaterproof(existing[k], v)) continue
     if (!eqField(existing[k], v)) changed.push(k)
   }
   return changed

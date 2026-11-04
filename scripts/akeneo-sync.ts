@@ -3,7 +3,7 @@
    Akeneo REST payloads and Payload docs are handled as loose shapes here by
    design, same as src/lib/akeneo/sync.ts. */
 /**
- * Akeneo → Payload sync script (uses Payload local API — no auth needed).
+ * PIM → Payload sync script (new PIM since 2026-11-05, via src/lib/pim/newpim.ts) (uses Payload local API — no auth needed).
  * All field mapping lives in src/lib/akeneo/sync.ts (single source — this file
  * is only the CLI orchestration; the two used to fork and drift, see
  * notes/pim-vs-site-audit-2026-07-31.md).
@@ -74,6 +74,12 @@ const FULL_FIELDS = process.argv.includes('--full-fields')
 const FORCE = process.argv.includes('--force')
 const MIN_PRODUCTS = intFlag('--min-products', 250)
 const MAX_CHANGED = intFlag('--max-changed', 100)
+// --plan-only: read-only dry run. Prints every field that would change with its
+// stored and incoming value, writes the full plan to --plan-out (JSON), and
+// exits before the write phase. Used to validate the new-PIM adapter.
+const PLAN_ONLY = process.argv.includes('--plan-only')
+const planOutArg = process.argv.indexOf('--plan-out')
+const PLAN_OUT = planOutArg !== -1 ? process.argv[planOutArg + 1] : null
 
 async function main() {
   console.log(`\nAkeneo sync — ${SKU ? `single SKU ${SKU}` : LIMIT ? `test mode (${LIMIT} products)` : 'full sync'}${FULL_FIELDS ? ' [FULL FIELDS]' : ' [spec-only]'}${FORCE ? ' [guards bypassed]' : ''}\n`)
@@ -81,23 +87,22 @@ async function main() {
   // Dynamic imports AFTER env is loaded (see top-of-file note).
   const { getPayload } = await import('payload')
   const { default: config } = await import('../src/payload.config.ts')
-  const { getAkeneoToken, fetchEnvoProducts, normalise, diffProductFields, stripProtectedFields } =
+  const { normalise, diffProductFields, stripProtectedFields } =
     await import('../src/lib/akeneo/sync.ts')
+  // Product source: the new PIM (Akeneo retired 2026-11-05). The adapter returns
+  // products in the legacy Akeneo shape, so normalise() and the guards are unchanged.
+  const { fetchEnvoProducts } = await import('../src/lib/pim/newpim.ts')
   const payload = await getPayload({ config })
 
-  console.log('Authenticating with Akeneo...')
-  const token = await getAkeneoToken()
-  console.log('✓ Token obtained\n')
-
-  console.log('Fetching products from Akeneo...')
-  const products = await fetchEnvoProducts(token, LIMIT, SKU)
+  console.log('Fetching products from the new PIM...')
+  const products = await fetchEnvoProducts(LIMIT, SKU)
   console.log(`✓ Fetched ${products.length} products\n`)
 
   // Guard 1: a full run on a suspiciously small catalogue is an upstream
   // problem — refuse rather than mass-disable/mass-null.
   const isFullRun = !SKU && !LIMIT
   if (isFullRun && !FORCE && products.length < MIN_PRODUCTS) {
-    console.error(`ABORT: Akeneo returned only ${products.length} products (< ${MIN_PRODUCTS}). Refusing full sync — rerun with --force if this is genuinely expected.`)
+    console.error(`ABORT: the PIM returned only ${products.length} products (< ${MIN_PRODUCTS}). Refusing full sync — rerun with --force if this is genuinely expected.`)
     process.exit(2)
   }
 
@@ -129,6 +134,20 @@ async function main() {
     console.log(`  ~ ${pl.sku.padEnd(22)} ${pl.kind}${pl.fields ? ': ' + pl.fields.join(', ') : ''}`)
   }
   if (plans.length > 40) console.log(`  … and ${plans.length - 40} more`)
+
+  if (PLAN_ONLY) {
+    const detail = plans.map(pl => {
+      const ex = bySku.get(pl.sku) as any
+      const fields = pl.fields ?? Object.keys(pl.data)
+      return {
+        sku: pl.sku, kind: pl.kind,
+        changes: Object.fromEntries(fields.map(f => [f, { stored: ex?.[f] ?? null, incoming: pl.data[f] ?? null }])),
+      }
+    })
+    if (PLAN_OUT) fs.writeFileSync(PLAN_OUT, JSON.stringify({ fetched: products.length, unchanged, locked, plans: detail }, null, 1))
+    console.log(`\nPLAN-ONLY: no writes performed.${PLAN_OUT ? ` Plan written to ${PLAN_OUT}` : ''}`)
+    process.exit(0)
+  }
 
   // Guard 2: a change set this large is not a nightly drift — it's either a
   // deliberate migration (rerun with --force) or a PIM-side accident.
