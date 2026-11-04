@@ -273,6 +273,7 @@ export function normalise(p: any): Record<string, any> {
  *   lexicon + spelling corrections that are not yet backported to the PIM —
  *   syncing these would clobber them (audit notes/pim-vs-site-audit-2026-07-31.md).
  * - hidden: admin-owned visibility flag, never synced.
+ * - price_nzd: price sync from the new PIM is on hold (2026-11-05).
  * (rated_current_a was protected while the PIM held mA-as-A unit errors on
  * the ENC drivers; those were corrected in the PIM on 2026-07-31.)
  * Full-field updates (--full-fields) are for deliberate one-off runs only.
@@ -280,6 +281,9 @@ export function normalise(p: any): Record<string, any> {
 export const SYNC_PROTECTED_FIELDS = [
   'name', 'short_description', 'description', 'seo_title', 'seo_description',
   'hidden',
+  // price_nzd: price updates from the new PIM are on hold until the pricing
+  // flow is agreed (2026-11-05); the stored price is kept as-is.
+  'price_nzd',
 ] as const
 
 export function stripProtectedFields(data: Record<string, any>): Record<string, any> {

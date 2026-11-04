@@ -155,13 +155,14 @@ export async function toLegacy(p: any): Promise<any> {
     }))
   }
   // ENVO's own Akeneo channel (envo_nz) no longer exists; normalise() prefers
-  // it for name/subtitle/price, so alias the master values onto it.
+  // it for name/subtitle, so alias the master values onto it.
   for (const attr of ['product_name', 'subtitle']) {
     const master = out[attr]?.find(e => e.scope === 'master_catalogue' && e.locale === 'en_US')
     if (master && !out[attr].some(e => e.scope === 'envo_nz')) out[attr].push({ ...master, scope: 'envo_nz' })
   }
-  const nzPrice = out.price_retail?.find(e => e.scope === 'wf_nz')
-  if (nzPrice) out.price_retail.push({ ...nzPrice, scope: 'envo_nz' })
+  // Prices are NOT synced from the new PIM yet (user decision 2026-11-05, to be
+  // discussed): there is no envo_nz channel, so price_nzd normalises to null on
+  // creates, and SYNC_PROTECTED_FIELDS keeps the stored price on updates.
 
   const certs = await legacyCertCodes()
   const cert = p.values?.certifications?.[0]?.data
