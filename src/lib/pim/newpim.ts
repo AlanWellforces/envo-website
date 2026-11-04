@@ -136,6 +136,14 @@ async function legacyCertCodes(): Promise<Map<string, string>> {
   return certMap
 }
 
+/** New certification code → legacy option code. 'fc' is the old Akeneo FCC
+ *  variant (c_fc); a few PIM records still hold legacy codes ('c_ce') verbatim. */
+const legacyCert = (certs: Map<string, string>) => (c: string): string => {
+  if (c.startsWith('c_')) return c.toLowerCase()
+  const legacy = certs.get(c) ?? `c_${c}`
+  return legacy === 'c_fc' ? 'c_fcc' : legacy
+}
+
 function mapOption(legacyAttr: string, data: any): any {
   const m = OPTION_TO_LEGACY[legacyAttr]
   if (!m) return data
@@ -167,7 +175,7 @@ export async function toLegacy(p: any): Promise<any> {
   const certs = await legacyCertCodes()
   const cert = p.values?.certifications?.[0]?.data
   delete out.certifications
-  if (Array.isArray(cert)) out.standards_met = [{ locale: null, scope: null, data: cert.map((c: string) => certs.get(c) ?? `c_${c}`) }]
+  if (Array.isArray(cert)) out.standards_met = [{ locale: null, scope: null, data: [...new Set(cert.map(legacyCert(certs)))] }]
 
   const img = async (newAttr: string, legacyAttr: string) => {
     delete out[newAttr]
