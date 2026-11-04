@@ -63,6 +63,31 @@ export const OPTION_TO_LEGACY: Record<string, Record<string, string>> = {
 }
 
 /** new channel code → legacy Akeneo scope used by normalise() */
+/**
+ * Site-placement pins (user decision 2026-11-05). The new PIM moved these SKUs
+ * to series `envo_dali` (and SR-2422NK2-DA2 to another family). `envo_dali` is
+ * a gated range on the site (RANGES_NOT_ON_OLD_SITE), so the first new-PIM sync
+ * hid all 14 and their pages returned 404. Keep their previous series/family so
+ * they stay on the pages they had before. Remove a pin once the site's series
+ * set is reorganised.
+ */
+export const SITE_PINS: Record<string, { series?: string; family?: string }> = {
+  'SRP-2305N-10CC100-500': { series: 'sr_triac' },
+  'SRP-2305N-15CC100-700': { series: 'sr_triac' },
+  'SRP-2305N-25CC250-700': { series: 'sr_triac' },
+  'SRP-2305N-36CC350-1050': { series: 'sr_triac' },
+  'SRP-2305N-45CC500-1400': { series: 'sr_triac' },
+  'SRP-2305N-65CC500-1500': { series: 'sr_triac' },
+  'SR-2701S-N': { series: 'sr_triac' },
+  'SR-2701S-DT7': { series: 'sr_triac' },
+  'SR-2422K8-DA2': { series: 'sr_triac' },
+  'SR-2422NK2-DA2': { series: 'sr_triac', family: 'switch_switch_module' },
+  'SR-2422NK4-DA2': { series: 'sr_triac' },
+  'SR-2422NK8-DA2': { series: 'sr_triac' },
+  'SR-2422T8-DA2': { series: 'sr_triac' },
+  'SR-2309PRO-5C': { series: 'envo_zigbee' },
+}
+
 const CHANNEL_TO_SCOPE: Record<string, string> = {
   master: 'master_catalogue',
 }
@@ -184,12 +209,13 @@ export async function toLegacy(p: any): Promise<any> {
     if (url) out.spec_sheet = [{ locale: null, scope: null, data: sheetIds[0], aws: url }]
   }
 
-  const series = p.values?.series?.[0]?.data
+  const pin = SITE_PINS[p.identifier]
+  const series = pin?.series ?? p.values?.series?.[0]?.data
   if (series != null) out.series = [{ locale: null, scope: null, data: series }]
 
   return {
     identifier: p.identifier,
-    family: p.family ?? null,
+    family: pin?.family ?? p.family ?? null,
     enabled: p.enabled ?? true,
     categories: p.categories ?? [],
     values: out,
