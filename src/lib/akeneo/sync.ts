@@ -136,7 +136,8 @@ export function normalise(p: any): Record<string, any> {
     pwm: 'pwm', triac: 'triac', casambi: 'casambi', dmx: 'dmx', knx: 'knx',
     matter: 'matter', zigbee: 'zigbee',
   }
-  const dimming_control = dimmingArr.map(d => dimmingMap[String(d).toLowerCase()] ?? null).filter(Boolean) as string[]
+  // dali + dali2 both map to 'dali' (and 0_10v + 1_10v to '0_10v'): de-duplicate.
+  const dimming_control = [...new Set(dimmingArr.map(d => dimmingMap[String(d).toLowerCase()] ?? null).filter(Boolean))] as string[]
 
   // Akeneo emits canonical cert codes (e.g. 'c_ce', 'c_cul') that match our
   // Payload select values 1:1 — keep the known ones, log unknowns (don't drop
@@ -272,6 +273,7 @@ export function normalise(p: any): Record<string, any> {
  *   lexicon + spelling corrections that are not yet backported to the PIM —
  *   syncing these would clobber them (audit notes/pim-vs-site-audit-2026-07-31.md).
  * - hidden: admin-owned visibility flag, never synced.
+ * - price_nzd: price sync from the new PIM is on hold (2026-11-05).
  * (rated_current_a was protected while the PIM held mA-as-A unit errors on
  * the ENC drivers; those were corrected in the PIM on 2026-07-31.)
  * Full-field updates (--full-fields) are for deliberate one-off runs only.
@@ -279,6 +281,9 @@ export function normalise(p: any): Record<string, any> {
 export const SYNC_PROTECTED_FIELDS = [
   'name', 'short_description', 'description', 'seo_title', 'seo_description',
   'hidden',
+  // price_nzd: price updates from the new PIM are on hold until the pricing
+  // flow is agreed (2026-11-05); the stored price is kept as-is.
+  'price_nzd',
 ] as const
 
 export function stripProtectedFields(data: Record<string, any>): Record<string, any> {
@@ -317,11 +322,21 @@ function eqField(existing: any, incoming: any): boolean {
   return String(existing ?? '') === String(incoming ?? '')
 }
 
+/**
+ * Old Akeneo had both 'non_waterproof' and 'ip20'; the new PIM (2026-11-05)
+ * merged them into 'ip20'. A stored 'non_waterproof' is the same fact, so it
+ * must not count as a change (it would rewrite ~46 products every night).
+ */
+function sameWaterproof(existing: any, incoming: any): boolean {
+  return existing === 'non_waterproof' && incoming === 'ip20'
+}
+
 /** Which of `data`'s fields differ from the stored product. */
 export function diffProductFields(existing: Record<string, any>, data: Record<string, any>): string[] {
   const changed: string[] = []
   for (const [k, v] of Object.entries(data)) {
     if (DIFF_IGNORED.has(k)) continue
+    if (k === 'waterproof' && sameWaterproof(existing[k], v)) continue
     if (!eqField(existing[k], v)) changed.push(k)
   }
   return changed
