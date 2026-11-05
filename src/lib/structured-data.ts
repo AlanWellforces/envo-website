@@ -3,8 +3,15 @@
 //
 // Constraints baked in (see CLAUDE.md copy rules + product-db memory):
 //   - NO price / offers. This is a lead-gen site; price_nzd never surfaces.
-//     Google's Product structured data is valid without `offers` — it just
-//     won't earn a price/merchant rich result, which we don't want anyway.
+//     Google's Product structured data parses fine without `offers`, but
+//     Product *snippets* require one of offers / review / aggregateRating —
+//     and we can supply none of them honestly (see below). Search Console
+//     therefore reports a "critical" Product snippets issue ("Either
+//     'offers', 'review', or 'aggregateRating' should be specified"). This is
+//     EXPECTED and accepted (decision 2026-11-06): it only forfeits the
+//     price/star rich result; pages still index and rank, and BreadcrumbList
+//     etc. are unaffected. Do NOT "fix" it by adding a price-less Offer or
+//     dropping the Product type.
 //   - Brand is "ENVO"; the legal entity is "Envo". Contact contact@envolighting.com.
 //   - Certifications only where the SKU actually carries `standards_met` — never
 //     a blanket claim (certs cover selected ranges only).
