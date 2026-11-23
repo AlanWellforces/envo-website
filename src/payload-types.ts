@@ -302,6 +302,9 @@ export interface Product {
         | 'c_selv'
         | 'c_enec'
         | 'c_lm80'
+        | 'c_ukca'
+        | 'c_weee'
+        | 'c_ccc'
       )[]
     | null;
   warranty_years?: number | null;

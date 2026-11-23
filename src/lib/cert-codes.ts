@@ -8,7 +8,9 @@
  * now import this list instead of maintaining their own copy.
  *
  * Codes below are exactly those observed in use across the envo catalogue
- * (Akeneo scan 2026-06-08). Add a new entry here when PIM introduces a new cert.
+ * (Akeneo scan 2026-06-08), plus c_ukca / c_weee / c_ccc from the new PIM
+ * (2026-11). Add a new entry here when PIM introduces a new cert — and add a
+ * migration (ALTER TYPE enum_products_standards_met ADD VALUE) for prod.
  */
 export const CERT_OPTIONS = [
   { value: 'c_ce', label: 'CE' },
@@ -24,6 +26,9 @@ export const CERT_OPTIONS = [
   { value: 'c_selv', label: 'SELV' },
   { value: 'c_enec', label: 'ENEC' },
   { value: 'c_lm80', label: 'LM-80' },
+  { value: 'c_ukca', label: 'UKCA' },
+  { value: 'c_weee', label: 'WEEE' },
+  { value: 'c_ccc', label: 'CCC' },
 ] as const
 
 /** Set of valid cert codes, for fast membership checks in the sync. */
