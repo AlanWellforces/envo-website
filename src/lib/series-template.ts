@@ -89,6 +89,7 @@ export function buildFeatures(strengths: Feature[], specs: SeriesSpecs, modelCou
 const CERT_NAME: Record<string, string> = {
   c_ul: 'UL', c_cul: 'cUL', c_ce: 'CE', c_tuv: 'TÜV', c_rohs: 'RoHS',
   c_cb: 'CB', c_bis: 'BIS', c_ccc: 'CCC', c_fcc: 'FCC', c_fc: 'FCC', c_selv: 'SELV', c_lm80: 'LM-80',
+  c_ukca: 'UKCA', c_weee: 'WEEE',
 }
 const uniq = <T,>(a: T[]) => [...new Set(a)]
 
